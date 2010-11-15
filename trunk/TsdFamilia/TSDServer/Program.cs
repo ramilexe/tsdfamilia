@@ -22,7 +22,36 @@ namespace TSDServer
         [STAThread]
         static void Main()
         {
+            /*using (System.Data.SqlServerCe.SqlCeConnection conn =
+                new System.Data.SqlServerCe.SqlCeConnection(
+                    "Data Source=Копия Products.sdf"))
+            {
+                conn.Open();
+                using (System.IO.StreamWriter writer =
+                    new System.IO.StreamWriter("test_goods.txt",true,System.Text.Encoding.GetEncoding("windows-1251")))
+                    {
+                using (System.Data.SqlServerCe.SqlCeCommand cmd
+                     = new System.Data.SqlServerCe.SqlCeCommand())
+                {
+                    cmd.CommandText = "select * from  productsTbl";
+                    cmd.Connection = conn;
+                    System.Data.SqlServerCe.SqlCeDataReader rdr = cmd.ExecuteReader();
+                    while (rdr.Read())
+                    {
+                        for (int i = 0; i < rdr.FieldCount; i++)
+                        {
+                            writer.Write("{0}|",rdr[i].ToString());
 
+                        }
+                        writer.Write("\n");
+                    }
+                    writer.Flush();
+                }
+                }
+            }
+            return;*/
+                
+            
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);

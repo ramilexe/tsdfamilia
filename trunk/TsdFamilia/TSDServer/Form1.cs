@@ -40,9 +40,15 @@ namespace TSDServer
         public event FinishImport OnFinishImport;
         public event FailedImport OnFailedImport;
         private System.Threading.Thread loadThread = null;
+
+
+        System.IO.Compression.DeflateStream stream = null;
+                        
+
+
         void SetFormats()
         {
-            cols = new string[productsDataSet1.ProductsTbl.Columns.Count];
+            cols = new string[productsDataSet1.ProductsBinTbl.Columns.Count];
             dateFormat.ShortDatePattern = Properties.Settings.Default.ShortDatePattern;
             dateFormat.DateSeparator = Properties.Settings.Default.DateSeparator;
             nfi.NumberDecimalSeparator = Properties.Settings.Default.NumberDecimalSeparator;
@@ -151,6 +157,7 @@ namespace TSDServer
 
         private void BeginImport(object _fileName)
         {
+            
             string fileName = _fileName.ToString();
             try
             {
@@ -175,8 +182,8 @@ namespace TSDServer
                 }
 
 
-                using (ProductsDataSetTableAdapters.ProductsTblTableAdapter tAdapter =
-                    new TSDServer.ProductsDataSetTableAdapters.ProductsTblTableAdapter())
+                using (ProductsDataSetTableAdapters.ProductsBinTblTableAdapter tAdapter =
+                    new TSDServer.ProductsDataSetTableAdapters.ProductsBinTblTableAdapter())
                 {
 
                     tAdapter.Update(this.productsDataSet1);
@@ -201,15 +208,36 @@ namespace TSDServer
 
         private void ParseColumn(int i, DataRow row)
         {
-            if (productsDataSet1.ProductsTbl.Columns[i].DataType ==
-                        typeof(string))
+            if (productsDataSet1.ProductsBinTbl.Columns[i].DataType ==
+                        typeof(System.Byte[]))
             {
-                row[i] = cols[i].Trim();
+                if (cols[i].Trim() != string.Empty)
+                {
+                    //using (System.IO.MemoryStream ms = new System.IO.MemoryStream())
+                    //{
+                        // Use the newly created memory stream for the compressed data.
+                        //using (stream = new System.IO.Compression.DeflateStream(ms, System.IO.Compression.CompressionMode.Compress))
+                        //{
+
+                            byte[] buffer /*= System.Text.Encoding.Default.GetBytes(cols[i].Trim());
+                            buffer */= System.Text.Encoding.GetEncoding("windows-1251").GetBytes(cols[i].Trim());
+
+                            /*stream.Write(buffer, 0, buffer.Length);
+                            stream.Flush();
+                            stream.Close();
+                            byte[] outBuffer = ms.ToArray();*/
+                            row[i] = buffer;
+                            
+                        //}
+                    //}
+                        
+                    
+                }
                 return;
             }
             if (!String.IsNullOrEmpty(cols[i].Trim()))
             {
-                if (productsDataSet1.ProductsTbl.Columns[i].DataType ==
+                if (productsDataSet1.ProductsBinTbl.Columns[i].DataType ==
                     typeof(System.Int64))
                 {
                     row[i] = System.Int64.Parse(cols[i].Trim());
@@ -217,7 +245,7 @@ namespace TSDServer
                     //continue;
                 }
 
-                if (productsDataSet1.ProductsTbl.Columns[i].DataType ==
+                if (productsDataSet1.ProductsBinTbl.Columns[i].DataType ==
                    typeof(System.Single))
                 {
                     row[i] = System.Single.Parse(cols[i].Trim(),nfi);
@@ -225,7 +253,7 @@ namespace TSDServer
                     //continue;
                 }
 
-                if (productsDataSet1.ProductsTbl.Columns[i].DataType ==
+                if (productsDataSet1.ProductsBinTbl.Columns[i].DataType ==
                     typeof(DateTime))
                 {
                     row[i] = DateTime.Parse(cols[i].Trim(), dateFormat);
@@ -233,7 +261,7 @@ namespace TSDServer
                     //continue;
                 }
 
-                if (productsDataSet1.ProductsTbl.Columns[i].DataType ==
+                if (productsDataSet1.ProductsBinTbl.Columns[i].DataType ==
                    typeof(decimal))
                 {
                     row[i] = Decimal.Parse(cols[i].Trim(), nfi);
@@ -245,13 +273,13 @@ namespace TSDServer
         private void AddFixedString(string s)
         {
 
-            cols = new string[productsDataSet1.ProductsTbl.Columns.Count];
+            cols = new string[productsDataSet1.ProductsBinTbl.Columns.Count];
 
-            ProductsDataSet.ProductsTblRow row =
-                this.productsDataSet1.ProductsTbl.NewProductsTblRow();
+            ProductsDataSet.ProductsBinTblRow row =
+                this.productsDataSet1.ProductsBinTbl.NewProductsBinTblRow();
 
             cols[0] = s.Substring(0, colsLength[0]);
-            int readedLength = colsLength[0];
+            int readedLength = -1;//;colsLength[0];
 
 
             if (String.IsNullOrEmpty(cols[0].Trim()) ||
@@ -264,9 +292,9 @@ namespace TSDServer
                 return;
             }
             //row[0] = cols[0].Trim();
-            ParseColumn(0, row);
+            //ParseColumn(0, row);
             
-            for (int i = 1; i <  productsDataSet1.ProductsTbl.Columns.Count; i++)
+            for (int i = 0; i <  productsDataSet1.ProductsBinTbl.Columns.Count; i++)
             {
                 try
                 {
@@ -274,7 +302,7 @@ namespace TSDServer
                     readedLength = readedLength + colsLength[i] + 1;
 
                     ParseColumn(i, row);
-                    /*if (productsDataSet1.ProductsTbl.Columns[i].DataType ==
+                    /*if (productsDataSet1.ProductsBinTbl.Columns[i].DataType ==
                         typeof(string))
                     {
                         row[i] = cols[i].Trim();
@@ -282,14 +310,14 @@ namespace TSDServer
                     }
                     if (!String.IsNullOrEmpty(cols[i].Trim()))
                     {
-                        if (productsDataSet1.ProductsTbl.Columns[i].DataType ==
+                        if (productsDataSet1.ProductsBinTbl.Columns[i].DataType ==
                             typeof(decimal))
                         {
                             row[i] = Decimal.Parse(cols[i].Trim(), nfi);
                             continue;
                         }
 
-                        if (productsDataSet1.ProductsTbl.Columns[i].DataType ==
+                        if (productsDataSet1.ProductsBinTbl.Columns[i].DataType ==
                             typeof(DateTime))
                         {
                             row[i] = DateTime.Parse(cols[i].Trim(), dateFormat);
@@ -297,20 +325,20 @@ namespace TSDServer
                         }
                     }
                     */
-                    rowCounter++;
-                    if (OnProcessImport != null)
-                        OnProcessImport(rowCounter.ToString(), false);
+
                 }
                 catch (Exception err)
                 {
                     //this.richTextBox1.AppendText(string.Format("Ошибка в строке: {0}: {1}\n", s,err.Message));
                     if (OnProcessImport != null)
                         OnProcessImport(string.Format("Ошибка в строке: {0}: {1}\n", s,err.Message), true);
-                    return;
+                    
                 }
             }
-            this.productsDataSet1.ProductsTbl.AddProductsTblRow(row);
-            
+            this.productsDataSet1.ProductsBinTbl.AddProductsBinTblRow(row);
+            rowCounter++;
+            if (OnProcessImport != null)
+                OnProcessImport(rowCounter.ToString(), false);
 
         }
 
@@ -319,8 +347,8 @@ namespace TSDServer
 
             cols = s.Split(fieldDelimeter);
 
-            ProductsDataSet.ProductsTblRow row =
-                this.productsDataSet1.ProductsTbl.NewProductsTblRow();
+            ProductsDataSet.ProductsBinTblRow row =
+                this.productsDataSet1.ProductsBinTbl.NewProductsBinTblRow();
 
             //cols[0] = s.Substring(0, colsLength[0]);
             //int readedLength = colsLength[0];
@@ -337,9 +365,9 @@ namespace TSDServer
                 return;
             }
             //row[0] = cols[0].Trim();
-            ParseColumn(0, row);
+            //ParseColumn(0, row);
 
-            for (int i = 1; i < productsDataSet1.ProductsTbl.Columns.Count; i++)
+            for (int i = 0; i < productsDataSet1.ProductsBinTbl.Columns.Count; i++)
             {
                 try
                 {
@@ -347,7 +375,7 @@ namespace TSDServer
                     //readedLength = readedLength + colsLength[i] + 1;
 
                     ParseColumn(i, row);
-                    /*if (productsDataSet1.ProductsTbl.Columns[i].DataType ==
+                    /*if (productsDataSet1.ProductsBinTbl.Columns[i].DataType ==
                         typeof(string))
                     {
                         row[i] = cols[i].Trim();
@@ -355,14 +383,14 @@ namespace TSDServer
                     }
                     if (!String.IsNullOrEmpty(cols[i].Trim()))
                     {
-                        if (productsDataSet1.ProductsTbl.Columns[i].DataType ==
+                        if (productsDataSet1.ProductsBinTbl.Columns[i].DataType ==
                             typeof(decimal))
                         {
                             row[i] = Decimal.Parse(cols[i].Trim(), nfi);
                             continue;
                         }
 
-                        if (productsDataSet1.ProductsTbl.Columns[i].DataType ==
+                        if (productsDataSet1.ProductsBinTbl.Columns[i].DataType ==
                             typeof(DateTime))
                         {
                             row[i] = DateTime.Parse(cols[i].Trim(), dateFormat);
@@ -370,9 +398,7 @@ namespace TSDServer
                         }
                     }*/
                     
-                    rowCounter++;
-                    if (OnProcessImport != null)
-                        OnProcessImport(rowCounter.ToString(), false);
+                    
 
                 }
                 catch (Exception err)
@@ -380,10 +406,13 @@ namespace TSDServer
                     //this.richTextBox1.AppendText(string.Format("Ошибка в строке: {0}: {1}\n", s, err.Message));
                     if (OnProcessImport != null)
                         OnProcessImport(string.Format("Ошибка в строке: {0}: {1}\n", s, err.Message), true);
-                    return;
+                    
                 }
             }
-            this.productsDataSet1.ProductsTbl.AddProductsTblRow(row);
+            this.productsDataSet1.ProductsBinTbl.AddProductsBinTblRow(row);
+            rowCounter++;
+            if (OnProcessImport != null)
+                OnProcessImport(rowCounter.ToString(), false);
             
 
         }
