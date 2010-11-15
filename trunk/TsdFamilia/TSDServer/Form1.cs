@@ -6,10 +6,15 @@ using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
 
+
+
 namespace TSDServer
 {
     public partial class Form1 : Form
     {
+        
+        public System.Threading.Mutex mutex;
+
         OpenNETCF.Desktop.Communication.RAPI terminalRapi =
             new OpenNETCF.Desktop.Communication.RAPI();
 
@@ -46,6 +51,13 @@ namespace TSDServer
         {
             InitializeComponent();
             SetFormats();
+
+            mutex = new System.Threading.Mutex(false, "FAMILTSDSERVER");
+            if (!mutex.WaitOne(0, false))
+            {
+                mutex.Close();
+                mutex = null;
+            }
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -64,7 +76,7 @@ namespace TSDServer
                         string s = string.Empty;
                         while ((s = rdr.ReadLine()) != null)
                         {
-                            AddString(s);
+                            AddFixedString(s);
                         }
                     }
 
@@ -85,7 +97,7 @@ namespace TSDServer
             }
         }
 
-        private void AddString(string s)
+        private void AddFixedString(string s)
         {
 
             cols = new string[productsDataSet1.ProductsTbl.Columns.Count];
@@ -145,6 +157,68 @@ namespace TSDServer
 
         }
 
+
+        private void AddDelimetedString(string s)
+        {
+
+            cols = s.Split('|');
+
+            ProductsDataSet.ProductsTblRow row =
+                this.productsDataSet1.ProductsTbl.NewProductsTblRow();
+
+            //cols[0] = s.Substring(0, colsLength[0]);
+            //int readedLength = colsLength[0];
+
+
+            if (String.IsNullOrEmpty(cols[0].Trim()) ||
+                cols[0].Trim() == "0" ||
+                cols[0].Trim() == "9999999999999")
+            {
+                this.richTextBox1.AppendText(string.Format("Штрихкод пустой - строка пропущена {0}\n", s));
+                return;
+            }
+            row[0] = cols[0].Trim();
+
+            for (int i = 1; i < productsDataSet1.ProductsTbl.Columns.Count; i++)
+            {
+                try
+                {
+                    //cols[i] = s.Substring(readedLength + 1, colsLength[i]);
+                    //readedLength = readedLength + colsLength[i] + 1;
+
+
+                    if (productsDataSet1.ProductsTbl.Columns[i].DataType ==
+                        typeof(string))
+                    {
+                        row[i] = cols[i].Trim();
+                        continue;
+                    }
+                    if (!String.IsNullOrEmpty(cols[i].Trim()))
+                    {
+                        if (productsDataSet1.ProductsTbl.Columns[i].DataType ==
+                            typeof(decimal))
+                        {
+                            row[i] = Decimal.Parse(cols[i].Trim(), nfi);
+                            continue;
+                        }
+
+                        if (productsDataSet1.ProductsTbl.Columns[i].DataType ==
+                            typeof(DateTime))
+                        {
+                            row[i] = DateTime.Parse(cols[i].Trim(), dateFormat);
+                            continue;
+                        }
+                    }
+                }
+                catch (Exception err)
+                {
+                    this.richTextBox1.AppendText(string.Format("Ошибка в строке: {0}: {1}\n", s, err.Message));
+                }
+            }
+            this.productsDataSet1.ProductsTbl.AddProductsTblRow(row);
+
+        }
+
         private void button2_Click(object sender, EventArgs e)
         {
             try
@@ -196,6 +270,11 @@ namespace TSDServer
             {
                 e.Cancel = true;
                 this.Hide();
+            }
+            else
+            {
+                mutex.ReleaseMutex();
+                mutex = null;
             }
         }
 
