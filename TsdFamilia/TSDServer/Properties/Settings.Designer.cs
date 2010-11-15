@@ -86,5 +86,29 @@ namespace TSDServer.Properties {
                 this["FieldsLength"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("|")]
+        public string FieldDelimeter {
+            get {
+                return ((string)(this["FieldDelimeter"]));
+            }
+            set {
+                this["FieldDelimeter"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool ImportFileTypeIsFixed {
+            get {
+                return ((bool)(this["ImportFileTypeIsFixed"]));
+            }
+            set {
+                this["ImportFileTypeIsFixed"] = value;
+            }
+        }
     }
 }
