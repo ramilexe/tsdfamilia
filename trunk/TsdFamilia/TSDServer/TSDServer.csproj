@@ -123,6 +123,8 @@
     <Content Include="Products.sdf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <None Include="Resources\StopHS.png" />
+    <None Include="Resources\Stop.bmp" />
     <None Include="Resources\pda.ico" />
     <None Include="Resources\CriticalError.bmp" />
     <None Include="Resources\OK.bmp" />
