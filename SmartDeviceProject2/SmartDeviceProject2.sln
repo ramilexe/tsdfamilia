@@ -3,6 +3,8 @@ Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual Studio 2008
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TSDClient", "SmartDeviceProject2\TSDClient.csproj", "{3798EB33-2200-4082-BB30-A6E54F9DE300}"
 EndProject
+Project("{B900F1C2-3D47-4FEC-85B3-04AAF18C3634}") = "TerminalSetup", "TerminalSetup\TerminalSetup.vddproj", "{22192D2F-71C5-4B52-9A76-BD99ED1E19A5}"
+EndProject
 Global
 	GlobalSection(SubversionScc) = preSolution
 		Svn-Managed = True
@@ -19,6 +21,8 @@ Global
 		{3798EB33-2200-4082-BB30-A6E54F9DE300}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3798EB33-2200-4082-BB30-A6E54F9DE300}.Release|Any CPU.Build.0 = Release|Any CPU
 		{3798EB33-2200-4082-BB30-A6E54F9DE300}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{22192D2F-71C5-4B52-9A76-BD99ED1E19A5}.Debug|Any CPU.ActiveCfg = Debug
+		{22192D2F-71C5-4B52-9A76-BD99ED1E19A5}.Release|Any CPU.ActiveCfg = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
