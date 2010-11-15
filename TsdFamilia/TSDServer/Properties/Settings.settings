@@ -1,0 +1,29 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="TSDServer.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="ProductsConnectionString" Type="(Connection string)" Scope="Application">
+      <DesignTimeValue Profile="(Default)">&lt;?xml version="1.0" encoding="utf-16"?&gt;
+&lt;SerializableConnectionString xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"&gt;
+  &lt;ConnectionString&gt;Data Source=|DataDirectory|\Products.sdf&lt;/ConnectionString&gt;
+  &lt;ProviderName&gt;Microsoft.SqlServerCe.Client.3.5&lt;/ProviderName&gt;
+&lt;/SerializableConnectionString&gt;</DesignTimeValue>
+      <Value Profile="(Default)">Data Source=|DataDirectory|\Products.sdf</Value>
+    </Setting>
+    <Setting Name="TSDDBPAth" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">\Program files\TSDFamilia\</Value>
+    </Setting>
+    <Setting Name="NumberDecimalSeparator" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">.</Value>
+    </Setting>
+    <Setting Name="ShortDatePattern" Type="System.String" Scope="User">
+      <Value Profile="(Default)">dd.MM.yy</Value>
+    </Setting>
+    <Setting Name="DateSeparator" Type="System.String" Scope="User">
+      <Value Profile="(Default)">.</Value>
+    </Setting>
+    <Setting Name="FieldsLength" Type="System.String" Scope="User">
+      <Value Profile="(Default)">13;30;20;25;6;30;11;11;10;10;11;20;30</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>
