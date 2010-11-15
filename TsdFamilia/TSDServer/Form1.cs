@@ -198,6 +198,50 @@ namespace TSDServer
                     OnFinishImport("Загрузка завершена");
             }
         }
+
+        private void ParseColumn(int i, DataRow row)
+        {
+            if (productsDataSet1.ProductsTbl.Columns[i].DataType ==
+                        typeof(string))
+            {
+                row[i] = cols[i].Trim();
+                return;
+            }
+            if (!String.IsNullOrEmpty(cols[i].Trim()))
+            {
+                if (productsDataSet1.ProductsTbl.Columns[i].DataType ==
+                    typeof(System.Int64))
+                {
+                    row[i] = System.Int64.Parse(cols[i].Trim());
+                    return;
+                    //continue;
+                }
+
+                if (productsDataSet1.ProductsTbl.Columns[i].DataType ==
+                   typeof(System.Single))
+                {
+                    row[i] = System.Single.Parse(cols[i].Trim(),nfi);
+                    return;
+                    //continue;
+                }
+
+                if (productsDataSet1.ProductsTbl.Columns[i].DataType ==
+                    typeof(DateTime))
+                {
+                    row[i] = DateTime.Parse(cols[i].Trim(), dateFormat);
+                    return;
+                    //continue;
+                }
+
+                if (productsDataSet1.ProductsTbl.Columns[i].DataType ==
+                   typeof(decimal))
+                {
+                    row[i] = Decimal.Parse(cols[i].Trim(), nfi);
+                    return;
+                    //continue;
+                }
+            }
+        }
         private void AddFixedString(string s)
         {
 
@@ -219,7 +263,8 @@ namespace TSDServer
                 //this.richTextBox1.AppendText(string.Format("Штрихкод пустой - строка пропущена {0}\n",s));
                 return;
             }
-            row[0] = cols[0].Trim();
+            //row[0] = cols[0].Trim();
+            ParseColumn(0, row);
             
             for (int i = 1; i <  productsDataSet1.ProductsTbl.Columns.Count; i++)
             {
@@ -227,9 +272,9 @@ namespace TSDServer
                 {
                     cols[i] = s.Substring(readedLength+1, colsLength[i]);
                     readedLength = readedLength + colsLength[i] + 1;
-                    
 
-                    if (productsDataSet1.ProductsTbl.Columns[i].DataType ==
+                    ParseColumn(i, row);
+                    /*if (productsDataSet1.ProductsTbl.Columns[i].DataType ==
                         typeof(string))
                     {
                         row[i] = cols[i].Trim();
@@ -251,7 +296,7 @@ namespace TSDServer
                             continue;
                         }
                     }
-                    
+                    */
                     rowCounter++;
                     if (OnProcessImport != null)
                         OnProcessImport(rowCounter.ToString(), false);
@@ -291,7 +336,8 @@ namespace TSDServer
 
                 return;
             }
-            row[0] = cols[0].Trim();
+            //row[0] = cols[0].Trim();
+            ParseColumn(0, row);
 
             for (int i = 1; i < productsDataSet1.ProductsTbl.Columns.Count; i++)
             {
@@ -300,8 +346,8 @@ namespace TSDServer
                     //cols[i] = s.Substring(readedLength + 1, colsLength[i]);
                     //readedLength = readedLength + colsLength[i] + 1;
 
-
-                    if (productsDataSet1.ProductsTbl.Columns[i].DataType ==
+                    ParseColumn(i, row);
+                    /*if (productsDataSet1.ProductsTbl.Columns[i].DataType ==
                         typeof(string))
                     {
                         row[i] = cols[i].Trim();
@@ -322,7 +368,7 @@ namespace TSDServer
                             row[i] = DateTime.Parse(cols[i].Trim(), dateFormat);
                             continue;
                         }
-                    }
+                    }*/
                     
                     rowCounter++;
                     if (OnProcessImport != null)

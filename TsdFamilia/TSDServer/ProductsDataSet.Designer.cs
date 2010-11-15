@@ -438,7 +438,7 @@ namespace TSDServer {
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            public ProductsTblRow AddProductsTblRow(string Barcode, string ProductName, string Article, string Country, string NavCode, string Structure, decimal OldPrice, decimal NewPrice, System.DateTime TransferDate, System.DateTime ReturnDate, decimal PurchasePrice, string ProjectNumber, string DiscountRate) {
+            public ProductsTblRow AddProductsTblRow(long Barcode, string ProductName, string Article, string Country, string NavCode, string Structure, float OldPrice, float NewPrice, System.DateTime TransferDate, System.DateTime ReturnDate, float PurchasePrice, string ProjectNumber, string DiscountRate) {
                 ProductsTblRow rowProductsTblRow = ((ProductsTblRow)(this.NewRow()));
                 object[] columnValuesArray = new object[] {
                         Barcode,
@@ -460,7 +460,7 @@ namespace TSDServer {
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            public ProductsTblRow FindByBarcode(string Barcode) {
+            public ProductsTblRow FindByBarcode(long Barcode) {
                 return ((ProductsTblRow)(this.Rows.Find(new object[] {
                             Barcode})));
             }
@@ -501,7 +501,7 @@ namespace TSDServer {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             private void InitClass() {
-                this.columnBarcode = new global::System.Data.DataColumn("Barcode", typeof(string), null, global::System.Data.MappingType.Element);
+                this.columnBarcode = new global::System.Data.DataColumn("Barcode", typeof(long), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnBarcode);
                 this.columnProductName = new global::System.Data.DataColumn("ProductName", typeof(string), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnProductName);
@@ -513,15 +513,15 @@ namespace TSDServer {
                 base.Columns.Add(this.columnNavCode);
                 this.columnStructure = new global::System.Data.DataColumn("Structure", typeof(string), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnStructure);
-                this.columnOldPrice = new global::System.Data.DataColumn("OldPrice", typeof(decimal), null, global::System.Data.MappingType.Element);
+                this.columnOldPrice = new global::System.Data.DataColumn("OldPrice", typeof(float), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnOldPrice);
-                this.columnNewPrice = new global::System.Data.DataColumn("NewPrice", typeof(decimal), null, global::System.Data.MappingType.Element);
+                this.columnNewPrice = new global::System.Data.DataColumn("NewPrice", typeof(float), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnNewPrice);
                 this.columnTransferDate = new global::System.Data.DataColumn("TransferDate", typeof(global::System.DateTime), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnTransferDate);
                 this.columnReturnDate = new global::System.Data.DataColumn("ReturnDate", typeof(global::System.DateTime), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnReturnDate);
-                this.columnPurchasePrice = new global::System.Data.DataColumn("PurchasePrice", typeof(decimal), null, global::System.Data.MappingType.Element);
+                this.columnPurchasePrice = new global::System.Data.DataColumn("PurchasePrice", typeof(float), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnPurchasePrice);
                 this.columnProjectNumber = new global::System.Data.DataColumn("ProjectNumber", typeof(string), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnProjectNumber);
@@ -531,7 +531,6 @@ namespace TSDServer {
                                 this.columnBarcode}, true));
                 this.columnBarcode.AllowDBNull = false;
                 this.columnBarcode.Unique = true;
-                this.columnBarcode.MaxLength = 13;
                 this.columnProductName.MaxLength = 30;
                 this.columnArticle.MaxLength = 20;
                 this.columnCountry.MaxLength = 25;
@@ -671,9 +670,9 @@ namespace TSDServer {
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            public string Barcode {
+            public long Barcode {
                 get {
-                    return ((string)(this[this.tableProductsTbl.BarcodeColumn]));
+                    return ((long)(this[this.tableProductsTbl.BarcodeColumn]));
                 }
                 set {
                     this[this.tableProductsTbl.BarcodeColumn] = value;
@@ -756,10 +755,10 @@ namespace TSDServer {
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            public decimal OldPrice {
+            public float OldPrice {
                 get {
                     try {
-                        return ((decimal)(this[this.tableProductsTbl.OldPriceColumn]));
+                        return ((float)(this[this.tableProductsTbl.OldPriceColumn]));
                     }
                     catch (global::System.InvalidCastException e) {
                         throw new global::System.Data.StrongTypingException("The value for column \'OldPrice\' in table \'ProductsTbl\' is DBNull.", e);
@@ -771,10 +770,10 @@ namespace TSDServer {
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            public decimal NewPrice {
+            public float NewPrice {
                 get {
                     try {
-                        return ((decimal)(this[this.tableProductsTbl.NewPriceColumn]));
+                        return ((float)(this[this.tableProductsTbl.NewPriceColumn]));
                     }
                     catch (global::System.InvalidCastException e) {
                         throw new global::System.Data.StrongTypingException("The value for column \'NewPrice\' in table \'ProductsTbl\' is DBNull.", e);
@@ -816,10 +815,10 @@ namespace TSDServer {
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            public decimal PurchasePrice {
+            public float PurchasePrice {
                 get {
                     try {
-                        return ((decimal)(this[this.tableProductsTbl.PurchasePriceColumn]));
+                        return ((float)(this[this.tableProductsTbl.PurchasePriceColumn]));
                     }
                     catch (global::System.InvalidCastException e) {
                         throw new global::System.Data.StrongTypingException("The value for column \'PurchasePrice\' in table \'ProductsTbl\' is DBNull.", e);
@@ -1149,42 +1148,42 @@ namespace TSDServer.ProductsDataSetTableAdapters {
             this._adapter.DeleteCommand.Connection = this.Connection;
             this._adapter.DeleteCommand.CommandText = "DELETE FROM [ProductsTbl] WHERE (([Barcode] = @p1))";
             this._adapter.DeleteCommand.CommandType = global::System.Data.CommandType.Text;
-            this._adapter.DeleteCommand.Parameters.Add(new global::System.Data.SqlServerCe.SqlCeParameter("@p1", global::System.Data.SqlDbType.NVarChar, 0, global::System.Data.ParameterDirection.Input, true, 0, 0, "Barcode", global::System.Data.DataRowVersion.Original, null));
+            this._adapter.DeleteCommand.Parameters.Add(new global::System.Data.SqlServerCe.SqlCeParameter("@p1", global::System.Data.SqlDbType.BigInt, 0, global::System.Data.ParameterDirection.Input, true, 0, 0, "Barcode", global::System.Data.DataRowVersion.Original, null));
             this._adapter.InsertCommand = new global::System.Data.SqlServerCe.SqlCeCommand();
             this._adapter.InsertCommand.Connection = this.Connection;
             this._adapter.InsertCommand.CommandText = @"INSERT INTO [ProductsTbl] ([Barcode], [ProductName], [Article], [Country], [NavCode], [Structure], [OldPrice], [NewPrice], [TransferDate], [ReturnDate], [PurchasePrice], [ProjectNumber], [DiscountRate]) VALUES (@p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13)";
             this._adapter.InsertCommand.CommandType = global::System.Data.CommandType.Text;
-            this._adapter.InsertCommand.Parameters.Add(new global::System.Data.SqlServerCe.SqlCeParameter("@p1", global::System.Data.SqlDbType.NVarChar, 0, global::System.Data.ParameterDirection.Input, true, 0, 0, "Barcode", global::System.Data.DataRowVersion.Current, null));
+            this._adapter.InsertCommand.Parameters.Add(new global::System.Data.SqlServerCe.SqlCeParameter("@p1", global::System.Data.SqlDbType.BigInt, 0, global::System.Data.ParameterDirection.Input, true, 0, 0, "Barcode", global::System.Data.DataRowVersion.Current, null));
             this._adapter.InsertCommand.Parameters.Add(new global::System.Data.SqlServerCe.SqlCeParameter("@p2", global::System.Data.SqlDbType.NVarChar, 0, global::System.Data.ParameterDirection.Input, true, 0, 0, "ProductName", global::System.Data.DataRowVersion.Current, null));
             this._adapter.InsertCommand.Parameters.Add(new global::System.Data.SqlServerCe.SqlCeParameter("@p3", global::System.Data.SqlDbType.NVarChar, 0, global::System.Data.ParameterDirection.Input, true, 0, 0, "Article", global::System.Data.DataRowVersion.Current, null));
             this._adapter.InsertCommand.Parameters.Add(new global::System.Data.SqlServerCe.SqlCeParameter("@p4", global::System.Data.SqlDbType.NVarChar, 0, global::System.Data.ParameterDirection.Input, true, 0, 0, "Country", global::System.Data.DataRowVersion.Current, null));
             this._adapter.InsertCommand.Parameters.Add(new global::System.Data.SqlServerCe.SqlCeParameter("@p5", global::System.Data.SqlDbType.NVarChar, 0, global::System.Data.ParameterDirection.Input, true, 0, 0, "NavCode", global::System.Data.DataRowVersion.Current, null));
             this._adapter.InsertCommand.Parameters.Add(new global::System.Data.SqlServerCe.SqlCeParameter("@p6", global::System.Data.SqlDbType.NVarChar, 0, global::System.Data.ParameterDirection.Input, true, 0, 0, "Structure", global::System.Data.DataRowVersion.Current, null));
-            this._adapter.InsertCommand.Parameters.Add(new global::System.Data.SqlServerCe.SqlCeParameter("@p7", global::System.Data.SqlDbType.Decimal, 0, global::System.Data.ParameterDirection.Input, true, 0, 0, "OldPrice", global::System.Data.DataRowVersion.Current, null));
-            this._adapter.InsertCommand.Parameters.Add(new global::System.Data.SqlServerCe.SqlCeParameter("@p8", global::System.Data.SqlDbType.Decimal, 0, global::System.Data.ParameterDirection.Input, true, 0, 0, "NewPrice", global::System.Data.DataRowVersion.Current, null));
+            this._adapter.InsertCommand.Parameters.Add(new global::System.Data.SqlServerCe.SqlCeParameter("@p7", global::System.Data.SqlDbType.Real, 0, global::System.Data.ParameterDirection.Input, true, 0, 0, "OldPrice", global::System.Data.DataRowVersion.Current, null));
+            this._adapter.InsertCommand.Parameters.Add(new global::System.Data.SqlServerCe.SqlCeParameter("@p8", global::System.Data.SqlDbType.Real, 0, global::System.Data.ParameterDirection.Input, true, 0, 0, "NewPrice", global::System.Data.DataRowVersion.Current, null));
             this._adapter.InsertCommand.Parameters.Add(new global::System.Data.SqlServerCe.SqlCeParameter("@p9", global::System.Data.SqlDbType.DateTime, 0, global::System.Data.ParameterDirection.Input, true, 0, 0, "TransferDate", global::System.Data.DataRowVersion.Current, null));
             this._adapter.InsertCommand.Parameters.Add(new global::System.Data.SqlServerCe.SqlCeParameter("@p10", global::System.Data.SqlDbType.DateTime, 0, global::System.Data.ParameterDirection.Input, true, 0, 0, "ReturnDate", global::System.Data.DataRowVersion.Current, null));
-            this._adapter.InsertCommand.Parameters.Add(new global::System.Data.SqlServerCe.SqlCeParameter("@p11", global::System.Data.SqlDbType.Decimal, 0, global::System.Data.ParameterDirection.Input, true, 0, 0, "PurchasePrice", global::System.Data.DataRowVersion.Current, null));
+            this._adapter.InsertCommand.Parameters.Add(new global::System.Data.SqlServerCe.SqlCeParameter("@p11", global::System.Data.SqlDbType.Real, 0, global::System.Data.ParameterDirection.Input, true, 0, 0, "PurchasePrice", global::System.Data.DataRowVersion.Current, null));
             this._adapter.InsertCommand.Parameters.Add(new global::System.Data.SqlServerCe.SqlCeParameter("@p12", global::System.Data.SqlDbType.NVarChar, 0, global::System.Data.ParameterDirection.Input, true, 0, 0, "ProjectNumber", global::System.Data.DataRowVersion.Current, null));
             this._adapter.InsertCommand.Parameters.Add(new global::System.Data.SqlServerCe.SqlCeParameter("@p13", global::System.Data.SqlDbType.NVarChar, 0, global::System.Data.ParameterDirection.Input, true, 0, 0, "DiscountRate", global::System.Data.DataRowVersion.Current, null));
             this._adapter.UpdateCommand = new global::System.Data.SqlServerCe.SqlCeCommand();
             this._adapter.UpdateCommand.Connection = this.Connection;
             this._adapter.UpdateCommand.CommandText = @"UPDATE [ProductsTbl] SET [Barcode] = @p1, [ProductName] = @p2, [Article] = @p3, [Country] = @p4, [NavCode] = @p5, [Structure] = @p6, [OldPrice] = @p7, [NewPrice] = @p8, [TransferDate] = @p9, [ReturnDate] = @p10, [PurchasePrice] = @p11, [ProjectNumber] = @p12, [DiscountRate] = @p13 WHERE (([Barcode] = @p14))";
             this._adapter.UpdateCommand.CommandType = global::System.Data.CommandType.Text;
-            this._adapter.UpdateCommand.Parameters.Add(new global::System.Data.SqlServerCe.SqlCeParameter("@p1", global::System.Data.SqlDbType.NVarChar, 0, global::System.Data.ParameterDirection.Input, true, 0, 0, "Barcode", global::System.Data.DataRowVersion.Current, null));
+            this._adapter.UpdateCommand.Parameters.Add(new global::System.Data.SqlServerCe.SqlCeParameter("@p1", global::System.Data.SqlDbType.BigInt, 0, global::System.Data.ParameterDirection.Input, true, 0, 0, "Barcode", global::System.Data.DataRowVersion.Current, null));
             this._adapter.UpdateCommand.Parameters.Add(new global::System.Data.SqlServerCe.SqlCeParameter("@p2", global::System.Data.SqlDbType.NVarChar, 0, global::System.Data.ParameterDirection.Input, true, 0, 0, "ProductName", global::System.Data.DataRowVersion.Current, null));
             this._adapter.UpdateCommand.Parameters.Add(new global::System.Data.SqlServerCe.SqlCeParameter("@p3", global::System.Data.SqlDbType.NVarChar, 0, global::System.Data.ParameterDirection.Input, true, 0, 0, "Article", global::System.Data.DataRowVersion.Current, null));
             this._adapter.UpdateCommand.Parameters.Add(new global::System.Data.SqlServerCe.SqlCeParameter("@p4", global::System.Data.SqlDbType.NVarChar, 0, global::System.Data.ParameterDirection.Input, true, 0, 0, "Country", global::System.Data.DataRowVersion.Current, null));
             this._adapter.UpdateCommand.Parameters.Add(new global::System.Data.SqlServerCe.SqlCeParameter("@p5", global::System.Data.SqlDbType.NVarChar, 0, global::System.Data.ParameterDirection.Input, true, 0, 0, "NavCode", global::System.Data.DataRowVersion.Current, null));
             this._adapter.UpdateCommand.Parameters.Add(new global::System.Data.SqlServerCe.SqlCeParameter("@p6", global::System.Data.SqlDbType.NVarChar, 0, global::System.Data.ParameterDirection.Input, true, 0, 0, "Structure", global::System.Data.DataRowVersion.Current, null));
-            this._adapter.UpdateCommand.Parameters.Add(new global::System.Data.SqlServerCe.SqlCeParameter("@p7", global::System.Data.SqlDbType.Decimal, 0, global::System.Data.ParameterDirection.Input, true, 0, 0, "OldPrice", global::System.Data.DataRowVersion.Current, null));
-            this._adapter.UpdateCommand.Parameters.Add(new global::System.Data.SqlServerCe.SqlCeParameter("@p8", global::System.Data.SqlDbType.Decimal, 0, global::System.Data.ParameterDirection.Input, true, 0, 0, "NewPrice", global::System.Data.DataRowVersion.Current, null));
+            this._adapter.UpdateCommand.Parameters.Add(new global::System.Data.SqlServerCe.SqlCeParameter("@p7", global::System.Data.SqlDbType.Real, 0, global::System.Data.ParameterDirection.Input, true, 0, 0, "OldPrice", global::System.Data.DataRowVersion.Current, null));
+            this._adapter.UpdateCommand.Parameters.Add(new global::System.Data.SqlServerCe.SqlCeParameter("@p8", global::System.Data.SqlDbType.Real, 0, global::System.Data.ParameterDirection.Input, true, 0, 0, "NewPrice", global::System.Data.DataRowVersion.Current, null));
             this._adapter.UpdateCommand.Parameters.Add(new global::System.Data.SqlServerCe.SqlCeParameter("@p9", global::System.Data.SqlDbType.DateTime, 0, global::System.Data.ParameterDirection.Input, true, 0, 0, "TransferDate", global::System.Data.DataRowVersion.Current, null));
             this._adapter.UpdateCommand.Parameters.Add(new global::System.Data.SqlServerCe.SqlCeParameter("@p10", global::System.Data.SqlDbType.DateTime, 0, global::System.Data.ParameterDirection.Input, true, 0, 0, "ReturnDate", global::System.Data.DataRowVersion.Current, null));
-            this._adapter.UpdateCommand.Parameters.Add(new global::System.Data.SqlServerCe.SqlCeParameter("@p11", global::System.Data.SqlDbType.Decimal, 0, global::System.Data.ParameterDirection.Input, true, 0, 0, "PurchasePrice", global::System.Data.DataRowVersion.Current, null));
+            this._adapter.UpdateCommand.Parameters.Add(new global::System.Data.SqlServerCe.SqlCeParameter("@p11", global::System.Data.SqlDbType.Real, 0, global::System.Data.ParameterDirection.Input, true, 0, 0, "PurchasePrice", global::System.Data.DataRowVersion.Current, null));
             this._adapter.UpdateCommand.Parameters.Add(new global::System.Data.SqlServerCe.SqlCeParameter("@p12", global::System.Data.SqlDbType.NVarChar, 0, global::System.Data.ParameterDirection.Input, true, 0, 0, "ProjectNumber", global::System.Data.DataRowVersion.Current, null));
             this._adapter.UpdateCommand.Parameters.Add(new global::System.Data.SqlServerCe.SqlCeParameter("@p13", global::System.Data.SqlDbType.NVarChar, 0, global::System.Data.ParameterDirection.Input, true, 0, 0, "DiscountRate", global::System.Data.DataRowVersion.Current, null));
-            this._adapter.UpdateCommand.Parameters.Add(new global::System.Data.SqlServerCe.SqlCeParameter("@p14", global::System.Data.SqlDbType.NVarChar, 0, global::System.Data.ParameterDirection.Input, true, 0, 0, "Barcode", global::System.Data.DataRowVersion.Original, null));
+            this._adapter.UpdateCommand.Parameters.Add(new global::System.Data.SqlServerCe.SqlCeParameter("@p14", global::System.Data.SqlDbType.BigInt, 0, global::System.Data.ParameterDirection.Input, true, 0, 0, "Barcode", global::System.Data.DataRowVersion.Original, null));
         }
         
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -1254,13 +1253,8 @@ namespace TSDServer.ProductsDataSetTableAdapters {
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.ComponentModel.Design.HelpKeywordAttribute("vs.data.TableAdapter")]
         [global::System.ComponentModel.DataObjectMethodAttribute(global::System.ComponentModel.DataObjectMethodType.Delete, true)]
-        public virtual int Delete(string p1) {
-            if ((p1 == null)) {
-                throw new global::System.ArgumentNullException("p1");
-            }
-            else {
-                this.Adapter.DeleteCommand.Parameters[0].Value = ((string)(p1));
-            }
+        public virtual int Delete(long p1) {
+            this.Adapter.DeleteCommand.Parameters[0].Value = ((long)(p1));
             global::System.Data.ConnectionState previousConnectionState = this.Adapter.DeleteCommand.Connection.State;
             if (((this.Adapter.DeleteCommand.Connection.State & global::System.Data.ConnectionState.Open) 
                         != global::System.Data.ConnectionState.Open)) {
@@ -1280,13 +1274,8 @@ namespace TSDServer.ProductsDataSetTableAdapters {
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.ComponentModel.Design.HelpKeywordAttribute("vs.data.TableAdapter")]
         [global::System.ComponentModel.DataObjectMethodAttribute(global::System.ComponentModel.DataObjectMethodType.Insert, true)]
-        public virtual int Insert(string p1, string p2, string p3, string p4, string p5, string p6, global::System.Nullable<decimal> p7, global::System.Nullable<decimal> p8, global::System.Nullable<global::System.DateTime> p9, global::System.Nullable<global::System.DateTime> p10, global::System.Nullable<decimal> p11, string p12, string p13) {
-            if ((p1 == null)) {
-                throw new global::System.ArgumentNullException("p1");
-            }
-            else {
-                this.Adapter.InsertCommand.Parameters[0].Value = ((string)(p1));
-            }
+        public virtual int Insert(long p1, string p2, string p3, string p4, string p5, string p6, global::System.Nullable<float> p7, global::System.Nullable<float> p8, global::System.Nullable<global::System.DateTime> p9, global::System.Nullable<global::System.DateTime> p10, global::System.Nullable<float> p11, string p12, string p13) {
+            this.Adapter.InsertCommand.Parameters[0].Value = ((long)(p1));
             if ((p2 == null)) {
                 this.Adapter.InsertCommand.Parameters[1].Value = global::System.DBNull.Value;
             }
@@ -1318,13 +1307,13 @@ namespace TSDServer.ProductsDataSetTableAdapters {
                 this.Adapter.InsertCommand.Parameters[5].Value = ((string)(p6));
             }
             if ((p7.HasValue == true)) {
-                this.Adapter.InsertCommand.Parameters[6].Value = ((decimal)(p7.Value));
+                this.Adapter.InsertCommand.Parameters[6].Value = ((float)(p7.Value));
             }
             else {
                 this.Adapter.InsertCommand.Parameters[6].Value = global::System.DBNull.Value;
             }
             if ((p8.HasValue == true)) {
-                this.Adapter.InsertCommand.Parameters[7].Value = ((decimal)(p8.Value));
+                this.Adapter.InsertCommand.Parameters[7].Value = ((float)(p8.Value));
             }
             else {
                 this.Adapter.InsertCommand.Parameters[7].Value = global::System.DBNull.Value;
@@ -1342,7 +1331,7 @@ namespace TSDServer.ProductsDataSetTableAdapters {
                 this.Adapter.InsertCommand.Parameters[9].Value = global::System.DBNull.Value;
             }
             if ((p11.HasValue == true)) {
-                this.Adapter.InsertCommand.Parameters[10].Value = ((decimal)(p11.Value));
+                this.Adapter.InsertCommand.Parameters[10].Value = ((float)(p11.Value));
             }
             else {
                 this.Adapter.InsertCommand.Parameters[10].Value = global::System.DBNull.Value;
@@ -1378,13 +1367,8 @@ namespace TSDServer.ProductsDataSetTableAdapters {
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.ComponentModel.Design.HelpKeywordAttribute("vs.data.TableAdapter")]
         [global::System.ComponentModel.DataObjectMethodAttribute(global::System.ComponentModel.DataObjectMethodType.Update, true)]
-        public virtual int Update(string p1, string p2, string p3, string p4, string p5, string p6, global::System.Nullable<decimal> p7, global::System.Nullable<decimal> p8, global::System.Nullable<global::System.DateTime> p9, global::System.Nullable<global::System.DateTime> p10, global::System.Nullable<decimal> p11, string p12, string p13, string p14) {
-            if ((p1 == null)) {
-                throw new global::System.ArgumentNullException("p1");
-            }
-            else {
-                this.Adapter.UpdateCommand.Parameters[0].Value = ((string)(p1));
-            }
+        public virtual int Update(long p1, string p2, string p3, string p4, string p5, string p6, global::System.Nullable<float> p7, global::System.Nullable<float> p8, global::System.Nullable<global::System.DateTime> p9, global::System.Nullable<global::System.DateTime> p10, global::System.Nullable<float> p11, string p12, string p13, long p14) {
+            this.Adapter.UpdateCommand.Parameters[0].Value = ((long)(p1));
             if ((p2 == null)) {
                 this.Adapter.UpdateCommand.Parameters[1].Value = global::System.DBNull.Value;
             }
@@ -1416,13 +1400,13 @@ namespace TSDServer.ProductsDataSetTableAdapters {
                 this.Adapter.UpdateCommand.Parameters[5].Value = ((string)(p6));
             }
             if ((p7.HasValue == true)) {
-                this.Adapter.UpdateCommand.Parameters[6].Value = ((decimal)(p7.Value));
+                this.Adapter.UpdateCommand.Parameters[6].Value = ((float)(p7.Value));
             }
             else {
                 this.Adapter.UpdateCommand.Parameters[6].Value = global::System.DBNull.Value;
             }
             if ((p8.HasValue == true)) {
-                this.Adapter.UpdateCommand.Parameters[7].Value = ((decimal)(p8.Value));
+                this.Adapter.UpdateCommand.Parameters[7].Value = ((float)(p8.Value));
             }
             else {
                 this.Adapter.UpdateCommand.Parameters[7].Value = global::System.DBNull.Value;
@@ -1440,7 +1424,7 @@ namespace TSDServer.ProductsDataSetTableAdapters {
                 this.Adapter.UpdateCommand.Parameters[9].Value = global::System.DBNull.Value;
             }
             if ((p11.HasValue == true)) {
-                this.Adapter.UpdateCommand.Parameters[10].Value = ((decimal)(p11.Value));
+                this.Adapter.UpdateCommand.Parameters[10].Value = ((float)(p11.Value));
             }
             else {
                 this.Adapter.UpdateCommand.Parameters[10].Value = global::System.DBNull.Value;
@@ -1457,12 +1441,7 @@ namespace TSDServer.ProductsDataSetTableAdapters {
             else {
                 this.Adapter.UpdateCommand.Parameters[12].Value = ((string)(p13));
             }
-            if ((p14 == null)) {
-                throw new global::System.ArgumentNullException("p14");
-            }
-            else {
-                this.Adapter.UpdateCommand.Parameters[13].Value = ((string)(p14));
-            }
+            this.Adapter.UpdateCommand.Parameters[13].Value = ((long)(p14));
             global::System.Data.ConnectionState previousConnectionState = this.Adapter.UpdateCommand.Connection.State;
             if (((this.Adapter.UpdateCommand.Connection.State & global::System.Data.ConnectionState.Open) 
                         != global::System.Data.ConnectionState.Open)) {
@@ -1482,7 +1461,7 @@ namespace TSDServer.ProductsDataSetTableAdapters {
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.ComponentModel.Design.HelpKeywordAttribute("vs.data.TableAdapter")]
         [global::System.ComponentModel.DataObjectMethodAttribute(global::System.ComponentModel.DataObjectMethodType.Update, true)]
-        public virtual int Update(string p2, string p3, string p4, string p5, string p6, global::System.Nullable<decimal> p7, global::System.Nullable<decimal> p8, global::System.Nullable<global::System.DateTime> p9, global::System.Nullable<global::System.DateTime> p10, global::System.Nullable<decimal> p11, string p12, string p13, string p14) {
+        public virtual int Update(string p2, string p3, string p4, string p5, string p6, global::System.Nullable<float> p7, global::System.Nullable<float> p8, global::System.Nullable<global::System.DateTime> p9, global::System.Nullable<global::System.DateTime> p10, global::System.Nullable<float> p11, string p12, string p13, long p14) {
             return this.Update(p14, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14);
         }
     }
