@@ -14,7 +14,7 @@
                 using (System.Data.SqlServerCe.SqlCeCommand cmd
                      = new System.Data.SqlServerCe.SqlCeCommand())
                 {
-                    cmd.CommandText = "delete from  productsTbl";
+                    cmd.CommandText = "delete from  productsBinTbl";
                     cmd.Connection = conn;
                     cmd.ExecuteNonQuery();
                 }

@@ -175,9 +175,10 @@ namespace TSDServer
                 {
 
                     string s = string.Empty;
-                    while ((s = rdr.ReadLine()) != null)
+                    while ((s = rdr.ReadLine()) != null )
                     {
                         del.Invoke(s);
+                        
                     }
                 }
 
