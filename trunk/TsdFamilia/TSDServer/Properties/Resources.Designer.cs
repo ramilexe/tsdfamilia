@@ -67,6 +67,20 @@ namespace TSDServer.Properties {
             }
         }
         
+        internal static byte[] FILECOPY_16 {
+            get {
+                object obj = ResourceManager.GetObject("FILECOPY_16", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        internal static System.Drawing.Bitmap FILECOPY_161 {
+            get {
+                object obj = ResourceManager.GetObject("FILECOPY_161", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
         internal static System.Drawing.Bitmap OK {
             get {
                 object obj = ResourceManager.GetObject("OK", resourceCulture);

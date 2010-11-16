@@ -22,6 +22,10 @@ namespace TSDServer
         [STAThread]
         static void Main()
         {
+           /* CustomEncodingClass c = new CustomEncodingClass();
+            c.Prepare();
+            byte[] b = c.GetBytes("ПЕНА Д/БРИТЬЯ АРКО 200");
+            string s = c.GetString(b);*/
             /*using (System.Data.SqlServerCe.SqlCeConnection conn =
                 new System.Data.SqlServerCe.SqlCeConnection(
                     "Data Source=Копия Products.sdf"))
