@@ -70,6 +70,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\..\..\Program Files (x86)\CASIO\MBSys\WindowsCE\SystemLibnet.dll</HintPath>
     </Reference>
+    <Reference Include="TSDUtils, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\TSDServer\bin\Debug\TSDUtils.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BTPrintClass.cs" />
@@ -84,6 +88,9 @@
     </Compile>
     <Compile Include="GridUC.Designer.cs">
       <DependentUpon>GridUC.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ProductsDataSet.cs">
+      <DependentUpon>ProductsDataSet.xsd</DependentUpon>
     </Compile>
     <Compile Include="ProductsDataSet.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -126,7 +133,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Products.sdf">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="ScannedProducts.sdf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
