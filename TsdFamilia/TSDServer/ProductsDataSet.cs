@@ -20,6 +20,7 @@
                 }
 
                 this.ProductsTbl.Clear();
+                this.ProductsBinTbl.Clear();
                 this.AcceptChanges();
             }
 

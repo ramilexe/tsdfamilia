@@ -5,7 +5,9 @@ using System.Data;
 using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
-
+using ICSharpCode.SharpZipLib.GZip;
+using ICSharpCode.SharpZipLib.Core;
+using System.IO;
 
 
 namespace TSDServer
@@ -43,8 +45,8 @@ namespace TSDServer
 
 
         System.IO.Compression.DeflateStream stream = null;
-                        
 
+        CustomEncodingClass MyEncoder = new CustomEncodingClass();
 
         void SetFormats()
         {
@@ -154,7 +156,7 @@ namespace TSDServer
                 //MessageBox.Show(message, "Статус загрузки на сервер", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
-
+        
         private void BeginImport(object _fileName)
         {
             
@@ -183,13 +185,7 @@ namespace TSDServer
                 }
 
 
-                using (ProductsDataSetTableAdapters.ProductsBinTblTableAdapter tAdapter =
-                    new TSDServer.ProductsDataSetTableAdapters.ProductsBinTblTableAdapter())
-                {
-
-                    tAdapter.Update(this.productsDataSet1);
-                }
-                this.productsDataSet1.AcceptChanges();
+              
 
                 
                 //MessageBox.Show("Загрузка завершена", "Статус загрузки", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -202,6 +198,18 @@ namespace TSDServer
             }
             finally
             {
+                try
+                {
+                    using (ProductsDataSetTableAdapters.ProductsBinTblTableAdapter tAdapter =
+                      new TSDServer.ProductsDataSetTableAdapters.ProductsBinTblTableAdapter())
+                    {
+
+                        tAdapter.Update(this.productsDataSet1);
+                    }
+                    this.productsDataSet1.AcceptChanges();
+                }
+                catch{}
+
                 if (OnFinishImport != null)
                     OnFinishImport("Загрузка завершена");
             }
@@ -219,16 +227,20 @@ namespace TSDServer
                         // Use the newly created memory stream for the compressed data.
                         //using (stream = new System.IO.Compression.DeflateStream(ms, System.IO.Compression.CompressionMode.Compress))
                         //{
+                    
 
-                            byte[] buffer /*= System.Text.Encoding.Default.GetBytes(cols[i].Trim());
-                            buffer */= System.Text.Encoding.GetEncoding("windows-1251").GetBytes(cols[i].Trim());
+                    //byte[] buffer /*= System.Text.Encoding.GetBytes(cols[i].Trim());
+                    //buffer */= System.Text.Encoding.Unicode.GetBytes(cols[i].Trim());
+                    row[i] = MyEncoder.GetBytes(cols[i].Trim());//buffer;
+                    //byte[] newBuff = Encoding.Convert(Encoding.Default, Encoding.ASCII, buffer);
+                    /*stream.Write(buffer, 0, buffer.Length);
+                    stream.Flush();
+                    stream.Close();
+                    byte[] outBuffer = ms.ToArray();*/
+                    //row[i] = Compressor.Compress(buffer);
+                    
 
-                            /*stream.Write(buffer, 0, buffer.Length);
-                            stream.Flush();
-                            stream.Close();
-                            byte[] outBuffer = ms.ToArray();*/
-                            row[i] = buffer;
-                            
+      
                         //}
                     //}
                         
@@ -347,6 +359,30 @@ namespace TSDServer
         {
 
             cols = s.Split(fieldDelimeter);
+            /*byte[] buffer = System.Text.Encoding.Unicode.GetBytes(s);
+            using (MemoryStream ms = new MemoryStream())
+            {
+                ms.Write(buffer, 0, buffer.Length);
+                ms.Seek(0, SeekOrigin.Begin);
+                using (MemoryStream ms1 = new MemoryStream())
+                {
+                    using (GZipOutputStream zipStream = new GZipOutputStream(ms1))
+                    {
+                        byte[] tmpBuffer = new byte[4096];
+
+                        StreamUtils.Copy(ms, zipStream, tmpBuffer);
+                        zipStream.Finish();
+
+                        buffer = new byte[(int)ms1.Length];
+                        //zipStream.Seek(0, SeekOrigin.Begin);
+                        ms1.Seek(0, SeekOrigin.Begin);
+                        ms1.Read(buffer, 0, (int)ms1.Length);
+                        //zipStream.Read(tableBuffer, 0, tableBuffer.Length);
+                        //System.Threading.Thread.Sleep(500);
+                        
+                    }
+                }
+            }*/
 
             ProductsDataSet.ProductsBinTblRow row =
                 this.productsDataSet1.ProductsBinTbl.NewProductsBinTblRow();
@@ -418,6 +454,7 @@ namespace TSDServer
 
         }
 
+        FileCopyProgressForm frm = new FileCopyProgressForm();
         private void button2_Click(object sender, EventArgs e)
         {
             try
@@ -425,9 +462,14 @@ namespace TSDServer
                 terminalRapi.Connect(true,5000);
                 if (terminalRapi.Connected)
                 {
-                    terminalRapi.CopyFileToDevice(Application.StartupPath+"\\products.sdf",
-                        Properties.Settings.Default.TSDDBPAth + "products.sdf", true);
-                    MessageBox.Show("Загрузка завершена", "Статус загрузки на терминал", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    //terminalRapi.CopyFileToDevice(Application.StartupPath+"\\products.sdf",
+                    //    Properties.Settings.Default.TSDDBPAth + "products.sdf", true);
+                    terminalRapi.RAPIFileCoping += new OpenNETCF.Desktop.Communication.RAPICopingHandler(terminalRapi_RAPIFileCoping);
+                    terminalRapi.BeginCopyFileToDevice(Application.StartupPath + "\\products.sdf",
+                        Properties.Settings.Default.TSDDBPAth + "products.sdf", true,
+                        new AsyncCallback(OnEndCopyFile), null);
+                    frm.Show();
+                    //MessageBox.Show("Загрузка завершена", "Статус загрузки на терминал", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                 }
                 else
@@ -438,6 +480,39 @@ namespace TSDServer
             catch (Exception err)
             {
                 MessageBox.Show("Ошибка загрузки на терминал: "+err.Message, "Статус загрузки на терминал", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        void terminalRapi_RAPIFileCoping(long totalSize, long completed, Exception e)
+        {
+            if (this.InvokeRequired)
+            {
+                OpenNETCF.Desktop.Communication.RAPICopingHandler del =
+                    new OpenNETCF.Desktop.Communication.RAPICopingHandler(terminalRapi_RAPIFileCoping);
+                this.Invoke(del, totalSize, completed, e);
+            }
+            else
+            {
+                if (e == null)
+                    frm.SetProgress(totalSize, completed);
+                else
+                {
+
+                }
+            }
+        }
+        void OnEndCopyFile(IAsyncResult res)
+        {
+            if (this.InvokeRequired)
+            {
+                AsyncCallback del = new AsyncCallback(OnEndCopyFile);
+                this.Invoke(del,res);
+                //Invoke((Delegate)OnEndCopyFile);
+            }
+            else
+            {
+                frm.Hide();
+                MessageBox.Show("Загрузка завершена", "Статус загрузки на терминал", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
 
@@ -510,7 +585,7 @@ namespace TSDServer
                 {
                     try
                     {
-                        if ((int)(loadThread.ThreadState&System.Threading.ThreadState.Running) != 0)
+                        //if ((int)(loadThread.ThreadState&System.Threading.ThreadState.Running) != 0)
                         loadThread.Abort();
                     }
                     catch 

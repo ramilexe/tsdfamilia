@@ -99,18 +99,6 @@ namespace TSDServer.Properties {
             }
         }
         
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("True")]
-        public bool ImportFileTypeIsFixed {
-            get {
-                return ((bool)(this["ImportFileTypeIsFixed"]));
-            }
-            set {
-                this["ImportFileTypeIsFixed"] = value;
-            }
-        }
-        
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.ConnectionString)]
@@ -118,6 +106,18 @@ namespace TSDServer.Properties {
         public string Копия_ProductsConnectionString {
             get {
                 return ((string)(this["Копия_ProductsConnectionString"]));
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool ImportFileTypeIsFixed {
+            get {
+                return ((bool)(this["ImportFileTypeIsFixed"]));
+            }
+            set {
+                this["ImportFileTypeIsFixed"] = value;
             }
         }
     }

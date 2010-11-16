@@ -50,6 +50,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="ICSharpCode.SharpZipLib, Version=0.85.5.452, Culture=neutral, PublicKeyToken=1b03e6acf1164f73, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>.\ICSharpCode.SharpZipLib.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Data.SqlServerCe, Version=3.5.1.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91" />
@@ -61,6 +65,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CompressClass.cs" />
+    <Compile Include="FileCopyProgressForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FileCopyProgressForm.Designer.cs">
+      <DependentUpon>FileCopyProgressForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -78,6 +89,9 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="FileCopyProgressForm.resx">
+      <DependentUpon>FileCopyProgressForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
     </EmbeddedResource>
@@ -118,11 +132,17 @@
       <Project>{60FD337B-8EB5-4E20-A951-6EBB09CCE442}</Project>
       <Name>OpenNETCF.Desktop.Communication</Name>
     </ProjectReference>
+    <ProjectReference Include="..\TSDUtils\TSDUtils.csproj">
+      <Project>{D100355D-B87F-4C1F-9A40-CE1650C70E48}</Project>
+      <Name>TSDUtils</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Products.sdf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <None Include="Resources\FILECOPY_16.gif" />
+    <None Include="Resources\FILECOPY_16.AVI" />
     <None Include="Resources\StopHS.png" />
     <None Include="Resources\Stop.bmp" />
     <None Include="Resources\pda.ico" />
