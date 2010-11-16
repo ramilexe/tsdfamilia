@@ -11,7 +11,27 @@ namespace Familia.TSDClient
 {
     public partial class Form1 : Form
     {
+        public static event DatabaseChanged OnDatabaseChaned;
+        ProductsDataSet _products = new ProductsDataSet();
+        ScannedProductsDataSet _scannedProducts = new ScannedProductsDataSet();
+        System.Threading.Timer tmr =
+            new System.Threading.Timer(new System.Threading.TimerCallback(OnTimer)
+                , null
+                , System.Threading.Timeout.Infinite
+                , System.Threading.Timeout.Infinite);
+        private static DateTime lastCreationDatabaseTime = DateTime.Now;
         
+        private static void OnTimer(object state)
+        {
+            DateTime dt = System.IO.File.GetCreationTime("Products.sdf");
+            if (dt != lastCreationDatabaseTime)
+            {
+                if (OnDatabaseChaned != null)
+                    OnDatabaseChaned();
+            }
+                
+        }
+
         public Form1()
         {
             InitializeComponent();
@@ -19,6 +39,7 @@ namespace Familia.TSDClient
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            
             //try
             //{
             //    //BTPrintClass p = new BTPrintClass()
@@ -76,7 +97,8 @@ namespace Familia.TSDClient
                     b.Font = f;
                 }
             }
-            
+            //lastCreationDatabaseTime = System.IO.File.GetCreationTime("Products.sdf");
+            //tmr.Change(0, 60000);
 
             
         }
@@ -176,7 +198,7 @@ namespace Familia.TSDClient
 
                 case 48: Application.Exit(); break;
                 case 49: { 
-                    using (ViewProductForm frm = new ViewProductForm()) 
+                    using (ViewProductForm frm = new ViewProductForm(_products,_scannedProducts)) 
                     { 
                         frm.ShowDialog(); 
                     } 
@@ -196,5 +218,7 @@ namespace Familia.TSDClient
 
 
         }
+
+        
     }
 }

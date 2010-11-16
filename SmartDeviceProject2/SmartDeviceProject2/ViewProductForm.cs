@@ -14,11 +14,12 @@ namespace Familia.TSDClient
         ProductsDataSet _products;
         ScannedProductsDataSet _scannedProducts;
         Color lastColor;
-
+        ScanClass scaner = new ScanClass();
+        TSDServer.CustomEncodingClass MyEncoder = new TSDServer.CustomEncodingClass();
         public ViewProductForm()
         {
             InitializeComponent();
-            Program.scaner.InitScan();
+            
         }
 
         public ViewProductForm(ProductsDataSet products, ScannedProductsDataSet scannedProducts):this()
@@ -42,8 +43,12 @@ namespace Familia.TSDClient
             }
             else
             {
-                textBox5.Text = "";
-                this.textBox1.Text = barcode;
+                label5.Text = "";
+                label6.Text = "";
+                label7.Text = "";
+                label8.Text = "";
+
+                label5.Text = barcode;
 
                 ProductsDataSet.ProductsTblRow row =
                     GetProductRow(barcode);
@@ -54,35 +59,35 @@ namespace Familia.TSDClient
                     //SizeF f = g.MeasureString("String to fit", textBox1.Font);
                     if (row.ProductName.Length > 15)
                     {
-                        textBox1.Text = row.ProductName.Substring(0, 15);
-                        textBox5.Text = row.ProductName.Substring(15);
+                        label5.Text = row.ProductName.Substring(0, 15);
+                        label6.Text = row.ProductName.Substring(15);
                     }
                     else
-                        textBox1.Text = row.ProductName;
+                        label5.Text = row.ProductName;
 
-                    textBox2.Text = row.NewPrice.ToString();
-                    textBox3.Text = row.OldPrice.ToString();
-                    textBox4.Text = row.Article;
+                    label7.Text = row.NewPrice.ToString();
+                    label8.Text = row.OldPrice.ToString();
+                    label9.Text = row.Article;
 
                 }
                 else
                 {
-                    textBox5.Text = "...Товар не найден...";
+                    label5.Text = "...Товар не найден...";
                 }
             }
         }
         private void ViewProductForm_Load(object sender, EventArgs e)
         {
-            Program.scaner.ResumeScan();
-            Program.scaner.OnScanned += new Scanned(Scanned);
+            scaner.InitScan();
+            scaner.OnScanned += new Scanned(Scanned);
 
             foreach (Control c in this.Controls)
             {
                 c.GotFocus += new EventHandler(c_GotFocus);
                 c.LostFocus += new EventHandler(c_LostFocus);
             }
-            this.textBox1.Focus();
-            lastColor = this.textBox1.BackColor;
+            /*this.textBox1.Focus();
+            lastColor = this.textBox1.BackColor;*/
             
         }
 
@@ -93,30 +98,92 @@ namespace Familia.TSDClient
 
         void c_GotFocus(object sender, EventArgs e)
         {
-            lastColor = this.textBox1.BackColor;
+            //lastColor = this.textBox1.BackColor;
             ((Control)sender).BackColor = Color.Plum;
         }
 
         private void ViewProductForm_Closing(object sender, CancelEventArgs e)
         {
-            Program.scaner.PauseScan();
-            Program.scaner.OnScanned = null;
-
+            
+            scaner.OnScanned = null;
+            scaner.StopScan();
         }
 
         private ProductsDataSet.ProductsTblRow GetProductRow(string barcode)
         {
-            using (ProductsDataSetTableAdapters.ProductsTblTableAdapter ta
-                = new Familia.TSDClient.ProductsDataSetTableAdapters.ProductsTblTableAdapter())
+            ProductsDataSet.ProductsTblRow row = _products.ProductsTbl.FindByBarcode(long.Parse(barcode));
+            if (row == null)
             {
+                using (ProductsDataSetTableAdapters.ProductsBinTblTableAdapter ta
+                    = new Familia.TSDClient.ProductsDataSetTableAdapters.ProductsBinTblTableAdapter())
+                {
+                    
+                    ProductsDataSet.ProductsBinTblDataTable table =
+                        ta.GetDataByBarcode(long.Parse(barcode));
+                    if (table.Rows.Count > 0)
+                    {
+                        row = _products.ProductsTbl.NewProductsTblRow();
+                        for (int i = 0; i < _products.ProductsTbl.Columns.Count; i++)
+                        {
+                            if (table[0][i] != null &&
+                            table[0][i] != System.DBNull.Value)
+                            {
+                                if (table.Columns[i].DataType == typeof(byte[]))
+                                {
+                                    byte[] buffer = (byte[])table[0][i];
+                                    //byte[] newBuf = System.Text.Encoding.Convert(Encoding.GetEncoding(866),
+                                    //    Encoding.Default, buffer);
+                                    row[i] = MyEncoder.GetString(buffer); //System.Text.Encoding.Unicode.GetString(buffer, 0, buffer.Length);
+                                    
+                                 //   row[i] = System.Text.Encoding.Default.GetString(
+                                 //   (byte[])table[0][i], 0, ((byte[])table[0][i]).Length);
 
-                ProductsDataSet.ProductsTblDataTable table = 
-                    ta.GetDataByBarcode(barcode);
-                if (table.Rows.Count > 0)
-                    return table[0];
-                else
-                    return null;
+                                }
+                                else
+                                {
+                                    row[i] = table[0][i];
+                                }
+                                
+                            }
+                                //row.Article = System.Text.Encoding.Default.GetString(
+                                //    table[0].Article, 0, table[0].Article.Length);
+                        }
+                        /*if (table[0]["Artilce"] != null &&
+                            table[0]["Artilce"] != System.DBNull.Value)
+                            row.Article = System.Text.Encoding.Default.GetString(
+                                table[0].Article, 0, table[0].Article.Length);
+
+                        row.Barcode = table[0].Barcode;
+                        row.Country = System.Text.Encoding.Default.GetString(
+                            table[0].Country, 0, table[0].Country.Length);
+                        row.DiscountRate = System.Text.Encoding.Default.GetString(
+                            table[0].DiscountRate, 0, table[0].DiscountRate.Length);
+                        row.NavCode = System.Text.Encoding.Default.GetString(
+                            table[0].NavCode, 0, table[0].NavCode.Length);
+                        row.NewPrice = table[0].NewPrice;
+                        row.OldPrice = table[0].OldPrice;
+                        row.ProductName = System.Text.Encoding.Default.GetString(
+                            table[0].ProdName, 0, table[0].ProdName.Length);
+                        row.ProjectNumber = System.Text.Encoding.Default.GetString(
+                            table[0].ProjectNumber, 0, table[0].ProjectNumber.Length);
+                        row.PurchasePrice = table[0].PurchasePrice;
+                        row.ReturnDate = table[0].ReturnDate;
+                        row.Structure = System.Text.Encoding.Default.GetString(
+                            table[0].Structure, 0, table[0].Structure.Length);
+                        row.TransferDate = table[0].TransferDate;*/
+
+                        _products.ProductsTbl.AddProductsTblRow(row);
+                        _products.AcceptChanges();
+
+                        return row;
+
+                    }
+                    else
+                        return null;
+                }
             }
+            else
+                return row;
 
         }
 
@@ -127,11 +194,36 @@ namespace Familia.TSDClient
                 this.DialogResult = DialogResult.OK;
                 this.Close();
             }
+
+            if (e.KeyValue == 27)
+            {
+                this.DialogResult = DialogResult.OK;
+                this.Close();
+            }
+            
         }
 
         private void printBtn_KeyDown(object sender, KeyEventArgs e)
         {
+            if (e.KeyValue == 27)
+            {
+                this.DialogResult = DialogResult.OK;
+                this.Close();
+            }
+        }
 
+        private void searchBtn_Click(object sender, EventArgs e)
+        {
+ 
+        }
+
+        private void searchBtn_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyValue == 27)
+            {
+                this.DialogResult = DialogResult.OK;
+                this.Close();
+            }
         }
     }
 }
