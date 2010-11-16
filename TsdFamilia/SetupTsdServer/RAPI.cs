@@ -30,9 +30,13 @@ using System.Text;
 using System.Threading;
 using System.IO;
 using System.Collections;
+using System.Runtime.Remoting.Messaging;
 
 namespace OpenNETCF.Desktop.Communication
 {
+    public delegate void CopyFileToDeviceDelegate(string LocalFileName, string RemoteFileName, bool Overwrite);
+    public delegate void RAPICopingHandler(long totalSize, long completed, Exception e);
+
 	/// <summary>
 	/// RapiConnectedHandler delegate
 	/// </summary>
@@ -51,6 +55,8 @@ namespace OpenNETCF.Desktop.Communication
 		/// Event fired when a connection is lost
 		/// </summary>
 		public event RAPIConnectedHandler RAPIDisconnected;
+
+        public event RAPICopingHandler RAPIFileCoping;
 
 		private Thread m_initThread;
 		private IntPtr m_hInitEvent = IntPtr.Zero;
@@ -480,7 +486,8 @@ namespace OpenNETCF.Desktop.Communication
 
 			// open the local file
 			localFile = new FileStream(LocalFileName, FileMode.Open);
-
+            
+            long totalFileSize = localFile.Length;
 			// read 4k of data
 			bytesread = localFile.Read(buffer, filepos, buffer.Length);
 			while(bytesread > 0)
@@ -494,6 +501,8 @@ namespace OpenNETCF.Desktop.Communication
 					CeCloseHandle(remoteFile);
 					throw new RAPIException("Could not write to remote file");
 				}
+                if (RAPIFileCoping != null)
+                    RAPIFileCoping(totalFileSize, filepos, null);
 				try
 				{
 					// refill the local buffer
@@ -501,6 +510,8 @@ namespace OpenNETCF.Desktop.Communication
 				}
 				catch(Exception)
 				{
+                    if (RAPIFileCoping != null)
+                        RAPIFileCoping(totalFileSize, filepos, null);
 					bytesread = 0;
 				}
 			}
@@ -516,6 +527,35 @@ namespace OpenNETCF.Desktop.Communication
 			SetDeviceFileTime(RemoteFileName, RAPIFileTime.LastAccessTime, DateTime.Now);
 			SetDeviceFileTime(RemoteFileName, RAPIFileTime.LastModifiedTime, File.GetLastWriteTime(LocalFileName));
 		}
+        
+
+        /// <summary>
+        /// Copy a PC file to a connected device asynchonously
+        /// </summary>
+        /// <param name="LocalFileName">Name of source file on PC</param>
+        /// <param name="RemoteFileName">Name of destination file on device</param>
+        /// <param name="Overwrite">Overwrites existing file on the device if <b>true</b>, fails if <b>false</b></param>
+        /// <param name="requestCallback">Specify callback function, that will by executed after completion</param>
+        /// <param name="state">Not used, should be null</param>
+        public IAsyncResult BeginCopyFileToDevice(string LocalFileName, 
+            string RemoteFileName, 
+            bool Overwrite,
+            AsyncCallback requestCallback,
+            Object state)
+        {
+            CopyFileToDeviceDelegate del = new CopyFileToDeviceDelegate(CopyFileToDevice);
+
+            IAsyncResult res = del.BeginInvoke(LocalFileName, RemoteFileName, Overwrite, requestCallback, state);
+            return res;
+           //System.Threading.ThreadPool.QueueUserWorkItem(
+        }
+        
+        public void EndCopyFileToDevice(IAsyncResult asyncResult)
+        {
+            CopyFileToDeviceDelegate del = (CopyFileToDeviceDelegate)asyncResult.AsyncState;
+            del.EndInvoke(asyncResult);
+        }
+
 
 		/// <summary>
 		/// This function copies an existing device file to a new device file.
