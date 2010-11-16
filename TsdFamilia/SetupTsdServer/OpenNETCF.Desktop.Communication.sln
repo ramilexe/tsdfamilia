@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TSDServer", "..\TSDServer\T
 EndProject
 Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "SetupTsdServer", "..\SetupTsdServer\SetupTsdServer.vdproj", "{4C40B2F4-EE3B-4BD3-A390-C7DFF10E96C2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TSDUtils", "..\TSDUtils\TSDUtils.csproj", "{D100355D-B87F-4C1F-9A40-CE1650C70E48}"
+EndProject
 Global
 	GlobalSection(SubversionScc) = preSolution
 		Svn-Managed = True
@@ -27,6 +29,10 @@ Global
 		{349FA371-E4C8-4C15-9F68-9BFC314847EE}.Release|Any CPU.Build.0 = Release|Any CPU
 		{4C40B2F4-EE3B-4BD3-A390-C7DFF10E96C2}.Debug|Any CPU.ActiveCfg = Debug
 		{4C40B2F4-EE3B-4BD3-A390-C7DFF10E96C2}.Release|Any CPU.ActiveCfg = Release
+		{D100355D-B87F-4C1F-9A40-CE1650C70E48}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D100355D-B87F-4C1F-9A40-CE1650C70E48}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D100355D-B87F-4C1F-9A40-CE1650C70E48}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D100355D-B87F-4C1F-9A40-CE1650C70E48}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
