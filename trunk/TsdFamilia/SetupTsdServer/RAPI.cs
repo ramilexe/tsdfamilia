@@ -68,6 +68,7 @@ namespace OpenNETCF.Desktop.Communication
 		private ActiveSync m_activesync;
 		private int m_timeout = 0;
 		private CFPerformanceMonitor m_perfmon;
+        private bool Cancelled = false;
 
 		internal const int ERROR_NO_MORE_FILES = 18;
 		private const short INVALID_HANDLE_VALUE = -1;
@@ -464,68 +465,81 @@ namespace OpenNETCF.Desktop.Communication
 		/// <param name="Overwrite">Overwrites existing file on the device if <b>true</b>, fails if <b>false</b></param>
 		public void CopyFileToDevice(string LocalFileName, string RemoteFileName, bool Overwrite)
 		{
-			// check for connection
-			CheckConnection();
+            long totalFileSize = 0;
+            FileStream localFile;
+            IntPtr remoteFile = IntPtr.Zero;
+            int bytesread = 0;
+            int byteswritten = 0;
+            int filepos = 0;
+            int create = Overwrite ? CREATE_ALWAYS : CREATE_NEW;
+            byte[] buffer = new byte[0x1000]; // 4k transfer buffer
 
-			FileStream localFile;
-			IntPtr remoteFile = IntPtr.Zero;
-			int bytesread = 0;
-			int byteswritten = 0;
-			int filepos = 0;
-			int create = Overwrite ? CREATE_ALWAYS : CREATE_NEW;
-			byte[] buffer = new byte[0x1000]; // 4k transfer buffer
+            try
+            {
+                // check for connection
+                CheckConnection();
 
-			// create the remote file
-			remoteFile = CeCreateFile(RemoteFileName, GENERIC_WRITE, 0, 0, create, FILE_ATTRIBUTE_NORMAL, 0);
+                // create the remote file
+                remoteFile = CeCreateFile(RemoteFileName, GENERIC_WRITE, 0, 0, create, FILE_ATTRIBUTE_NORMAL, 0);
 
-			// check for success
-			if ((int)remoteFile == INVALID_HANDLE_VALUE)
-			{
-				throw new RAPIException("Could not create remote file");
-			}
+                // check for success
+                if ((int)remoteFile == INVALID_HANDLE_VALUE)
+                {
+                    throw new RAPIException("Could not create remote file");
+                }
 
-			// open the local file
-			localFile = new FileStream(LocalFileName, FileMode.Open);
-            
-            long totalFileSize = localFile.Length;
-			// read 4k of data
-			bytesread = localFile.Read(buffer, filepos, buffer.Length);
-			while(bytesread > 0)
-			{
-				// move remote file pointer # of bytes read
-				filepos += bytesread;
+                // open the local file
+                localFile = new FileStream(LocalFileName, FileMode.Open);
 
-				// write our buffer to the remote file
-				if(! Convert.ToBoolean(CeWriteFile(remoteFile, buffer, bytesread, ref byteswritten, 0)))
-				{ // check for success
-					CeCloseHandle(remoteFile);
-					throw new RAPIException("Could not write to remote file");
-				}
-                if (RAPIFileCoping != null)
-                    RAPIFileCoping(totalFileSize, filepos, null);
-				try
-				{
-					// refill the local buffer
-					bytesread = localFile.Read(buffer, 0, buffer.Length);
-				}
-				catch(Exception)
-				{
+                totalFileSize = localFile.Length;
+                // read 4k of data
+                bytesread = localFile.Read(buffer, filepos, buffer.Length);
+                while (bytesread > 0 && !Cancelled)
+                {
+                    // move remote file pointer # of bytes read
+                    filepos += bytesread;
+
+                    // write our buffer to the remote file
+                    if (!Convert.ToBoolean(CeWriteFile(remoteFile, buffer, bytesread, ref byteswritten, 0)))
+                    { // check for success
+                        CeCloseHandle(remoteFile);
+                        throw new RAPIException("Could not write to remote file");
+                    }
                     if (RAPIFileCoping != null)
                         RAPIFileCoping(totalFileSize, filepos, null);
-					bytesread = 0;
-				}
-			}
+                    try
+                    {
+                        // refill the local buffer
+                        bytesread = localFile.Read(buffer, 0, buffer.Length);
+                    }
+                    catch (Exception)
+                    {
+                        if (RAPIFileCoping != null)
+                            RAPIFileCoping(totalFileSize, filepos, null);
+                        bytesread = 0;
+                    }
+                }
 
-			// close the local file
-			localFile.Close();
+                // close the local file
+                localFile.Close();
 
-			// close the remote file
-			CeCloseHandle(remoteFile);
+                // close the remote file
+                CeCloseHandle(remoteFile);
 
-			// sync the date/times
-			SetDeviceFileTime(RemoteFileName, RAPIFileTime.CreateTime, File.GetCreationTime(LocalFileName));
-			SetDeviceFileTime(RemoteFileName, RAPIFileTime.LastAccessTime, DateTime.Now);
-			SetDeviceFileTime(RemoteFileName, RAPIFileTime.LastModifiedTime, File.GetLastWriteTime(LocalFileName));
+                // sync the date/times
+                SetDeviceFileTime(RemoteFileName, RAPIFileTime.CreateTime, File.GetCreationTime(LocalFileName));
+                SetDeviceFileTime(RemoteFileName, RAPIFileTime.LastAccessTime, DateTime.Now);
+                SetDeviceFileTime(RemoteFileName, RAPIFileTime.LastModifiedTime, File.GetLastWriteTime(LocalFileName));
+            }
+            catch (Exception err)
+            {
+                if (RAPIFileCoping != null)
+                    RAPIFileCoping(totalFileSize, filepos, err);
+            }
+            finally
+            {
+                Cancelled = false;
+            }
 		}
         
 
@@ -543,17 +557,28 @@ namespace OpenNETCF.Desktop.Communication
             AsyncCallback requestCallback,
             Object state)
         {
+            Cancelled = false;
             CopyFileToDeviceDelegate del = new CopyFileToDeviceDelegate(CopyFileToDevice);
 
             IAsyncResult res = del.BeginInvoke(LocalFileName, RemoteFileName, Overwrite, requestCallback, state);
             return res;
            //System.Threading.ThreadPool.QueueUserWorkItem(
         }
-        
+        public void CancelCopyFileToDevice()
+        {
+            Cancelled = true;
+        }
+    
+
+    
         public void EndCopyFileToDevice(IAsyncResult asyncResult)
         {
-            CopyFileToDeviceDelegate del = (CopyFileToDeviceDelegate)asyncResult.AsyncState;
+            System.Runtime.Remoting.Messaging.AsyncResult ar =
+                (System.Runtime.Remoting.Messaging.AsyncResult)asyncResult;
+            CopyFileToDeviceDelegate del = (CopyFileToDeviceDelegate)ar.AsyncDelegate;
+            
             del.EndInvoke(asyncResult);
+            Cancelled = false;
         }
 
 
@@ -1453,11 +1478,11 @@ namespace OpenNETCF.Desktop.Communication
 		/// <summary>
 		/// File attributes of the file found.
 		/// </summary>
-		public int FileAttributes
+		public System.IO.FileAttributes FileAttributes
 		{
 			get
 			{
-				return BitConverter.ToInt32(data, 0);
+				return (System.IO.FileAttributes)BitConverter.ToInt32(data, 0);
 			}
 		}
 
