@@ -89,6 +89,7 @@
     <Compile Include="GridUC.Designer.cs">
       <DependentUpon>GridUC.cs</DependentUpon>
     </Compile>
+    <Compile Include="NativeClass.cs" />
     <Compile Include="ProductsDataSet.cs">
       <DependentUpon>ProductsDataSet.xsd</DependentUpon>
     </Compile>
