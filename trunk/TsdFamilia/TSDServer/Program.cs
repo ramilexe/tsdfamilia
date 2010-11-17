@@ -8,8 +8,14 @@ namespace TSDServer
 {
     static class Program
     {
+        //главное окно программы
         static Form1 mainForm = null;
+        //класс сервера удаленного управления
         static RemoteObject ro = new RemoteObject();
+        
+        /// <summary>
+        /// статический метод для вызова метода Show главного окна программы
+        /// </summary>
         public static void Show()
         {
             mainForm.Show();
@@ -22,69 +28,45 @@ namespace TSDServer
         [STAThread]
         static void Main()
         {
-           /* CustomEncodingClass c = new CustomEncodingClass();
-            c.Prepare();
-            byte[] b = c.GetBytes("ПЕНА Д/БРИТЬЯ АРКО 200");
-            string s = c.GetString(b);*/
-            /*using (System.Data.SqlServerCe.SqlCeConnection conn =
-                new System.Data.SqlServerCe.SqlCeConnection(
-                    "Data Source=Копия Products.sdf"))
-            {
-                conn.Open();
-                using (System.IO.StreamWriter writer =
-                    new System.IO.StreamWriter("test_goods.txt",true,System.Text.Encoding.GetEncoding("windows-1251")))
-                    {
-                using (System.Data.SqlServerCe.SqlCeCommand cmd
-                     = new System.Data.SqlServerCe.SqlCeCommand())
-                {
-                    cmd.CommandText = "select * from  productsTbl";
-                    cmd.Connection = conn;
-                    System.Data.SqlServerCe.SqlCeDataReader rdr = cmd.ExecuteReader();
-                    while (rdr.Read())
-                    {
-                        for (int i = 0; i < rdr.FieldCount; i++)
-                        {
-                            writer.Write("{0}|",rdr[i].ToString());
-
-                        }
-                        writer.Write("\n");
-                    }
-                    writer.Flush();
-                }
-                }
-            }
-            return;*/
-                
             
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             mainForm = new Form1();
+            //проверка на наличие второй запущеной копии программы
+            //если Null значит уже запущена другая копия
             if (mainForm.mutex != null)
             {
+                //другая копия программы не запущена
+                //инициализируем IPC сервер, который может принимать сообщения
+                //(в данном случае нужно для получения сообщения от второй копии показать главное окно
                 IpcChannel serverChannel =
                     new IpcChannel("localhost:9090");
 
                 System.Runtime.Remoting.Channels.ChannelServices.RegisterChannel(
-                    serverChannel);
+                    serverChannel,false);
 
                 System.Runtime.Remoting.WellKnownServiceTypeEntry WKSTE =
                new System.Runtime.Remoting.WellKnownServiceTypeEntry(
                    typeof(RemoteObject), "RemoteObject.rem", System.Runtime.Remoting.WellKnownObjectMode.Singleton);
                 System.Runtime.Remoting.RemotingConfiguration.RegisterWellKnownServiceType(WKSTE);
-                Application.Run(mainForm);
+
+                Application.Run(mainForm);//запуск главного экранного потока
             }
             else
             {
+                //есть уже запущенная копия программы
                 IpcChannel channel = new IpcChannel();
-                System.Runtime.Remoting.Channels.ChannelServices.RegisterChannel(channel);
-
+                System.Runtime.Remoting.Channels.ChannelServices.RegisterChannel(channel,false);
+                //получаем адрес сервера программы
                 RemoteObject service = (RemoteObject)Activator.GetObject(
                                typeof(RemoteObject), "ipc://localhost:9090/RemoteObject.rem");
-
+                
+                //отправляем сообщение показать главное окно
                 service.Show();
 
-                mainForm.Activate();
+                //mainForm.Activate();
+                //выходим из программы
                 
             }
         }
@@ -92,13 +74,17 @@ namespace TSDServer
 
 
 // Remote object.
-    
+    /// <summary>
+    /// класс для сервера управления
+    /// </summary>
     public class RemoteObject :System.MarshalByRefObject
     {
+        /// <summary>
+        /// вызывает у главного класса програмы (Program) статический метод показать главное окно прораммы
+        /// </summary>
     public void Show()
     {
         Program.Show();
-        //Mainform.Show();
     }
 }
 

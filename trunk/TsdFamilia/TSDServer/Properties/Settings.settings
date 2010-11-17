@@ -10,10 +10,10 @@
 &lt;/SerializableConnectionString&gt;</DesignTimeValue>
       <Value Profile="(Default)">Data Source=|DataDirectory|\Products.sdf</Value>
     </Setting>
-    <Setting Name="TSDDBPAth" Type="System.String" Scope="Application">
+    <Setting Name="TSDDBPAth" Type="System.String" Scope="User">
       <Value Profile="(Default)">\Program files\TSDFamilia\</Value>
     </Setting>
-    <Setting Name="NumberDecimalSeparator" Type="System.String" Scope="Application">
+    <Setting Name="NumberDecimalSeparator" Type="System.String" Scope="User">
       <Value Profile="(Default)">.</Value>
     </Setting>
     <Setting Name="ShortDatePattern" Type="System.String" Scope="User">
