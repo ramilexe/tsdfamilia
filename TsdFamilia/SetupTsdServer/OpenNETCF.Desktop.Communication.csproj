@@ -87,6 +87,7 @@
     <Reference Include="System.Data">
       <Name>System.Data</Name>
     </Reference>
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms">
       <Name>System.Windows.Forms</Name>
     </Reference>
@@ -110,6 +111,12 @@
     <Compile Include="IDccMan.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="OpenDeviceFileDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="OpenDeviceFileDialog.Designer.cs">
+      <DependentUpon>OpenDeviceFileDialog.cs</DependentUpon>
+    </Compile>
     <Compile Include="PerformanceStatistics.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -122,6 +129,11 @@
     <Compile Include="SYSTEMTIME.cs">
       <SubType>Code</SubType>
     </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="OpenDeviceFileDialog.resx">
+      <DependentUpon>OpenDeviceFileDialog.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
