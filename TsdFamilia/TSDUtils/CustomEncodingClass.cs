@@ -4,66 +4,69 @@ using System.Text;
 
 namespace TSDServer
 {
+    /// <summary>
+    /// собственный класс для перекодирования из (в) кодировки Windows1251 в байтовый массив
+    /// На терминале эта кодировка платформой не поддерживается
+    /// </summary>
     public class CustomEncodingClass
     {
+        //строка всех используемых символов в русской кодировке
         string sourceString =
             "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЬЫЪЭЮЯабвгдеёжзийклмнопрстуфхцчшщьыъэюя№";
-        byte[] sourceArray;
+        //byte[] sourceArray;
+        //исходный массив всех символов по порядку, включая латинские и спецсимволы.
         char[] sourceCharArray;
+        //словарь для получения по символу его кода
         Dictionary<char, byte> symPos = new Dictionary<char, byte>();
+        
         public CustomEncodingClass()
         {
             Prepare();
         }
+
+        /// <summary>
+        /// инициализирует все массивы для начала работы с кодировкой
+        /// </summary>
         public void Prepare()
         {
-            sourceArray = new byte[255];
-            //sourceCharArray = sourceString.ToCharArray();
+            //максимум 255 символов так как преобразуем в байтовый массив
             sourceCharArray = new char[255];
-            //string test = "";
-            int lastSymbol = 0;
+            
+            int lastSymbol = 0;//будет последний латинский символ перед кирилицей в Win1251
+            //инициализируем массив латинскими символами
             for (int i = 0; i < 255; i++)
             {
-                sourceArray[i ] = (byte)i;
                 char c = Convert.ToChar(i);
                 sourceCharArray[i] = c;
-                //test = test + c;
                 symPos.Add(c, (byte)i);
-                if (c == '~')
+                if (c == '~') //последний символ перед кирилицей в Win1251
                 {
                     lastSymbol = i;
                     break;
                 }
 
             }
-
+            //инициализируем массив русскими символами
             for (int i = lastSymbol+1; i < lastSymbol+sourceString.Length+1; i++)
             {
-                sourceArray[i] = (byte)i;
                 char c = sourceString[i - lastSymbol-1];
                 sourceCharArray[i] = c;
                 symPos.Add(c, (byte)i);
-               // test = test + c;
-               
-
             }
-            symPos.Add(Convert.ToChar(160), 32);
-            symPos.Add(Convert.ToChar(166), 124);
+            //замена этих символов нужными
+            symPos.Add(Convert.ToChar(160), 32);//какой-то символ похож на пробел
+            symPos.Add(Convert.ToChar(166), 124);//какой-то символ похож на |
 
-            
-            
-           /* for (int i=0;i<sourceCharArray.Length;i++)
-            {
-                sourceArray[i + lastSymbol + 1] = (byte)(i + lastSymbol + 1);
-                
-            }*/
         }
-
+        /// <summary>
+        /// Получить байтовой массив по строке
+        /// </summary>
+        /// <param name="decodeString">Исходная строка в Unicode</param>
+        /// <returns>возвращает байтовый массив в нашей пользовательской кодировке.Длина массива = длине строки</returns>
         public byte[] GetBytes(string decodeString)
         {
             
             byte[] array = new byte[decodeString.Length];
-            
             for (int i = 0; i < decodeString.Length; i++)
             {
                 char c = ' ';
@@ -74,6 +77,7 @@ namespace TSDServer
                 }
                 catch
                 {
+                    //если попадает неизвестный символ будет заменятся пробелом.
                     array[i] = 32;
                 }
             }
@@ -81,7 +85,11 @@ namespace TSDServer
             return array;
 
         }
-
+        /// <summary>
+        /// Преобразование из массива байт в пользовательской кодировке в строку unicode
+        /// </summary>
+        /// <param name="array">массив байт в пользовательской кодировке</param>
+        /// <returns>строка в unicode</returns>
         public string GetString(byte[] array)
         {
 
