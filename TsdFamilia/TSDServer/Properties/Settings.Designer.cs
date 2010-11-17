@@ -33,21 +33,27 @@ namespace TSDServer.Properties {
             }
         }
         
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("\\Program files\\TSDFamilia\\")]
         public string TSDDBPAth {
             get {
                 return ((string)(this["TSDDBPAth"]));
             }
+            set {
+                this["TSDDBPAth"] = value;
+            }
         }
         
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute(".")]
         public string NumberDecimalSeparator {
             get {
                 return ((string)(this["NumberDecimalSeparator"]));
+            }
+            set {
+                this["NumberDecimalSeparator"] = value;
             }
         }
         

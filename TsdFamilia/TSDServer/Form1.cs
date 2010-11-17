@@ -42,10 +42,10 @@ namespace TSDServer
         public event FinishImport OnFinishImport;
         public event FailedImport OnFailedImport;
         private System.Threading.Thread loadThread = null;
+        private bool Cancelled = false;
+        FileCopyProgressForm frm = new FileCopyProgressForm();
 
-
-        System.IO.Compression.DeflateStream stream = null;
-
+ 
         CustomEncodingClass MyEncoder = new CustomEncodingClass();
 
         void SetFormats()
@@ -87,6 +87,8 @@ namespace TSDServer
                 MessageBox.Show("Идет процесс загрузки!");
                 return;
             }
+            Cancelled = false;
+            richTextBox1.Text = "";
             toolStripStatusLabel2.Text = "";
             if (openFileDialog1.ShowDialog() == DialogResult.OK)
             {
@@ -96,7 +98,10 @@ namespace TSDServer
                 OnFailedImport += new FailedImport(Form1_OnFailedImport);
                 loadThread = new System.Threading.Thread(new System.Threading.ParameterizedThreadStart(BeginImport));
                 loadThread.Start(openFileDialog1.FileName);
-                button4.Enabled = true;
+                button4.Enabled = true; this.button1.Enabled = false;
+                this.button2.Enabled = false;
+                this.button3.Enabled = false;
+
             }
         }
 
@@ -128,15 +133,20 @@ namespace TSDServer
                 OnProcessImport = null;
                 OnFinishImport = null;
                 OnFailedImport = null;
-                try
+                /*try
                 {
                     //loadThread.Join();
                     if ((int)(loadThread.ThreadState&System.Threading.ThreadState.Running) != 0)
                         loadThread.Abort();
                 }
-                catch { }
+                catch { }*/
+                //loadThread.Join();
                 loadThread = null;
                 button4.Enabled = false;
+                this.button1.Enabled = true;
+                this.button2.Enabled = true;
+                this.button3.Enabled = true;
+                richTextBox1.AppendText("Загрузка завершена...\n");
             }
         }
 
@@ -179,6 +189,8 @@ namespace TSDServer
                     string s = string.Empty;
                     while ((s = rdr.ReadLine()) != null )
                     {
+                        if (Cancelled)
+                            return;
                         del.Invoke(s);
                         
                     }
@@ -190,6 +202,11 @@ namespace TSDServer
                 
                 //MessageBox.Show("Загрузка завершена", "Статус загрузки", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
+            catch (System.Threading.ThreadAbortException)
+            {
+                if (OnFailedImport != null)
+                    OnFailedImport("Загрузка отменена... ");
+            }
             catch (Exception err)
             {
                 if (OnFailedImport != null)
@@ -198,6 +215,7 @@ namespace TSDServer
             }
             finally
             {
+                Cancelled = false;
                 try
                 {
                     using (ProductsDataSetTableAdapters.ProductsBinTblTableAdapter tAdapter =
@@ -211,7 +229,7 @@ namespace TSDServer
                 catch{}
 
                 if (OnFinishImport != null)
-                    OnFinishImport("Загрузка завершена");
+                    OnFinishImport("Загрузка завершена...");
             }
         }
 
@@ -300,13 +318,10 @@ namespace TSDServer
                 cols[0].Trim() == "9999999999999")
             {
                 if (OnProcessImport != null)
-                    OnProcessImport(string.Format("Штрихкод пустой - строка пропущена {0}\n", s), true);
-                //this.richTextBox1.AppendText(string.Format("Штрихкод пустой - строка пропущена {0}\n",s));
+                    OnProcessImport(string.Format("Штрихкод неверный - строка пропущена {0}\n", s), true);
                 return;
             }
-            //row[0] = cols[0].Trim();
-            //ParseColumn(0, row);
-            
+           
             for (int i = 0; i <  productsDataSet1.ProductsBinTbl.Columns.Count; i++)
             {
                 try
@@ -315,35 +330,11 @@ namespace TSDServer
                     readedLength = readedLength + colsLength[i] + 1;
 
                     ParseColumn(i, row);
-                    /*if (productsDataSet1.ProductsBinTbl.Columns[i].DataType ==
-                        typeof(string))
-                    {
-                        row[i] = cols[i].Trim();
-                        continue;
-                    }
-                    if (!String.IsNullOrEmpty(cols[i].Trim()))
-                    {
-                        if (productsDataSet1.ProductsBinTbl.Columns[i].DataType ==
-                            typeof(decimal))
-                        {
-                            row[i] = Decimal.Parse(cols[i].Trim(), nfi);
-                            continue;
-                        }
-
-                        if (productsDataSet1.ProductsBinTbl.Columns[i].DataType ==
-                            typeof(DateTime))
-                        {
-                            row[i] = DateTime.Parse(cols[i].Trim(), dateFormat);
-                            continue;
-                        }
-                    }
-                    */
-
+                   
                 }
                 catch (Exception err)
                 {
-                    //this.richTextBox1.AppendText(string.Format("Ошибка в строке: {0}: {1}\n", s,err.Message));
-                    if (OnProcessImport != null)
+                   if (OnProcessImport != null)
                         OnProcessImport(string.Format("Ошибка в строке: {0}: {1}\n", s,err.Message), true);
                     
                 }
@@ -359,88 +350,33 @@ namespace TSDServer
         {
 
             cols = s.Split(fieldDelimeter);
-            /*byte[] buffer = System.Text.Encoding.Unicode.GetBytes(s);
-            using (MemoryStream ms = new MemoryStream())
-            {
-                ms.Write(buffer, 0, buffer.Length);
-                ms.Seek(0, SeekOrigin.Begin);
-                using (MemoryStream ms1 = new MemoryStream())
-                {
-                    using (GZipOutputStream zipStream = new GZipOutputStream(ms1))
-                    {
-                        byte[] tmpBuffer = new byte[4096];
-
-                        StreamUtils.Copy(ms, zipStream, tmpBuffer);
-                        zipStream.Finish();
-
-                        buffer = new byte[(int)ms1.Length];
-                        //zipStream.Seek(0, SeekOrigin.Begin);
-                        ms1.Seek(0, SeekOrigin.Begin);
-                        ms1.Read(buffer, 0, (int)ms1.Length);
-                        //zipStream.Read(tableBuffer, 0, tableBuffer.Length);
-                        //System.Threading.Thread.Sleep(500);
-                        
-                    }
-                }
-            }*/
-
+            
             ProductsDataSet.ProductsBinTblRow row =
                 this.productsDataSet1.ProductsBinTbl.NewProductsBinTblRow();
 
-            //cols[0] = s.Substring(0, colsLength[0]);
-            //int readedLength = colsLength[0];
+
 
 
             if (String.IsNullOrEmpty(cols[0].Trim()) ||
                 cols[0].Trim() == "0" ||
                 cols[0].Trim() == "9999999999999")
             {
-                //this.richTextBox1.AppendText(string.Format("Штрихкод пустой - строка пропущена {0}\n", s));
-                if (OnProcessImport != null)
-                    OnProcessImport(string.Format("Штрихкод пустой - строка пропущена {0}\n", s), true);
-
+                 if (OnProcessImport != null)
+                     OnProcessImport(string.Format("Штрихкод неверный - строка пропущена {0}\n", s), true);
                 return;
             }
-            //row[0] = cols[0].Trim();
-            //ParseColumn(0, row);
+
 
             for (int i = 0; i < productsDataSet1.ProductsBinTbl.Columns.Count; i++)
             {
                 try
                 {
-                    //cols[i] = s.Substring(readedLength + 1, colsLength[i]);
-                    //readedLength = readedLength + colsLength[i] + 1;
+
 
                     ParseColumn(i, row);
-                    /*if (productsDataSet1.ProductsBinTbl.Columns[i].DataType ==
-                        typeof(string))
-                    {
-                        row[i] = cols[i].Trim();
-                        continue;
-                    }
-                    if (!String.IsNullOrEmpty(cols[i].Trim()))
-                    {
-                        if (productsDataSet1.ProductsBinTbl.Columns[i].DataType ==
-                            typeof(decimal))
-                        {
-                            row[i] = Decimal.Parse(cols[i].Trim(), nfi);
-                            continue;
-                        }
-
-                        if (productsDataSet1.ProductsBinTbl.Columns[i].DataType ==
-                            typeof(DateTime))
-                        {
-                            row[i] = DateTime.Parse(cols[i].Trim(), dateFormat);
-                            continue;
-                        }
-                    }*/
-                    
-                    
-
                 }
                 catch (Exception err)
                 {
-                    //this.richTextBox1.AppendText(string.Format("Ошибка в строке: {0}: {1}\n", s, err.Message));
                     if (OnProcessImport != null)
                         OnProcessImport(string.Format("Ошибка в строке: {0}: {1}\n", s, err.Message), true);
                     
@@ -454,7 +390,7 @@ namespace TSDServer
 
         }
 
-        FileCopyProgressForm frm = new FileCopyProgressForm();
+        
         private void button2_Click(object sender, EventArgs e)
         {
             try
@@ -462,15 +398,27 @@ namespace TSDServer
                 terminalRapi.Connect(true,5000);
                 if (terminalRapi.Connected)
                 {
-                    //terminalRapi.CopyFileToDevice(Application.StartupPath+"\\products.sdf",
-                    //    Properties.Settings.Default.TSDDBPAth + "products.sdf", true);
-                    terminalRapi.RAPIFileCoping += new OpenNETCF.Desktop.Communication.RAPICopingHandler(terminalRapi_RAPIFileCoping);
-                    terminalRapi.BeginCopyFileToDevice(Application.StartupPath + "\\products.sdf",
-                        Properties.Settings.Default.TSDDBPAth + "products.sdf", true,
-                        new AsyncCallback(OnEndCopyFile), null);
-                    frm.Show();
-                    //MessageBox.Show("Загрузка завершена", "Статус загрузки на терминал", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    this.button1.Enabled = false;
+                    this.button2.Enabled = false;
+                    this.button3.Enabled = false;
+                    richTextBox1.Text = "";
 
+                    OpenNETCF.Desktop.Communication.RAPICopingHandler onCopyDelegate = 
+                        new OpenNETCF.Desktop.Communication.RAPICopingHandler(terminalRapi_RAPIFileCoping);
+                    terminalRapi.RAPIFileCoping += onCopyDelegate;
+                    
+                    IAsyncResult ar = 
+                        terminalRapi.BeginCopyFileToDevice(Application.StartupPath + "\\products.sdf",
+                            Properties.Settings.Default.TSDDBPAth + "products.sdf", true,
+                            new AsyncCallback(OnEndCopyFile), null);
+                    
+                    if (frm.ShowDialog() == DialogResult.Abort)
+                    {
+                        richTextBox1.AppendText("Отмена копирования...\n");
+                        richTextBox1.AppendText("Дождитесь завершения... \n");
+                        terminalRapi.RAPIFileCoping -= onCopyDelegate;
+                        terminalRapi.CancelCopyFileToDevice();
+                    }
                 }
                 else
                 {
@@ -487,9 +435,11 @@ namespace TSDServer
         {
             if (this.InvokeRequired)
             {
+
                 OpenNETCF.Desktop.Communication.RAPICopingHandler del =
                     new OpenNETCF.Desktop.Communication.RAPICopingHandler(terminalRapi_RAPIFileCoping);
                 this.Invoke(del, totalSize, completed, e);
+
             }
             else
             {
@@ -497,7 +447,7 @@ namespace TSDServer
                     frm.SetProgress(totalSize, completed);
                 else
                 {
-
+                    frm.SetError(totalSize, completed,e);
                 }
             }
         }
@@ -512,7 +462,12 @@ namespace TSDServer
             else
             {
                 frm.Hide();
-                MessageBox.Show("Загрузка завершена", "Статус загрузки на терминал", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("Копирование завершено", "Статус загрузки на терминал", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                this.button1.Enabled = true;
+                this.button2.Enabled = true;
+                this.button3.Enabled = true;
+                richTextBox1.AppendText("Копирование завершено...\n");
+
             }
         }
 
@@ -520,6 +475,97 @@ namespace TSDServer
         {
             timer1.Enabled = true;
             button4.Enabled = false;
+            
+            terminalRapi.ActiveSync.Active += new OpenNETCF.Desktop.Communication.ActiveHandler(ActiveSync_Active);
+            terminalRapi.ActiveSync.IPChange += new OpenNETCF.Desktop.Communication.IPAddrHandler(ActiveSync_IPChange);
+            terminalRapi.ActiveSync.Answer += new OpenNETCF.Desktop.Communication.AnswerHandler(ActiveSync_Answer);
+            terminalRapi.ActiveSync.Disconnect += new OpenNETCF.Desktop.Communication.DisconnectHandler(ActiveSync_Disconnect);
+            terminalRapi.ActiveSync.Inactive += new OpenNETCF.Desktop.Communication.InactiveHandler(ActiveSync_Inactive);
+            
+            
+            
+        }
+
+        void ActiveSync_IPChange(int IP)
+        {
+            if (this.InvokeRequired)
+            {
+                OpenNETCF.Desktop.Communication.IPAddrHandler del
+                     =
+                     new OpenNETCF.Desktop.Communication.IPAddrHandler(ActiveSync_IPChange);
+                this.Invoke(del, IP);
+            }
+            else
+            {
+                richTextBox1.AppendText("IP Change " +
+                    OpenNETCF.Desktop.Communication.ActiveSync.IntToDottedIP(IP)+"\n");
+            }
+        }
+
+        void ActiveSync_Inactive()
+        {
+            if (this.InvokeRequired)
+            {
+                OpenNETCF.Desktop.Communication.InactiveHandler del
+                     =
+                     new OpenNETCF.Desktop.Communication.InactiveHandler(ActiveSync_Inactive);
+                this.Invoke(del);
+            }
+            else
+            {
+                richTextBox1.AppendText("Inactive\n");
+            }
+        }
+
+        void ActiveSync_Disconnect()
+        {
+            if (this.InvokeRequired)
+            {
+                OpenNETCF.Desktop.Communication.DisconnectHandler del
+                     =
+                     new OpenNETCF.Desktop.Communication.DisconnectHandler(ActiveSync_Disconnect);
+                this.Invoke(del);
+            }
+            else
+            {
+                richTextBox1.AppendText("Disconnect\n");
+                toolStripStatusLabel1.Text = status[1];
+                toolStripStatusLabel1.Image =
+                    Properties.Resources.CriticalError;
+            }
+        }
+
+        void ActiveSync_Answer()
+        {
+            if (this.InvokeRequired)
+            {
+                OpenNETCF.Desktop.Communication.AnswerHandler del
+                     =
+                     new OpenNETCF.Desktop.Communication.AnswerHandler(ActiveSync_Answer);
+                this.Invoke(del);
+            }
+            else
+            {
+                richTextBox1.AppendText("Answer\n");
+            }
+        }
+
+        void ActiveSync_Active()
+        {
+            if (this.InvokeRequired)
+            {
+                OpenNETCF.Desktop.Communication.ActiveHandler del
+                     =
+                     new OpenNETCF.Desktop.Communication.ActiveHandler(ActiveSync_Active);
+                this.Invoke(del);
+            }
+            else
+            {
+                richTextBox1.AppendText("Active\n");
+                toolStripStatusLabel1.Text = status[0];
+                toolStripStatusLabel1.Image =
+                    Properties.Resources.OK;
+            }
         }
 
         private void timer1_Tick(object sender, EventArgs e)
@@ -531,7 +577,7 @@ namespace TSDServer
             }
             catch { }*/
 
-            if (terminalRapi.Connected)
+            if (terminalRapi.DevicePresent)
             {
                 toolStripStatusLabel1.Text = status[0];
                 toolStripStatusLabel1.Image =
@@ -585,8 +631,11 @@ namespace TSDServer
                 {
                     try
                     {
+                        Cancelled = true;
+                        richTextBox1.AppendText("Отмена загрузки...\n");
+                        richTextBox1.AppendText("Дождитесь завершения... \n");
                         //if ((int)(loadThread.ThreadState&System.Threading.ThreadState.Running) != 0)
-                        loadThread.Abort();
+                        //loadThread.Abort();
                     }
                     catch 
                     {
@@ -596,6 +645,17 @@ namespace TSDServer
                     
 
             }
+        }
+
+        private void richTextBox1_TextChanged(object sender, EventArgs e)
+        {
+            richTextBox1.ScrollToCaret();
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            SettingsForm settingsForm = new SettingsForm();
+            settingsForm.ShowDialog();
         }
     }
 }
