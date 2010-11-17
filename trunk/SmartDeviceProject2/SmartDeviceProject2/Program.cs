@@ -16,6 +16,15 @@ namespace Familia.TSDClient
         [MTAThread]
         static void Main()
         {
+            int storePages=0;
+            int ramPages=0;
+            int pageSize=0;
+            bool v = NativeClass.GetSystemMemoryDivision(ref storePages,ref ramPages,ref pageSize);
+
+            int i = NativeClass.SystemStorageMemory;
+            NativeClass.SystemStorageMemory = i / 2;
+            SystemMemoryChangeStatusEnum s =
+                NativeClass.ChangeStatus;
 
             /*
             using (System.IO.StreamWriter w = new System.IO.StreamWriter("test.txt"))
