@@ -275,7 +275,20 @@ namespace TSDServer
                     return;
                     //continue;
                 }
-
+                if (productsDataSet1.ProductsBinTbl.Columns[i].DataType ==
+                   typeof(System.Byte))
+                {
+                    row[i] = System.Byte.Parse(cols[i].Trim());
+                    return;
+                    //continue;
+                }
+                if (productsDataSet1.ProductsBinTbl.Columns[i].DataType ==
+                   typeof(System.Int16))
+                {
+                    row[i] = System.Int16.Parse(cols[i].Trim());
+                    return;
+                    //continue;
+                }
                 if (productsDataSet1.ProductsBinTbl.Columns[i].DataType ==
                    typeof(System.Single))
                 {
