@@ -46,6 +46,9 @@ WHERE     (ProductsBinTbl.Barcode = @b)", conn))
                         cmdUpd.Parameters.Add("@sc", typeof(int));
                         cmdUpd.Parameters.Add("@sndc", typeof(int));
                         cmdUpd.Parameters.Add("@b", typeof(Int64));
+                        System.Random r = new Random();
+                        Array vals = Enum.GetValues(typeof(TSDUtils.ActionCode));
+                        Array vals1 = Enum.GetValues(typeof(TSDUtils.ShablonCode));
 
                         using (System.Data.SqlServerCe.SqlCeDataReader rdr = cmd.ExecuteReader())
                         {
@@ -55,16 +58,40 @@ WHERE     (ProductsBinTbl.Barcode = @b)", conn))
                                 Int64 bc =  (Int64)rdr[0];
                                 cmdUpd.Parameters[3].Value = bc;
                                 byte c = 0;
-                                System.Random r = new Random();
-                                foreach (TSDUtils.ActionCode i in Enum.GetValues(typeof(TSDUtils.ActionCode)))
+                                
+                                
+                                for (int k=0;k<4;k++)
+                                
                                 {
-                                    byte b = (byte)i;
-                                    //c = (((byte)r.NextDouble()) & b)|((byte)c);
-
-
-
-                                    
+                                    int b = 0;
+                                    Double d = Math.Round(r.NextDouble());
+                                    b = (byte)((byte)vals.GetValue(k) * ((byte)d));
+                                    c = (byte)(b|c);
                                 }
+                                uint sum = 0;
+                                
+                                for (byte k = 0; k < 8; k++)
+                                {
+                                    byte d1 = (byte)Math.Round(r.NextDouble() * 8);
+
+                                    byte b1 = (byte)(1 << k);//Math.Pow(2, k);
+                                    byte b = (byte)(c & b1);
+                                    if (b != 0)
+                                    {
+                                        uint b2 = (uint)(d1 << (3 * k));
+                                        sum += b2;
+                                    }
+                                    /*Double d = Math.Round(r.NextDouble());
+                                    b = (byte)((byte)vals1.GetValue(k) * ((byte)d));*/
+
+                                    //c = (byte)(b*Math.Pow( | c);
+
+                                }
+                                cmdUpd.Parameters[0].Value = c;
+                                cmdUpd.Parameters[1].Value = sum;
+                                cmdUpd.Parameters[2].Value = sum;
+                                cmdUpd.ExecuteNonQuery();
+
                             }
 
 
@@ -75,6 +102,7 @@ WHERE     (ProductsBinTbl.Barcode = @b)", conn))
 
 
             }
+            return;
             //TSDUtils.ActionCode a = TSDUtils.ActionCode.Remove | TSDUtils.ActionCode.Reprice;
             //TSDUtils.ActionCode b = TSDUtils.ActionCode.Remove | TSDUtils.ActionCode.Returns;
             //TSDUtils.ActionCode c = TSDUtils.ActionCode.Remove | TSDUtils.ActionCode.Returns | TSDUtils.ActionCode.Reprice;
