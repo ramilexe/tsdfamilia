@@ -8,6 +8,9 @@ using Calib;
 
 namespace Familia.TSDClient
 {
+    public delegate void SetStatus(string text);
+    public delegate void SetError(string text);
+
     public class BTPrintClass
     {
         static BTPrintClass _PrintClass = new BTPrintClass();
@@ -25,26 +28,67 @@ namespace Familia.TSDClient
             {
                 bt_di[iCnt] = new Calib.BluetoothLibNet.BTST_DEVICEINFO();
             }
+            BTPrinterInit();
         }
     
-        public delegate void SetStatus(string text);
+
         public event SetStatus OnSetStatus;
-        private void SetStatusEvent(string text)
+        public void SetStatusEvent(string text)
         {
             if (OnSetStatus != null)
                 OnSetStatus(text);
+
+            try
+            {
+                using (System.IO.StreamWriter wr = new System.IO.StreamWriter(
+                           System.IO.Path.Combine(Program.StartupPath, "BTLog.txt"), true))
+                {
+                    wr.WriteLine(text);
+                }
+            }
+            catch { }
         }
 
-        public delegate void SetError(string text);
+        public void SetStatusEvent(string format, params object[] obj)
+        {
+            string text = string.Format(format, obj);
+            SetStatusEvent(text);
+            
+        }
         public event SetError OnSetError;
-        private void SetErrorEvent(string text)
+        public void SetErrorEvent(string text)
         {
             if (OnSetError != null)
                 OnSetError(text);
+
+            try
+            {
+                using (System.IO.StreamWriter wr = new System.IO.StreamWriter(
+                           System.IO.Path.Combine(Program.StartupPath, "BTLog.txt"), true))
+                {
+                    wr.WriteLine(text);
+                }
+            }
+            catch { }
         }
-        /// <summary>
-        /// The main entry point for the application.
-        /// </summary>
+
+        public void SetErrorEvent(string format, params object[] obj)
+        {
+            string text = string.Format(format, obj);
+            SetErrorEvent(text);
+        }
+
+        private bool _connected = false;
+        public bool Connected
+        {
+            get
+            {
+                return _connected;
+            }
+        }
+
+        System.Collections.Specialized.StringDictionary foundedDevices =
+               new System.Collections.Specialized.StringDictionary();
 
         // DCB structure
         [StructLayout(LayoutKind.Sequential)]
@@ -77,7 +121,8 @@ namespace Familia.TSDClient
             public Int32 WriteTotalTimeoutMultiplier;	// Multiplier of characters.
             public Int32 WriteTotalTimeoutConstant;		// Constant in milliseconds.
         }
-
+        
+        #region extern Dlls
         //---------------------------------------------
         // Windows API functions
         //---------------------------------------------
@@ -108,10 +153,13 @@ namespace Familia.TSDClient
 
         [DllImport("coredll")]
         private static extern bool GetCommModemStatus(IntPtr hFile, ref Int32 lpModemStat);
+        #endregion
 
         //---------------------------------------------
         // Define
         //---------------------------------------------
+
+        #region Defins
         private const int INVALID_HANDLE_VALUE = -1;
         private const Int32 FILE_ATTRIBUTE_NORMAL = 0x80;
 
@@ -158,7 +206,8 @@ namespace Familia.TSDClient
         private const Int32 MS_RING_ON = 0x40;
         private const Int32 MS_RLSD_ON = 0x80;
         private const int BTDEF_MAX_INQUIRY_NUM = 16;
-        
+        #endregion
+
         private bool PrinterFound = false;
         public bool IsPrinterFound
         {
@@ -172,15 +221,23 @@ namespace Familia.TSDClient
         private int BtRet;
         private IntPtr hSerial;
         private int CommStatus = 0;
-
+        BluetoothLibNet.BTST_DEVICEINFO btDefaultdevice = new BluetoothLibNet.BTST_DEVICEINFO();
 
         BluetoothLibNet.BTST_LOCALINFO bt_li = new Calib.BluetoothLibNet.BTST_LOCALINFO();
         BluetoothLibNet.BTST_DEVICEINFO[] bt_di = new Calib.BluetoothLibNet.BTST_DEVICEINFO[BTDEF_MAX_INQUIRY_NUM];
 
         IntPtr[] bt_hdev = new IntPtr[BTDEF_MAX_INQUIRY_NUM + 1];
 
-        
+        System.IO.Ports.SerialPort sp =
+                new System.IO.Ports.SerialPort(string.Format("COM6:"),
+                    19200,
+                    System.IO.Ports.Parity.None,
+                    8,
+                    System.IO.Ports.StopBits.One);
 
+        #region Old native func
+
+        [System.Obsolete("Use standart .Net class System.IO.Ports.SerialPort")]
         private IntPtr PortOpen(string PortName, int Baudrate, byte Data, byte Parity, byte StopBit, int SendTime, int RecvTime)
         {
             IntPtr ipRet;
@@ -216,6 +273,7 @@ namespace Familia.TSDClient
             return (ipRet);
         }
 
+        [System.Obsolete("Use standart .Net class System.IO.Ports.SerialPort")]
         private int PortWrite(byte[] buffer, int noBytes, IntPtr hPort)
         {
             int iRet = 0;
@@ -224,97 +282,115 @@ namespace Familia.TSDClient
             return (iRet);
         }
 
+        [System.Obsolete("Use standart .Net class System.IO.Ports.SerialPort")]
         private void PortClose(IntPtr hPort)
         {
-            if ((int)hPort != INVALID_HANDLE_VALUE)
-                CloseHandle(hPort);
+            try
+            {
+                if ((int)hPort != INVALID_HANDLE_VALUE)
+                    CloseHandle(hPort);
+            }
+            catch { }
         }
+        #endregion
 
-        public int BTPrinterInit()
+        private int BTPrinterInit()
         {
-            //Status.Text = 
-            SetStatusEvent("initialize bluetooth modul...");
+            int status = 0;
+            BtRet = BluetoothLibNet.Api.BTGetLibraryStatus(ref status);
 
-            //Cursor.Current = Cursors.WaitCursor;
-            // initialize bluetooth device (power on)
-            BtRet = BluetoothLibNet.Api.BTInitialize();
-
-            //Cursor.Current = Cursors.Default;
-
-            if (BtRet != BluetoothLibNet.Def.BTERR_SUCCESS)
+            if (status == BluetoothLibNet.Def.BTSTATUS_NOT_INITIALIZED)
             {
-                //Status.Text = "";
-                //Result = MessageBox.Show(
-                SetErrorEvent("BT Init Error");
-                return BtRet;
+
+                //Status.Text = 
+                SetStatusEvent("initialize bluetooth modul...");
+
+                //Cursor.Current = Cursors.WaitCursor;
+                // initialize bluetooth device (power on)
+                BtRet = BluetoothLibNet.Api.BTInitialize();
+
+                //Cursor.Current = Cursors.Default;
+
+                if (BtRet != BluetoothLibNet.Def.BTERR_SUCCESS)
+                {
+                    //Status.Text = "";
+                    //Result = MessageBox.Show(
+                    SetErrorEvent("BT Init Error");
+                    return BtRet;
+                }
+
+                string swork = new string(' ', 82);
+
+                bt_li.LocalName = swork.ToCharArray();
+
+                bt_li.LocalAddress = "                  ".ToCharArray();
+
+                bt_li.LocalDeviceMode = 0;
+                bt_li.LocalClass1 = 0;
+                bt_li.LocalClass2 = 0;
+                bt_li.LocalClass3 = 0;
+                bt_li.Authentication = false;
+                bt_li.Encryption = false;
+
+
+                //Status.Text = 
+                SetStatusEvent("get local device info...");
+                BtRet = BluetoothLibNet.Api.BTGetLocalInfo(bt_li);
+
+                if (BtRet != BluetoothLibNet.Def.BTERR_SUCCESS)
+                {
+                    //Status.Text = "";
+                    //Result = MessageBox.Show(
+                    SetErrorEvent("BT get local info Error {0}", BtRet);
+                    BluetoothLibNet.Api.BTDeInitialize();
+                    return BtRet;
+                }
+
+
+                // set fixed values for our local bt device
+                // (can be skiped if already done before)
+                bt_li.LocalDeviceMode = BluetoothLibNet.Def.BTMODE_BOTH_ENABLED;
+                bt_li.Authentication = false;
+                bt_li.Encryption = false;
+                //Status.Text = 
+                SetStatusEvent("set new local device info...");
+                BtRet = BluetoothLibNet.Api.BTSetLocalInfo(bt_li);
+                if (BtRet != BluetoothLibNet.Def.BTERR_SUCCESS)
+                {
+                    //Status.Text = "";
+                    //Result = MessageBox.Show
+                    SetErrorEvent("BT set local info Error {0}",BtRet);
+                    BluetoothLibNet.Api.BTDeInitialize();
+                    return BtRet;
+                }
+
+                BtRet = BluetoothLibNet.Api.BTRegisterLocalInfo();
+                if (BtRet != BluetoothLibNet.Def.BTERR_SUCCESS)
+                {
+                    //Status.Text = "";
+                    //Result = MessageBox.Show
+                    SetErrorEvent("BT register local info Error");
+                    BluetoothLibNet.Api.BTDeInitialize();
+                    return BtRet;
+                }
             }
-
-            string swork = new string(' ', 82);
-
-            bt_li.LocalName = swork.ToCharArray();
-
-            bt_li.LocalAddress = "                  ".ToCharArray();
-
-            bt_li.LocalDeviceMode = 0;
-            bt_li.LocalClass1 = 0;
-            bt_li.LocalClass2 = 0;
-            bt_li.LocalClass3 = 0;
-            bt_li.Authentication = false;
-            bt_li.Encryption = false;
-
-
-            //Status.Text = 
-            SetStatusEvent("get local device info...");
-            BtRet = BluetoothLibNet.Api.BTGetLocalInfo(bt_li);
-
-            if (BtRet != BluetoothLibNet.Def.BTERR_SUCCESS)
-            {
-                //Status.Text = "";
-                //Result = MessageBox.Show(
-                SetErrorEvent("BT get local info Error");
-                BluetoothLibNet.Api.BTDeInitialize();
-                return BtRet;
-            }
-
-
-            // set fixed values for our local bt device
-            // (can be skiped if already done before)
-            bt_li.LocalDeviceMode = BluetoothLibNet.Def.BTMODE_BOTH_ENABLED;
-            bt_li.Authentication = false;
-            bt_li.Encryption = false;
-            //Status.Text = 
-            SetStatusEvent("set new local device info...");
-            BtRet = BluetoothLibNet.Api.BTSetLocalInfo(bt_li);
-            if (BtRet != BluetoothLibNet.Def.BTERR_SUCCESS)
-            {
-                //Status.Text = "";
-                //Result = MessageBox.Show
-                SetErrorEvent("BT set local info Error");
-                BluetoothLibNet.Api.BTDeInitialize();
-                return BtRet;
-            }
-
-            BtRet = BluetoothLibNet.Api.BTRegisterLocalInfo();
-            if (BtRet != BluetoothLibNet.Def.BTERR_SUCCESS)
-            {
-                //Status.Text = "";
-                //Result = MessageBox.Show
-                SetErrorEvent("BT register local info Error");
-                BluetoothLibNet.Api.BTDeInitialize();
-                return BtRet;
-            }
-
             return BtRet;
         }
 
         public int SearchDevices()
         {
+            int status = 0;
+            BtRet = BluetoothLibNet.Api.BTGetLibraryStatus(ref status);
+
+            if (status == BluetoothLibNet.Def.BTSTATUS_NOT_INITIALIZED)
+            {
+                BTPrinterInit();
+            }
+
             /************BEGIN SERACH PRINTER*************************************/
             // search for availible bluetooth devices
             bt_dmax = BTDEF_MAX_INQUIRY_NUM;
-            //Status.Text = 
             SetStatusEvent("searching bluetooth devices...");
-            //Cursor.Current = Cursors.WaitCursor;
             BtRet = BluetoothLibNet.Api.BTInquiry(IntPtr.Zero, ref bt_dmax, 5000);
             
             if (BtRet != BluetoothLibNet.Def.BTERR_SUCCESS)
@@ -324,8 +400,7 @@ namespace Familia.TSDClient
                 return BtRet;
             }
 
-            //Status.Text = "found " + bt_dmax.ToString() + " bluetooth devices!";
-            SetStatusEvent(String.Format("Found {0} bluetooth devices!", bt_dmax));
+            SetStatusEvent("Found {0} bluetooth devices!", bt_dmax);
             PrinterFound = false;
 
             string swork = new string(' ', 82);
@@ -344,6 +419,7 @@ namespace Familia.TSDClient
                 bt_di[j].LocalClass2 = 0;
                 bt_di[j].LocalClass3 = 0;
                 bt_di[j].ProfileNumber = 0;
+                
                 for (i = 0; i < BTDEF_MAX_INQUIRY_NUM; i++)
                 {
                     bt_di[j].ProfileUUID[i] = 0;
@@ -361,52 +437,156 @@ namespace Familia.TSDClient
 
         public System.Collections.Specialized.StringDictionary GetFoundedDevicesDict()
         {
-            System.Collections.Specialized.StringDictionary dict =
-                new System.Collections.Specialized.StringDictionary();
 
-            for (int i = 0; i < bt_di.Length; i++)
+            foreach (BluetoothLibNet.BTST_DEVICEINFO btd in bt_di)
             {
-                dict.Add(new string(bt_di[i].DeviceAddress),
-                    new string(bt_di[i].DeviceName));
+                try
+                {
+                    string xxx = "";
+                    for (int ia = 0; ia < 17; ia++)
+                    {
+                        xxx = xxx + btd.DeviceAddress[ia].ToString().ToUpper();
+                    }
+                    //SetStatusEvent(xxx);
+
+                    if (!foundedDevices.ContainsKey(xxx.ToUpper()))
+                        foundedDevices.Add(xxx.ToUpper(), new string(btd.DeviceName).Replace("\0", "").ToUpper());
+                }
+                catch { }
             }
-            return dict;
+            return foundedDevices;
         }
 
         public int ConnToPrinter(string PrinterAdr)
         {
-            if (BtRet == BluetoothLibNet.Def.BTERR_SUCCESS)
+
+            for (int i = 0; i < bt_dmax; i++)
             {
-                for (int i = 0; i < bt_dmax; i++)
+                //string xxx = "";
+                //string xxx = new string(bt_di[i].DeviceAddress).Replace("\0", "").ToUpper();
+                /*for (int ia = 0; ia < 17; ia++)
                 {
-                    //string xxx = "";
-                    string xxx = new string(bt_di[i].DeviceAddress);
-                    /*for (int ia = 0; ia < 17; ia++)
-                    {
-                        xxx = xxx + bt_di[i].DeviceAddress[ia].ToString();
-                    }*/
+                    xxx = xxx + bt_di[i].DeviceAddress[ia].ToString();
+                }*/
 
-                    if (xxx == PrinterAdr)
-                    {	// we found the printer and try to get service informations
-                        // (can be skiped because we know printer capabilities)
-
-                        /************CONNECT TO PRINTER********************/
-                        BtRet = ConnToPrinter(bt_di[i]);
-                        return BtRet;
-                    }
+                string xxx = "";
+                for (int ia = 0; ia < 17; ia++)
+                {
+                    xxx = xxx + bt_di[i].DeviceAddress[ia].ToString().ToUpper();
                 }
-            }
-            else
-            {
-                //Result = MessageBox.Show
-                SetErrorEvent("BT Get device info error");
-                BluetoothLibNet.Api.BTDeInitialize();
-                return BtRet;
+
+                SetErrorEvent(xxx);
+                SetErrorEvent(PrinterAdr);
+                if (xxx == PrinterAdr.ToUpper())
+                {	// we found the printer and try to get service informations
+                    // (can be skiped because we know printer capabilities)
+
+                    /************CONNECT TO PRINTER********************/
+                    BtRet = ConnToPrinter3(bt_di[i]);
+                    if (BtRet == BluetoothLibNet.Def.BTERR_CONNECTED)
+                        _connected = true;
+                    return BtRet;
+                }
             }
             return BtRet;
         }
 
+        public int SetDefaultDevice(string PrinterAdr)
+        {
+            for (int i = 0; i < bt_dmax; i++)
+            {
+                string xxx = "";
+                for (int ia = 0; ia < 17; ia++)
+                {
+                    xxx = xxx + bt_di[i].DeviceAddress[ia].ToString().ToUpper();
+                }
+
+                //SetErrorEvent(xxx);
+                //SetErrorEvent(PrinterAdr);
+                if (xxx == PrinterAdr.ToUpper())
+                {
+                    btDefaultdevice = bt_di[i];
+                    BtRet = BluetoothLibNet.Api.BTGetServiceInfo(btDefaultdevice);
+                    
+                    // register this device in registry
+                    // (can be skiped if already done before)
+                    BtRet = BluetoothLibNet.Api.BTRegisterDeviceInfo(btDefaultdevice);
+                    if (BtRet != BluetoothLibNet.Def.BTERR_SUCCESS)
+                    {
+                        SetErrorEvent("BT register printer info {0} Error", xxx);
+                        BluetoothLibNet.Api.BTDeInitialize();
+                        PrinterFound = false;
+                        _connected = false;
+                        return BtRet;
+                    }
+                    SetStatusEvent("BT register printer info {0} Success",xxx);
+
+                    PrinterFound = true;
+                    BtRet = BluetoothLibNet.Api.BTSetDefaultDevice(btDefaultdevice, BluetoothLibNet.Def.BTPORT_SERIAL);
+                    if (BtRet != BluetoothLibNet.Def.BTERR_SUCCESS)
+                    {
+                        SetErrorEvent("BT Printer set default device {0} Error", xxx);
+                        BluetoothLibNet.Api.BTDeInitialize();
+                        _connected = false;
+                        return BtRet;
+                    }
+                    SetStatusEvent("BT Printer set default device {0} Success", xxx);
+                    Program.Settings.TypedSettings[0].BTPrinterAddress = xxx;
+                    return BtRet;//BluetoothLibNet.Def.BTERR_SUCCESS
+                }
+            }
+            return BluetoothLibNet.Def.BTERR_NOT_FOUND;
+        }
+        #region old func
+        [System.Obsolete("Use ConnToPrinter3")]
+        public int ConnToPrinter2(BluetoothLibNet.BTST_DEVICEINFO btdevice)
+        {
+            BtRet = BluetoothLibNet.Api.BTSelectDevice(btdevice, BluetoothLibNet.Def.BTPORT_SERIAL);
+            if (BtRet != BluetoothLibNet.Def.BTERR_SUCCESS)
+            {
+                SetErrorEvent("BT register printer info Error");
+                BluetoothLibNet.Api.BTDeInitialize();
+                PrinterFound = false;
+                _connected = false;
+                return BtRet;
+            }
+            byte[] prnout = new byte[1];
+            SetStatusEvent("try to connect to printer...");
+            hSerial = PortOpen(string.Format("COM{0}:",
+                Program.Settings.TypedSettings[0].BTComPort), CBR_19200, 8, NOPARITY, ONESTOPBIT, 3000, 3000);
+
+            if (hSerial.ToInt32() == INVALID_HANDLE_VALUE)
+            {
+                SetErrorEvent("BT Open Error");
+                BluetoothLibNet.Api.BTDeInitialize();
+                BtRet = BluetoothLibNet.Def.BTERR_CONNECTION_FAILED;
+                _connected = false;
+                return BtRet;
+            }
+
+
+
+            PortWrite(prnout, 0, hSerial);
+            for (int i = 0; i < 76; i++)
+            {
+                SetStatusEvent(String.Format("wait for answer...{0}", i.ToString()));
+
+                GetCommModemStatus(hSerial, ref CommStatus);
+                if ((CommStatus & (MS_RING_ON | MS_RLSD_ON)) != 0)
+                {
+                    break;
+                }
+                Thread.Sleep(200);
+            }
+            BtRet = BluetoothLibNet.Def.BTERR_CONNECTED;
+            _connected = true;
+            return BtRet;
+        }
+
+        [System.Obsolete("Use ConnToPrinter3")]
         public int ConnToPrinter(BluetoothLibNet.BTST_DEVICEINFO btdevice)
         {
+            
             BtRet = BluetoothLibNet.Api.BTGetServiceInfo(btdevice);
             // register this device in registry
             // (can be skiped if already done before)
@@ -416,6 +596,8 @@ namespace Familia.TSDClient
                 SetErrorEvent("BT register printer info Error");
                 BluetoothLibNet.Api.BTDeInitialize();
                 PrinterFound = false;
+                _connected = false;
+                BTPrinterInit();
                 return BtRet;
             }
             PrinterFound = true;
@@ -440,13 +622,21 @@ namespace Familia.TSDClient
                 //Result = MessageBox.Show
                 SetErrorEvent("BT Printer set default device Error");
                 BluetoothLibNet.Api.BTDeInitialize();
+                _connected = false;
                 return BtRet;
             }
+            // dummy write to etablish bt connection
+            byte[] prnout = new byte[1];
 
+            //BtRet = BluetoothLibNet.Api.BTSetPassKey("111");
+            BtRet = BluetoothLibNet.Api.BTConnectSerial(BluetoothLibNet.Def.BTCONNECT_SERIAL_SERVER,
+                1000, 1000);
+            //BtRet = BluetoothLibNet.Api.BTSendSerialData(ref prnout, 1, 1);
             // open serial communication
             //Status.Text = 
             SetStatusEvent("try to connect to printer...");
-            hSerial = PortOpen("COM6:", CBR_9600, 8, NOPARITY, ONESTOPBIT, 3000, 3000);
+            hSerial = PortOpen(string.Format("COM{0}:",
+                Program.Settings.TypedSettings[0].BTComPort), CBR_19200, 8, NOPARITY, ONESTOPBIT, 3000, 3000);
 
             if (hSerial.ToInt32() == INVALID_HANDLE_VALUE)
             {
@@ -455,11 +645,11 @@ namespace Familia.TSDClient
                 SetErrorEvent("BT Open Error");
                 BluetoothLibNet.Api.BTDeInitialize();
                 BtRet = BluetoothLibNet.Def.BTERR_CONNECTION_FAILED;
+                _connected = false;
                 return BtRet;
             }
 
-            // dummy write to etablish bt connection
-            byte[] prnout = new byte[1];
+
 
             PortWrite(prnout, 0, hSerial);
             for (int i = 0; i < 76; i++)
@@ -473,21 +663,88 @@ namespace Familia.TSDClient
                 }
                 Thread.Sleep(200);
             }
-            BtRet = BluetoothLibNet.Def.BTERR_CONNECTED; 
+            BtRet = BluetoothLibNet.Def.BTERR_CONNECTED;
+            _connected = true;
+            return BtRet;
+        }
+        #endregion
+
+        public int ConnToPrinter3(BluetoothLibNet.BTST_DEVICEINFO btdevice)
+        {
+            if (sp.IsOpen)
+                return BluetoothLibNet.Def.BTERR_CONNECTED;
+            int status = 0;
+            BtRet = BluetoothLibNet.Api.BTGetLibraryStatus(ref status);
+
+            if (status == BluetoothLibNet.Def.BTSTATUS_NOT_INITIALIZED)
+            {
+                BTPrinterInit();
+            }
+            //BtRet = BluetoothLibNet.Api.BTGetDefaultDeviceInfo(btDefaultdevice, BluetoothLibNet.Def.BTPORT_SERIAL);
+            BtRet = BluetoothLibNet.Api.BTSelectDevice(IntPtr.Zero, BluetoothLibNet.Def.BTPORT_SERIAL);
+            if (BtRet != BluetoothLibNet.Def.BTERR_SUCCESS)
+            {
+                SetErrorEvent("Default BT printer not found!");
+                if (Program.Settings.TypedSettings[0]["BTPrinterAddress"] != null &&
+                    Program.Settings.TypedSettings[0]["BTPrinterAddress"] != DBNull.Value &&
+                    Program.Settings.TypedSettings[0]["BTPrinterAddress"].ToString() != string.Empty &&
+                    Program.Settings.TypedSettings[0]["BTPrinterAddress"].ToString() != "00:00:00:00:00:00")
+                {
+
+                    SetStatusEvent("Search printer {0}", Program.Settings.TypedSettings[0].BTPrinterAddress.ToUpper());
+                    BtRet = SearchDevices();
+                    if (BtRet != BluetoothLibNet.Def.BTERR_SUCCESS)
+                    {
+                        SetErrorEvent("BT printer not found!");
+                        return BtRet;
+                    }
+                    SetStatusEvent("Set default BT printer {0}", Program.Settings.TypedSettings[0].BTPrinterAddress.ToUpper());
+
+                    SetDefaultDevice(Program.Settings.TypedSettings[0].BTPrinterAddress.ToUpper());
+
+                }
+                else
+                {
+                    SetErrorEvent("Default BT Printer name is not set");
+                    return BtRet;
+                }
+
+            }
+            
+            PrinterFound = true;
+
+            SetStatusEvent("{0} BT printer found!", Program.Settings.TypedSettings[0].BTPrinterAddress.ToUpper());
+
+            
+            sp.Open();
+            if (sp.IsOpen)
+            {
+                SetStatusEvent("BT Printer connected");
+                BtRet = BluetoothLibNet.Def.BTERR_CONNECTED;
+                _connected = true;
+            }
+            else
+            {
+                BtRet = BluetoothLibNet.Def.BTERR_FAILED;
+                SetErrorEvent("BT Printer connection failed");
+                _connected = false;
+            }
             return BtRet;
         }
 
-        public void Print(string label1)
+
+        public void Print(byte[] prnout)
         {
             if (BtRet == BluetoothLibNet.Def.BTERR_CONNECTED)
             {
-                Encoding ascii = Encoding.ASCII;
-                byte[] prnout = ascii.GetBytes(label1);
-
-                // write label to printer
-                //Status.Text = 
                 SetStatusEvent("sending datas...");
-                if (PortWrite(prnout, label1.Length, hSerial) == 1)
+                sp.Write(prnout, 0, prnout.Length);
+                SetStatusEvent("BT Printing");
+                Thread.Sleep(1000);
+                #region 
+                /*
+                SetStatusEvent("sending datas...");
+                if (PortWrite(prnout, prnout.Length, hSerial) == 1)
                 {
                     //Status.Text = "";
                     //MessageBox.Show
@@ -496,6 +753,8 @@ namespace Familia.TSDClient
 
                 //MessageBox.Show
                 SetStatusEvent("BT Printing");
+                */
+                #endregion
             }
             else
             {
@@ -503,15 +762,78 @@ namespace Familia.TSDClient
             }
         }
 
+        public void Print(string label1)
+        {
+
+            byte[] prnout = TSDUtils.CustomEncodingClass.Encoding.GetBytes(label1);
+            Print(prnout);
+        }
+
         public void Disconnect()
         {
-            //Status.Text = 
-            SetStatusEvent("disconnect printer...");
-            // deinitialize bt device (power off)
-            PortClose(hSerial);
-            BluetoothLibNet.Api.BTDeInitialize();
+            try
+            {
+                SetStatusEvent("disconnect printer...");
+                // deinitialize bt device (power off)
+                if (sp.IsOpen)
+                    sp.Close();
+                _connected = false;
+
+            }
+            catch (Exception err)
+            {
+                SetErrorEvent("Disconnect BT printer error {0}", err);
+            }
+            finally
+            {
+                BluetoothLibNet.Api.BTDeInitialize();
+            }
+
         }
-        public void TestPrint()
+
+        #region test
+        public void TestPrint3(string addr)
+        {
+            try
+            {
+                ConnToPrinter(addr);
+
+                string label1 = @"! UTILITIES
+GAP-SENSE
+SET-TOF 0
+TONE 100
+SPEED 5
+ON-FEED FEED
+TIMEOUT 0
+PRINT
+! 0 200 200 318 1
+LABEL
+PAGE-WIDTH 463
+SETMAG 0 0
+T 0 4 20  8 TEST_ATTRIBUTE_007
+T 0 4 240 8 TEST_ATTRIBUTE_008
+T 93 0 20 60 TEST_ATTRIBUTE_002
+T 92 0 240 107 TEST_ATTRIBUTE_003
+T 92 0 20 107 TEST_ATTRIBUTE_004
+T 92 0 20 137 СОСТАВ:
+BT OFF
+B EAN13 1 1 79 20 185 0000000000000
+T 92 0 20 158 TEST_ATTRIBUTE_006
+T 93 0 286 265 TEST_ATTRIBUTE_009
+T 93 0 40 265 TEST_ATTRIBUTE_005
+FORM
+PRINT";
+                Print(label1);
+            }
+            finally
+            {
+                Disconnect();
+            }
+
+        }
+
+        [System.Obsolete("Use TestPrint3")]
+        public void TestPrint(string addr)
         {
             const int BTDEF_MAX_INQUIRY_NUM = 16;
 
@@ -529,7 +851,7 @@ namespace Familia.TSDClient
             int BtRet;
             bool PrinterFound;
             //DialogResult Result;
-            string PrinterAdr = "00:80:37:17:78:DA";
+            string PrinterAdr = addr;//"00:80:37:17:78:DA";
 
             //        'Set some variables used by serial
             IntPtr hSerial;
@@ -748,7 +1070,8 @@ namespace Familia.TSDClient
             // open serial communication
             //Status.Text = 
             SetStatusEvent("try to connect to printer...");
-            hSerial = PortOpen("COM6:", CBR_9600, 8, NOPARITY, ONESTOPBIT, 3000, 3000);
+            hSerial = PortOpen(string.Format("COM{0}:",
+                Program.Settings.TypedSettings[0].BTComPort),CBR_19200, 8, NOPARITY, ONESTOPBIT, 3000, 3000);
 
             if (hSerial.ToInt32() == INVALID_HANDLE_VALUE)
             {
@@ -796,5 +1119,385 @@ namespace Familia.TSDClient
 
         }
 
+        [System.Obsolete("Use TestPrint3")]
+        void TestPrint2(string addr)
+        {
+
+
+            string PrinterAdr = addr;//"00:80:37:17:78:DA";
+
+            //        'Set some variables used by serial
+            IntPtr hSerial;
+            int i, j, iii, ii = 0;
+            int CommStatus = 0;
+
+            string label1 = "***** TEST PRINT CS.NET *****" + "\r" + "\n"
+                + "IT-600 or DT-X11" + "\r" + "\n"
+                + "CASIO" + "\r" + "\n"
+                + "www.casio.co.jp/English/system/" + "\r" + "\n"
+                + "\r" + "\n"
+                + "CASIO Computer Co., Ltd." + "\r" + "\n"
+                + "\r" + "\n"
+                + "6-2, Hon-machi 1-chome" + "\r" + "\n"
+                + "\r" + "\n"
+                + "Shibuya-ku, Tokyo 151-8543, Japan" + "\r" + "\n"
+                + "\r" + "\n"
+                + "Tel.: +81-3-5334-4771" + "\r" + "\n"
+                + "Fax.: +81-3-5334-4656" + "\r" + "\n"
+                + "\r" + "\n"
+                + "\r" + "\n"
+                + "\r" + "\n"
+                + "\r" + "\n"
+                + "\r" + "\n"
+                + "\r" + "\n";
+
+            Encoding ascii = Encoding.ASCII;
+            byte[] prnout = ascii.GetBytes(label1);
+
+
+
+            /****************END SEARCH***************************************/
+            /*if (BtRet == BluetoothLibNet.Def.BTERR_SUCCESS)
+            {
+                for (i = 0; i < bt_di.Length; i++)
+                {
+                    
+                    string xxx = "";
+                    for (int ia = 0; ia < 17; ia++)
+                    {
+                        xxx = xxx + bt_di[i].DeviceAddress[ia].ToString();
+                    }
+                    SetStatusEvent(xxx);
+                    SetStatusEvent(PrinterAdr);
+                    if (xxx == PrinterAdr)
+
+                    {	// we found the printer and try to get service informations
+                        // (can be skiped because we know printer capabilities)
+                        using (System.IO.StreamWriter wr = new System.IO.StreamWriter(
+                            System.IO.Path.Combine(Program.StartupPath, "BTLog.txt"),true))
+                        {
+                            wr.WriteLine(new string(bt_di[i].DeviceAddress));
+                            wr.WriteLine(bt_di[i].DeviceErrorFlag.ToString());
+                            wr.WriteLine(bt_di[i].DeviceHandle.ToString());
+                            wr.WriteLine(new string(bt_di[i].DeviceName));
+                            wr.WriteLine(bt_di[i].length.ToString());
+                            wr.WriteLine(bt_di[i].LocalClass1.ToString());
+                            wr.WriteLine(bt_di[i].LocalClass2.ToString());
+                            wr.WriteLine(bt_di[i].LocalClass3.ToString());
+                            wr.WriteLine(bt_di[i].ProfileNumber.ToString());
+                            for (int kkk=0;kkk<bt_di[i].ProfileUUID.Length;kkk++)
+                                wr.Write(bt_di[i].ProfileUUID[kkk].ToString()+" ");
+                            wr.WriteLine(" ");
+                            wr.Flush();
+                            wr.Close();
+
+                        }
+                       
+                        //BtRet = BluetoothLibNet.Api.BTGetServiceInfo(bt_di[i]);
+                        // register this device in registry
+                        // (can be skiped if already done before)
+                        
+                        PrinterFound = true;
+                        ii = i;
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                //Result = MessageBox.Show
+                SetErrorEvent("BT Get device info error");
+                BluetoothLibNet.Api.BTDeInitialize();
+                return;
+            }*/
+            i = 0;
+            ii = i;
+
+            using (System.IO.StreamWriter wr = new System.IO.StreamWriter(
+                            System.IO.Path.Combine(Program.StartupPath, "BTLog.txt"), true))
+            {
+                wr.WriteLine(new string(bt_di[i].DeviceAddress));
+                wr.WriteLine(bt_di[i].DeviceErrorFlag.ToString());
+                wr.WriteLine(bt_di[i].DeviceHandle.ToString());
+                wr.WriteLine(new string(bt_di[i].DeviceName));
+                wr.WriteLine(bt_di[i].length.ToString());
+                wr.WriteLine(bt_di[i].LocalClass1.ToString());
+                wr.WriteLine(bt_di[i].LocalClass2.ToString());
+                wr.WriteLine(bt_di[i].LocalClass3.ToString());
+                wr.WriteLine(bt_di[i].ProfileNumber.ToString());
+                for (int kkk = 0; kkk < bt_di[i].ProfileUUID.Length; kkk++)
+                    wr.Write(bt_di[i].ProfileUUID[kkk].ToString() + " ");
+                wr.WriteLine(" ");
+                wr.Flush();
+                wr.Close();
+
+            }
+            /*
+            if (PrinterFound == false)
+            {
+                //Status.Text = "";
+                //Result = MessageBox.Show
+                SetErrorEvent("BT Printer not found!");
+                BluetoothLibNet.Api.BTDeInitialize();
+                return;
+            }*/
+
+            BtRet = BluetoothLibNet.Api.BTSelectDevice(bt_di[ii], BluetoothLibNet.Def.BTPORT_SERIAL);
+            if (BtRet != BluetoothLibNet.Def.BTERR_SUCCESS)
+            {
+                SetErrorEvent("BT register printer info Error" + BtRet.ToString());
+                BluetoothLibNet.Api.BTDeInitialize();
+                PrinterFound = false;
+                _connected = false;
+                return;
+            }
+
+            string [] coms = System.IO.Ports.SerialPort.GetPortNames();
+            foreach (string c in coms)
+                SetStatusEvent(string.Format("Com port {0} present",c));
+
+            SetStatusEvent("try to connect to printer...");
+           /* hSerial = PortOpen(string.Format("COM{0}:",
+                Program.Settings.TypedSettings[0].BTComPort),
+                CBR_19200, 8, NOPARITY, ONESTOPBIT, 3000, 3000);
+            
+            if (hSerial.ToInt32() == INVALID_HANDLE_VALUE)
+            {
+                SetErrorEvent("BT Port Open Error" + Program.Settings.TypedSettings[0].BTComPort.ToString());
+                BluetoothLibNet.Api.BTDeInitialize();
+                BtRet = BluetoothLibNet.Def.BTERR_CONNECTION_FAILED;
+                _connected = false;
+            }*/
+
+            //BtRet = BluetoothLibNet.Api.BTConnectSerial(BluetoothLibNet.Def.BTCONNECT_SERIAL_CLIENT, 3000, 3000);
+            //SetStatusEvent("BTConnectSerial: "+BtRet.ToString());
+
+            comNum = Program.Settings.TypedSettings[0].BTComPort;
+            TestPrintCom();
+            /*for (int k1 = 1; k1 < 10; k1++)
+            {
+                try
+                {
+                comNum = k1;
+                System.Threading.Thread tr =
+                    new Thread(new ThreadStart(TestPrintCom));
+                signalled = true;
+                //mEvt.Reset();
+                tr.Start();
+
+                int counter = 0;
+                while (counter < 5)
+                {
+                    if (!signalled)
+                        break;
+                    Thread.Sleep(1000);
+                    counter++;
+
+                }
+                //if (mEvt.WaitOne() == false)
+                if (signalled)
+                {
+
+                    tr.Abort();
+                    signalled = false;
+                    //mEvt.Set();
+
+                }
+                
+                
+                    }
+                    catch (Exception err){
+                        SetStatusEvent(err.ToString());
+                    }            }*/
+            /*
+            PortWrite(prnout, 0, hSerial);
+            for (int j1 = 0; j1 < 76; j1++)
+            {
+                SetStatusEvent(String.Format("wait for answer...{0}", j1.ToString()));
+
+                GetCommModemStatus(hSerial, ref CommStatus);
+                if ((CommStatus & (MS_RING_ON | MS_RLSD_ON)) != 0)
+                {
+                    break;
+                }
+                Thread.Sleep(200);
+            }
+            BtRet = BluetoothLibNet.Def.BTERR_CONNECTED;
+            _connected = true;
+
+            // dummy write to etablish bt connection
+            PortWrite(prnout, 0, hSerial);
+            for (i = 0; i < 76; i++)
+            {
+                //Status.Text = 
+                SetStatusEvent(String.Format("wait for answer...{0}", i.ToString()));
+
+                GetCommModemStatus(hSerial, ref CommStatus);
+                if ((CommStatus & (MS_RING_ON | MS_RLSD_ON)) != 0)
+                {
+                    break;
+                }
+                Thread.Sleep(200);
+            }
+
+            // write label to printer
+            //Status.Text = 
+            SetStatusEvent("sending datas...");
+            if (PortWrite(prnout, label1.Length, hSerial) == 1)
+            {
+                //Status.Text = "";
+                //MessageBox.Show
+                SetErrorEvent("BT Write Error");
+            }
+
+            //MessageBox.Show
+            SetStatusEvent("BT Printing");
+
+            //Status.Text = 
+            SetStatusEvent("disconnect printer...");
+            // deinitialize bt device (power off)
+            PortClose(hSerial);*/
+            BluetoothLibNet.Api.BTDeInitialize();
+            //Status.Text = "";
+
+        }
+        int comNum = 0;
+
+        
+        private System.Threading.ManualResetEvent mEvt = new ManualResetEvent(false);
+        
+        private bool signalled = false;
+
+        [System.Obsolete("Use TestPrint3")]
+        private void TestPrintCom()
+        {
+            try
+            {
+                int k1 = comNum;
+                string label1 = "***** TEST PRINT CS.NET *****" + "\r" + "\n"
+        + "IT-600 or DT-X11" + "\r" + "\n"
+        + "CASIO" + "\r" + "\n"
+        + "www.casio.co.jp/English/system/" + "\r" + "\n"
+        + "\r" + "\n"
+        + "CASIO Computer Co., Ltd." + "\r" + "\n"
+        + "\r" + "\n"
+        + "6-2, Hon-machi 1-chome" + "\r" + "\n"
+        + "\r" + "\n"
+        + "Shibuya-ku, Tokyo 151-8543, Japan" + "\r" + "\n"
+        + "\r" + "\n"
+        + "Tel.: +81-3-5334-4771" + "\r" + "\n"
+        + "Fax.: +81-3-5334-4656" + "\r" + "\n"
+        + "\r" + "\n"
+        + "\r" + "\n"
+        + "\r" + "\n"
+        + "\r" + "\n"
+        + "\r" + "\n"
+        + "\r" + "\n";
+
+                Encoding ascii = Encoding.ASCII;
+                byte[] prnout = ascii.GetBytes(label1);
+                /*try
+                {
+                    hSerial = PortOpen(string.Format("COM{0}:", k1), CBR_9600, 8, NOPARITY, ONESTOPBIT, 3000, 3000);
+
+                    if (hSerial.ToInt32() == INVALID_HANDLE_VALUE)
+                    {
+                        SetErrorEvent("BT Open Error");
+                        BluetoothLibNet.Api.BTDeInitialize();
+                        BtRet = BluetoothLibNet.Def.BTERR_CONNECTION_FAILED;
+                        _connected = false;
+                        
+                    }
+
+
+
+                    PortWrite(prnout, 0, hSerial);
+                    SetStatusEvent("Port written");
+                    for (int i = 0; i < 76; i++)
+                    {
+                        SetStatusEvent(String.Format("wait for answer...{0}", i.ToString()));
+
+                        GetCommModemStatus(hSerial, ref CommStatus);
+                        if ((CommStatus & (MS_RING_ON | MS_RLSD_ON)) != 0)
+                        {
+                            break;
+                        }
+                        Thread.Sleep(200);
+                    }
+                    BtRet = BluetoothLibNet.Def.BTERR_CONNECTED;
+                    _connected = true;
+                    PortClose(hSerial);
+                }
+                catch (Exception err)
+                {
+                    SetStatusEvent(err.ToString());
+                }
+                */
+                try
+                {
+                    System.IO.Ports.SerialPort sp =
+                        new System.IO.Ports.SerialPort(string.Format("COM{0}", k1),
+                            19200,
+                            System.IO.Ports.Parity.None,
+                            8,
+                            System.IO.Ports.StopBits.One);
+                    sp.Open();
+                    if (sp.IsOpen)
+                    {
+                        SetStatusEvent("Port open" + k1);
+                        sp.Write(prnout, 0, prnout.Length);
+                        Thread.Sleep(5000);
+                        sp.Close();
+                        SetStatusEvent("Port written" );
+                        //return;
+                    }
+                    else
+                        SetStatusEvent("Port closed");
+                }
+                catch (Exception err)
+                {
+                    SetStatusEvent(err.ToString());
+                }
+
+                try
+                {
+                    System.IO.Ports.SerialPort sp =
+                        new System.IO.Ports.SerialPort(string.Format("COM{0}:", k1),
+                            19200,
+                            System.IO.Ports.Parity.None,
+                            8,
+                            System.IO.Ports.StopBits.One);
+                    sp.Open();
+                    if (sp.IsOpen)
+                    {
+                        SetStatusEvent("Port open: " + k1);
+                        sp.Write(prnout, 0, prnout.Length);
+                        SetStatusEvent("Port written");
+                        Thread.Sleep(5000);
+                        sp.Close();
+                        
+                    }
+                    else
+                        SetStatusEvent("Port closed");
+                }
+                catch (Exception err)
+                {
+                    SetStatusEvent(err.ToString());
+                }
+
+
+            }
+            catch (Exception err)
+            {
+                SetStatusEvent(err.ToString());
+            }
+            finally
+            {
+                // mEvt.Set();
+                signalled = false;
+            }
+        }
+
+        #endregion
     }
 }

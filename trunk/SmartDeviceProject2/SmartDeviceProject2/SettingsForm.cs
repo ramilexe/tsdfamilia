@@ -7,44 +7,22 @@ using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
 
-
 namespace Familia.TSDClient
 {
-    public partial class Form1 : Form
+    public partial class SettingsForm : Form
     {
-        public static event DatabaseChanged OnDatabaseChaned;
-        ProductsDataSet _products = new ProductsDataSet();
-        ScannedProductsDataSet _scannedProducts = new ScannedProductsDataSet();
-        System.Threading.Timer tmr =
-            new System.Threading.Timer(new System.Threading.TimerCallback(OnTimer)
-                , null
-                , System.Threading.Timeout.Infinite
-                , System.Threading.Timeout.Infinite);
-        private static DateTime lastCreationDatabaseTime = DateTime.Now;
-        
-        private static void OnTimer(object state)
-        {
-            /*DateTime dt = System.IO.File.GetCreationTime("Products.sdf");
-            if (dt != lastCreationDatabaseTime)
-            {
-                if (OnDatabaseChaned != null)
-                    OnDatabaseChaned();
-            }*/
-                
-        }
-
-        public Form1()
+        public SettingsForm()
         {
             InitializeComponent();
         }
 
-        private void Form1_Load(object sender, EventArgs e)
+
+        private void SettingsForm_Load(object sender, EventArgs e)
         {
-            
             this.KeyDown += new KeyEventHandler(Form1_KeyDown);
-            for (int i = 0;  i < this.Controls.Count; i++)
+            for (int i = 0; i < this.Controls.Count; i++)
             {
-                if (this.Controls[i].Name.IndexOf("button")>=0)
+                if (this.Controls[i].Name.IndexOf("button") >= 0)
                 {
                     System.Windows.Forms.Button b
                          = (System.Windows.Forms.Button)this.Controls[i];
@@ -59,14 +37,12 @@ namespace Familia.TSDClient
                     b.Font = f;
                 }
             }
-            
+            this.Refresh();
         }
-
         void b_KeyPress(object sender, KeyPressEventArgs e)
         {
-            
-        }
 
+        }
         void b_LostFocus(object sender, EventArgs e)
         {
             System.Windows.Forms.Button b
@@ -77,7 +53,7 @@ namespace Familia.TSDClient
                 new Font(FontFamily.GenericSansSerif, 14, FontStyle.Regular);
 
             b.Font = f;
-            
+
         }
 
         void b_GotFocus(object sender, EventArgs e)
@@ -88,21 +64,20 @@ namespace Familia.TSDClient
             b.BackColor = Color.Plum;
 
             System.Drawing.Font f =
-                new Font(FontFamily.GenericSansSerif, 14, FontStyle.Bold|FontStyle.Underline);
+                new Font(FontFamily.GenericSansSerif, 14, FontStyle.Bold | FontStyle.Underline);
 
             b.Font = f;
-            
-        }
 
+        }
         void b_KeyDown(object sender, KeyEventArgs e)
         {
             if (sender is System.Windows.Forms.Button)
             {
                 if (e.KeyCode == Keys.Escape)
                 {
-                    Application.Exit();
+                    this.Close();
                 }
-                if (e.KeyValue == 13 || e.KeyCode == Keys.Enter)
+                if (e.KeyValue == 13)
                 {
                     System.Windows.Forms.Button b
                          = (System.Windows.Forms.Button)sender;
@@ -137,12 +112,6 @@ namespace Familia.TSDClient
 
             }
         }
-
-        void PrintClass_OnSetError(string text)
-        {
-            //throw new NotImplementedException();
-        }
-
         private void Form1_KeyPress(object sender, KeyPressEventArgs e)
         {
             MenuEvents(e.KeyChar);
@@ -155,50 +124,25 @@ namespace Familia.TSDClient
 
         void MenuEvents(int menuId)
         {
-            try
+
+            switch (menuId)
             {
-                switch (menuId)
-                {
 
-                    case 48: Application.Exit(); break;
-                    case 49:
-                        {
-                            using (ViewProductForm frm = new ViewProductForm(_products, _scannedProducts))
-                            {
-                                frm.ShowDialog();
-                            }
-                            break;
-                        }
-                    case 53:
-                        {
-                            using (SettingsForm frm = new SettingsForm())
-                            {
-                                frm.ShowDialog();
-                            }
-                            break;
-                        }
+                case 48: this.DialogResult = DialogResult.OK;  this.Close(); break;
+                case 49:
+                    {
+                        SearchPrinterForm srchFrm = new SearchPrinterForm();
+                        srchFrm.ShowDialog();
+                        this.Refresh();
+                        break;
+                    }
 
-                    default:
-                        {
-                            return;
-                        }
+                default:
+                    {
+                        return;
+                    }
 
-                }
             }
-            catch (Exception err)
-            {
-                MessageBox.Show(err.Message
-                    , "Ошибка!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1);
-            }
-            this.Refresh();
         }
-
-        private void FillData()
-        {
-
-
-        }
-
-        
     }
 }
