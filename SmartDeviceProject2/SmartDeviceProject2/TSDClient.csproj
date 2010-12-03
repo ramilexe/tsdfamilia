@@ -70,46 +70,42 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\..\..\Program Files (x86)\CASIO\MBSys\WindowsCE\SystemLibnet.dll</HintPath>
     </Reference>
-    <Reference Include="TSDUtils, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\TSDServer\bin\Debug\TSDUtils.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BTPrintClass.cs" />
+    <Compile Include="CodeDef.cs" />
+    <Compile Include="CustomEncodingClass.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Form1.Designer.cs">
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
-    <Compile Include="GridUC.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="GridUC.Designer.cs">
-      <DependentUpon>GridUC.cs</DependentUpon>
-    </Compile>
     <Compile Include="NativeClass.cs" />
-    <Compile Include="ProductsDataSet.cs">
-      <DependentUpon>ProductsDataSet.xsd</DependentUpon>
+    <Compile Include="PrintLabelClass.cs" />
+    <Compile Include="ProductsDataSet1.cs">
+      <DependentUpon>ProductsDataSet1.xsd</DependentUpon>
     </Compile>
-    <Compile Include="ProductsDataSet.Designer.cs">
+    <Compile Include="ProductsDataSet1.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
-      <DependentUpon>ProductsDataSet.xsd</DependentUpon>
+      <DependentUpon>ProductsDataSet1.xsd</DependentUpon>
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="GridUC.resx">
-      <DependentUpon>GridUC.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SearchPrinterForm.resx">
+      <DependentUpon>SearchPrinterForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SettingsForm.resx">
+      <DependentUpon>SettingsForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="ViewProductForm.resx">
       <DependentUpon>ViewProductForm.cs</DependentUpon>
@@ -125,6 +121,23 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>ScannedProductsDataSet.xsd</DependentUpon>
     </Compile>
+    <Compile Include="SearchPrinterForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SearchPrinterForm.Designer.cs">
+      <DependentUpon>SearchPrinterForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="SettingsDataSet.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>SettingsDataSet.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="SettingsForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SettingsForm.Designer.cs">
+      <DependentUpon>SettingsForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="ViewProductForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -133,24 +146,16 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Products.sdf">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="ScannedProducts.sdf">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="ProductsDataSet.xsc">
-      <DependentUpon>ProductsDataSet.xsd</DependentUpon>
+    <None Include="ProductsDataSet1.xsc">
+      <DependentUpon>ProductsDataSet1.xsd</DependentUpon>
     </None>
-    <None Include="ProductsDataSet.xsd">
+    <None Include="ProductsDataSet1.xsd">
       <Generator>MSDataSetGenerator</Generator>
-      <LastGenOutput>ProductsDataSet.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
+      <LastGenOutput>ProductsDataSet1.Designer.cs</LastGenOutput>
     </None>
-    <None Include="ProductsDataSet.xss">
-      <DependentUpon>ProductsDataSet.xsd</DependentUpon>
+    <None Include="ProductsDataSet1.xss">
+      <DependentUpon>ProductsDataSet1.xsd</DependentUpon>
     </None>
     <None Include="ScannedProductsDataSet.xsc">
       <DependentUpon>ScannedProductsDataSet.xsd</DependentUpon>
@@ -163,6 +168,25 @@
     <None Include="ScannedProductsDataSet.xss">
       <DependentUpon>ScannedProductsDataSet.xsd</DependentUpon>
     </None>
+    <None Include="SettingsDataSet.xsc">
+      <DependentUpon>SettingsDataSet.xsd</DependentUpon>
+    </None>
+    <None Include="SettingsDataSet.xsd">
+      <SubType>Designer</SubType>
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>SettingsDataSet.Designer.cs</LastGenOutput>
+    </None>
+    <None Include="SettingsDataSet.xss">
+      <DependentUpon>SettingsDataSet.xsd</DependentUpon>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Products.sdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ScannedProducts.sdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CompactFramework.CSharp.targets" />
   <ProjectExtensions>
