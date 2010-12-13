@@ -1,11 +1,12 @@
-﻿namespace TSDServer {
+﻿namespace TSDServer
+{
     
     
     public partial class ProductsDataSet {
-
+        
         public void CleanDatabase()
         {
-            using (System.Data.SqlServerCe.SqlCeConnection conn =
+           /* using (System.Data.SqlServerCe.SqlCeConnection conn =
                 new System.Data.SqlServerCe.SqlCeConnection(
                     Properties.Settings.Default.ProductsConnectionString))
             {
@@ -27,19 +28,19 @@
                     cmd.CommandText = "delete from  DocsTbl";
                     cmd.ExecuteNonQuery();
 
-                }
+                }*/
                 this.ProductsTbl.Clear();
-                this.ProductsBinTbl.Clear();
-                this.DocsBinTbl.Clear();
+               // this.ProductsBinTbl.Clear();
+                //this.DocsBinTbl.Clear();
                 this.DocsTbl.Clear();
                 this.AcceptChanges();
-            }
+           /* }
 
             using (System.Data.SqlServerCe.SqlCeEngine engine
                  = new System.Data.SqlServerCe.SqlCeEngine(Properties.Settings.Default.ProductsConnectionString))
             {
                 engine.Shrink();
-            }
+            }*/
             
 
         }
@@ -47,7 +48,7 @@
 
         public void CleanProducts()
         {
-            using (System.Data.SqlServerCe.SqlCeConnection conn =
+            /*using (System.Data.SqlServerCe.SqlCeConnection conn =
                 new System.Data.SqlServerCe.SqlCeConnection(
                     Properties.Settings.Default.ProductsConnectionString))
             {
@@ -64,17 +65,17 @@
                     cmd.CommandText = "delete from  productsTbl";
                     cmd.ExecuteNonQuery();
 
-                }
+                }*/
                 this.ProductsTbl.Clear();
-                this.ProductsBinTbl.Clear();
+                //this.ProductsBinTbl.Clear();
                 this.AcceptChanges();
-            }
+           /* }
 
             using (System.Data.SqlServerCe.SqlCeEngine engine
                  = new System.Data.SqlServerCe.SqlCeEngine(Properties.Settings.Default.ProductsConnectionString))
             {
                 engine.Shrink();
-            }
+            }*/
 
 
         }
@@ -82,7 +83,7 @@
 
         public void CleanDocs()
         {
-            using (System.Data.SqlServerCe.SqlCeConnection conn =
+            /*using (System.Data.SqlServerCe.SqlCeConnection conn =
                 new System.Data.SqlServerCe.SqlCeConnection(
                     Properties.Settings.Default.ProductsConnectionString))
             {
@@ -99,21 +100,21 @@
                     cmd.CommandText = "delete from  DocsTbl";
                     cmd.ExecuteNonQuery();
 
-                }
-                this.DocsBinTbl.Clear();
+                }*/
+               // this.DocsBinTbl.Clear();
                 this.DocsTbl.Clear();
                 this.AcceptChanges();
-            }
-
+            //}
+            /*
             using (System.Data.SqlServerCe.SqlCeEngine engine
                  = new System.Data.SqlServerCe.SqlCeEngine(Properties.Settings.Default.ProductsConnectionString))
             {
                 engine.Shrink();
-            }
+            }*/
 
 
         }
-
+        /*
         public DocsBinTblRow ConvertToBin(DocsTblRow row)
         {
             ProductsDataSet.DocsBinTblRow docRow =
@@ -128,7 +129,7 @@
            
 
                 //TSDUtils.CustomEncodingClass.Encoding.GetBytes(
-                //row.DocType.ToString("00")/*тип документа*/+ row.DocId//docid
+                //row.DocType.ToString("00")+ row.DocId//docid
                 //        );
             if (row["Priority"] != System.DBNull.Value && row["WorkMode"] != System.DBNull.Value)
                 docRow.Priority = (System.Int16)(row.Priority | (row.WorkMode << 14));
@@ -170,7 +171,7 @@
                 //new char[]{System.Convert.ToChar(row.DocId[0]),
                 //    System.Convert.ToChar(row.DocId[1])}));
                 //TSDUtils.CustomEncodingClass.Encoding.GetBytes(
-                //row.DocType.ToString("00")/*тип документа*/+ row.DocId//docid
+                //row.DocType.ToString("00")+ row.DocId//docid
                 //        );
             if (row["Priority"] != System.DBNull.Value)
             {
@@ -209,6 +210,8 @@
 
             return docRow;
         }
+         * 
+         */ 
     }
 }
 
@@ -216,6 +219,88 @@ namespace TSDServer.ProductsDataSetTableAdapters
 {
     
     
-    public partial class DocsTblTableAdapter {
+    public class DocsTblTableAdapter:System.IDisposable
+    {
+        public string[] FileList
+        {
+            get
+            {
+                return table.FileList.ToArray();
+            }
+
+        }
+        FamilTsdDB.DataTable table = null;
+        public DocsTblTableAdapter(TSDServer.ProductsDataSet productsDataset)
+        {
+            FamilTsdDB.DataTable.BaseDate = TSDServer.Properties.Settings.Default.BaseDate;
+            FamilTsdDB.DataTable.StartupPath = TSDServer.Program.CurrentPath;
+
+
+            table = new FamilTsdDB.DataTable(productsDataset.DocsTbl);
+
+            table.AddIndex(new System.Data.DataColumn[] { productsDataset.DocsTbl.BarcodeColumn }
+                );
+            //table.ReadTableDef();
+        }
+        
+        public void Update(TSDServer.ProductsDataSet productsDataset)
+        {
+            table.AddIndex(new System.Data.DataColumn[] { productsDataset.DocsTbl.Columns["Barcode"] });
+
+            if (table == null)
+                table = new FamilTsdDB.DataTable(productsDataset.DocsTbl);
+            table.Write();
+        }
+
+        #region IDisposable Members
+
+        public void Dispose()
+        {
+            table.Dispose();
+        }
+
+        #endregion
+    }
+
+    public class ProductsTblTableAdapter : System.IDisposable
+    {
+        public string[] FileList
+        {
+            get
+            {
+                return table.FileList.ToArray();
+            }
+
+        }
+        FamilTsdDB.DataTable table = null;
+        public ProductsTblTableAdapter(TSDServer.ProductsDataSet productsDataset)
+        {
+            FamilTsdDB.DataTable.BaseDate = TSDServer.Properties.Settings.Default.BaseDate;
+            FamilTsdDB.DataTable.StartupPath =TSDServer.Program.CurrentPath;
+
+            table = new FamilTsdDB.DataTable(productsDataset.ProductsTbl);
+            table.AddIndex(new System.Data.DataColumn[] { productsDataset.ProductsTbl.NavCodeColumn }
+                );
+            //table.ReadTableDef();
+            
+
+        }
+        public void Update(TSDServer.ProductsDataSet productsDataset)
+        {
+            table.AddIndex(new System.Data.DataColumn[] { productsDataset.ProductsTbl.Columns["NavCode"] });
+
+            if (table == null)
+                table = new FamilTsdDB.DataTable(productsDataset.ProductsTbl);
+            table.Write();
+        }
+
+        #region IDisposable Members
+
+        public void Dispose()
+        {
+            table.Dispose();
+        }
+
+        #endregion
     }
 }

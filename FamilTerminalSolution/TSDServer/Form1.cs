@@ -47,6 +47,8 @@ namespace TSDServer
         FileCopyProgressForm frm = new FileCopyProgressForm();
         enum ImportModeEnum { Undefined = 0, Products = 1, Documents = 2 };
         ImportModeEnum currentImportMode = ImportModeEnum.Undefined;
+        ProductsDataSetTableAdapters.ProductsTblTableAdapter productAdapter;
+        ProductsDataSetTableAdapters.DocsTblTableAdapter docsAdapter;
  
         //TSDUtils.CustomEncodingClass CustomEncodingClass MyEncoder = new CustomEncodingClass();
 
@@ -80,6 +82,11 @@ namespace TSDServer
                 mutex.Close();
                 mutex = null;
             }
+            productAdapter =
+                      new TSDServer.ProductsDataSetTableAdapters.ProductsTblTableAdapter(this.productsDataSet1);
+
+            docsAdapter =
+                new TSDServer.ProductsDataSetTableAdapters.DocsTblTableAdapter(this.productsDataSet1);
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -213,7 +220,7 @@ namespace TSDServer
                         return;
                 }
 
-
+                rowCounter = 0;
                 using (System.IO.StreamReader rdr =
                     new System.IO.StreamReader(fileName, Encoding.GetEncoding("windows-1251")))
                 {
@@ -244,18 +251,16 @@ namespace TSDServer
                 Cancelled = false;
                 try
                 {
-                    using (ProductsDataSetTableAdapters.ProductsBinTblTableAdapter tAdapter =
-                      new TSDServer.ProductsDataSetTableAdapters.ProductsBinTblTableAdapter())
+                    if (currentImportMode == ImportModeEnum.Products)
                     {
-
-                        tAdapter.Update(this.productsDataSet1);
+                        productAdapter.Update(this.productsDataSet1);
                     }
-                    using (ProductsDataSetTableAdapters.DocsBinTblTableAdapter tAdapter =
-                      new TSDServer.ProductsDataSetTableAdapters.DocsBinTblTableAdapter())
+
+                    if (currentImportMode == ImportModeEnum.Documents)
                     {
-
-                        tAdapter.Update(this.productsDataSet1);
+                        docsAdapter.Update(this.productsDataSet1);
                     }
+
                     this.productsDataSet1.AcceptChanges();
                 }
                 catch{}
@@ -365,10 +370,10 @@ namespace TSDServer
         private void AddFixedStringProducts(string s)
         {
 
-            cols = new string[productsDataSet1.ProductsBinTbl.Columns.Count];
+            cols = new string[productsDataSet1.ProductsTbl.Columns.Count];
 
-            ProductsDataSet.ProductsBinTblRow row =
-                this.productsDataSet1.ProductsBinTbl.NewProductsBinTblRow();
+            ProductsDataSet.ProductsTblRow row =
+                this.productsDataSet1.ProductsTbl.NewProductsTblRow();
 
             cols[0] = s.Substring(0, colsLength[0]);
             int readedLength = -1;//;colsLength[0];
@@ -383,7 +388,7 @@ namespace TSDServer
                 return;
             }
            
-            for (int i = 0; i <  productsDataSet1.ProductsBinTbl.Columns.Count; i++)
+            for (int i = 0; i <  productsDataSet1.ProductsTbl.Columns.Count; i++)
             {
                 try
                 {
@@ -401,8 +406,8 @@ namespace TSDServer
                     
                 }
             }
-            Test(row);
-            this.productsDataSet1.ProductsBinTbl.AddProductsBinTblRow(row);
+            //Test(row);
+            this.productsDataSet1.ProductsTbl.AddProductsTblRow(row);
             rowCounter++;
             if (OnProcessImport != null)
                 OnProcessImport(rowCounter.ToString(), false);
@@ -414,8 +419,8 @@ namespace TSDServer
 
             cols = s.Split(fieldDelimeter);
             
-            ProductsDataSet.ProductsBinTblRow row =
-                this.productsDataSet1.ProductsBinTbl.NewProductsBinTblRow();
+            ProductsDataSet.ProductsTblRow row =
+                this.productsDataSet1.ProductsTbl.NewProductsTblRow();
 
 
 
@@ -430,7 +435,7 @@ namespace TSDServer
             }
 
 
-            for (int i = 0; i < productsDataSet1.ProductsBinTbl.Columns.Count; i++)
+            for (int i = 0; i < productsDataSet1.ProductsTbl.Columns.Count; i++)
             {
                 try
                 {
@@ -446,8 +451,8 @@ namespace TSDServer
                     
                 }
             }
-            Test(row);
-            this.productsDataSet1.ProductsBinTbl.AddProductsBinTblRow(row);
+            //Test(row);
+            this.productsDataSet1.ProductsTbl.AddProductsTblRow(row);
             rowCounter++;
             if (OnProcessImport != null)
                 OnProcessImport(rowCounter.ToString(), false);
@@ -462,9 +467,6 @@ namespace TSDServer
 
             ProductsDataSet.DocsTblRow row =
                 this.productsDataSet1.DocsTbl.NewDocsTblRow();
-
-
-
 
             if (String.IsNullOrEmpty(cols[0].Trim()) ||
                 cols[0].Trim() == "0" ||
@@ -491,8 +493,8 @@ namespace TSDServer
                 }
             }
 
-            ProductsDataSet.DocsBinTblRow docRow = 
-                this.productsDataSet1.DocsBinTbl.NewDocsBinTblRow();
+            //ProductsDataSet.DocsBinTblRow docRow = 
+            //    this.productsDataSet1.DocsBinTbl.NewDocsBinTblRow();
             //docRow.Barcode = row.Barcode;
             //docRow.DocId = TSDUtils.CustomEncodingClass.Encoding.GetBytes(
             //    row.DocType.ToString("00")/*тип документа*/+ row.DocId//docid
@@ -509,8 +511,8 @@ namespace TSDServer
             //docRow.Text1 = TSDUtils.CustomEncodingClass.Encoding.GetBytes(row.Text1);
             //docRow.Text2 = TSDUtils.CustomEncodingClass.Encoding.GetBytes(row.Text2);
             //docRow.Text3 = TSDUtils.CustomEncodingClass.Encoding.GetBytes(row.Text3);
-            
-            this.productsDataSet1.DocsBinTbl.AddDocsBinTblRow(productsDataSet1.ConvertToBin(row));
+
+            this.productsDataSet1.DocsTbl.AddDocsTblRow(row);
             rowCounter++;
             if (OnProcessImport != null)
                 OnProcessImport(rowCounter.ToString(), false);
@@ -557,9 +559,9 @@ namespace TSDServer
                 }
             }
 
-            ProductsDataSet.DocsBinTblRow docRow =
-              this.productsDataSet1.DocsBinTbl.NewDocsBinTblRow();
-            this.productsDataSet1.DocsBinTbl.AddDocsBinTblRow(productsDataSet1.ConvertToBin(row));
+            //ProductsDataSet.DocsBinTblRow docRow =
+            //  this.productsDataSet1.DocsBinTbl.NewDocsBinTblRow();
+            this.productsDataSet1.DocsTbl.AddDocsTblRow(row);
 
             rowCounter++;
             if (OnProcessImport != null)
@@ -701,19 +703,49 @@ namespace TSDServer
                     OpenNETCF.Desktop.Communication.RAPICopingHandler onCopyDelegate = 
                         new OpenNETCF.Desktop.Communication.RAPICopingHandler(terminalRapi_RAPIFileCoping);
                     terminalRapi.RAPIFileCoping += onCopyDelegate;
-                    
-                    IAsyncResult ar = 
-                        terminalRapi.BeginCopyFileToDevice(Application.StartupPath + "\\products.sdf",
-                            Properties.Settings.Default.TSDDBPAth + "products.sdf", true,
-                            new AsyncCallback(OnEndCopyFile), null);
-                    
-                    if (frm.ShowDialog() == DialogResult.Abort)
+                    foreach (string fileName in productAdapter.FileList)
                     {
-                        richTextBox1.AppendText("Отмена копирования...\n");
-                        richTextBox1.AppendText("Дождитесь завершения... \n");
-                        terminalRapi.RAPIFileCoping -= onCopyDelegate;
-                        terminalRapi.CancelCopyFileToDevice();
+                        if (System.IO.File.Exists(fileName))
+                        {
+                            IAsyncResult ar =
+                                terminalRapi.BeginCopyFileToDevice(fileName,
+                                    Properties.Settings.Default.TSDDBPAth + System.IO.Path.GetFileName(fileName), true,
+                                    new AsyncCallback(OnEndCopyFile), null);
+
+
+                            if (frm.ShowDialog() == DialogResult.Abort)
+                            {
+                                richTextBox1.AppendText("Отмена копирования...\n");
+                                richTextBox1.AppendText("Дождитесь завершения... \n");
+                                terminalRapi.RAPIFileCoping -= onCopyDelegate;
+                                terminalRapi.CancelCopyFileToDevice();
+                            }
+                        }
                     }
+                    foreach (string fileName in docsAdapter.FileList)
+                    {
+                        if (System.IO.File.Exists(fileName))
+                        {
+                            IAsyncResult ar =
+                                terminalRapi.BeginCopyFileToDevice(fileName,
+                                    Properties.Settings.Default.TSDDBPAth + System.IO.Path.GetFileName(fileName), true,
+                                    new AsyncCallback(OnEndCopyFile), null);
+
+
+                            if (frm.ShowDialog() == DialogResult.Abort)
+                            {
+                                richTextBox1.AppendText("Отмена копирования...\n");
+                                richTextBox1.AppendText("Дождитесь завершения... \n");
+                                terminalRapi.RAPIFileCoping -= onCopyDelegate;
+                                terminalRapi.CancelCopyFileToDevice();
+                            }
+                        }
+                    }
+                    MessageBox.Show("Копирование завершено", "Статус загрузки на терминал", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    this.importGoodBtn.Enabled = true;
+                    this.uploadBtn.Enabled = true;
+                    this.settingsBtn.Enabled = true;
+                    richTextBox1.AppendText("Копирование завершено...\n");
                 }
                 else
                 {
@@ -757,11 +789,7 @@ namespace TSDServer
             else
             {
                 frm.Hide();
-                MessageBox.Show("Копирование завершено", "Статус загрузки на терминал", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                this.importGoodBtn.Enabled = true;
-                this.uploadBtn.Enabled = true;
-                this.settingsBtn.Enabled = true;
-                richTextBox1.AppendText("Копирование завершено...\n");
+                
 
             }
         }
@@ -898,6 +926,9 @@ namespace TSDServer
             }
             else
             {
+                productAdapter.Dispose();
+                docsAdapter.Dispose();
+
                 mutex.ReleaseMutex();
                 mutex = null;
             }
@@ -982,6 +1013,21 @@ namespace TSDServer
                 this.settingsBtn.Enabled = false;
 
             }
+        }
+
+        private void downloadBtn_Click(object sender, EventArgs e)
+        {
+
+            //OpenNETCF.Desktop.Communication.FileList fl = terminalRapi.EnumFiles(Properties.Settings.Default.TSDDBPAth + "ScannedBarcodes.db");
+            /*Familia.TSDClient.ScannedProductsDataSet scannedDs = 
+                new Familia.TSDClient.ScannedProductsDataSet();
+            Familia.TSDClient.ScannedProductsDataSetTableAdapters.ScannedBarcodesTableAdapter scannedTA = 
+                new Familia.TSDClient.ScannedProductsDataSetTableAdapters.ScannedBarcodesTableAdapter(scannedDs);
+            foreach (string s in scannedTA.FileList)
+            {
+                terminalRapi.CopyFileFromDevice(s,
+                    "\\Program Files\\tsdfamilia\\"+ Path.GetFileName(s));
+            }*/
         }
     }
 }

@@ -36,6 +36,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="systemlibnet, Version=2.0.6.6336, Culture=neutral, PublicKeyToken=4079e79a5891f674">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\SmartDeviceProject2\bin\Debug\systemlibnet.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CodeDef.cs" />

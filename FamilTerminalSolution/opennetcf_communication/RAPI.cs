@@ -84,6 +84,7 @@ namespace OpenNETCF.Desktop.Communication
 			m_activesync.Disconnect += new DisconnectHandler(activesync_Disconnect);
 			m_activesync.Active += new ActiveHandler(m_activesync_Active);
 			m_activesync.BeginListen();
+            mEvt.Set();
 		}
 
 		/// <summary>
@@ -465,6 +466,11 @@ namespace OpenNETCF.Desktop.Communication
 		/// <param name="Overwrite">Overwrites existing file on the device if <b>true</b>, fails if <b>false</b></param>
 		public void CopyFileToDevice(string LocalFileName, string RemoteFileName, bool Overwrite)
 		{
+            if (mEvt.WaitOne(10 * 60 * 1000, true) == false)
+                return;
+
+            mEvt.Reset();
+
             long totalFileSize = 0;
             FileStream localFile;
             IntPtr remoteFile = IntPtr.Zero;
@@ -473,6 +479,8 @@ namespace OpenNETCF.Desktop.Communication
             int filepos = 0;
             int create = Overwrite ? CREATE_ALWAYS : CREATE_NEW;
             byte[] buffer = new byte[0x1000]; // 4k transfer buffer
+
+
 
             try
             {
@@ -530,6 +538,7 @@ namespace OpenNETCF.Desktop.Communication
                 SetDeviceFileTime(RemoteFileName, RAPIFileTime.CreateTime, File.GetCreationTime(LocalFileName));
                 SetDeviceFileTime(RemoteFileName, RAPIFileTime.LastAccessTime, DateTime.Now);
                 SetDeviceFileTime(RemoteFileName, RAPIFileTime.LastModifiedTime, File.GetLastWriteTime(LocalFileName));
+                
             }
             catch (Exception err)
             {
@@ -539,9 +548,12 @@ namespace OpenNETCF.Desktop.Communication
             finally
             {
                 Cancelled = false;
+                mEvt.Set();
             }
 		}
-        
+
+        private static System.Threading.ManualResetEvent mEvt =
+            new ManualResetEvent(false);
 
         /// <summary>
         /// Copy a PC file to a connected device asynchonously
@@ -557,6 +569,7 @@ namespace OpenNETCF.Desktop.Communication
             AsyncCallback requestCallback,
             Object state)
         {
+            
             Cancelled = false;
             CopyFileToDeviceDelegate del = new CopyFileToDeviceDelegate(CopyFileToDevice);
 
@@ -579,6 +592,7 @@ namespace OpenNETCF.Desktop.Communication
             
             del.EndInvoke(asyncResult);
             Cancelled = false;
+            
         }
 
 
