@@ -53,7 +53,7 @@ namespace Familia.TSDClient
             }
             else
             {
-                string labelName = string.Format("LABEL{0}.lbl", shablonCode);
+                string labelName = string.Format("LABEL_{0}.DEF", shablonCode);
                 if (System.IO.File.Exists(System.IO.Path.Combine(Program.StartupPath, "fam_pr.lbl")))
                 {
                     using (System.IO.FileStream fs = System.IO.File.OpenRead(System.IO.Path.Combine(Program.StartupPath, "fam_pr.lbl")))
@@ -96,7 +96,7 @@ namespace Familia.TSDClient
             byte[] bArray2 = ReplaceAttr(bArray, datarow);
             fileContent = TSDUtils.CustomEncodingClass.Encoding.GetString(bArray2);
             btPrint.SetStatusEvent(fileContent);
-
+            return;
             if (btPrint.Connected)
             {
                 btPrint.Print(/*fileContent*/bArray2);

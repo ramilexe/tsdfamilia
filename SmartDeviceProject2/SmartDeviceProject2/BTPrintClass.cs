@@ -459,6 +459,12 @@ namespace Familia.TSDClient
 
         public int ConnToPrinter(string PrinterAdr)
         {
+            if (bt_dmax == 0)
+            {
+                BTPrinterInit();
+                Int32 res = BluetoothLibNet.Api.BTSelectDevice(IntPtr.Zero, BluetoothLibNet.Def.BTPORT_SERIAL);
+                ConnToPrinter3();
+            }
 
             for (int i = 0; i < bt_dmax; i++)
             {
@@ -537,6 +543,7 @@ namespace Familia.TSDClient
             }
             return BluetoothLibNet.Def.BTERR_NOT_FOUND;
         }
+        
         #region old func
         [System.Obsolete("Use ConnToPrinter3")]
         public int ConnToPrinter2(BluetoothLibNet.BTST_DEVICEINFO btdevice)
@@ -669,6 +676,24 @@ namespace Familia.TSDClient
         }
         #endregion
 
+        public Int32 ConnToPrinter3()
+        {
+            sp.Open();
+            if (sp.IsOpen)
+            {
+                SetStatusEvent("BT Printer connected");
+                BtRet = BluetoothLibNet.Def.BTERR_CONNECTED;
+                _connected = true;
+            }
+            else
+            {
+                BtRet = BluetoothLibNet.Def.BTERR_FAILED;
+                SetErrorEvent("BT Printer connection failed");
+                _connected = false;
+            }
+            return BtRet;
+        }
+
         public int ConnToPrinter3(BluetoothLibNet.BTST_DEVICEINFO btdevice)
         {
             if (sp.IsOpen)
@@ -714,8 +739,9 @@ namespace Familia.TSDClient
             PrinterFound = true;
 
             SetStatusEvent("{0} BT printer found!", Program.Settings.TypedSettings[0].BTPrinterAddress.ToUpper());
-
             
+            return ConnToPrinter3();
+            /*
             sp.Open();
             if (sp.IsOpen)
             {
@@ -729,7 +755,7 @@ namespace Familia.TSDClient
                 SetErrorEvent("BT Printer connection failed");
                 _connected = false;
             }
-            return BtRet;
+            return BtRet;*/
         }
 
 
