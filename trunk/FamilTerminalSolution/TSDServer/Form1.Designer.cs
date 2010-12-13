@@ -207,7 +207,7 @@
             // 
             // uploadBtn
             // 
-            this.uploadBtn.Location = new System.Drawing.Point(12, 99);
+            this.uploadBtn.Location = new System.Drawing.Point(12, 70);
             this.uploadBtn.Name = "uploadBtn";
             this.uploadBtn.Size = new System.Drawing.Size(174, 23);
             this.uploadBtn.TabIndex = 1;
@@ -217,12 +217,13 @@
             // 
             // downloadBtn
             // 
-            this.downloadBtn.Location = new System.Drawing.Point(12, 70);
+            this.downloadBtn.Location = new System.Drawing.Point(12, 99);
             this.downloadBtn.Name = "downloadBtn";
             this.downloadBtn.Size = new System.Drawing.Size(174, 23);
             this.downloadBtn.TabIndex = 9;
             this.downloadBtn.Text = "Загрузить с терминала";
             this.downloadBtn.UseVisualStyleBackColor = true;
+            this.downloadBtn.Click += new System.EventHandler(this.downloadBtn_Click);
             // 
             // splitter1
             // 

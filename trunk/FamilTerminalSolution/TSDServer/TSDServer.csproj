@@ -52,7 +52,6 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Data" />
-    <Reference Include="System.Data.SqlServerCe, Version=3.5.1.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91" />
     <Reference Include="System.Deployment" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Runtime.Remoting" />
@@ -62,6 +61,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CompressClass.cs" />
+    <Compile Include="Database.cs" />
     <Compile Include="FileCopyProgressForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -125,6 +125,18 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <Compile Include="ScannedProductsDataSet.cs">
+      <DependentUpon>ScannedProductsDataSet.xsd</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="ScannedProductsDataSet.designer.cs">
+      <DependentUpon>ScannedProductsDataSet.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ScannedProductsDataSet1.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ScannedProductsDataSet.xsd</DependentUpon>
+    </Compile>
     <Compile Include="SettingsForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -143,9 +155,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Products.sdf">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
     <None Include="Resources\FILECOPY_16.gif" />
     <None Include="Resources\FILECOPY_16.AVI" />
     <None Include="Resources\StopHS.png" />
@@ -153,6 +162,17 @@
     <None Include="Resources\pda.ico" />
     <None Include="Resources\CriticalError.bmp" />
     <None Include="Resources\OK.bmp" />
+    <None Include="ScannedProductsDataSet.xsc">
+      <DependentUpon>ScannedProductsDataSet.xsd</DependentUpon>
+    </None>
+    <None Include="ScannedProductsDataSet.xsd">
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>ScannedProductsDataSet1.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="ScannedProductsDataSet.xss">
+      <DependentUpon>ScannedProductsDataSet.xsd</DependentUpon>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">

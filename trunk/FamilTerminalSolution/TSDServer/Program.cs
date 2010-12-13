@@ -12,7 +12,14 @@ namespace TSDServer
         static Form1 mainForm = null;
         //класс сервера удаленного управления
         static RemoteObject ro = new RemoteObject();
-        
+        public static string CurrentPath
+        {
+            get
+            {
+                return Application.StartupPath;
+            }
+        }
+
         /// <summary>
         /// статический метод для вызова метода Show главного окна программы
         /// </summary>
