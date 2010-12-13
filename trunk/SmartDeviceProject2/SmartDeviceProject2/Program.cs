@@ -8,6 +8,7 @@ namespace Familia.TSDClient
     public delegate void DatabaseChanged();
     static class Program
     {
+        
         public static SystemMemoryChangeStatusEnum SystemMemoryChangeStatus = SystemMemoryChangeStatusEnum.SYSMEM_NEEDREBOOT;
         public static SettingsDataSet Settings = new SettingsDataSet();
         static string _startupPath = string.Empty;
@@ -86,16 +87,17 @@ namespace Familia.TSDClient
             }
             catch (Exception err)
             {
-                MessageBox.Show(err.Message);
+                //MessageBox.Show(err.Message);
             }
             finally
             {
-                try
-                {
-                    Settings.WriteXml(settingFilePath);
-                    BTPrintClass.PrintClass.Disconnect();
-                }
-                catch { }
+                ScanClass.Scaner.StopScan();
+                //try
+                //{
+                //    Settings.WriteXml(settingFilePath);
+                //    BTPrintClass.PrintClass.Disconnect();
+                //}
+                //catch { }
             }
         }
     }

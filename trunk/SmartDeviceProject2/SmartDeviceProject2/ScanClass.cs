@@ -14,9 +14,23 @@ namespace Familia.TSDClient
 
     public class ScanClass
     {
+        private static ScanClass _scaner = new ScanClass();
+        public static ScanClass Scaner
+        {
+            get
+            {
+                return _scaner;
+            }
+        }
+
+        private ScanClass()
+        {
+
+        }
 
         public Scanned OnScanned;
         public ScanError OnScanError;
+        bool aborted = false;
 
         //[DllImport("coredll.dll")]
         //public static extern IntPtr GetForegroundWindow();
@@ -94,7 +108,7 @@ namespace Familia.TSDClient
                 SetScanError("Failed to connect to the scanner.");
                 return iRet;
             }
-
+            aborted = false;
             iRet = OBReadLibNet.Api.OBRClearBuff();
             thread = new Thread(new ThreadStart(start));
             thread.Start();     //Start start thread
@@ -109,13 +123,14 @@ namespace Familia.TSDClient
         {
             try
             {
-                while (true)
+                while (true && !aborted)
                 {
                     try
                     {
-                        SystemLibNet.Api.SysWaitForEvent(IntPtr.Zero, OBReadLibNet.Def.OBR_NAME_EVENT, SystemLibNet.Def.INFINITE);  //Wait event
-                        if (OnScanned != null)
-                            OnScanned(GetText());
+                        SystemLibNet.Api.SysWaitForEvent(IntPtr.Zero, OBReadLibNet.Def.OBR_NAME_EVENT, 5000/*timeout SystemLibNet.Def.INFINITE*/);  //Wait event
+                        string str = GetText();
+                        if (OnScanned != null && !String.IsNullOrEmpty(str))
+                            OnScanned(str);
                     }
                     catch (Exception err)
                     {
@@ -133,6 +148,7 @@ namespace Familia.TSDClient
         /// </summary>
         public void PauseScan()
         {
+            aborted = true;
             try
             {
                 thread.Abort();
@@ -146,6 +162,7 @@ namespace Familia.TSDClient
         /// </summary>
         public void ResumeScan()
         {
+            aborted = false;
             thread = new Thread(new ThreadStart(start));
             thread.Start();     //Start start thread
         }
@@ -238,6 +255,7 @@ namespace Familia.TSDClient
         /// </summary>
         public void StopScan()
         {
+            aborted = true;
             OBReadLibNet.Api.OBRClose();				//OBRDRV Close
             SystemLibNet.Api.SysTerminateWaitEvent();	//End SysWaitForEvent function
             //HWND = IntPtr.Zero;
