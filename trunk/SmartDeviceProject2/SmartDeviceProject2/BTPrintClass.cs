@@ -10,6 +10,7 @@ namespace Familia.TSDClient
 {
     public delegate void SetStatus(string text);
     public delegate void SetError(string text);
+    public delegate void ConnectionError();
 
     public class BTPrintClass
     {
@@ -30,9 +31,18 @@ namespace Familia.TSDClient
             }
             BTPrinterInit();
         }
+
+        public void Reconnect()
+        {
+            Disconnect();
+            BTPrinterInit();
+            ConnToPrinter(Program.Settings.TypedSettings[0].BTPrinterAddress);
+        }
     
 
         public event SetStatus OnSetStatus;
+        public event ConnectionError OnConnectionError;
+
         public void SetStatusEvent(string text)
         {
             if (OnSetStatus != null)
@@ -678,69 +688,98 @@ namespace Familia.TSDClient
 
         public Int32 ConnToPrinter3()
         {
-            sp.Open();
-            if (sp.IsOpen)
+            try
             {
-                SetStatusEvent("BT Printer connected");
-                BtRet = BluetoothLibNet.Def.BTERR_CONNECTED;
-                _connected = true;
+                sp.Open();
+
+                if (sp.IsOpen)
+                {
+                    SetStatusEvent("BT Printer connected");
+                    BtRet = BluetoothLibNet.Def.BTERR_CONNECTED;
+                    _connected = true;
+                }
+                else
+                {
+                    BtRet = BluetoothLibNet.Def.BTERR_FAILED;
+                    SetErrorEvent("BT Printer connection failed");
+                    throw new BTConnectionFailedException();
+                    _connected = false;
+                }
+                return BtRet;
             }
-            else
+            catch (Exception err)
             {
                 BtRet = BluetoothLibNet.Def.BTERR_FAILED;
-                SetErrorEvent("BT Printer connection failed");
                 _connected = false;
+                SetErrorEvent(err.ToString());
+                if (OnConnectionError != null)
+                    OnConnectionError();
+                return BtRet;
             }
-            return BtRet;
         }
 
         public int ConnToPrinter3(BluetoothLibNet.BTST_DEVICEINFO btdevice)
         {
-            if (sp.IsOpen)
-                return BluetoothLibNet.Def.BTERR_CONNECTED;
-            int status = 0;
-            BtRet = BluetoothLibNet.Api.BTGetLibraryStatus(ref status);
+            try
+            {
+                if (sp.IsOpen)
+                    return BluetoothLibNet.Def.BTERR_CONNECTED;
+                int status = 0;
+                BtRet = BluetoothLibNet.Api.BTGetLibraryStatus(ref status);
 
-            if (status == BluetoothLibNet.Def.BTSTATUS_NOT_INITIALIZED)
-            {
-                BTPrinterInit();
-            }
-            //BtRet = BluetoothLibNet.Api.BTGetDefaultDeviceInfo(btDefaultdevice, BluetoothLibNet.Def.BTPORT_SERIAL);
-            BtRet = BluetoothLibNet.Api.BTSelectDevice(IntPtr.Zero, BluetoothLibNet.Def.BTPORT_SERIAL);
-            if (BtRet != BluetoothLibNet.Def.BTERR_SUCCESS)
-            {
-                SetErrorEvent("Default BT printer not found!");
-                if (Program.Settings.TypedSettings[0]["BTPrinterAddress"] != null &&
-                    Program.Settings.TypedSettings[0]["BTPrinterAddress"] != DBNull.Value &&
-                    Program.Settings.TypedSettings[0]["BTPrinterAddress"].ToString() != string.Empty &&
-                    Program.Settings.TypedSettings[0]["BTPrinterAddress"].ToString() != "00:00:00:00:00:00")
+                if (status == BluetoothLibNet.Def.BTSTATUS_NOT_INITIALIZED)
                 {
-
-                    SetStatusEvent("Search printer {0}", Program.Settings.TypedSettings[0].BTPrinterAddress.ToUpper());
-                    BtRet = SearchDevices();
-                    if (BtRet != BluetoothLibNet.Def.BTERR_SUCCESS)
+                    BTPrinterInit();
+                }
+                //BtRet = BluetoothLibNet.Api.BTGetDefaultDeviceInfo(btDefaultdevice, BluetoothLibNet.Def.BTPORT_SERIAL);
+                BtRet = BluetoothLibNet.Api.BTSelectDevice(IntPtr.Zero, BluetoothLibNet.Def.BTPORT_SERIAL);
+                if (BtRet != BluetoothLibNet.Def.BTERR_SUCCESS)
+                {
+                    SetErrorEvent("Default BT printer not found!");
+                    if (Program.Settings.TypedSettings[0]["BTPrinterAddress"] != null &&
+                        Program.Settings.TypedSettings[0]["BTPrinterAddress"] != DBNull.Value &&
+                        Program.Settings.TypedSettings[0]["BTPrinterAddress"].ToString() != string.Empty &&
+                        Program.Settings.TypedSettings[0]["BTPrinterAddress"].ToString() != "00:00:00:00:00:00")
                     {
-                        SetErrorEvent("BT printer not found!");
+
+                        SetStatusEvent("Search printer {0}", Program.Settings.TypedSettings[0].BTPrinterAddress.ToUpper());
+                        BtRet = SearchDevices();
+                        if (BtRet != BluetoothLibNet.Def.BTERR_SUCCESS)
+                        {
+                            SetErrorEvent("BT printer not found!");
+                            throw new BTConnectionFailedException();
+                            return BtRet;
+                        }
+                        SetStatusEvent("Set default BT printer {0}", Program.Settings.TypedSettings[0].BTPrinterAddress.ToUpper());
+
+                        SetDefaultDevice(Program.Settings.TypedSettings[0].BTPrinterAddress.ToUpper());
+
+                    }
+                    else
+                    {
+                        SetErrorEvent("Default BT Printer name is not set");
+                        throw new BTConnectionFailedException();
                         return BtRet;
                     }
-                    SetStatusEvent("Set default BT printer {0}", Program.Settings.TypedSettings[0].BTPrinterAddress.ToUpper());
-
-                    SetDefaultDevice(Program.Settings.TypedSettings[0].BTPrinterAddress.ToUpper());
 
                 }
-                else
-                {
-                    SetErrorEvent("Default BT Printer name is not set");
-                    return BtRet;
-                }
 
+                PrinterFound = true;
+
+                SetStatusEvent("{0} BT printer found!", Program.Settings.TypedSettings[0].BTPrinterAddress.ToUpper());
+
+                return ConnToPrinter3();
+            }
+            catch (Exception err)
+            {
+                BtRet = BluetoothLibNet.Def.BTERR_FAILED;
+                _connected = false;
+                SetErrorEvent(err.ToString());
+                if (OnConnectionError != null)
+                    OnConnectionError();
+                return BtRet;
             }
             
-            PrinterFound = true;
-
-            SetStatusEvent("{0} BT printer found!", Program.Settings.TypedSettings[0].BTPrinterAddress.ToUpper());
-            
-            return ConnToPrinter3();
             /*
             sp.Open();
             if (sp.IsOpen)
@@ -761,14 +800,16 @@ namespace Familia.TSDClient
 
         public void Print(byte[] prnout)
         {
-            if (BtRet == BluetoothLibNet.Def.BTERR_CONNECTED)
+            try
             {
-                SetStatusEvent("sending datas...");
-                sp.Write(prnout, 0, prnout.Length);
-                SetStatusEvent("BT Printing");
-                Thread.Sleep(1000);
-                #region 
-                /*
+                if (BtRet == BluetoothLibNet.Def.BTERR_CONNECTED)
+                {
+                    SetStatusEvent("sending datas...");
+                    sp.Write(prnout, 0, prnout.Length);
+                    SetStatusEvent("BT Printing");
+                    Thread.Sleep(1000);
+                    #region
+                    /*
                 SetStatusEvent("sending datas...");
                 if (PortWrite(prnout, prnout.Length, hSerial) == 1)
                 {
@@ -780,11 +821,21 @@ namespace Familia.TSDClient
                 //MessageBox.Show
                 SetStatusEvent("BT Printing");
                 */
-                #endregion
+                    #endregion
+                }
+                else
+                {
+                    SetErrorEvent("BT Printer not connected");
+                    throw new BTConnectionFailedException();
+                }
             }
-            else
+            catch (Exception err)
             {
-                SetErrorEvent("BT Printer not connected");
+                BtRet = BluetoothLibNet.Def.BTERR_FAILED;
+                _connected = false;
+                SetErrorEvent(err.ToString());
+                if (OnConnectionError != null)
+                    OnConnectionError();
             }
         }
 
@@ -1525,5 +1576,10 @@ PRINT";
         }
 
         #endregion
+    }
+
+    public class BTConnectionFailedException : System.Exception
+    {
+
     }
 }

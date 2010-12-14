@@ -7,7 +7,19 @@ namespace Familia.TSDClient
 {
     public class ActionsClass
     {
-        public delegate void ActOnProduct(Int64 barcode);
+        ScannedProductsDataSet _scannedProducts = new ScannedProductsDataSet();
+
+        public ScannedProductsDataSet ScannedProducts
+        {
+            get { return _scannedProducts; }
+            set { _scannedProducts = value; }
+        }
+        Familia.TSDClient.ScannedProductsDataSetTableAdapters.ScannedBarcodesTableAdapter scannedTA;
+        public delegate void ActOnProduct(ProductsDataSet.ProductsTblRow datarow, ProductsDataSet.DocsTblRow docsRow);
+        public delegate void ActionCompleted(ProductsDataSet.DocsTblRow docsRow, ScannedProductsDataSet.ScannedBarcodesRow scannedRow);
+
+        public event ActionCompleted OnActionCompleted;
+
         Dictionary<byte, List<TSDUtils.SoundDef>>
             Sounds = new Dictionary<byte, List<TSDUtils.SoundDef>>();
 
@@ -26,7 +38,7 @@ namespace Familia.TSDClient
         public Dictionary<TSDUtils.ActionCode, ActOnProduct> actionsDict =
             new Dictionary<TSDUtils.ActionCode, ActOnProduct>();
 
-
+        System.Threading.Timer tmr = null;
         static ActionsClass _actionClass = new ActionsClass();
         public static ActionsClass Action
         {
@@ -47,8 +59,29 @@ namespace Familia.TSDClient
             actionsDict.Add(TSDUtils.ActionCode.Reprice, new ActOnProduct(RepriceActionProc));
             actionsDict.Add(TSDUtils.ActionCode.Returns, new ActOnProduct(ReturnActionProc));
             actionsDict.Add(TSDUtils.ActionCode.Remove, new ActOnProduct(RemoveActionProc));
+
+            tmr = new System.Threading.Timer(
+            new System.Threading.TimerCallback(OnTimer)
+            , null,
+            System.Threading.Timeout.Infinite,
+            System.Threading.Timeout.Infinite);
+
+            scannedTA =
+                    new Familia.TSDClient.ScannedProductsDataSetTableAdapters.ScannedBarcodesTableAdapter(_scannedProducts);
+
+            
+                
         }
 
+        public void BeginScan()
+        {
+            tmr.Change(1000, 60000);
+        }
+        public void EndScan()
+        {
+             tmr.Change(System.Threading.Timeout.Infinite, System.Threading.Timeout.Infinite);
+            scannedTA.Update(this._scannedProducts);
+        }
         public void PlaySoundAsync(byte soundCode)
         {
             System.Threading.ThreadPool.QueueUserWorkItem(
@@ -154,12 +187,18 @@ namespace Familia.TSDClient
         /// <param name="code">Код действия</param>
         public void PrintLabel(ProductsDataSet.ProductsTblRow datarow, ProductsDataSet.DocsTblRow docRow)
         {
+            uint shablonCode = TSDUtils.ActionCodeDescription.ActionDescription.GetShablon(docRow.DocType, (uint)docRow.LabelCode);
+            PrintLabel(datarow,docRow,shablonCode);
+        }
+
+        public void PrintLabel(ProductsDataSet.ProductsTblRow datarow,  ProductsDataSet.DocsTblRow docRow, uint shablonCode)
+        {
             try
             {
                 string fileContent = string.Empty;
                 int fileLength = 0;
                 byte[] bArray = null;
-                uint shablonCode = TSDUtils.ActionCodeDescription.ActionDescription.GetShablon(docRow.DocType, (uint)docRow.LabelCode);
+                //uint shablonCode = TSDUtils.ActionCodeDescription.ActionDescription.GetShablon(docRow.DocType, (uint)docRow.LabelCode);
                 if (labelCollection.ContainsKey(shablonCode))
                 {
                     bArray = labelCollection[shablonCode];
@@ -231,6 +270,7 @@ namespace Familia.TSDClient
             System.Threading.ThreadPool.QueueUserWorkItem(
                new System.Threading.WaitCallback(PrintLabel), prm);
         }
+
 
 
         private byte[] ReplaceAttr(byte[] bArray, ProductsDataSet.ProductsTblRow productsRow, ProductsDataSet.DocsTblRow docsRow)
@@ -316,28 +356,128 @@ namespace Familia.TSDClient
             return outArray.ToArray();
         }
 
-        public void NoActionProc(Int64 barcode)
+        public void NoActionProc(ProductsDataSet.ProductsTblRow datarow, ProductsDataSet.DocsTblRow docsRow)
         {
+            PlayVibroAsyncAction(docsRow);
+            PlaySoundAsyncAction(docsRow);
+            
             System.Threading.Thread.Sleep(1000);
         }
-        public void RepriceActionProc(Int64 barcode)
+        public void RepriceActionProc(ProductsDataSet.ProductsTblRow datarow, ProductsDataSet.DocsTblRow docsRow)
         {
+            PrintLabelAsync(datarow, docsRow);
+            PlayVibroAsyncAction(docsRow);
+            PlaySoundAsyncAction(docsRow);
+            ////System.Threading.Thread.Sleep(1000);
+            //ScannedProductsDataSet.ScannedBarcodesRow r = _scannedProducts.ScannedBarcodes.UpdateQuantity(
+            //docsRow.Barcode, docsRow.DocType, 1);
+            //        if (r != null)
+            //        {
+            //            TSDUtils.ActionCode ac = (TSDUtils.ActionCode)docsRow.DocType;
+
+            //            //this.actionLabel.Text = TSDUtils.ActionCodeDescription.ActionDescription[ac];
+            //            if (OnActionCompleted != null)
+            //                OnActionCompleted(docsRow, r);
+            //        }
+
+        }
+        public void ReturnActionProc(ProductsDataSet.ProductsTblRow datarow, ProductsDataSet.DocsTblRow docsRow)
+        {
+            ScannedProductsDataSet.ScannedBarcodesRow[] r =
+                _scannedProducts.ScannedBarcodes.FindByBarcodeAndDocType(docsRow.Barcode, docsRow.DocType);
+            if (r != null)
+            {
+                for (int i = 0; i < r.Length; i++)
+                {
+                    if (r[i].FactQuantity < r[i].PlanQuanity)
+                    {
+                        r[i].FactQuantity += 1;
+                        PlayVibroAsyncAction(docsRow);
+                        PlaySoundAsyncAction(docsRow);
+                        if (r[i].FactQuantity == r[i].PlanQuanity)
+                        {
+
+                            using (RemoveFinishForm frm = new RemoveFinishForm(datarow,docsRow))
+                            {
+                                frm.ShowDialog();
+                            }
+
+                        }
+                        if (OnActionCompleted != null)
+                            OnActionCompleted(docsRow, r[i]);
+                        break;
+                    }
+
+                }
+            }
             System.Threading.Thread.Sleep(1000);
         }
-        public void ReturnActionProc(Int64 barcode)
+        public void RemoveActionProc(ProductsDataSet.ProductsTblRow datarow, ProductsDataSet.DocsTblRow docsRow)
         {
-            System.Threading.Thread.Sleep(1000);
+            ScannedProductsDataSet.ScannedBarcodesRow[] r =
+                _scannedProducts.ScannedBarcodes.FindByBarcodeAndDocType(docsRow.Barcode, docsRow.DocType);
+            if (r != null)
+            {
+                for (int i = 0; i < r.Length; i++)
+                {
+                    if (r[i].FactQuantity < r[i].PlanQuanity)
+                    {
+                        r[i].FactQuantity += 1;
+                        PlayVibroAsyncAction(docsRow);
+                        PlaySoundAsyncAction(docsRow);
+                        if (r[i].FactQuantity == r[i].PlanQuanity)
+                        {
+
+                            using (RemoveFinishForm frm = new RemoveFinishForm(datarow, docsRow))
+                            {
+                                frm.ShowDialog();
+                            }
+                        }
+                        if (OnActionCompleted != null)
+                            OnActionCompleted(docsRow, r[i]);
+                        break;
+                    }
+                    
+                }
+                //this.actionLabel.Text = TSDUtils.ActionCodeDescription.ActionDescription[ac];
+ 
+
+            }
+            /*ScannedProductsDataSet.ScannedBarcodesRow r = _scannedProducts.ScannedBarcodes.UpdateQuantity(
+            docsRow.Barcode, docsRow.DocType, 1);
+            if (r != null)
+            {
+                //TSDUtils.ActionCode ac = (TSDUtils.ActionCode)docsRow.DocType;
+
+                if (r.FactQuantity == r.PlanQuanity)
+                {
+                    using (RemoveFinishForm frm = new RemoveFinishForm())
+                    {
+                        frm.ShowDialog();
+                    }
+                }
+                //this.actionLabel.Text = TSDUtils.ActionCodeDescription.ActionDescription[ac];
+                if (OnActionCompleted != null)
+                    OnActionCompleted(docsRow, r);
+            }*/
+
         }
-        public void RemoveActionProc(Int64 barcode)
+        public void PlaySoundAsyncAction(ProductsDataSet.DocsTblRow docsRow)
         {
-            System.Threading.Thread.Sleep(1000);
+            //System.Threading.Thread.Sleep(1000);
+            ActionsClass.Action.PlaySoundAsync(docsRow.MusicCode);
+        }
+        public void PlayVibroAsyncAction(ProductsDataSet.DocsTblRow docsRow)
+        {
+            //System.Threading.Thread.Sleep(1000);
+            ActionsClass.Action.PlayVibroAsync(docsRow.VibroCode);
         }
 
-        public void InvokeAction(TSDUtils.ActionCode ac, Int64 barcode)
+        public void InvokeAction(TSDUtils.ActionCode ac, ProductsDataSet.ProductsTblRow datarow, ProductsDataSet.DocsTblRow docsRow)
         {
             if (actionsDict.ContainsKey(ac))
             {
-                actionsDict[ac].Invoke(barcode);
+                actionsDict[ac].Invoke(datarow, docsRow);
             }
                     
         }
@@ -346,6 +486,19 @@ namespace Familia.TSDClient
         {
             public ProductsDataSet.ProductsTblRow datarow;
             public ProductsDataSet.DocsTblRow docRow;
+        }
+
+        private void OnTimer(object state)
+        {
+            try
+            {
+                ViewProductForm._mEvt.Reset();
+                scannedTA.Update(this._scannedProducts);
+            }
+            finally
+            {
+                ViewProductForm._mEvt.Set();
+            }
         }
     }
 }

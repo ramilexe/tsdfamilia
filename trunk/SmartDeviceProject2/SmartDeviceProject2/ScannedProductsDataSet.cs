@@ -9,12 +9,42 @@
             {
                 return (ScannedProductsDataSet.ScannedBarcodesRow[])(this.Select(string.Format("Barcode = {0} and DocId = \"{1}\"", Barcode,docId)));
             }
+
+            public ScannedProductsDataSet.ScannedBarcodesRow[] FindByBarcodeAndDocType(long Barcode, byte docType)
+            {
+                
+                return  (ScannedProductsDataSet.ScannedBarcodesRow[])
+                        this.Select(
+                        string.Format("Barcode = {0} and DocType = {1}", Barcode, docType),
+                        "Priority ASC");
+                
+
+
+
+            }
             /*
             public ScannedProductsDataSet.ScannedBarcodesRow FindByBarcodeAndDoc(long Barcode, string docId, byte docType)
             {
                 return (ScannedProductsDataSet.ScannedBarcodesRow)(this.Select(string.Format("Barcode = {0} and DocId = \"{1}\" and DocType = {2}", Barcode, docId, docType),"Priority ASC"));
             }*/
+            public ScannedProductsDataSet.ScannedBarcodesRow FindFirstByBarcodeAndDocType(long Barcode, byte docType)
+            {
+                ScannedProductsDataSet.ScannedBarcodesRow[] scanRows =
+                    (ScannedProductsDataSet.ScannedBarcodesRow[])
+                        this.Select(
+                        string.Format("Barcode = {0} and DocType = {1}", Barcode, docType),
+                        "Priority ASC");
+                if (scanRows != null &&
+                    scanRows.Length > 0)
+                {
+                    return scanRows[0];
+                }
+                else
+                    return null;
 
+
+
+            }
 
             public ScannedProductsDataSet.ScannedBarcodesRow UpdateQuantity(long Barcode, byte docType, int quanity)
             {
@@ -71,7 +101,7 @@ namespace Familia.TSDClient.ScannedProductsDataSetTableAdapters
         public ScannedBarcodesTableAdapter(ScannedProductsDataSet scannedproductsDataset)
         {
             FamilTsdDB.DataTable.BaseDate = TSDClient.Program.Default.BaseDate;
-            FamilTsdDB.DataTable.StartupPath = TSDClient.Program.StartupPath;
+            FamilTsdDB.DataTable.StartupPath = TSDClient.Program.Default.DatabaseStoragePath;
             _scannedproductsDataset = scannedproductsDataset;
             table = new FamilTsdDB.DataTable(_scannedproductsDataset.ScannedBarcodes);
             table.AddIndex(

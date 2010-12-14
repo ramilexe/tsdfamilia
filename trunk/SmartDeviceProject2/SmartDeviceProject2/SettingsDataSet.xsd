@@ -32,6 +32,7 @@
               <xs:element name="BTComPort" msprop:Generator_UserColumnName="BTComPort" msprop:Generator_ColumnPropNameInRow="BTComPort" msprop:Generator_ColumnVarNameInTable="columnBTComPort" msprop:Generator_ColumnPropNameInTable="BTComPortColumn" type="xs:int" default="1" minOccurs="0" />
               <xs:element name="BaseDate" msprop:Generator_UserColumnName="BaseDate" msprop:Generator_ColumnVarNameInTable="columnBaseDate" msprop:Generator_ColumnPropNameInRow="BaseDate" msprop:Generator_ColumnPropNameInTable="BaseDateColumn" type="xs:dateTime" default="2010-01-01T00:00:00+03:00" minOccurs="0" />
               <xs:element name="ProductsConnectionString" msprop:Generator_UserColumnName="ProductsConnectionString" msprop:Generator_ColumnPropNameInRow="ProductsConnectionString" msprop:Generator_ColumnVarNameInTable="columnProductsConnectionString" msprop:Generator_ColumnPropNameInTable="ProductsConnectionStringColumn" type="xs:string" default="Data Source=|DataDirectory|\Products.sdf" minOccurs="0" />
+              <xs:element name="DefaultRepriceShablon" msprop:Generator_UserColumnName="DefaultRepriceShablon" msprop:Generator_ColumnPropNameInRow="DefaultRepriceShablon" msprop:Generator_ColumnVarNameInTable="columnDefaultRepriceShablon" msprop:Generator_ColumnPropNameInTable="DefaultRepriceShablonColumn" type="xs:unsignedInt" default="0" minOccurs="0" />
             </xs:sequence>
           </xs:complexType>
         </xs:element>

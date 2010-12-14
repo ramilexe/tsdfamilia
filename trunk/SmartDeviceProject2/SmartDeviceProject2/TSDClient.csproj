@@ -77,6 +77,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ActionsClass.cs" />
+    <Compile Include="BTConnectionErrorForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="BTConnectionErrorForm.Designer.cs">
+      <DependentUpon>BTConnectionErrorForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="BTPrintClass.cs" />
     <Compile Include="CodeDef.cs" />
     <Compile Include="CustomEncodingClass.cs" />
@@ -102,6 +108,9 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="BTConnectionErrorForm.resx">
+      <DependentUpon>BTConnectionErrorForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
     </EmbeddedResource>
@@ -109,6 +118,9 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="RemoveFinishForm.resx">
+      <DependentUpon>RemoveFinishForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="SearchPrinterForm.resx">
       <DependentUpon>SearchPrinterForm.cs</DependentUpon>
@@ -123,6 +135,12 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="RemoveFinishForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="RemoveFinishForm.Designer.cs">
+      <DependentUpon>RemoveFinishForm.cs</DependentUpon>
     </Compile>
     <Compile Include="ScanClass.cs" />
     <Compile Include="ScannedProductsDataSet.cs">
