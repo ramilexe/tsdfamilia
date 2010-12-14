@@ -247,6 +247,19 @@ namespace Familia.TSDClient
 
                 }
             }
+            catch (BTConnectionFailedException)
+            {
+                using (BTConnectionErrorForm frm =
+                        new BTConnectionErrorForm())
+                {
+                    if (frm.ShowDialog() == System.Windows.Forms.DialogResult.Yes)
+                    {
+                        BTPrintClass.PrintClass.Reconnect();
+                        PrintLabel(datarow, docRow, shablonCode);
+                    }
+
+                }
+            }
             catch (Exception err)
             {
                 BTPrintClass.PrintClass.SetErrorEvent(err.ToString());
