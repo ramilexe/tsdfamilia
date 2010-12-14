@@ -505,6 +505,8 @@ namespace Familia.TSDClient {
             
             private global::System.Data.DataColumn columnProductsConnectionString;
             
+            private global::System.Data.DataColumn columnDefaultRepriceShablon;
+            
             private static System.DateTime columnBaseDate_defaultValue = global::System.DateTime.Parse("01/01/2010 00:00:00");
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -595,6 +597,13 @@ namespace Familia.TSDClient {
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public global::System.Data.DataColumn DefaultRepriceShablonColumn {
+                get {
+                    return this.columnDefaultRepriceShablon;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             public int Count {
                 get {
                     return this.Rows.Count;
@@ -622,7 +631,7 @@ namespace Familia.TSDClient {
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            public TypedSettingsRow AddTypedSettingsRow(int StorageMemorySize, bool VibarationOn, bool ScanSoundNotifyOn, string DatabaseFileName, string DatabaseStoragePath, string BTPrinterAddress, int BTComPort, System.DateTime BaseDate, string ProductsConnectionString) {
+            public TypedSettingsRow AddTypedSettingsRow(int StorageMemorySize, bool VibarationOn, bool ScanSoundNotifyOn, string DatabaseFileName, string DatabaseStoragePath, string BTPrinterAddress, int BTComPort, System.DateTime BaseDate, string ProductsConnectionString, uint DefaultRepriceShablon) {
                 TypedSettingsRow rowTypedSettingsRow = ((TypedSettingsRow)(this.NewRow()));
                 object[] columnValuesArray = new object[] {
                         StorageMemorySize,
@@ -633,7 +642,8 @@ namespace Familia.TSDClient {
                         BTPrinterAddress,
                         BTComPort,
                         BaseDate,
-                        ProductsConnectionString};
+                        ProductsConnectionString,
+                        DefaultRepriceShablon};
                 rowTypedSettingsRow.ItemArray = columnValuesArray;
                 this.Rows.Add(rowTypedSettingsRow);
                 return rowTypedSettingsRow;
@@ -667,6 +677,7 @@ namespace Familia.TSDClient {
                 this.columnBTComPort = base.Columns["BTComPort"];
                 this.columnBaseDate = base.Columns["BaseDate"];
                 this.columnProductsConnectionString = base.Columns["ProductsConnectionString"];
+                this.columnDefaultRepriceShablon = base.Columns["DefaultRepriceShablon"];
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -689,6 +700,8 @@ namespace Familia.TSDClient {
                 base.Columns.Add(this.columnBaseDate);
                 this.columnProductsConnectionString = new global::System.Data.DataColumn("ProductsConnectionString", typeof(string), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnProductsConnectionString);
+                this.columnDefaultRepriceShablon = new global::System.Data.DataColumn("DefaultRepriceShablon", typeof(uint), null, global::System.Data.MappingType.Element);
+                base.Columns.Add(this.columnDefaultRepriceShablon);
                 this.columnStorageMemorySize.DefaultValue = ((int)(17000));
                 this.columnVibarationOn.DefaultValue = ((bool)(false));
                 this.columnScanSoundNotifyOn.DefaultValue = ((bool)(false));
@@ -698,6 +711,7 @@ namespace Familia.TSDClient {
                 this.columnBTComPort.DefaultValue = ((int)(1));
                 this.columnBaseDate.DefaultValue = ((System.DateTime)(TypedSettingsDataTable.columnBaseDate_defaultValue));
                 this.columnProductsConnectionString.DefaultValue = ((string)("Data Source=|DataDirectory|\\Products.sdf"));
+                this.columnDefaultRepriceShablon.DefaultValue = ((uint)(0u));
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -1014,6 +1028,21 @@ namespace Familia.TSDClient {
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public uint DefaultRepriceShablon {
+                get {
+                    try {
+                        return ((uint)(this[this.tableTypedSettings.DefaultRepriceShablonColumn]));
+                    }
+                    catch (global::System.InvalidCastException e) {
+                        throw new global::System.Data.StrongTypingException("The value for column \'DefaultRepriceShablon\' in table \'TypedSettings\' is DBNull.", e);
+                    }
+                }
+                set {
+                    this[this.tableTypedSettings.DefaultRepriceShablonColumn] = value;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             public bool IsStorageMemorySizeNull() {
                 return this.IsNull(this.tableTypedSettings.StorageMemorySizeColumn);
             }
@@ -1101,6 +1130,16 @@ namespace Familia.TSDClient {
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             public void SetProductsConnectionStringNull() {
                 this[this.tableTypedSettings.ProductsConnectionStringColumn] = global::System.Convert.DBNull;
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public bool IsDefaultRepriceShablonNull() {
+                return this.IsNull(this.tableTypedSettings.DefaultRepriceShablonColumn);
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public void SetDefaultRepriceShablonNull() {
+                this[this.tableTypedSettings.DefaultRepriceShablonColumn] = global::System.Convert.DBNull;
             }
         }
         

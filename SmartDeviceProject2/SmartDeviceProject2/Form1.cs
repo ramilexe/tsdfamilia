@@ -14,7 +14,8 @@ namespace Familia.TSDClient
     {
         public static event DatabaseChanged OnDatabaseChaned;
         ProductsDataSet _products = new ProductsDataSet();
-        ScannedProductsDataSet _scannedProducts = new ScannedProductsDataSet();
+        ScannedProductsDataSet _scannedProducts = ActionsClass.Action.ScannedProducts;
+
         System.Threading.Timer tmr =
             new System.Threading.Timer(new System.Threading.TimerCallback(OnTimer)
                 , null

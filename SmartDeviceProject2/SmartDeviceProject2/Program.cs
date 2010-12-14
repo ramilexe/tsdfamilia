@@ -53,6 +53,7 @@ namespace Familia.TSDClient
                     r.StorageMemorySize = 15000;
                     r.BaseDate = new DateTime(2000, 1, 1);
                     r.ProductsConnectionString = @"Data Source=|DataDirectory|\Products.sdf";
+                    r.DefaultRepriceShablon = 1;
 
                     Settings.TypedSettings.AddTypedSettingsRow(r);
                     Settings.TypedSettings.AcceptChanges();

@@ -132,7 +132,13 @@ namespace TSDUtils
                 return dict[i];
             }
         }
-
+        public string this[byte i]
+        {
+            get
+            {
+                return dict[(ActionCode)i];
+            }
+        }
         public uint GetShablon(byte ac, uint productshablonCode)
         {
             return productshablonCode;
