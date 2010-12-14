@@ -34,9 +34,18 @@ namespace Familia.TSDClient
 
         public void Reconnect()
         {
-            Disconnect();
-            BTPrinterInit();
-            ConnToPrinter(Program.Settings.TypedSettings[0].BTPrinterAddress);
+            try
+            {
+                Disconnect();
+                BTPrinterInit();
+                ConnToPrinter(Program.Settings.TypedSettings[0].BTPrinterAddress);
+            }
+            catch (Exception err)
+            {
+                BtRet = BluetoothLibNet.Def.BTERR_FAILED;
+                _connected = false;
+                SetErrorEvent(err.ToString());
+            }
         }
     
 
@@ -834,8 +843,9 @@ namespace Familia.TSDClient
                 BtRet = BluetoothLibNet.Def.BTERR_FAILED;
                 _connected = false;
                 SetErrorEvent(err.ToString());
-                if (OnConnectionError != null)
-                    OnConnectionError();
+                throw new BTConnectionFailedException();
+                //if (OnConnectionError != null)
+                //    OnConnectionError();
             }
         }
 
