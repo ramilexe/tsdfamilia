@@ -32,7 +32,14 @@ namespace TSDUtils
         Action7 = 7,
 
         [Description("Действие8")]
-        Action8 = 8
+        Action8 = 8,
+        
+        /// <summary>
+        /// Товар не найден
+        /// </summary>
+        [Description("Товар не найден")]
+        NotFound = 255
+
 
     }
 
