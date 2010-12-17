@@ -238,14 +238,14 @@ namespace TSDServer.ProductsDataSetTableAdapters
 
             table = new FamilTsdDB.DataTable(productsDataset.DocsTbl);
 
-            table.AddIndex(new System.Data.DataColumn[] { productsDataset.DocsTbl.BarcodeColumn }
+            table.AddIndex(new System.Data.DataColumn[] { productsDataset.DocsTbl.NavCodeColumn }
                 );
             //table.ReadTableDef();
         }
         
         public void Update(TSDServer.ProductsDataSet productsDataset)
         {
-            table.AddIndex(new System.Data.DataColumn[] { productsDataset.DocsTbl.Columns["Barcode"] });
+            table.AddIndex(new System.Data.DataColumn[] { productsDataset.DocsTbl.NavCodeColumn });
 
             if (table == null)
                 table = new FamilTsdDB.DataTable(productsDataset.DocsTbl);
