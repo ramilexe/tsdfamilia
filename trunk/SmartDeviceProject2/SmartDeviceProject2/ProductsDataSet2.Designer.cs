@@ -584,21 +584,17 @@ namespace Familia.TSDClient {
         [global::System.Xml.Serialization.XmlSchemaProviderAttribute("GetTypedTableSchema")]
         public partial class DocsTblDataTable : global::System.Data.DataTable, global::System.Collections.IEnumerable {
             
-            private global::System.Data.DataColumn columnBarcode;
+            private global::System.Data.DataColumn columnNavCode;
             
             private global::System.Data.DataColumn columnDocId;
             
             private global::System.Data.DataColumn columnDocType;
             
-            private global::System.Data.DataColumn columnWorkMode;
-            
             private global::System.Data.DataColumn columnPriority;
             
             private global::System.Data.DataColumn columnQuantity;
             
-            private global::System.Data.DataColumn columnRePriceDate;
-            
-            private global::System.Data.DataColumn columnReturnDate;
+            private global::System.Data.DataColumn columnDocumentDate;
             
             private global::System.Data.DataColumn columnLabelCode;
             
@@ -637,9 +633,9 @@ namespace Familia.TSDClient {
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            public global::System.Data.DataColumn BarcodeColumn {
+            public global::System.Data.DataColumn NavCodeColumn {
                 get {
-                    return this.columnBarcode;
+                    return this.columnNavCode;
                 }
             }
             
@@ -658,13 +654,6 @@ namespace Familia.TSDClient {
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            public global::System.Data.DataColumn WorkModeColumn {
-                get {
-                    return this.columnWorkMode;
-                }
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             public global::System.Data.DataColumn PriorityColumn {
                 get {
                     return this.columnPriority;
@@ -679,16 +668,9 @@ namespace Familia.TSDClient {
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            public global::System.Data.DataColumn RePriceDateColumn {
+            public global::System.Data.DataColumn DocumentDateColumn {
                 get {
-                    return this.columnRePriceDate;
-                }
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            public global::System.Data.DataColumn ReturnDateColumn {
-                get {
-                    return this.columnReturnDate;
+                    return this.columnDocumentDate;
                 }
             }
             
@@ -762,17 +744,15 @@ namespace Familia.TSDClient {
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            public DocsTblRow AddDocsTblRow(long Barcode, string DocId, byte DocType, byte WorkMode, byte Priority, int Quantity, System.DateTime RePriceDate, System.DateTime ReturnDate, byte LabelCode, byte MusicCode, byte VibroCode, string Text1, string Text2, string Text3) {
+            public DocsTblRow AddDocsTblRow(string NavCode, string DocId, byte DocType, byte Priority, int Quantity, System.DateTime DocumentDate, byte LabelCode, byte MusicCode, byte VibroCode, string Text1, string Text2, string Text3) {
                 DocsTblRow rowDocsTblRow = ((DocsTblRow)(this.NewRow()));
                 object[] columnValuesArray = new object[] {
-                        Barcode,
+                        NavCode,
                         DocId,
                         DocType,
-                        WorkMode,
                         Priority,
                         Quantity,
-                        RePriceDate,
-                        ReturnDate,
+                        DocumentDate,
                         LabelCode,
                         MusicCode,
                         VibroCode,
@@ -785,9 +765,9 @@ namespace Familia.TSDClient {
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            public DocsTblRow FindByBarcodeDocIdDocType(long Barcode, string DocId, byte DocType) {
+            public DocsTblRow FindByNavCodeDocIdDocType(string NavCode, string DocId, byte DocType) {
                 return ((DocsTblRow)(this.Rows.Find(new object[] {
-                            Barcode,
+                            NavCode,
                             DocId,
                             DocType})));
             }
@@ -811,14 +791,12 @@ namespace Familia.TSDClient {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             internal void InitVars() {
-                this.columnBarcode = base.Columns["Barcode"];
+                this.columnNavCode = base.Columns["NavCode"];
                 this.columnDocId = base.Columns["DocId"];
                 this.columnDocType = base.Columns["DocType"];
-                this.columnWorkMode = base.Columns["WorkMode"];
                 this.columnPriority = base.Columns["Priority"];
                 this.columnQuantity = base.Columns["Quantity"];
-                this.columnRePriceDate = base.Columns["RePriceDate"];
-                this.columnReturnDate = base.Columns["ReturnDate"];
+                this.columnDocumentDate = base.Columns["DocumentDate"];
                 this.columnLabelCode = base.Columns["LabelCode"];
                 this.columnMusicCode = base.Columns["MusicCode"];
                 this.columnVibroCode = base.Columns["VibroCode"];
@@ -829,22 +807,18 @@ namespace Familia.TSDClient {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             private void InitClass() {
-                this.columnBarcode = new global::System.Data.DataColumn("Barcode", typeof(long), null, global::System.Data.MappingType.Element);
-                base.Columns.Add(this.columnBarcode);
+                this.columnNavCode = new global::System.Data.DataColumn("NavCode", typeof(string), null, global::System.Data.MappingType.Element);
+                base.Columns.Add(this.columnNavCode);
                 this.columnDocId = new global::System.Data.DataColumn("DocId", typeof(string), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnDocId);
                 this.columnDocType = new global::System.Data.DataColumn("DocType", typeof(byte), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnDocType);
-                this.columnWorkMode = new global::System.Data.DataColumn("WorkMode", typeof(byte), null, global::System.Data.MappingType.Element);
-                base.Columns.Add(this.columnWorkMode);
                 this.columnPriority = new global::System.Data.DataColumn("Priority", typeof(byte), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnPriority);
                 this.columnQuantity = new global::System.Data.DataColumn("Quantity", typeof(int), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnQuantity);
-                this.columnRePriceDate = new global::System.Data.DataColumn("RePriceDate", typeof(global::System.DateTime), null, global::System.Data.MappingType.Element);
-                base.Columns.Add(this.columnRePriceDate);
-                this.columnReturnDate = new global::System.Data.DataColumn("ReturnDate", typeof(global::System.DateTime), null, global::System.Data.MappingType.Element);
-                base.Columns.Add(this.columnReturnDate);
+                this.columnDocumentDate = new global::System.Data.DataColumn("DocumentDate", typeof(global::System.DateTime), null, global::System.Data.MappingType.Element);
+                base.Columns.Add(this.columnDocumentDate);
                 this.columnLabelCode = new global::System.Data.DataColumn("LabelCode", typeof(byte), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnLabelCode);
                 this.columnMusicCode = new global::System.Data.DataColumn("MusicCode", typeof(byte), null, global::System.Data.MappingType.Element);
@@ -858,10 +832,11 @@ namespace Familia.TSDClient {
                 this.columnText3 = new global::System.Data.DataColumn("Text3", typeof(string), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnText3);
                 this.Constraints.Add(new global::System.Data.UniqueConstraint("Constraint1", new global::System.Data.DataColumn[] {
-                                this.columnBarcode,
+                                this.columnNavCode,
                                 this.columnDocId,
                                 this.columnDocType}, true));
-                this.columnBarcode.AllowDBNull = false;
+                this.columnNavCode.AllowDBNull = false;
+                this.columnNavCode.MaxLength = 6;
                 this.columnDocId.AllowDBNull = false;
                 this.columnDocId.MaxLength = 20;
                 this.columnDocType.AllowDBNull = false;
@@ -1223,12 +1198,12 @@ namespace Familia.TSDClient {
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            public long Barcode {
+            public string NavCode {
                 get {
-                    return ((long)(this[this.tableDocsTbl.BarcodeColumn]));
+                    return ((string)(this[this.tableDocsTbl.NavCodeColumn]));
                 }
                 set {
-                    this[this.tableDocsTbl.BarcodeColumn] = value;
+                    this[this.tableDocsTbl.NavCodeColumn] = value;
                 }
             }
             
@@ -1249,21 +1224,6 @@ namespace Familia.TSDClient {
                 }
                 set {
                     this[this.tableDocsTbl.DocTypeColumn] = value;
-                }
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            public byte WorkMode {
-                get {
-                    try {
-                        return ((byte)(this[this.tableDocsTbl.WorkModeColumn]));
-                    }
-                    catch (global::System.InvalidCastException e) {
-                        throw new global::System.Data.StrongTypingException("The value for column \'WorkMode\' in table \'DocsTbl\' is DBNull.", e);
-                    }
-                }
-                set {
-                    this[this.tableDocsTbl.WorkModeColumn] = value;
                 }
             }
             
@@ -1298,32 +1258,17 @@ namespace Familia.TSDClient {
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            public System.DateTime RePriceDate {
+            public System.DateTime DocumentDate {
                 get {
                     try {
-                        return ((global::System.DateTime)(this[this.tableDocsTbl.RePriceDateColumn]));
+                        return ((global::System.DateTime)(this[this.tableDocsTbl.DocumentDateColumn]));
                     }
                     catch (global::System.InvalidCastException e) {
-                        throw new global::System.Data.StrongTypingException("The value for column \'RePriceDate\' in table \'DocsTbl\' is DBNull.", e);
+                        throw new global::System.Data.StrongTypingException("The value for column \'DocumentDate\' in table \'DocsTbl\' is DBNull.", e);
                     }
                 }
                 set {
-                    this[this.tableDocsTbl.RePriceDateColumn] = value;
-                }
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            public System.DateTime ReturnDate {
-                get {
-                    try {
-                        return ((global::System.DateTime)(this[this.tableDocsTbl.ReturnDateColumn]));
-                    }
-                    catch (global::System.InvalidCastException e) {
-                        throw new global::System.Data.StrongTypingException("The value for column \'ReturnDate\' in table \'DocsTbl\' is DBNull.", e);
-                    }
-                }
-                set {
-                    this[this.tableDocsTbl.ReturnDateColumn] = value;
+                    this[this.tableDocsTbl.DocumentDateColumn] = value;
                 }
             }
             
@@ -1375,11 +1320,11 @@ namespace Familia.TSDClient {
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             public string Text1 {
                 get {
-                    if (this.IsText1Null()) {
-                        return string.Empty;
-                    }
-                    else {
+                    try {
                         return ((string)(this[this.tableDocsTbl.Text1Column]));
+                    }
+                    catch (global::System.InvalidCastException e) {
+                        throw new global::System.Data.StrongTypingException("The value for column \'Text1\' in table \'DocsTbl\' is DBNull.", e);
                     }
                 }
                 set {
@@ -1390,11 +1335,11 @@ namespace Familia.TSDClient {
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             public string Text2 {
                 get {
-                    if (this.IsText2Null()) {
-                        return string.Empty;
-                    }
-                    else {
+                    try {
                         return ((string)(this[this.tableDocsTbl.Text2Column]));
+                    }
+                    catch (global::System.InvalidCastException e) {
+                        throw new global::System.Data.StrongTypingException("The value for column \'Text2\' in table \'DocsTbl\' is DBNull.", e);
                     }
                 }
                 set {
@@ -1405,26 +1350,16 @@ namespace Familia.TSDClient {
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             public string Text3 {
                 get {
-                    if (this.IsText3Null()) {
-                        return string.Empty;
-                    }
-                    else {
+                    try {
                         return ((string)(this[this.tableDocsTbl.Text3Column]));
+                    }
+                    catch (global::System.InvalidCastException e) {
+                        throw new global::System.Data.StrongTypingException("The value for column \'Text3\' in table \'DocsTbl\' is DBNull.", e);
                     }
                 }
                 set {
                     this[this.tableDocsTbl.Text3Column] = value;
                 }
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            public bool IsWorkModeNull() {
-                return this.IsNull(this.tableDocsTbl.WorkModeColumn);
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            public void SetWorkModeNull() {
-                this[this.tableDocsTbl.WorkModeColumn] = global::System.Convert.DBNull;
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -1448,23 +1383,13 @@ namespace Familia.TSDClient {
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            public bool IsRePriceDateNull() {
-                return this.IsNull(this.tableDocsTbl.RePriceDateColumn);
+            public bool IsDocumentDateNull() {
+                return this.IsNull(this.tableDocsTbl.DocumentDateColumn);
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            public void SetRePriceDateNull() {
-                this[this.tableDocsTbl.RePriceDateColumn] = global::System.Convert.DBNull;
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            public bool IsReturnDateNull() {
-                return this.IsNull(this.tableDocsTbl.ReturnDateColumn);
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            public void SetReturnDateNull() {
-                this[this.tableDocsTbl.ReturnDateColumn] = global::System.Convert.DBNull;
+            public void SetDocumentDateNull() {
+                this[this.tableDocsTbl.DocumentDateColumn] = global::System.Convert.DBNull;
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]

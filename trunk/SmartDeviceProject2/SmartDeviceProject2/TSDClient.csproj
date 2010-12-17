@@ -68,6 +68,7 @@
     </Reference>
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Windows.Forms.DataGrid" />
     <Reference Include="System.Xml" />
     <Reference Include="SystemLibnet, Version=2.0.6.6336, Culture=neutral, PublicKeyToken=4079e79a5891f674">
       <SpecificVersion>False</SpecificVersion>
@@ -128,6 +129,9 @@
     <EmbeddedResource Include="SettingsForm.resx">
       <DependentUpon>SettingsForm.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="ViewDocsForm.resx">
+      <DependentUpon>ViewDocsForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="ViewProductForm.resx">
       <DependentUpon>ViewProductForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -170,6 +174,12 @@
     </Compile>
     <Compile Include="SettingsForm.Designer.cs">
       <DependentUpon>SettingsForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ViewDocsForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ViewDocsForm.Designer.cs">
+      <DependentUpon>ViewDocsForm.cs</DependentUpon>
     </Compile>
     <Compile Include="ViewProductForm.cs">
       <SubType>Form</SubType>

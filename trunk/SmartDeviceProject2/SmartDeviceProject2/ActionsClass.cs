@@ -59,6 +59,11 @@ namespace Familia.TSDClient
             actionsDict.Add(TSDUtils.ActionCode.Reprice, new ActOnProduct(RepriceActionProc));
             actionsDict.Add(TSDUtils.ActionCode.Returns, new ActOnProduct(ReturnActionProc));
             actionsDict.Add(TSDUtils.ActionCode.Remove, new ActOnProduct(RemoveActionProc));
+            actionsDict.Add(TSDUtils.ActionCode.QuickHelp, new ActOnProduct(RemoveActionProc));
+            actionsDict.Add(TSDUtils.ActionCode.InventoryGlobal, new ActOnProduct(InventoryGlobalActionProc));
+            actionsDict.Add(TSDUtils.ActionCode.InventoryLocal, new ActOnProduct(InventoryLocalActionProc));
+            actionsDict.Add(TSDUtils.ActionCode.NotFound, new ActOnProduct(NotFoundActionProc));
+            
 
             tmr = new System.Threading.Timer(
             new System.Threading.TimerCallback(OnTimer)
@@ -237,6 +242,7 @@ namespace Familia.TSDClient
                 {
                     btPrint.Print(/*fileContent*/bArray2);
                 }
+                else
                 {
 
                     btPrint.ConnToPrinter(Program.Settings.TypedSettings[0].BTPrinterAddress);
@@ -325,6 +331,13 @@ namespace Familia.TSDClient
                             attrString = "DOCS_ATTRIBUTE_";
                             datarow = docsRow;
                         }
+                        else
+                            if (atrName.IndexOf("SCAN") >= 0)
+                            {
+                                attrString = "SCAN_ATTRIBUTE_";
+                                datarow =
+                                    _scannedProducts.ScannedBarcodes.FindByBarcodeDocTypeDocId(productsRow.Barcode, docsRow.DocType, docsRow.DocId); 
+                            }
                     string atrCode = atrName.Replace(attrString, "");
                     int colId = -1;
                     //try
@@ -348,6 +361,12 @@ namespace Familia.TSDClient
                                     ((DateTime)datarow[colId]).ToString(dateFormat));
                             }
                             else
+                                if (datarow.Table.Columns[colId].DataType == typeof(Single))
+                                {
+                                    bArrTmp = TSDUtils.CustomEncodingClass.Encoding.GetBytes(
+                                        ((Single)datarow[colId]).ToString("### ###.00"));
+                                }
+                                else
                                 bArrTmp =TSDUtils.CustomEncodingClass.Encoding.GetBytes(
                                     datarow[colId].ToString());
 
@@ -397,7 +416,7 @@ namespace Familia.TSDClient
         public void ReturnActionProc(ProductsDataSet.ProductsTblRow datarow, ProductsDataSet.DocsTblRow docsRow)
         {
             ScannedProductsDataSet.ScannedBarcodesRow[] r =
-                _scannedProducts.ScannedBarcodes.FindByBarcodeAndDocType(docsRow.Barcode, docsRow.DocType);
+                _scannedProducts.ScannedBarcodes.FindByBarcodeAndDocType(datarow.Barcode, docsRow.DocType);
             if (r != null)
             {
                 for (int i = 0; i < r.Length; i++)
@@ -407,12 +426,14 @@ namespace Familia.TSDClient
                         r[i].FactQuantity += 1;
                         PlayVibroAsyncAction(docsRow);
                         PlaySoundAsyncAction(docsRow);
+                        PrintLabelAsync(datarow, docsRow);
                         if (r[i].FactQuantity == r[i].PlanQuanity)
                         {
 
                             using (RemoveFinishForm frm = new RemoveFinishForm(datarow,docsRow))
                             {
                                 frm.ShowDialog();
+                                
                             }
 
                         }
@@ -428,7 +449,7 @@ namespace Familia.TSDClient
         public void RemoveActionProc(ProductsDataSet.ProductsTblRow datarow, ProductsDataSet.DocsTblRow docsRow)
         {
             ScannedProductsDataSet.ScannedBarcodesRow[] r =
-                _scannedProducts.ScannedBarcodes.FindByBarcodeAndDocType(docsRow.Barcode, docsRow.DocType);
+                _scannedProducts.ScannedBarcodes.FindByBarcodeAndDocType(datarow.Barcode, docsRow.DocType);
             if (r != null)
             {
                 for (int i = 0; i < r.Length; i++)
@@ -438,12 +459,14 @@ namespace Familia.TSDClient
                         r[i].FactQuantity += 1;
                         PlayVibroAsyncAction(docsRow);
                         PlaySoundAsyncAction(docsRow);
+                        PrintLabelAsync(datarow, docsRow);
                         if (r[i].FactQuantity == r[i].PlanQuanity)
                         {
 
                             using (RemoveFinishForm frm = new RemoveFinishForm(datarow, docsRow))
                             {
                                 frm.ShowDialog();
+                                
                             }
                         }
                         if (OnActionCompleted != null)
@@ -475,6 +498,68 @@ namespace Familia.TSDClient
             }*/
 
         }
+
+        public void InventoryGlobalActionProc(ProductsDataSet.ProductsTblRow datarow, ProductsDataSet.DocsTblRow docsRow)
+        {
+            ScannedProductsDataSet.ScannedBarcodesRow[] r =
+                _scannedProducts.ScannedBarcodes.FindByBarcodeAndDocType(datarow.Barcode, docsRow.DocType);
+            if (r != null)
+            {
+                for (int i = 0; i < r.Length; i++)
+                {
+                    
+                        r[i].FactQuantity += 1;
+                        PlayVibroAsyncAction(docsRow);
+                        PlaySoundAsyncAction(docsRow);
+                        PrintLabelAsync(datarow, docsRow);
+                        if (OnActionCompleted != null)
+                            OnActionCompleted(docsRow, r[i]);
+                        break;
+                    
+
+                }
+            }
+        }
+
+        public void InventoryLocalActionProc(ProductsDataSet.ProductsTblRow datarow, ProductsDataSet.DocsTblRow docsRow)
+        {
+            ScannedProductsDataSet.ScannedBarcodesRow[] r =
+                _scannedProducts.ScannedBarcodes.FindByBarcodeAndDocType(datarow.Barcode, docsRow.DocType);
+            if (r != null)
+            {
+                for (int i = 0; i < r.Length; i++)
+                {
+                    if (r[i].FactQuantity < r[i].PlanQuanity)
+                    {
+                        r[i].FactQuantity += 1;
+                        PlayVibroAsyncAction(docsRow);
+                        PlaySoundAsyncAction(docsRow);
+                        PrintLabelAsync(datarow, docsRow);
+                        if (r[i].FactQuantity == r[i].PlanQuanity)
+                        {
+
+                            using (RemoveFinishForm frm = new RemoveFinishForm(datarow, docsRow))
+                            {
+                                frm.ShowDialog();
+                            }
+                        }
+                        if (OnActionCompleted != null)
+                            OnActionCompleted(docsRow, r[i]);
+                        break;
+                    }
+
+                }
+            }
+        }
+
+        public void NotFoundActionProc(ProductsDataSet.ProductsTblRow datarow, ProductsDataSet.DocsTblRow docsRow)
+        {
+            PlayVibroAsync((byte)TSDUtils.ActionCode.NotFound);
+            PlaySoundAsync((byte)TSDUtils.ActionCode.NotFound);
+        }
+
+
+        
         public void PlaySoundAsyncAction(ProductsDataSet.DocsTblRow docsRow)
         {
             //System.Threading.Thread.Sleep(1000);
