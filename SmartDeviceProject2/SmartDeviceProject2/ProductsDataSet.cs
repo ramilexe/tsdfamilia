@@ -215,10 +215,10 @@
 
         public partial class DocsTblDataTable
         {
-            public ProductsDataSet.DocsTblRow[] FindByBarcode(long Barcode)
+            public ProductsDataSet.DocsTblRow[] FindByNavCode(string NavCode)
             {
-                
-                return (ProductsDataSet.DocsTblRow[])(this.Select(string.Format("Barcode = {0}",Barcode)));
+
+                return (ProductsDataSet.DocsTblRow[])(this.Select(string.Format("NavCode = {0}", NavCode)));
                 
             }
         }
@@ -265,7 +265,7 @@ namespace Familia.TSDClient.ProductsDataSetTableAdapters
             _productsDataset = productsDataset;
             table = new FamilTsdDB.DataTable(productsDataset.DocsTbl);
             table.ReadTableDef();
-
+            table.AddIndex(new System.Data.DataColumn[] { productsDataset.DocsTbl.NavCodeColumn });
         }
         
         public void Update(TSDServer.ProductsDataSet productsDataset)
@@ -275,15 +275,15 @@ namespace Familia.TSDClient.ProductsDataSetTableAdapters
             table.Write();
         }
 
-        public ProductsDataSet.DocsTblRow[] GetDataByBarcode(System.Int64 barcode)
+        public ProductsDataSet.DocsTblRow[] GetDataByNavCode(string NavCode)
         {
-            ProductsDataSet.DocsTblRow[] r = _productsDataset.DocsTbl.FindByBarcode(barcode);
+            ProductsDataSet.DocsTblRow[] r = _productsDataset.DocsTbl.FindByNavCode(NavCode);
             if (r != null &&
                 r.Length > 0)
                 return r;
             else
             {
-                System.Data.DataRow[] rows = table.FindByIndexes(1, new object[] { barcode });
+                System.Data.DataRow[] rows = table.FindByIndexes(1, new object[] { NavCode });
                 if (rows != null && rows.Length > 0)
                 {
                     r = new ProductsDataSet.DocsTblRow[rows.Length];

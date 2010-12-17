@@ -63,8 +63,11 @@ namespace TSDUtils
         /// <summary>
         /// Зарезервировано для дальнейшего использования
         /// </summary>
-        Action8 = 8
-
+        Action8 = 8,
+        /// <summary>
+        /// Товар не найден
+        /// </summary>
+        NotFound = 255
     }
     /// <summary>
     /// Типы шаблонов-этикеток (а также звуков, вибро)
@@ -112,6 +115,7 @@ namespace TSDUtils
             dict.Add(ActionCode.InventoryLocal, "Инвент-ция Точечная");
             dict.Add(ActionCode.Action7, "Действие7");
             dict.Add(ActionCode.Action8, "Действие8");
+            dict.Add(ActionCode.NotFound, "Товар не найден");
 
 
             

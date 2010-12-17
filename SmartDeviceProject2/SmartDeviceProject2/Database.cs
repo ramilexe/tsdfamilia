@@ -373,6 +373,7 @@ namespace FamilTsdDB
             {
                 return;
             }
+            RawData = str;
             switch (_column.DataType)
             {
 
@@ -1027,7 +1028,7 @@ namespace FamilTsdDB
             {
                 operationCounter++;
                 int readed = rdr.Read(srchtemplate, 0, srchtemplate.Length);
-                indexPosition = indexPosition - 2 * readed;
+                
 
 
                 if (readed == 0)
@@ -1039,13 +1040,20 @@ namespace FamilTsdDB
                     int res = item.CompareTo(itemI);
                     if (res == 0)
                     {
-
+                        indexPosition = indexPosition - readed;
                         return itemI.Offset;
                     }
+                    else
+                        indexPosition = indexPosition - 2*readed;
                 }
                 else
                     return -1;
 
+                //indexPosition = indexPosition - 2 * readed;
+                if (fsPk.Position > srchtemplate.Length)
+                    indexPosition = (int)fsPk.Seek(-2 * readed, System.IO.SeekOrigin.Current);
+                else
+                    return -1;
                 //if (fsPk.Position > srchtemplate.Length)
                 //    indexPosition = (int)fsPk.Seek(-2 * readed, System.IO.SeekOrigin.Current);
                 //else
@@ -1099,41 +1107,45 @@ namespace FamilTsdDB
                     }
                 }
                 offset = 0;
-                indexPosition = (int)fsPk.Seek(basePosition - indexPosition - 2 * IndexLength, System.IO.SeekOrigin.Current); ;
-                while (indexPosition > 0 && offset >= 0)
+                if (basePosition > 0)
                 {
-                    operationCounter++;
-                    int readed = rdr.Read(srchtemplate, 0, srchtemplate.Length);
-                    //position -= readed;
+                    indexPosition = (int)fsPk.Seek(basePosition - indexPosition - 2 * IndexLength, System.IO.SeekOrigin.Current); ;
 
-                    indexPosition = (int)fsPk.Seek(-2 * readed, System.IO.SeekOrigin.Current);
-
-                    if (readed == 0)
+                    while (indexPosition > 0 && offset >= 0)
                     {
-                        offset = -1;
-                        break;
-                    }
+                        operationCounter++;
+                        int readed = rdr.Read(srchtemplate, 0, srchtemplate.Length);
+                        //position -= readed;
 
-                    if (readed >= IndexLength)
-                    {
-                        IndexItem itemI = new IndexItem(IndexColumns.ToArray(), srchtemplate);
-                        int res = item.CompareTo(itemI);
-                        if (res == 0)
+                        indexPosition = (int)fsPk.Seek(-2 * readed, System.IO.SeekOrigin.Current);
+
+                        if (readed == 0)
                         {
+                            offset = -1;
+                            break;
+                        }
 
-                            offset = itemI.Offset;
-                            yield return offset;
+                        if (readed >= IndexLength)
+                        {
+                            IndexItem itemI = new IndexItem(IndexColumns.ToArray(), srchtemplate);
+                            int res = item.CompareTo(itemI);
+                            if (res == 0)
+                            {
+
+                                offset = itemI.Offset;
+                                yield return offset;
+                            }
+                            else
+                            {
+                                offset = -1;
+                                break;
+                            }
                         }
                         else
                         {
                             offset = -1;
                             break;
                         }
-                    }
-                    else
-                    {
-                        offset = -1;
-                        break;
                     }
                 }
             }
@@ -1526,7 +1538,7 @@ namespace FamilTsdDB
             Int32 offset = indexes[indexId].FindIndexDirect(new IndexItem(item), ref position);
             try
             {
-                if (offset > 0)
+                if (offset >= 0)
                 {
                     using (System.IO.FileStream fs =
                         new System.IO.FileStream(string.Format("{0}\\{1}.db", DataTable.StartupPath, this.TableName), System.IO.FileMode.Open))
@@ -1587,7 +1599,7 @@ namespace FamilTsdDB
             Int32 offset = indexes[indexId].FindIndexReverse(new IndexItem(item), ref position);
             try
             {
-                if (offset > 0)
+                if (offset >= 0)
                 {
                     using (System.IO.FileStream fs =
                         new System.IO.FileStream(string.Format("{0}\\{1}.db", DataTable.StartupPath, this.TableName), System.IO.FileMode.Open))
@@ -1647,7 +1659,7 @@ namespace FamilTsdDB
             Int32 offset = indexes[indexId].FindIndex(new IndexItem(item));
             try
             {
-                if (offset > 0)
+                if (offset >= 0)
                 {
                     using (System.IO.FileStream fs =
                         new System.IO.FileStream(string.Format("{0}\\{1}.db", DataTable.StartupPath, this.TableName), System.IO.FileMode.Open))
@@ -1712,7 +1724,7 @@ namespace FamilTsdDB
             {
                 try
                 {
-                    if (offset > 0)
+                    if (offset >= 0)
                     {
                         System.Data.DataRow out_row = _data.NewRow();
 
@@ -1760,7 +1772,7 @@ namespace FamilTsdDB
             {
                 try
                 {
-                    if (offset > 0)
+                    if (offset >= 0)
                     {
                         System.Data.DataRow out_row = data.NewRow();
 

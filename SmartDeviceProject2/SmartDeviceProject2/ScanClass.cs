@@ -87,7 +87,7 @@ namespace Familia.TSDClient
             iRet = OBReadLibNet.Api.OBRSetBuffType(OBReadLibNet.Def.OBR_BUFOBR);	//1D(OBR) driver mode will be OBR_BUFOBR
             iRet = OBReadLibNet.Api.OBRSetScanningNotification(OBReadLibNet.Def.OBR_EVENT, IntPtr.Zero);	//1D(OBR) driver mode will be OBR_EVENT
             iRet = OBReadLibNet.Api.OBRSetBuzzer(OBReadLibNet.Def.OBR_BUZOFF);//disable sound notification
-            iRet = OBReadLibNet.Api.OBRSetVibrator(OBReadLibNet.Def.OBR_VIBON);//disable sound notification
+            iRet = OBReadLibNet.Api.OBRSetVibrator(OBReadLibNet.Def.OBR_VIBOFF);//disable sound notification
             iRet = OBReadLibNet.Api.OBROpen(HWND, 0);			//OBRDRV open
 
             if (iRet == OBReadLibNet.Def.OBR_ERROR_INVALID_ACCESS)

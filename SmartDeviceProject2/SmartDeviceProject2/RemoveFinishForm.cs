@@ -50,9 +50,9 @@ namespace Familia.TSDClient
             this.label1.Text = string.Format("Документ \"{0}\" собран",
                 TSDUtils.ActionCodeDescription.ActionDescription[_docsRow.DocType]);
             this.label2.Text = string.Format("Документ № {0} от {1}",_docsRow.DocId,
-                (_docsRow["RePriceDate"] == System.DBNull.Value ||
-                _docsRow["RePriceDate"] == null)?string.Empty:
-                _docsRow.RePriceDate.ToString("dd.MM.yyyy"));
+                (_docsRow["DocumentDate"] == System.DBNull.Value ||
+                _docsRow["DocumentDate"] == null) ? string.Empty :
+                _docsRow.DocumentDate.ToString("dd.MM.yyyy"));
         }
 
     }
