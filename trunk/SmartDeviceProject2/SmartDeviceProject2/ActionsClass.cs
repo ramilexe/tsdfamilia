@@ -63,6 +63,7 @@ namespace Familia.TSDClient
             actionsDict.Add(TSDUtils.ActionCode.InventoryGlobal, new ActOnProduct(InventoryGlobalActionProc));
             actionsDict.Add(TSDUtils.ActionCode.InventoryLocal, new ActOnProduct(InventoryLocalActionProc));
             actionsDict.Add(TSDUtils.ActionCode.NotFound, new ActOnProduct(NotFoundActionProc));
+            actionsDict.Add(TSDUtils.ActionCode.DocNotFound, new ActOnProduct(DocNotFoundActionProc));
             
 
             tmr = new System.Threading.Timer(
@@ -114,22 +115,26 @@ namespace Familia.TSDClient
                 {
                     List<TSDUtils.SoundDef> sndDef =
                         new List<TSDUtils.SoundDef>();
-                    using (System.IO.StreamReader rdr =
-                        new System.IO.StreamReader(System.IO.Path.Combine(
-                            Program.StartupPath, string.Format("SOUND_{0}.def", soundCode))))
+                    try
                     {
-                        string str = String.Empty;
-                        while (
-                            (str = rdr.ReadLine()) != null)
+                        using (System.IO.StreamReader rdr =
+                            new System.IO.StreamReader(System.IO.Path.Combine(
+                                Program.StartupPath, string.Format("SOUND_{0}.def", soundCode))))
                         {
-                            if (str.Trim()[0] == ';')
-                                continue;
-                            else
-                                sndDef.Add(TSDUtils.SoundDef.Parse(str));
+                            string str = String.Empty;
+                            while (
+                                (str = rdr.ReadLine()) != null)
+                            {
+                                if (str.Trim()[0] == ';')
+                                    continue;
+                                else
+                                    sndDef.Add(TSDUtils.SoundDef.Parse(str));
 
+                            }
                         }
+                        Sounds.Add(soundCode, sndDef);
                     }
-                    Sounds.Add(soundCode, sndDef);
+                    catch { }
                 }
                 PlaySound(soundCode);
             }
@@ -161,22 +166,26 @@ namespace Familia.TSDClient
                 {
                     List<TSDUtils.VibroDef> sndDef =
                         new List<TSDUtils.VibroDef>();
-                    using (System.IO.StreamReader rdr =
-                        new System.IO.StreamReader(System.IO.Path.Combine(
-                            Program.StartupPath, string.Format("VIBRO_{0}.def", vibroCode))))
+                    try
                     {
-                        string str = String.Empty;
-                        while (
-                            (str = rdr.ReadLine()) != null)
+                        using (System.IO.StreamReader rdr =
+                            new System.IO.StreamReader(System.IO.Path.Combine(
+                                Program.StartupPath, string.Format("VIBRO_{0}.def", vibroCode))))
                         {
-                            if (str.Trim()[0] == ';')
-                                continue;
-                            else
-                                sndDef.Add(TSDUtils.VibroDef.Parse(str));
+                            string str = String.Empty;
+                            while (
+                                (str = rdr.ReadLine()) != null)
+                            {
+                                if (str.Trim()[0] == ';')
+                                    continue;
+                                else
+                                    sndDef.Add(TSDUtils.VibroDef.Parse(str));
 
+                            }
                         }
+                        Vibros.Add(vibroCode, sndDef);
                     }
-                    Vibros.Add(vibroCode, sndDef);
+                    catch { }
                 }
                 PlayVibro(vibroCode);
             }
@@ -255,16 +264,20 @@ namespace Familia.TSDClient
             }
             catch (BTConnectionFailedException)
             {
-                using (BTConnectionErrorForm frm =
-                        new BTConnectionErrorForm())
+                try
                 {
-                    if (frm.ShowDialog() == System.Windows.Forms.DialogResult.Yes)
+                    using (BTConnectionErrorForm frm =
+                            new BTConnectionErrorForm())
                     {
-                        BTPrintClass.PrintClass.Reconnect();
-                        PrintLabel(datarow, docRow, shablonCode);
-                    }
+                        if (frm.ShowDialog() == System.Windows.Forms.DialogResult.Yes)
+                        {
+                            BTPrintClass.PrintClass.Reconnect();
+                            PrintLabel(datarow, docRow, shablonCode);
+                        }
 
+                    }
                 }
+                catch { }
             }
             catch (Exception err)
             {
@@ -390,10 +403,12 @@ namespace Familia.TSDClient
 
         public void NoActionProc(ProductsDataSet.ProductsTblRow datarow, ProductsDataSet.DocsTblRow docsRow)
         {
-            PlayVibroAsyncAction(docsRow);
-            PlaySoundAsyncAction(docsRow);
+            PlayVibro((byte)TSDUtils.ActionCode.NotFound);
+            PlaySound((byte)TSDUtils.ActionCode.NotFound);
+            //PlayVibroAsyncAction(docsRow);
+            //PlaySoundAsyncAction(docsRow);
             
-            System.Threading.Thread.Sleep(1000);
+            //System.Threading.Thread.Sleep(1000);
         }
         public void RepriceActionProc(ProductsDataSet.ProductsTblRow datarow, ProductsDataSet.DocsTblRow docsRow)
         {
@@ -557,6 +572,13 @@ namespace Familia.TSDClient
             PlayVibroAsync((byte)TSDUtils.ActionCode.NotFound);
             PlaySoundAsync((byte)TSDUtils.ActionCode.NotFound);
         }
+
+        public void DocNotFoundActionProc(ProductsDataSet.ProductsTblRow datarow, ProductsDataSet.DocsTblRow docsRow)
+        {
+            PlayVibroAsync((byte)TSDUtils.ActionCode.DocNotFound);
+            PlaySoundAsync((byte)TSDUtils.ActionCode.DocNotFound);
+        }
+
 
 
         

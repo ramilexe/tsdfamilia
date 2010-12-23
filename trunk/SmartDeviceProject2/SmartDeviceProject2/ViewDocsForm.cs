@@ -13,6 +13,7 @@ namespace Familia.TSDClient
     {
         ProductsDataSet.ProductsTblRow _productRow;
         ProductsDataSet.DocsTblRow[] _docsRows;
+        ScannedProductsDataSet _scannedProducts;
         List<DocumentClass> documents =
             new List<DocumentClass>();
         List<Label> labels = new List<Label>();
@@ -23,16 +24,18 @@ namespace Familia.TSDClient
             InitializeComponent();
         }
 
-        public ViewDocsForm(ProductsDataSet.ProductsTblRow productRow,ProductsDataSet.DocsTblRow[] docsRows):this()
+        public ViewDocsForm(ProductsDataSet.ProductsTblRow productRow,
+            ProductsDataSet.DocsTblRow[] docsRows,
+            ScannedProductsDataSet scannedProducts):this()
         {
+            _scannedProducts = scannedProducts;
             _productRow = productRow;
             _docsRows = docsRows;
             //this.listBox1.KeyDown += new KeyEventHandler(listBox1_KeyDown);
             this.Load += new EventHandler(ViewDocsForm_Load);
             this.KeyDown += new KeyEventHandler(ViewDocsForm_KeyDown);
             this.Paint += new PaintEventHandler(ViewDocsForm_Paint);
-            if (_productRow != null
-                && _docsRows != null)
+            if (_productRow != null)
             {
                 StringBuilder sb = new StringBuilder();
                 sb.AppendFormat(System.Globalization.CultureInfo.CurrentCulture,
@@ -40,29 +43,57 @@ namespace Familia.TSDClient
                     _productRow.NavCode, 
                     _productRow.Barcode, 
                     _productRow.ProductName);
-                this.label1.Text = sb.ToString();
+                this.label.Text = sb.ToString();
 
-                foreach (ProductsDataSet.DocsTblRow doc in _docsRows)
+                if (_docsRows != null && _docsRows.Length > 0)
                 {
+                    foreach (ProductsDataSet.DocsTblRow doc in _docsRows)
+                    {
 
-                    DocumentClass d = new DocumentClass();
-                    d.DocDate = doc.DocumentDate;
-                    d.DocId = doc.DocId;
-                    d.DocType = doc.DocType;
-                        
-                    d.PlanQuantity = doc.Quantity;
+                        ScannedProductsDataSet.ScannedBarcodesRow srow = 
+                        _scannedProducts
+                                .ScannedBarcodes
+                                .FindByBarcodeDocTypeDocId(_productRow.Barcode,
+                                                            doc.DocType,
+                                                            doc.DocId);
 
-                    
+                        DocumentClass d = new DocumentClass();
+                        d.DocDate = doc.DocumentDate;
+                        d.DocId = doc.DocId;
+                        d.DocType = doc.DocType;
+
+                        d.PlanQuantity = doc.Quantity;
+                        if (srow != null &&
+                            srow["FactQuantity"] != System.DBNull.Value)
+                            d.FactQuantity = srow.FactQuantity;
+                        else
+                            d.FactQuantity = 0;
+                            
+                                    
+
+                        Label l = new Label();
+                        l.Size = new System.Drawing.Size(231, 60);
+                        l.Name = string.Format("label{0}", documents.Count);
+                        l.Left = 0;
+                        l.Top = documents.Count * 60;
+                        l.Text = d.ToString();
+                        l.BackColor = System.Drawing.Color.PaleGreen;
+                        documents.Add(d);
+                        this.panel2.Controls.Add(l);
+
+                    }
+                }
+                else
+                {
                     Label l = new Label();
-                    l.Size = new System.Drawing.Size(231, 60);
-                    l.Name = string.Format("label{0}", documents.Count);
+                    l.Size = new System.Drawing.Size(231, 90);
+                    l.Name = string.Format("label{0}", 0);
                     l.Left = 0;
-                    l.Top = documents.Count * 60;
-                    l.Text = d.ToString();
+                    l.Top = 0;
+                    l.Text = "По данному товару \nнет никаких документов, \nнажмите желтую кнопку \nеще раз для выхода";
                     l.BackColor = System.Drawing.Color.PaleGreen;
-                    documents.Add(d);
-                    this.panel2.Controls.Add(l);
                     
+                    this.panel2.Controls.Add(l);
                 }
 
             }
@@ -81,21 +112,23 @@ namespace Familia.TSDClient
 
         void ViewDocsForm_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.Escape)
+            if (e.KeyCode == Keys.Escape || e.KeyValue == 115)
             {
                 this.Close();
             }
             if (e.KeyValue == 40)
             {
                 selectedItem++;
-                if (selectedItem >= documents.Count-1)
+                if (selectedItem >= documents.Count)
                     selectedItem = 0;
+                this.Refresh();
             }
             if (e.KeyValue == 38)
             {
-                selectedItem++;
+                selectedItem--;
                 if (selectedItem < 0)
                     selectedItem = documents.Count-1;
+                this.Refresh();
             }
         }
 

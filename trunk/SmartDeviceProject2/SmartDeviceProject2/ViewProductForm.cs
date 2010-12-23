@@ -216,7 +216,7 @@ namespace Familia.TSDClient
                 }
                 else
                 {
-                    //ActionsClass.Action.InvokeAction(TSDUtils.ActionCode.NoAction, row.Barcode);
+                    ActionsClass.Action.InvokeAction(TSDUtils.ActionCode.DocNotFound, row, null);
                 }
                     
                 
@@ -420,22 +420,36 @@ namespace Familia.TSDClient
             }
             if (e.KeyValue == 18)
             {
-                ActionsClass.Action.PrintLabel(currentProductRow,currentDocRow, Program.Default.DefaultRepriceShablon);
+                if (currentProductRow != null)
+                {
+                    ActionsClass.Action.PrintLabel(currentProductRow, currentDocRow, Program.Default.DefaultRepriceShablon);
+                }
             }
             if (e.KeyValue == 19)
             {
-                ActionsClass.Action.PrintLabel(currentProductRow, currentDocRow, Program.Default.DefaultRepriceShablon);
+                //ActionsClass.Action.PrintLabel(currentProductRow, currentDocRow, Program.Default.DefaultRepriceShablon);
             }
             if (e.KeyValue == 115)
             {
                 try
                 {
-                    docsForm = new ViewDocsForm(currentProductRow,currentdocRows);
-                    docsForm.ShowDialog();
-                    docsForm.Dispose();
-                    docsForm = null;
+                    if (currentProductRow != null)
+                    {
+                        ScanClass.Scaner.PauseScan();
+                        docsForm = new ViewDocsForm(currentProductRow, currentdocRows, _scannedProducts);
+                        docsForm.ShowDialog();
+                        docsForm.Dispose();
+                        docsForm = null;
+                    }
                 }
                 catch { }
+                finally
+                {
+                    ScanClass.Scaner.ResumeScan();
+                    
+                    this.BringToFront();
+                    this.Focus();
+                }
    
             }
         }
