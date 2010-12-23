@@ -22,26 +22,55 @@ namespace Familia.TSDClient
         public ViewDocsForm()
         {
             InitializeComponent();
+            this.KeyDown += new KeyEventHandler(ViewDocsForm_KeyDown);
         }
 
+        //public ViewDocsForm(ProductsDataSet.ProductsTblRow productRow):this()
+        //{
+        //    this.panel2.SuspendLayout();
+        //    this.SuspendLayout();
+        //    _productRow = productRow;
+        //    StringBuilder sb = new StringBuilder();
+        //    sb.AppendFormat(System.Globalization.CultureInfo.CurrentCulture,
+        //        "Код: {0} \nШтрихкод: {1} \nНазвание: {2}",
+        //        _productRow.NavCode,
+        //        _productRow.Barcode,
+        //        _productRow.ProductName);
+        //    this.label.Text = sb.ToString();
+
+        //    Label l = new Label();
+        //    l.Size = new System.Drawing.Size(231, 90);
+        //    l.Name = string.Format("label{0}", 0);
+        //    l.Left = 0;
+        //    l.Top = 0;
+        //    l.Text = "По данному товару \nнет никаких документов, \nнажмите желтую кнопку \nеще раз для выхода";
+        //    l.BackColor = System.Drawing.Color.PaleGreen;
+            
+        //    this.panel2.Controls.Add(l);
+        //    this.panel1.ResumeLayout(false);
+        //    this.ResumeLayout();
+        //}
         public ViewDocsForm(ProductsDataSet.ProductsTblRow productRow,
             ProductsDataSet.DocsTblRow[] docsRows,
             ScannedProductsDataSet scannedProducts):this()
         {
-            _scannedProducts = scannedProducts;
+            this.panel2.SuspendLayout();
+            this.SuspendLayout();
+
             _productRow = productRow;
+            _scannedProducts = scannedProducts;
             _docsRows = docsRows;
             //this.listBox1.KeyDown += new KeyEventHandler(listBox1_KeyDown);
             this.Load += new EventHandler(ViewDocsForm_Load);
-            this.KeyDown += new KeyEventHandler(ViewDocsForm_KeyDown);
-            this.Paint += new PaintEventHandler(ViewDocsForm_Paint);
+            
+            //this.Paint += new PaintEventHandler(ViewDocsForm_Paint);
             if (_productRow != null)
             {
                 StringBuilder sb = new StringBuilder();
                 sb.AppendFormat(System.Globalization.CultureInfo.CurrentCulture,
-                    "Код: {0} \nШтрихкод: {1} \nНазвание: {2}", 
-                    _productRow.NavCode, 
-                    _productRow.Barcode, 
+                    "Код: {0} \nШтрихкод: {1} \nНазвание: {2}",
+                    _productRow.NavCode,
+                    _productRow.Barcode,
                     _productRow.ProductName);
                 this.label.Text = sb.ToString();
 
@@ -50,7 +79,7 @@ namespace Familia.TSDClient
                     foreach (ProductsDataSet.DocsTblRow doc in _docsRows)
                     {
 
-                        ScannedProductsDataSet.ScannedBarcodesRow srow = 
+                        ScannedProductsDataSet.ScannedBarcodesRow srow =
                         _scannedProducts
                                 .ScannedBarcodes
                                 .FindByBarcodeDocTypeDocId(_productRow.Barcode,
@@ -68,8 +97,8 @@ namespace Familia.TSDClient
                             d.FactQuantity = srow.FactQuantity;
                         else
                             d.FactQuantity = 0;
-                            
-                                    
+
+
 
                         Label l = new Label();
                         l.Size = new System.Drawing.Size(231, 60);
@@ -78,8 +107,11 @@ namespace Familia.TSDClient
                         l.Top = documents.Count * 60;
                         l.Text = d.ToString();
                         l.BackColor = System.Drawing.Color.PaleGreen;
+                        l.TextAlign = ContentAlignment.TopCenter;
                         documents.Add(d);
                         this.panel2.Controls.Add(l);
+                        selectedItem = 0;
+                        
 
                     }
                 }
@@ -92,14 +124,48 @@ namespace Familia.TSDClient
                     l.Top = 0;
                     l.Text = "По данному товару \nнет никаких документов, \nнажмите желтую кнопку \nеще раз для выхода";
                     l.BackColor = System.Drawing.Color.PaleGreen;
-                    
+                    l.TextAlign = ContentAlignment.TopCenter;
                     this.panel2.Controls.Add(l);
                 }
 
             }
+
+            this.panel1.ResumeLayout(false);
+            this.ResumeLayout();
         }
 
-        void ViewDocsForm_Paint(object sender, PaintEventArgs e)
+        //void ViewDocsForm_Paint(object sender, PaintEventArgs e)
+        //{
+        //    UpdatePanel();
+        //}
+
+        void ViewDocsForm_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Escape || e.KeyValue == 115)
+            {
+                this.Close();
+                return;
+            }
+            if (e.KeyValue == 40)
+            {
+                selectedItem++;
+                if (selectedItem >= documents.Count)
+                    selectedItem = 0;
+                UpdatePanel();
+                return;
+            }
+            if (e.KeyValue == 38)
+            {
+                selectedItem--;
+                if (selectedItem < 0)
+                    selectedItem = documents.Count-1;
+                
+                UpdatePanel();
+                return;
+            }
+        }
+
+        private void UpdatePanel()
         {
             foreach (Control c in this.panel2.Controls)
             {
@@ -108,44 +174,15 @@ namespace Familia.TSDClient
                 else
                     c.BackColor = System.Drawing.Color.PaleGreen;
             }
-        }
-
-        void ViewDocsForm_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.KeyCode == Keys.Escape || e.KeyValue == 115)
-            {
-                this.Close();
-            }
-            if (e.KeyValue == 40)
-            {
-                selectedItem++;
-                if (selectedItem >= documents.Count)
-                    selectedItem = 0;
-                this.Refresh();
-            }
-            if (e.KeyValue == 38)
-            {
-                selectedItem--;
-                if (selectedItem < 0)
-                    selectedItem = documents.Count-1;
-                this.Refresh();
-            }
+            this.panel2.Refresh();
         }
 
         void ViewDocsForm_Load(object sender, EventArgs e)
         {
-            //this.label1.Size = new System.Drawing.Size(231, 93);
-            
-            
-        }
 
-        void listBox1_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.KeyCode == Keys.Escape)
-            {
-                this.Close();
-            }
+            UpdatePanel();
         }
+      
     }
 
 

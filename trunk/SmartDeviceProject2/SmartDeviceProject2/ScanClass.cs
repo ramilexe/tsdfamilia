@@ -31,6 +31,20 @@ namespace Familia.TSDClient
         public Scanned OnScanned;
         public ScanError OnScanError;
         bool aborted = false;
+        bool paused = true;
+        ManualResetEvent mevt = new ManualResetEvent(false);
+        public bool Paused
+        {
+            get { return paused; }
+            set { 
+                paused = value;
+                //if (paused)
+                //    mevt.Reset();
+                //else
+                //    mevt.Set();
+            }
+        }
+
 
         //[DllImport("coredll.dll")]
         //public static extern IntPtr GetForegroundWindow();
@@ -109,6 +123,7 @@ namespace Familia.TSDClient
                 return iRet;
             }
             aborted = false;
+            Paused = false;
             iRet = OBReadLibNet.Api.OBRClearBuff();
             thread = new Thread(new ThreadStart(start));
             thread.Start();     //Start start thread
@@ -125,17 +140,20 @@ namespace Familia.TSDClient
             {
                 while (true && !aborted)
                 {
+                    //mevt.WaitOne();
                     try
                     {
-                        SystemLibNet.Api.SysWaitForEvent(IntPtr.Zero, OBReadLibNet.Def.OBR_NAME_EVENT, 5000/*timeout SystemLibNet.Def.INFINITE*/);  //Wait event
+                        SystemLibNet.Api.SysWaitForEvent(IntPtr.Zero, OBReadLibNet.Def.OBR_NAME_EVENT, 2000/*timeout SystemLibNet.Def.INFINITE*/);  //Wait event
                         string str = GetText();
-                        if (OnScanned != null && !String.IsNullOrEmpty(str))
+                        if (!paused && OnScanned != null && !String.IsNullOrEmpty(str))
                             OnScanned(str);
                     }
                     catch (Exception err)
                     {
                         SetScanError(err.Message);
                     }
+                    
+
                     //Invoke(new SetLabelText(SetText));      //Display OBRBuffer data
                 }
             }
@@ -148,13 +166,14 @@ namespace Familia.TSDClient
         /// </summary>
         public void PauseScan()
         {
-            aborted = true;
-            try
-            {
-                thread.Abort();
-            }
-            catch { }
-            thread = null;
+            Paused = true;
+            //aborted = true;
+            //try
+            //{
+            //    thread.Abort();
+            //}
+            //catch { }
+            //thread = null;
         }
 
         /// <summary>
@@ -162,9 +181,10 @@ namespace Familia.TSDClient
         /// </summary>
         public void ResumeScan()
         {
-            aborted = false;
-            thread = new Thread(new ThreadStart(start));
-            thread.Start();     //Start start thread
+            Paused = false;
+            //aborted = false;
+            //thread = new Thread(new ThreadStart(start));
+            //thread.Start();     //Start start thread
         }
 
         /// <summary>
@@ -255,6 +275,7 @@ namespace Familia.TSDClient
         /// </summary>
         public void StopScan()
         {
+            paused = false;
             aborted = true;
             OBReadLibNet.Api.OBRClose();				//OBRDRV Close
             SystemLibNet.Api.SysTerminateWaitEvent();	//End SysWaitForEvent function

@@ -29,6 +29,10 @@
         private void InitializeComponent()
         {
             this.panel1 = new System.Windows.Forms.Panel();
+            this.label21 = new System.Windows.Forms.Label();
+            this.label22 = new System.Windows.Forms.Label();
+            this.label20 = new System.Windows.Forms.Label();
+            this.label19 = new System.Windows.Forms.Label();
             this.label18 = new System.Windows.Forms.Label();
             this.label17 = new System.Windows.Forms.Label();
             this.label11 = new System.Windows.Forms.Label();
@@ -50,10 +54,6 @@
             this.label3 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
-            this.label19 = new System.Windows.Forms.Label();
-            this.label20 = new System.Windows.Forms.Label();
-            this.label21 = new System.Windows.Forms.Label();
-            this.label22 = new System.Windows.Forms.Label();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
             this.SuspendLayout();
@@ -87,13 +87,44 @@
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(238, 295);
             // 
+            // label21
+            // 
+            this.label21.BackColor = System.Drawing.Color.PaleGreen;
+            this.label21.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular);
+            this.label21.Location = new System.Drawing.Point(97, 160);
+            this.label21.Name = "label21";
+            this.label21.Size = new System.Drawing.Size(138, 20);
+            this.label21.Text = "label21";
+            // 
+            // label22
+            // 
+            this.label22.Location = new System.Drawing.Point(3, 160);
+            this.label22.Name = "label22";
+            this.label22.Size = new System.Drawing.Size(87, 20);
+            this.label22.Text = "Кол-во факт";
+            // 
+            // label20
+            // 
+            this.label20.BackColor = System.Drawing.Color.PaleGreen;
+            this.label20.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular);
+            this.label20.Location = new System.Drawing.Point(97, 140);
+            this.label20.Name = "label20";
+            this.label20.Size = new System.Drawing.Size(138, 20);
+            this.label20.Text = "label20";
+            // 
+            // label19
+            // 
+            this.label19.Location = new System.Drawing.Point(3, 140);
+            this.label19.Name = "label19";
+            this.label19.Size = new System.Drawing.Size(87, 20);
+            this.label19.Text = "Кол-во план:";
+            // 
             // label18
             // 
             this.label18.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.label18.Location = new System.Drawing.Point(0, 215);
+            this.label18.Location = new System.Drawing.Point(0, 212);
             this.label18.Name = "label18";
-            this.label18.Size = new System.Drawing.Size(238, 35);
-            this.label18.Text = "label18";
+            this.label18.Size = new System.Drawing.Size(238, 29);
             // 
             // label17
             // 
@@ -119,9 +150,9 @@
             this.panel2.Controls.Add(this.label14);
             this.panel2.Controls.Add(this.label13);
             this.panel2.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.panel2.Location = new System.Drawing.Point(0, 250);
+            this.panel2.Location = new System.Drawing.Point(0, 241);
             this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(238, 45);
+            this.panel2.Size = new System.Drawing.Size(238, 54);
             // 
             // label16
             // 
@@ -129,8 +160,8 @@
             this.label16.Dock = System.Windows.Forms.DockStyle.Left;
             this.label16.Location = new System.Drawing.Point(181, 0);
             this.label16.Name = "label16";
-            this.label16.Size = new System.Drawing.Size(50, 45);
-            this.label16.Text = "F4";
+            this.label16.Size = new System.Drawing.Size(57, 54);
+            this.label16.Text = "F4-Документы";
             // 
             // label15
             // 
@@ -139,7 +170,7 @@
             this.label15.ForeColor = System.Drawing.Color.White;
             this.label15.Location = new System.Drawing.Point(120, 0);
             this.label15.Name = "label15";
-            this.label15.Size = new System.Drawing.Size(61, 45);
+            this.label15.Size = new System.Drawing.Size(61, 54);
             this.label15.Text = "F3";
             // 
             // label14
@@ -149,7 +180,7 @@
             this.label14.ForeColor = System.Drawing.Color.White;
             this.label14.Location = new System.Drawing.Point(64, 0);
             this.label14.Name = "label14";
-            this.label14.Size = new System.Drawing.Size(56, 45);
+            this.label14.Size = new System.Drawing.Size(56, 54);
             this.label14.Text = "F2";
             // 
             // label13
@@ -159,8 +190,8 @@
             this.label13.ForeColor = System.Drawing.Color.White;
             this.label13.Location = new System.Drawing.Point(0, 0);
             this.label13.Name = "label13";
-            this.label13.Size = new System.Drawing.Size(64, 45);
-            this.label13.Text = "F1";
+            this.label13.Size = new System.Drawing.Size(64, 54);
+            this.label13.Text = "F1-Печать";
             // 
             // label12
             // 
@@ -265,38 +296,6 @@
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(67, 20);
             this.label1.Text = "Название:";
-            // 
-            // label19
-            // 
-            this.label19.Location = new System.Drawing.Point(3, 140);
-            this.label19.Name = "label19";
-            this.label19.Size = new System.Drawing.Size(87, 20);
-            this.label19.Text = "Кол-во план:";
-            // 
-            // label20
-            // 
-            this.label20.BackColor = System.Drawing.Color.PaleGreen;
-            this.label20.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular);
-            this.label20.Location = new System.Drawing.Point(97, 140);
-            this.label20.Name = "label20";
-            this.label20.Size = new System.Drawing.Size(138, 20);
-            this.label20.Text = "label20";
-            // 
-            // label21
-            // 
-            this.label21.BackColor = System.Drawing.Color.PaleGreen;
-            this.label21.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular);
-            this.label21.Location = new System.Drawing.Point(97, 160);
-            this.label21.Name = "label21";
-            this.label21.Size = new System.Drawing.Size(138, 20);
-            this.label21.Text = "label21";
-            // 
-            // label22
-            // 
-            this.label22.Location = new System.Drawing.Point(3, 160);
-            this.label22.Name = "label22";
-            this.label22.Size = new System.Drawing.Size(87, 20);
-            this.label22.Text = "Кол-во факт";
             // 
             // ViewProductForm
             // 
