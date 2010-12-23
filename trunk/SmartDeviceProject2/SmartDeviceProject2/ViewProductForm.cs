@@ -161,57 +161,17 @@ namespace Familia.TSDClient
                             scannedRow.PlanQuanity = docRow.Quantity;
                             scannedRow.Priority = docRow.Priority;
                             scannedRow.ScannedDate = DateTime.Today;
+                            scannedRow.TerminalId = Program.TerminalId;
                             _scannedProducts.ScannedBarcodes.AddScannedBarcodesRow(scannedRow);
                         }
-                        
-
-                            
-
                         byte actionCodes = docRow.DocType;
                         if (!actionDict.ContainsKey(actionCodes))
                             actionDict.Add(actionCodes,docRow);
-                        /*
-                        TSDUtils.ActionCode ac = (TSDUtils.ActionCode)actionCodes;
-
-                        this.actionLabel.Text = TSDUtils.ActionCodeDescription.ActionDescription[ac];
-                        label20.Text = (docRow["Quantity"] == System.DBNull.Value ||
-                            docRow["Quantity"] == null) ? string.Empty : docRow.Quantity.ToString();
-
-                        this.Refresh();
-
-                        ActionsClass.Action.PlaySound(docRow.MusicCode);
-                        ActionsClass.Action.PlayVibro(docRow.VibroCode);
-                        ActionsClass.Action.PrintLabel(row, docRow);
-                        ActionsClass.Action.InvokeAction(ac, row.Barcode);*/
                     }
                     foreach (byte acode in actionDict.Keys)
                     {
-                        //ScannedProductsDataSet.ScannedBarcodesRow r = _scannedProducts.ScannedBarcodes.UpdateQuantity(
-                        //    row.Barcode, acode, 1);
-                        //if (r != null)
-                        //{
-                        //    TSDUtils.ActionCode ac = (TSDUtils.ActionCode)acode;
-
-                        //    this.actionLabel.Text = TSDUtils.ActionCodeDescription.ActionDescription[ac];
-
-                        //    label20.Text = (r["PlanQuanity"] == System.DBNull.Value ||
-                        //        r["PlanQuanity"] == null) ? string.Empty : r.PlanQuanity.ToString();
-
-                        //    label21.Text = (r["FactQuantity"] == System.DBNull.Value ||
-                        //        r["FactQuantity"] == null) ? string.Empty : r.FactQuantity.ToString();
-
-                        //    this.Refresh();
-
-                        //    ProductsDataSet.DocsTblRow docRow =
-                        //        _products.DocsTbl.FindByBarcodeDocIdDocType(r.Barcode, r.DocId, r.DocType);
-
-                            //ActionsClass.Action.PlaySoundAsync(docRow.MusicCode);
-                            //ActionsClass.Action.PlayVibroAsync(docRow.VibroCode);
-                        //this.actionLabel.Text = TSDUtils.ActionCodeDescription.ActionDescription[acode];
-                            //ActionsClass.Action.PrintLabelAsync(row, docRow);
                         ActionsClass.Action.InvokeAction((TSDUtils.ActionCode)acode, row, actionDict[acode]);
                         this.Refresh();
-                       // }
                     }
                 }
                 else

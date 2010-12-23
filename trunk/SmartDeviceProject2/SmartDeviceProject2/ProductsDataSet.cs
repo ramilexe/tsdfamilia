@@ -261,7 +261,8 @@ namespace Familia.TSDClient.ProductsDataSetTableAdapters
         public DocsTblTableAdapter(ProductsDataSet productsDataset)
         {
             FamilTsdDB.DataTable.BaseDate = TSDClient.Program.Default.BaseDate;
-            FamilTsdDB.DataTable.StartupPath = TSDClient.Program.Default.DatabaseStoragePath;
+            FamilTsdDB.DataTable.StartupPath = 
+                TSDClient.Program.Default.DatabaseStoragePath;
             _productsDataset = productsDataset;
             table = new FamilTsdDB.DataTable(productsDataset.DocsTbl);
             table.ReadTableDef();

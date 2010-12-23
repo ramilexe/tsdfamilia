@@ -87,11 +87,12 @@ namespace Familia.TSDClient.ScannedProductsDataSetTableAdapters
     public class ScannedBarcodesTableAdapter : System.IDisposable
     {
         bool _disposed = false;
+        string[] _fileList;
         public string[] FileList
         {
             get
             {
-                return table.FileList.ToArray();
+                return _fileList;
             }
 
         }
@@ -103,19 +104,28 @@ namespace Familia.TSDClient.ScannedProductsDataSetTableAdapters
             FamilTsdDB.DataTable.BaseDate = TSDClient.Program.Default.BaseDate;
             FamilTsdDB.DataTable.StartupPath = TSDClient.Program.Default.DatabaseStoragePath;
             _scannedproductsDataset = scannedproductsDataset;
+            Init();
+        }
+
+        private void Init()
+        {
             table = new FamilTsdDB.DataTable(_scannedproductsDataset.ScannedBarcodes);
             table.AddIndex(
                 new System.Data.DataColumn[] {
                 _scannedproductsDataset.ScannedBarcodes.Columns["Barcode"],
                 _scannedproductsDataset.ScannedBarcodes.Columns["DocId"]
                 });
-
-            //table.ReadTableDef();
-
+            _fileList = table.FileList.ToArray();
         }
         public void Fill(ScannedProductsDataSet scannedproductsDataset)
         {
-            table.ReadTableDef();
+            try
+            {
+                table.ReadTableDef();
+                this.table.Fill(scannedproductsDataset.ScannedBarcodes);
+            }
+            catch { };
+            _fileList = table.FileList.ToArray();
         }
         public void Update(ScannedProductsDataSet scannedproductsDataset)
         {
@@ -167,6 +177,16 @@ namespace Familia.TSDClient.ScannedProductsDataSetTableAdapters
         public void Clean()
         {
             this._scannedproductsDataset.ScannedBarcodes.Clear();
+            try
+            {
+                table.Dispose();
+                foreach (string fileName in _fileList)
+                    System.IO.File.Delete(fileName);
+            }
+            catch { }
+            
+
+            Init();
         }
 
         #region IDisposable Members

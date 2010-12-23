@@ -79,8 +79,10 @@ namespace Familia.TSDClient
                 
         }
 
+
         public void BeginScan()
         {
+            
             tmr.Change(1000, 60000);
         }
         public void EndScan()
@@ -241,11 +243,11 @@ namespace Familia.TSDClient
                     return;
 
                 fileContent = TSDUtils.CustomEncodingClass.Encoding.GetString(bArray);
-                btPrint.SetStatusEvent(fileContent);
+                //btPrint.SetStatusEvent(fileContent);
 
                 byte[] bArray2 = ReplaceAttr(bArray, datarow, docRow);
-                fileContent = TSDUtils.CustomEncodingClass.Encoding.GetString(bArray2);
-                btPrint.SetStatusEvent(fileContent);
+                //fileContent = TSDUtils.CustomEncodingClass.Encoding.GetString(bArray2);
+                //btPrint.SetStatusEvent(fileContent);
                 //return;
 
 
@@ -588,9 +590,15 @@ namespace Familia.TSDClient
             PlaySoundAsync((byte)TSDUtils.ActionCode.DocNotFound);
         }
 
+        public void ClearScannedData()
+        {
+            scannedTA.Clean();
+        }
 
-
-        
+        public void LoadScannedData()
+        {
+            scannedTA.Fill(this._scannedProducts);
+        }
         public void PlaySoundAsyncAction(ProductsDataSet.DocsTblRow docsRow)
         {
             //System.Threading.Thread.Sleep(1000);
