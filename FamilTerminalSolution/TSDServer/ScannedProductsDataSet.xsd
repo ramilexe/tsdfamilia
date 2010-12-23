@@ -30,6 +30,7 @@
               <xs:element name="ScannedDate" msprop:Generator_UserColumnName="ScannedDate" msprop:Generator_ColumnPropNameInRow="ScannedDate" msprop:Generator_ColumnVarNameInTable="columnScannedDate" msprop:Generator_ColumnPropNameInTable="ScannedDateColumn" type="xs:dateTime" minOccurs="0" />
               <xs:element name="PlanQuanity" msprop:Generator_UserColumnName="PlanQuanity" msprop:Generator_ColumnVarNameInTable="columnPlanQuanity" msprop:Generator_ColumnPropNameInRow="PlanQuanity" msprop:Generator_ColumnPropNameInTable="PlanQuanityColumn" type="xs:int" default="0" minOccurs="0" />
               <xs:element name="Priority" msprop:Generator_UserColumnName="Priority" msprop:Generator_ColumnVarNameInTable="columnPriority" msprop:Generator_ColumnPropNameInRow="Priority" msprop:Generator_ColumnPropNameInTable="PriorityColumn" type="xs:unsignedByte" default="0" minOccurs="0" />
+              <xs:element name="TerminalId" msprop:Generator_UserColumnName="TerminalId" msprop:Generator_ColumnVarNameInTable="columnTerminalId" msprop:Generator_ColumnPropNameInRow="TerminalId" msprop:Generator_ColumnPropNameInTable="TerminalIdColumn" type="xs:int" default="0" minOccurs="0" />
             </xs:sequence>
           </xs:complexType>
         </xs:element>

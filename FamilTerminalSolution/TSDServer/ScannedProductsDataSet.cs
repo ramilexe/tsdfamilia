@@ -1,4 +1,5 @@
-﻿namespace Familia.TSDClient {
+﻿namespace TSDServer
+{
     
     
     public partial class ScannedProductsDataSet {
@@ -50,7 +51,7 @@
     }
 }
 
-namespace Familia.TSDClient.ScannedProductsDataSetTableAdapters
+namespace TSDServer.ScannedProductsDataSetTableAdapters
 {
 
 
@@ -66,9 +67,9 @@ namespace Familia.TSDClient.ScannedProductsDataSetTableAdapters
 
         }
         FamilTsdDB.DataTable table = null;
-        ScannedProductsDataSet _scannedproductsDataset;
+        TSDServer.ScannedProductsDataSet _scannedproductsDataset;
 
-        public ScannedBarcodesTableAdapter(ScannedProductsDataSet scannedproductsDataset)
+        public ScannedBarcodesTableAdapter(TSDServer.ScannedProductsDataSet scannedproductsDataset)
         {
             FamilTsdDB.DataTable.BaseDate = TSDServer.Properties.Settings.Default.BaseDate;
             FamilTsdDB.DataTable.StartupPath = TSDServer.Program.CurrentPath;
@@ -83,11 +84,12 @@ namespace Familia.TSDClient.ScannedProductsDataSetTableAdapters
             //table.ReadTableDef();
 
         }
-        public void Fill(ScannedProductsDataSet scannedproductsDataset)
+        public void Fill(TSDServer.ScannedProductsDataSet scannedproductsDataset)
         {
             table.ReadTableDef();
+            table.Fill(scannedproductsDataset.ScannedBarcodes);
         }
-        public void Update(ScannedProductsDataSet scannedproductsDataset)
+        public void Update(TSDServer.ScannedProductsDataSet scannedproductsDataset)
         {
             if (table == null)
             {
@@ -101,7 +103,7 @@ namespace Familia.TSDClient.ScannedProductsDataSetTableAdapters
             table.Write();
         }
 
-        public ScannedProductsDataSet.ScannedBarcodesRow[] GetDataByBarcode(System.Int64 barcode, string docId)
+        public TSDServer.ScannedProductsDataSet.ScannedBarcodesRow[] GetDataByBarcode(System.Int64 barcode, string docId)
         {
             ScannedProductsDataSet.ScannedBarcodesRow[] r = _scannedproductsDataset.ScannedBarcodes.FindByBarcodeAndDoc(barcode, docId);
             if (r != null &&

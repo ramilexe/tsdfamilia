@@ -73,7 +73,7 @@ namespace OpenNETCF.Desktop.Communication
 		internal const int ERROR_NO_MORE_FILES = 18;
 		private const short INVALID_HANDLE_VALUE = -1;
 		private const short FILE_ATTRIBUTE_NORMAL = 0x80;
-
+        private const short FILE_ATTRIBUTE_ARCHIVE = 0x20;
 		/// <summary>
 		/// RAPI object constructor
 		/// </summary>
@@ -412,8 +412,10 @@ namespace OpenNETCF.Desktop.Communication
 			byte[] buffer = new byte[0x1000]; // 4k transfer buffer
 
 			// open the remote (device) file
-			remoteFile = CeCreateFile(RemoteFileName, GENERIC_READ, 0, 0, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
-
+            remoteFile = CeCreateFile(RemoteFileName, GENERIC_READ, 1, 0, OPEN_EXISTING, /*FILE_ATTRIBUTE_NORMAL | */FILE_ATTRIBUTE_ARCHIVE, 0);
+            /*int result = CeGetLastError();
+            result = CeRapiGetError();
+            result = System.Runtime.InteropServices.Marshal.GetLastWin32Error();*/
 			// check for success
 			if ((int)remoteFile == INVALID_HANDLE_VALUE)
 			{
@@ -421,7 +423,7 @@ namespace OpenNETCF.Desktop.Communication
 			}
 
 			// create the local file
-			localFile = new FileStream(LocalFileName, Overwrite ? FileMode.Create : FileMode.CreateNew, FileAccess.Write);
+			localFile = new FileStream(LocalFileName, Overwrite ? FileMode.Create : FileMode.Create, FileAccess.Write);
 
 			// read data from remote file into buffer
 			CeReadFile(remoteFile, buffer, 0x1000, ref bytesread, 0);

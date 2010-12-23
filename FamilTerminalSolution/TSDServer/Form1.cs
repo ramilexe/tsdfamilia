@@ -1017,17 +1017,49 @@ namespace TSDServer
 
         private void downloadBtn_Click(object sender, EventArgs e)
         {
-
-            //OpenNETCF.Desktop.Communication.FileList fl = terminalRapi.EnumFiles(Properties.Settings.Default.TSDDBPAth + "ScannedBarcodes.db");
-            /*Familia.TSDClient.ScannedProductsDataSet scannedDs = 
-                new Familia.TSDClient.ScannedProductsDataSet();
-            Familia.TSDClient.ScannedProductsDataSetTableAdapters.ScannedBarcodesTableAdapter scannedTA = 
-                new Familia.TSDClient.ScannedProductsDataSetTableAdapters.ScannedBarcodesTableAdapter(scannedDs);
-            foreach (string s in scannedTA.FileList)
+            richTextBox1.AppendText("Начало загрузки ...\n");
+            richTextBox1.AppendText("Подключите терминал и не отключайте до окончания загрузки\n");
+            try
             {
-                terminalRapi.CopyFileFromDevice(s,
-                    "\\Program Files\\tsdfamilia\\"+ Path.GetFileName(s));
-            }*/
+                //OpenNETCF.Desktop.Communication.FileList fl = terminalRapi.EnumFiles(Properties.Settings.Default.TSDDBPAth + "ScannedBarcodes.db");
+                TSDServer.ScannedProductsDataSet scannedDs =
+                    new TSDServer.ScannedProductsDataSet();
+                TSDServer.ScannedProductsDataSetTableAdapters.ScannedBarcodesTableAdapter scannedTA =
+                    new TSDServer.ScannedProductsDataSetTableAdapters.ScannedBarcodesTableAdapter(scannedDs);
+
+                terminalRapi.Connect(true, 5000);
+
+                foreach (string s in scannedTA.FileList)
+                {
+                    string ext = Path.GetExtension(s).ToUpper();
+                    terminalRapi.CopyFileFromDevice(s,
+                        "\\Program Files\\tsdfamilia\\" + Path.GetFileName(s));
+                }
+                scannedTA.Fill(scannedDs);
+                using (System.IO.StreamWriter wr = new StreamWriter("scannedbarcodes.txt", false))
+                {
+                    foreach (System.Data.DataRow row1 in
+                        scannedDs.ScannedBarcodes.Rows)
+                    {
+                        TSDServer.ScannedProductsDataSet.ScannedBarcodesRow row =
+                            (TSDServer.ScannedProductsDataSet.ScannedBarcodesRow)row1;
+
+                        string s =
+                            string.Format("{0}|{1}|{2}|{3}|{4}|", row.Barcode, row.DocId, row.DocType, row.FactQuantity, row.ScannedDate);
+                        wr.WriteLine(s);
+                    }
+                    wr.Flush();
+                    wr.Close();
+                }
+            }
+            catch (Exception err)
+            {
+                richTextBox1.AppendText(err.ToString());
+            }
+            finally
+            {
+                richTextBox1.AppendText("Загрузка завершена...\n");
+            }
         }
     }
 }

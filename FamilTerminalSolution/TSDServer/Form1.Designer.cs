@@ -147,10 +147,10 @@
             // 
             // richTextBox1
             // 
-            this.richTextBox1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.richTextBox1.Location = new System.Drawing.Point(0, 0);
+            this.richTextBox1.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.richTextBox1.Location = new System.Drawing.Point(0, 180);
             this.richTextBox1.Name = "richTextBox1";
-            this.richTextBox1.Size = new System.Drawing.Size(232, 371);
+            this.richTextBox1.Size = new System.Drawing.Size(232, 191);
             this.richTextBox1.TabIndex = 4;
             this.richTextBox1.Text = "";
             this.richTextBox1.TextChanged += new System.EventHandler(this.richTextBox1_TextChanged);
@@ -199,10 +199,10 @@
             this.panel1.Controls.Add(this.uploadBtn);
             this.panel1.Controls.Add(this.downloadBtn);
             this.panel1.Controls.Add(this.settingsBtn);
-            this.panel1.Dock = System.Windows.Forms.DockStyle.Top;
+            this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel1.Location = new System.Drawing.Point(0, 0);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(232, 166);
+            this.panel1.Size = new System.Drawing.Size(232, 180);
             this.panel1.TabIndex = 9;
             // 
             // uploadBtn
@@ -227,10 +227,11 @@
             // 
             // splitter1
             // 
-            this.splitter1.Dock = System.Windows.Forms.DockStyle.Top;
-            this.splitter1.Location = new System.Drawing.Point(0, 166);
+            this.splitter1.BackColor = System.Drawing.SystemColors.ControlDark;
+            this.splitter1.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.splitter1.Location = new System.Drawing.Point(0, 170);
             this.splitter1.Name = "splitter1";
-            this.splitter1.Size = new System.Drawing.Size(232, 3);
+            this.splitter1.Size = new System.Drawing.Size(232, 10);
             this.splitter1.TabIndex = 10;
             this.splitter1.TabStop = false;
             // 
