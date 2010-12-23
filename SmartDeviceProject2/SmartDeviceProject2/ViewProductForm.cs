@@ -26,7 +26,7 @@ namespace Familia.TSDClient
         ProductsDataSet.ProductsTblRow currentProductRow = null;
         ProductsDataSet.DocsTblRow currentDocRow = null;
         ProductsDataSet.DocsTblRow[] currentdocRows = null;
-        ViewDocsForm docsForm = null;
+        
 
         delegate void PrepareConnectionDelegate();
         //ScannedProductsDataSetTableAdapters.ScannedBarcodesTableAdapter scanned_ta = null;
@@ -77,12 +77,12 @@ namespace Familia.TSDClient
             else
             {
                 //tmr.Change(0, 200);
-                if (docsForm != null)
-                {
-                    docsForm.Close();
-                    docsForm.Dispose();
-                    docsForm = null;
-                }
+                //if (docsForm != null)
+                //{
+                //    docsForm.Close();
+                //    docsForm.Dispose();
+                //    docsForm = null;
+                //}
                 SearchBarcode(barcode);
             }
         }
@@ -413,10 +413,12 @@ namespace Familia.TSDClient
             {
                 DoAction(GetProductRowByNavCode(navCodeTB.Text));
                 navCodeTB.SelectAll();
+                return;
             }
             if (e.KeyCode == Keys.Escape)
             {
                 this.Close();
+                return;
             }
             if (e.KeyValue == 18)
             {
@@ -424,33 +426,52 @@ namespace Familia.TSDClient
                 {
                     ActionsClass.Action.PrintLabel(currentProductRow, currentDocRow, Program.Default.DefaultRepriceShablon);
                 }
+                return;
             }
             if (e.KeyValue == 19)
             {
                 //ActionsClass.Action.PrintLabel(currentProductRow, currentDocRow, Program.Default.DefaultRepriceShablon);
+                return;
             }
             if (e.KeyValue == 115)
             {
-                try
+                if (currentProductRow != null)
                 {
-                    if (currentProductRow != null)
+                    try
                     {
+
                         ScanClass.Scaner.PauseScan();
-                        docsForm = new ViewDocsForm(currentProductRow, currentdocRows, _scannedProducts);
-                        docsForm.ShowDialog();
-                        docsForm.Dispose();
-                        docsForm = null;
+                        //if (currentdocRows != null && currentdocRows.Length > 0)
+                        //{
+                            using (
+                                ViewDocsForm docsForm =
+                                    new ViewDocsForm(currentProductRow, currentdocRows, _scannedProducts))
+                            {
+                                docsForm.ShowDialog();
+                            }
+                        //}
+                        //else
+                        //{
+                        //    using (
+                        //        ViewDocsForm docsForm =
+                        //            new ViewDocsForm(currentProductRow))
+                        //    {
+                        //        docsForm.ShowDialog();
+                        //    }
+                        //}
+
+
+                    }
+                    catch { }
+                    finally
+                    {
+                        ScanClass.Scaner.ResumeScan();
+
+                        //this.BringToFront();
+                        //this.Focus();
                     }
                 }
-                catch { }
-                finally
-                {
-                    ScanClass.Scaner.ResumeScan();
-                    
-                    this.BringToFront();
-                    this.Focus();
-                }
-   
+                return;
             }
         }
 

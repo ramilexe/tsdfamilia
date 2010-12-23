@@ -482,7 +482,7 @@ namespace Familia.TSDClient
             {
                 BTPrinterInit();
                 Int32 res = BluetoothLibNet.Api.BTSelectDevice(IntPtr.Zero, BluetoothLibNet.Def.BTPORT_SERIAL);
-                ConnToPrinter3();
+                return ConnToPrinter3();
             }
 
             for (int i = 0; i < bt_dmax; i++)

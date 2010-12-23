@@ -133,10 +133,11 @@ namespace Familia.TSDClient
                             }
                         }
                         Sounds.Add(soundCode, sndDef);
+                        PlaySound(soundCode);
                     }
                     catch { }
                 }
-                PlaySound(soundCode);
+                
             }
         }
 
@@ -184,10 +185,11 @@ namespace Familia.TSDClient
                             }
                         }
                         Vibros.Add(vibroCode, sndDef);
+                        PlayVibro(vibroCode);
                     }
                     catch { }
                 }
-                PlayVibro(vibroCode);
+                
             }
 
 
@@ -436,7 +438,14 @@ namespace Familia.TSDClient
             {
                 for (int i = 0; i < r.Length; i++)
                 {
-                    if (r[i].FactQuantity < r[i].PlanQuanity)
+                    r[i].FactQuantity += 1;
+                    PlayVibroAsyncAction(docsRow);
+                    PlaySoundAsyncAction(docsRow);
+                    PrintLabelAsync(datarow, docsRow);
+                    if (OnActionCompleted != null)
+                        OnActionCompleted(docsRow, r[i]);
+
+                    /*if (r[i].FactQuantity < r[i].PlanQuanity)
                     {
                         r[i].FactQuantity += 1;
                         PlayVibroAsyncAction(docsRow);
@@ -456,7 +465,7 @@ namespace Familia.TSDClient
                             OnActionCompleted(docsRow, r[i]);
                         break;
                     }
-
+                    */
                 }
             }
             System.Threading.Thread.Sleep(1000);
