@@ -65,6 +65,10 @@ namespace TSDUtils
         /// </summary>
         Action8 = 8,
         /// <summary>
+        /// Документ не найден
+        /// </summary>
+        DocNotFound = 254,
+        /// <summary>
         /// Товар не найден
         /// </summary>
         NotFound = 255
@@ -116,6 +120,7 @@ namespace TSDUtils
             dict.Add(ActionCode.Action7, "Действие7");
             dict.Add(ActionCode.Action8, "Действие8");
             dict.Add(ActionCode.NotFound, "Товар не найден");
+            dict.Add(ActionCode.DocNotFound, "Документ не найден");
 
 
             
