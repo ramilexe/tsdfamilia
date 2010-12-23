@@ -33,6 +33,12 @@ namespace TSDUtils
 
         [Description("Действие8")]
         Action8 = 8,
+
+        /// <summary>
+        /// Документ не найден
+        /// </summary>
+        [Description("Документ не найден")]
+        DocNotFound = 254,
         
         /// <summary>
         /// Товар не найден

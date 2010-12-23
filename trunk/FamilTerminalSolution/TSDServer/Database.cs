@@ -700,12 +700,13 @@ namespace FamilTsdDB
     {
 
         public DataTable Table;
-        public System.Collections.Generic.Dictionary<DataRowItem[], Int32> keyItems =
-            new Dictionary<DataRowItem[], Int32>();
+        //public System.Collections.Generic.Dictionary<DataRowItem[], Int32> keyItems =
+        //    new Dictionary<DataRowItem[], Int32>();
 
         public System.Collections.Generic.List<IndexItem> keyItems1 =
             new List<IndexItem>();
 
+        public List<String> FileList = new List<string>();
         public List<DataColumn> IndexColumns = new List<DataColumn>();
         DataRowItem[] currentIndexItem;
         public int indexId = 0;
@@ -718,7 +719,7 @@ namespace FamilTsdDB
         private bool _disposed = false;
         private bool _opened = false;
         public static int operationCounter = 0;
-        public List<String> FileList = new List<string>();
+
         int totalIndexes = 0;//(int)(fsPk.Length/item.Length);
 
         byte[] srchtemplate;
@@ -1183,7 +1184,14 @@ namespace FamilTsdDB
 
         public void Clear()
         {
-            keyItems.Clear();
+            keyItems1.Clear();
+            IndexLength = 0;
+            TotalIndexLength = 0;
+            totalIndexes = 0;//(int)(fsPk.Length/item.Length);
+            indexCounter = 0;
+            maxCounter = 0;
+            minCounter = 0;
+            diff = 0;
         }
 
         #region IDisposable Members
@@ -1390,6 +1398,7 @@ namespace FamilTsdDB
                 string[] indexFiles = System.IO.Directory.GetFiles(DataTable.StartupPath, indexesNames);
                 foreach (string s in indexFiles)
                 {
+
                     /* List<DataColumn> idxCol = new List<DataColumn>();
                      using (System.IO.StreamReader rdr =
                      new System.IO.StreamReader(s))
@@ -1402,19 +1411,23 @@ namespace FamilTsdDB
                          }
                      }*/
                     //indexes.Clear();
-                    Index idx = new Index(s, this);
-
-                    bool fouded = false;
-                    foreach (Index i in this.indexes)
+                    if (!String.IsNullOrEmpty(s.Trim()))
                     {
-                        if (i.CompareTo(idx) == 0)
+                        Index idx = new Index(s, this);
+
+                        bool fouded = false;
+                        foreach (Index i in this.indexes)
                         {
-                            fouded = true; //contains index
-                            break;
+                            if (i.CompareTo(idx) == 0)
+                            {
+                                fouded = true; //contains index
+                                break;
+                            }
                         }
+                        if (!fouded && idx != null)
+                            indexes.Add(idx);
                     }
-                    if (!fouded)
-                        indexes.Add(idx);
+
                 }
             }
             catch { }
@@ -1447,7 +1460,11 @@ namespace FamilTsdDB
             {
 
 
-
+                foreach (Index idx in indexes)
+                {
+                    idx.Clear();
+                }
+                RowsCollection.Clear();
                 using (System.IO.BinaryWriter wrt =
                     new System.IO.BinaryWriter(fs))
                 {
@@ -1768,6 +1785,8 @@ namespace FamilTsdDB
         public void Fill(System.Data.DataTable data)
         {
             ReadTableDef();
+
+            indexes[0].OpenIndex();
             foreach (Int32 offset in indexes[0].FindIndexes())
             {
                 try
@@ -1808,8 +1827,10 @@ namespace FamilTsdDB
                     //indexes[0].CloseIndex();
                 }
             }
+            indexes[0].CloseIndex();
 
         }
+
         #region IDisposable Members
 
         public void Dispose()
