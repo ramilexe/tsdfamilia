@@ -138,7 +138,7 @@ namespace Familia.TSDClient.ScannedProductsDataSetTableAdapters
                         new System.Data.DataColumn[] {
                         _scannedproductsDataset.ScannedBarcodes.Columns["Barcode"],
                         _scannedproductsDataset.ScannedBarcodes.Columns["DocId"]
-                });
+                    });
                 }
                 table.Write();
             }

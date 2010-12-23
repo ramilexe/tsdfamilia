@@ -509,6 +509,8 @@ namespace Familia.TSDClient {
             
             private global::System.Data.DataColumn columnTerminalID;
             
+            private global::System.Data.DataColumn columnBlueButtonShablon;
+            
             private static System.DateTime columnBaseDate_defaultValue = global::System.DateTime.Parse("01/01/2010 00:00:00");
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -613,6 +615,13 @@ namespace Familia.TSDClient {
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public global::System.Data.DataColumn BlueButtonShablonColumn {
+                get {
+                    return this.columnBlueButtonShablon;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             public int Count {
                 get {
                     return this.Rows.Count;
@@ -640,7 +649,7 @@ namespace Familia.TSDClient {
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            public TypedSettingsRow AddTypedSettingsRow(int StorageMemorySize, bool VibarationOn, bool ScanSoundNotifyOn, string DatabaseFileName, string DatabaseStoragePath, string BTPrinterAddress, int BTComPort, System.DateTime BaseDate, string ProductsConnectionString, uint DefaultRepriceShablon, int TerminalID) {
+            public TypedSettingsRow AddTypedSettingsRow(int StorageMemorySize, bool VibarationOn, bool ScanSoundNotifyOn, string DatabaseFileName, string DatabaseStoragePath, string BTPrinterAddress, int BTComPort, System.DateTime BaseDate, string ProductsConnectionString, uint DefaultRepriceShablon, int TerminalID, uint BlueButtonShablon) {
                 TypedSettingsRow rowTypedSettingsRow = ((TypedSettingsRow)(this.NewRow()));
                 object[] columnValuesArray = new object[] {
                         StorageMemorySize,
@@ -653,7 +662,8 @@ namespace Familia.TSDClient {
                         BaseDate,
                         ProductsConnectionString,
                         DefaultRepriceShablon,
-                        TerminalID};
+                        TerminalID,
+                        BlueButtonShablon};
                 rowTypedSettingsRow.ItemArray = columnValuesArray;
                 this.Rows.Add(rowTypedSettingsRow);
                 return rowTypedSettingsRow;
@@ -689,6 +699,7 @@ namespace Familia.TSDClient {
                 this.columnProductsConnectionString = base.Columns["ProductsConnectionString"];
                 this.columnDefaultRepriceShablon = base.Columns["DefaultRepriceShablon"];
                 this.columnTerminalID = base.Columns["TerminalID"];
+                this.columnBlueButtonShablon = base.Columns["BlueButtonShablon"];
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -715,6 +726,8 @@ namespace Familia.TSDClient {
                 base.Columns.Add(this.columnDefaultRepriceShablon);
                 this.columnTerminalID = new global::System.Data.DataColumn("TerminalID", typeof(int), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnTerminalID);
+                this.columnBlueButtonShablon = new global::System.Data.DataColumn("BlueButtonShablon", typeof(uint), null, global::System.Data.MappingType.Element);
+                base.Columns.Add(this.columnBlueButtonShablon);
                 this.columnStorageMemorySize.DefaultValue = ((int)(17000));
                 this.columnVibarationOn.DefaultValue = ((bool)(false));
                 this.columnScanSoundNotifyOn.DefaultValue = ((bool)(false));
@@ -726,6 +739,7 @@ namespace Familia.TSDClient {
                 this.columnProductsConnectionString.DefaultValue = ((string)("Data Source=|DataDirectory|\\Products.sdf"));
                 this.columnDefaultRepriceShablon.DefaultValue = ((uint)(0u));
                 this.columnTerminalID.DefaultValue = ((int)(0));
+                this.columnBlueButtonShablon.DefaultValue = ((uint)(0u));
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -1072,6 +1086,21 @@ namespace Familia.TSDClient {
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public uint BlueButtonShablon {
+                get {
+                    try {
+                        return ((uint)(this[this.tableTypedSettings.BlueButtonShablonColumn]));
+                    }
+                    catch (global::System.InvalidCastException e) {
+                        throw new global::System.Data.StrongTypingException("The value for column \'BlueButtonShablon\' in table \'TypedSettings\' is DBNull.", e);
+                    }
+                }
+                set {
+                    this[this.tableTypedSettings.BlueButtonShablonColumn] = value;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             public bool IsStorageMemorySizeNull() {
                 return this.IsNull(this.tableTypedSettings.StorageMemorySizeColumn);
             }
@@ -1179,6 +1208,16 @@ namespace Familia.TSDClient {
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             public void SetTerminalIDNull() {
                 this[this.tableTypedSettings.TerminalIDColumn] = global::System.Convert.DBNull;
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public bool IsBlueButtonShablonNull() {
+                return this.IsNull(this.tableTypedSettings.BlueButtonShablonColumn);
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public void SetBlueButtonShablonNull() {
+                this[this.tableTypedSettings.BlueButtonShablonColumn] = global::System.Convert.DBNull;
             }
         }
         
