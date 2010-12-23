@@ -82,13 +82,16 @@ namespace Familia.TSDClient
 
         public void BeginScan()
         {
-            
-            tmr.Change(1000, 60000);
+            tmr.Change(5000, 60000);
         }
         public void EndScan()
         {
              tmr.Change(System.Threading.Timeout.Infinite, System.Threading.Timeout.Infinite);
-            scannedTA.Update(this._scannedProducts);
+             try
+             {
+                 scannedTA.Update(this._scannedProducts);
+             }
+             catch { }
         }
         public void PlaySoundAsync(byte soundCode)
         {

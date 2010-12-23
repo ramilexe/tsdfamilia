@@ -68,6 +68,7 @@ namespace Familia.TSDClient
                     r.ProductsConnectionString = @"Data Source=|DataDirectory|\Products.sdf";
                     r.DefaultRepriceShablon = 1;
                     r.TerminalID = 0;
+                    r.BlueButtonShablon = 1;
                     Settings.TypedSettings.AddTypedSettingsRow(r);
                     Settings.TypedSettings.AcceptChanges();
                     _terminal_id = 0;

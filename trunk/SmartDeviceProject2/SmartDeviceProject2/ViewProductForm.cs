@@ -388,9 +388,12 @@ namespace Familia.TSDClient
                 }
                 return;
             }
-            if (e.KeyValue == 19)
+            if (e.KeyValue == 16)
             {
-                //ActionsClass.Action.PrintLabel(currentProductRow, currentDocRow, Program.Default.DefaultRepriceShablon);
+                if (currentProductRow != null)
+                {
+                    ActionsClass.Action.PrintLabel(currentProductRow, currentDocRow, Program.Default.BlueButtonShablon);
+                }
                 return;
             }
             if (e.KeyValue == 115)

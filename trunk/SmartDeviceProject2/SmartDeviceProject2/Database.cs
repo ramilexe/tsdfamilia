@@ -700,12 +700,13 @@ namespace FamilTsdDB
     {
 
         public DataTable Table;
-        public System.Collections.Generic.Dictionary<DataRowItem[], Int32> keyItems =
-            new Dictionary<DataRowItem[], Int32>();
+        //public System.Collections.Generic.Dictionary<DataRowItem[], Int32> keyItems =
+        //    new Dictionary<DataRowItem[], Int32>();
 
         public System.Collections.Generic.List<IndexItem> keyItems1 =
             new List<IndexItem>();
 
+        public List<String> FileList = new List<string>();
         public List<DataColumn> IndexColumns = new List<DataColumn>();
         DataRowItem[] currentIndexItem;
         public int indexId = 0;
@@ -718,7 +719,7 @@ namespace FamilTsdDB
         private bool _disposed = false;
         private bool _opened = false;
         public static int operationCounter = 0;
-        public List<String> FileList = new List<string>();
+
         int totalIndexes = 0;//(int)(fsPk.Length/item.Length);
 
         byte[] srchtemplate;
@@ -1183,7 +1184,14 @@ namespace FamilTsdDB
 
         public void Clear()
         {
-            keyItems.Clear();
+            keyItems1.Clear();
+            IndexLength = 0;
+            TotalIndexLength = 0;
+            totalIndexes = 0;//(int)(fsPk.Length/item.Length);
+            indexCounter = 0;
+            maxCounter = 0;
+            minCounter = 0;
+            diff = 0;
         }
 
         #region IDisposable Members
@@ -1452,7 +1460,11 @@ namespace FamilTsdDB
             {
 
 
-
+                foreach (Index idx in indexes)
+                {
+                    idx.Clear();
+                }
+                RowsCollection.Clear();
                 using (System.IO.BinaryWriter wrt =
                     new System.IO.BinaryWriter(fs))
                 {
