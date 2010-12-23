@@ -50,11 +50,12 @@
             // button3
             // 
             this.button3.Dock = System.Windows.Forms.DockStyle.Top;
-            this.button3.Enabled = false;
+            this.button3.Enabled = true;
             this.button3.Location = new System.Drawing.Point(0, 35);
             this.button3.Name = "button3";
             this.button3.Size = new System.Drawing.Size(640, 35);
             this.button3.TabIndex = 2;
+            this.button3.Text = "2 - Очистка данных";
             // 
             // button4
             // 

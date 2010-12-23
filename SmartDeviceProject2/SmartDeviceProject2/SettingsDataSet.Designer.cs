@@ -507,6 +507,8 @@ namespace Familia.TSDClient {
             
             private global::System.Data.DataColumn columnDefaultRepriceShablon;
             
+            private global::System.Data.DataColumn columnTerminalID;
+            
             private static System.DateTime columnBaseDate_defaultValue = global::System.DateTime.Parse("01/01/2010 00:00:00");
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -604,6 +606,13 @@ namespace Familia.TSDClient {
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public global::System.Data.DataColumn TerminalIDColumn {
+                get {
+                    return this.columnTerminalID;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             public int Count {
                 get {
                     return this.Rows.Count;
@@ -631,7 +640,7 @@ namespace Familia.TSDClient {
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            public TypedSettingsRow AddTypedSettingsRow(int StorageMemorySize, bool VibarationOn, bool ScanSoundNotifyOn, string DatabaseFileName, string DatabaseStoragePath, string BTPrinterAddress, int BTComPort, System.DateTime BaseDate, string ProductsConnectionString, uint DefaultRepriceShablon) {
+            public TypedSettingsRow AddTypedSettingsRow(int StorageMemorySize, bool VibarationOn, bool ScanSoundNotifyOn, string DatabaseFileName, string DatabaseStoragePath, string BTPrinterAddress, int BTComPort, System.DateTime BaseDate, string ProductsConnectionString, uint DefaultRepriceShablon, int TerminalID) {
                 TypedSettingsRow rowTypedSettingsRow = ((TypedSettingsRow)(this.NewRow()));
                 object[] columnValuesArray = new object[] {
                         StorageMemorySize,
@@ -643,7 +652,8 @@ namespace Familia.TSDClient {
                         BTComPort,
                         BaseDate,
                         ProductsConnectionString,
-                        DefaultRepriceShablon};
+                        DefaultRepriceShablon,
+                        TerminalID};
                 rowTypedSettingsRow.ItemArray = columnValuesArray;
                 this.Rows.Add(rowTypedSettingsRow);
                 return rowTypedSettingsRow;
@@ -678,6 +688,7 @@ namespace Familia.TSDClient {
                 this.columnBaseDate = base.Columns["BaseDate"];
                 this.columnProductsConnectionString = base.Columns["ProductsConnectionString"];
                 this.columnDefaultRepriceShablon = base.Columns["DefaultRepriceShablon"];
+                this.columnTerminalID = base.Columns["TerminalID"];
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -702,6 +713,8 @@ namespace Familia.TSDClient {
                 base.Columns.Add(this.columnProductsConnectionString);
                 this.columnDefaultRepriceShablon = new global::System.Data.DataColumn("DefaultRepriceShablon", typeof(uint), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnDefaultRepriceShablon);
+                this.columnTerminalID = new global::System.Data.DataColumn("TerminalID", typeof(int), null, global::System.Data.MappingType.Element);
+                base.Columns.Add(this.columnTerminalID);
                 this.columnStorageMemorySize.DefaultValue = ((int)(17000));
                 this.columnVibarationOn.DefaultValue = ((bool)(false));
                 this.columnScanSoundNotifyOn.DefaultValue = ((bool)(false));
@@ -712,6 +725,7 @@ namespace Familia.TSDClient {
                 this.columnBaseDate.DefaultValue = ((System.DateTime)(TypedSettingsDataTable.columnBaseDate_defaultValue));
                 this.columnProductsConnectionString.DefaultValue = ((string)("Data Source=|DataDirectory|\\Products.sdf"));
                 this.columnDefaultRepriceShablon.DefaultValue = ((uint)(0u));
+                this.columnTerminalID.DefaultValue = ((int)(0));
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -1043,6 +1057,21 @@ namespace Familia.TSDClient {
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public int TerminalID {
+                get {
+                    try {
+                        return ((int)(this[this.tableTypedSettings.TerminalIDColumn]));
+                    }
+                    catch (global::System.InvalidCastException e) {
+                        throw new global::System.Data.StrongTypingException("The value for column \'TerminalID\' in table \'TypedSettings\' is DBNull.", e);
+                    }
+                }
+                set {
+                    this[this.tableTypedSettings.TerminalIDColumn] = value;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             public bool IsStorageMemorySizeNull() {
                 return this.IsNull(this.tableTypedSettings.StorageMemorySizeColumn);
             }
@@ -1140,6 +1169,16 @@ namespace Familia.TSDClient {
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             public void SetDefaultRepriceShablonNull() {
                 this[this.tableTypedSettings.DefaultRepriceShablonColumn] = global::System.Convert.DBNull;
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public bool IsTerminalIDNull() {
+                return this.IsNull(this.tableTypedSettings.TerminalIDColumn);
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public void SetTerminalIDNull() {
+                this[this.tableTypedSettings.TerminalIDColumn] = global::System.Convert.DBNull;
             }
         }
         

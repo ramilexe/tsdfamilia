@@ -232,6 +232,8 @@ namespace Familia.TSDClient {
             
             private global::System.Data.DataColumn columnPriority;
             
+            private global::System.Data.DataColumn columnTerminalId;
+            
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             public ScannedBarcodesDataTable() {
                 this.TableName = "ScannedBarcodes";
@@ -306,6 +308,13 @@ namespace Familia.TSDClient {
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public global::System.Data.DataColumn TerminalIdColumn {
+                get {
+                    return this.columnTerminalId;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             public int Count {
                 get {
                     return this.Rows.Count;
@@ -333,7 +342,7 @@ namespace Familia.TSDClient {
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            public ScannedBarcodesRow AddScannedBarcodesRow(long Barcode, string DocId, byte DocType, int FactQuantity, System.DateTime ScannedDate, int PlanQuanity, byte Priority) {
+            public ScannedBarcodesRow AddScannedBarcodesRow(long Barcode, string DocId, byte DocType, int FactQuantity, System.DateTime ScannedDate, int PlanQuanity, byte Priority, int TerminalId) {
                 ScannedBarcodesRow rowScannedBarcodesRow = ((ScannedBarcodesRow)(this.NewRow()));
                 object[] columnValuesArray = new object[] {
                         Barcode,
@@ -342,7 +351,8 @@ namespace Familia.TSDClient {
                         FactQuantity,
                         ScannedDate,
                         PlanQuanity,
-                        Priority};
+                        Priority,
+                        TerminalId};
                 rowScannedBarcodesRow.ItemArray = columnValuesArray;
                 this.Rows.Add(rowScannedBarcodesRow);
                 return rowScannedBarcodesRow;
@@ -382,6 +392,7 @@ namespace Familia.TSDClient {
                 this.columnScannedDate = base.Columns["ScannedDate"];
                 this.columnPlanQuanity = base.Columns["PlanQuanity"];
                 this.columnPriority = base.Columns["Priority"];
+                this.columnTerminalId = base.Columns["TerminalId"];
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -400,6 +411,8 @@ namespace Familia.TSDClient {
                 base.Columns.Add(this.columnPlanQuanity);
                 this.columnPriority = new global::System.Data.DataColumn("Priority", typeof(byte), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnPriority);
+                this.columnTerminalId = new global::System.Data.DataColumn("TerminalId", typeof(int), null, global::System.Data.MappingType.Element);
+                base.Columns.Add(this.columnTerminalId);
                 this.Constraints.Add(new global::System.Data.UniqueConstraint("Constraint1", new global::System.Data.DataColumn[] {
                                 this.columnBarcode,
                                 this.columnDocType,
@@ -633,6 +646,21 @@ namespace Familia.TSDClient {
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public int TerminalId {
+                get {
+                    try {
+                        return ((int)(this[this.tableScannedBarcodes.TerminalIdColumn]));
+                    }
+                    catch (global::System.InvalidCastException e) {
+                        throw new global::System.Data.StrongTypingException("The value for column \'TerminalId\' in table \'ScannedBarcodes\' is DBNull.", e);
+                    }
+                }
+                set {
+                    this[this.tableScannedBarcodes.TerminalIdColumn] = value;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             public bool IsFactQuantityNull() {
                 return this.IsNull(this.tableScannedBarcodes.FactQuantityColumn);
             }
@@ -670,6 +698,16 @@ namespace Familia.TSDClient {
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             public void SetPriorityNull() {
                 this[this.tableScannedBarcodes.PriorityColumn] = global::System.Convert.DBNull;
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public bool IsTerminalIdNull() {
+                return this.IsNull(this.tableScannedBarcodes.TerminalIdColumn);
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public void SetTerminalIdNull() {
+                this[this.tableScannedBarcodes.TerminalIdColumn] = global::System.Convert.DBNull;
             }
         }
         

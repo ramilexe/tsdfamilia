@@ -12,6 +12,15 @@ namespace Familia.TSDClient
         public static SystemMemoryChangeStatusEnum SystemMemoryChangeStatus = SystemMemoryChangeStatusEnum.SYSMEM_NEEDREBOOT;
         public static SettingsDataSet Settings = new SettingsDataSet();
         static string _startupPath = string.Empty;
+        static Int32 _terminal_id;
+        public static Int32 TerminalId
+        {
+            get
+            {
+                return _terminal_id;
+            }
+
+        }
         public static SettingsDataSet.TypedSettingsRow Default
         {
             get
@@ -42,6 +51,10 @@ namespace Familia.TSDClient
                 if (System.IO.File.Exists(settingFilePath))
                 {
                     Settings.ReadXml(settingFilePath);
+                    if (Settings.TypedSettings[0]["TerminalID"] != System.DBNull.Value)
+                        _terminal_id = Settings.TypedSettings[0].TerminalID;
+                    else
+                        _terminal_id = 0;
                 }
                 else
                 {
@@ -54,10 +67,10 @@ namespace Familia.TSDClient
                     r.BaseDate = new DateTime(2000, 1, 1);
                     r.ProductsConnectionString = @"Data Source=|DataDirectory|\Products.sdf";
                     r.DefaultRepriceShablon = 1;
-
+                    r.TerminalID = 0;
                     Settings.TypedSettings.AddTypedSettingsRow(r);
                     Settings.TypedSettings.AcceptChanges();
-
+                    _terminal_id = 0;
 
                     Settings.WriteXml(settingFilePath);
                 }
@@ -77,11 +90,11 @@ namespace Familia.TSDClient
                     SystemMemoryChangeStatus =
                         NativeClass.ChangeStatus;
                 }
-                try
-                {
-                    BTPrintClass.PrintClass.Disconnect();
-                }
-                catch { }
+                //try
+                //{
+                //    BTPrintClass.PrintClass.Disconnect();
+                //}
+                //catch { }
 
 
                 Application.Run(new Form1());
@@ -93,12 +106,13 @@ namespace Familia.TSDClient
             finally
             {
                 ScanClass.Scaner.StopScan();
-                //try
-                //{
-                //    Settings.WriteXml(settingFilePath);
-                //    BTPrintClass.PrintClass.Disconnect();
-                //}
-                //catch { }
+                try
+                {
+                    
+                    Settings.WriteXml(settingFilePath);
+                    BTPrintClass.PrintClass.Disconnect();
+                }
+                catch { }
             }
         }
     }

@@ -60,7 +60,7 @@ namespace Familia.TSDClient
                     b.Font = f;
                 }
             }
-            
+            ActionsClass.Action.LoadScannedData();
         }
 
         void b_KeyPress(object sender, KeyPressEventArgs e)

@@ -136,6 +136,12 @@ namespace Familia.TSDClient
                         this.Refresh();
                         break;
                     }
+                case 50:
+                    {
+                        ActionsClass.Action.ClearScannedData();
+                        break;
+                    }
+
 
                 default:
                     {

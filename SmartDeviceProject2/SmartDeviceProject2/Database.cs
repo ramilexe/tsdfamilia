@@ -1390,6 +1390,7 @@ namespace FamilTsdDB
                 string[] indexFiles = System.IO.Directory.GetFiles(DataTable.StartupPath, indexesNames);
                 foreach (string s in indexFiles)
                 {
+
                     /* List<DataColumn> idxCol = new List<DataColumn>();
                      using (System.IO.StreamReader rdr =
                      new System.IO.StreamReader(s))
@@ -1402,19 +1403,23 @@ namespace FamilTsdDB
                          }
                      }*/
                     //indexes.Clear();
-                    Index idx = new Index(s, this);
-
-                    bool fouded = false;
-                    foreach (Index i in this.indexes)
+                    if (!String.IsNullOrEmpty(s.Trim()))
                     {
-                        if (i.CompareTo(idx) == 0)
+                        Index idx = new Index(s, this);
+
+                        bool fouded = false;
+                        foreach (Index i in this.indexes)
                         {
-                            fouded = true; //contains index
-                            break;
+                            if (i.CompareTo(idx) == 0)
+                            {
+                                fouded = true; //contains index
+                                break;
+                            }
                         }
+                        if (!fouded && idx != null)
+                            indexes.Add(idx);
                     }
-                    if (!fouded)
-                        indexes.Add(idx);
+                    
                 }
             }
             catch { }
@@ -1768,6 +1773,8 @@ namespace FamilTsdDB
         public void Fill(System.Data.DataTable data)
         {
             ReadTableDef();
+
+            indexes[0].OpenIndex();
             foreach (Int32 offset in indexes[0].FindIndexes())
             {
                 try
@@ -1808,8 +1815,10 @@ namespace FamilTsdDB
                     //indexes[0].CloseIndex();
                 }
             }
+            indexes[0].CloseIndex();
 
         }
+
         #region IDisposable Members
 
         public void Dispose()
