@@ -13,8 +13,8 @@ namespace Familia.TSDClient
     public partial class Form1 : Form
     {
         public static event DatabaseChanged OnDatabaseChaned;
-        ProductsDataSet _products = new ProductsDataSet();
-        ScannedProductsDataSet _scannedProducts = ActionsClass.Action.ScannedProducts;
+        //ProductsDataSet _products = ActionsClass.Action.Products;
+        //ScannedProductsDataSet _scannedProducts = ActionsClass.Action.ScannedProducts;
 
         System.Threading.Timer tmr =
             new System.Threading.Timer(new System.Threading.TimerCallback(OnTimer)
@@ -164,7 +164,7 @@ namespace Familia.TSDClient
                     case 48: Application.Exit(); break;
                     case 49:
                         {
-                            using (ViewProductForm frm = new ViewProductForm(_products, _scannedProducts))
+                            using (ViewProductForm frm = new ViewProductForm())
                             {
                                 frm.ShowDialog();
                             }

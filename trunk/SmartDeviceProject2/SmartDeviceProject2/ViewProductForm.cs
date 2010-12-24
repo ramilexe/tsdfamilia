@@ -17,8 +17,8 @@ namespace Familia.TSDClient
         public static System.Threading.ManualResetEvent _mEvt =
              new System.Threading.ManualResetEvent(false);
 
-        Familia.TSDClient.ProductsDataSet _products;
-        ScannedProductsDataSet _scannedProducts;
+        //Familia.TSDClient.ProductsDataSet _products;
+        //ScannedProductsDataSet _scannedProducts;
         Color lastColor;
         Font boldFont;
         Font normalFont;
@@ -34,8 +34,8 @@ namespace Familia.TSDClient
         //ScannedProductsDataSetTableAdapters.MoveResultsTblTableAdapter move_ta = null;
                 //= new Familia.TSDClient.ScannedProductsDataSetTableAdapters.MoveResultsTblTableAdapter();
 
-        Familia.TSDClient.ProductsDataSetTableAdapters.ProductsTblTableAdapter productsTa;
-        Familia.TSDClient.ProductsDataSetTableAdapters.DocsTblTableAdapter docsTa;
+        //Familia.TSDClient.ProductsDataSetTableAdapters.ProductsTblTableAdapter productsTa;
+        //Familia.TSDClient.ProductsDataSetTableAdapters.DocsTblTableAdapter docsTa;
         //Familia.TSDClient.ScannedProductsDataSetTableAdapters.ScannedBarcodesTableAdapter scannedTA;
 
         Dictionary<byte, ProductsDataSet.DocsTblRow> actionDict = new Dictionary<byte, ProductsDataSet.DocsTblRow>();
@@ -54,13 +54,13 @@ namespace Familia.TSDClient
         }
 
 
-        public ViewProductForm(ProductsDataSet products, ScannedProductsDataSet scannedProducts):this()
-        {
-            _products = products;
-            _scannedProducts = scannedProducts;
+        //public ViewProductForm(ProductsDataSet products, ScannedProductsDataSet scannedProducts):this()
+        //{
+        //    _products = products;
+        //    _scannedProducts = scannedProducts;
            
-           // BeginConnection(new AsyncCallback(OnFinishConnect));
-        }
+        //   // BeginConnection(new AsyncCallback(OnFinishConnect));
+        //}
 
         private void closeFrmBtn_Click(object sender, EventArgs e)
         {
@@ -89,7 +89,7 @@ namespace Familia.TSDClient
         private void SearchBarcode(string barcode)
         {
             label17.Text = barcode;
-            DoAction(GetProductRow(barcode));
+            DoAction(ActionsClass.Action.GetProductRow(barcode));
         }
         private void DoAction(ProductsDataSet.ProductsTblRow row)
         {
@@ -137,7 +137,8 @@ namespace Familia.TSDClient
                 label9.Text = (row["Article"] == System.DBNull.Value ||
                     row["Article"] == null)?string.Empty:row.Article;
                 
-                ProductsDataSet.DocsTblRow[] docRows = docsTa.GetDataByNavCode(row.NavCode);
+                ProductsDataSet.DocsTblRow[] docRows = 
+                    ActionsClass.Action.GetDataByNavCode(row.NavCode);
                 actionDict.Clear();
                 currentdocRows = docRows;
 
@@ -147,7 +148,13 @@ namespace Familia.TSDClient
                     foreach (ProductsDataSet.DocsTblRow docRow in docRows)
                     {
                         ScannedProductsDataSet.ScannedBarcodesRow scannedRow =
-                            _scannedProducts.ScannedBarcodes.FindByBarcodeDocTypeDocId(
+                            ActionsClass.Action.AddScannedRow(
+                            row.Barcode,
+                            docRow.DocType,
+                            docRow.DocId,
+                            docRow.Quantity,
+                            docRow.Priority);
+                            /*_scannedProducts.ScannedBarcodes.FindByBarcodeDocTypeDocId(
                             row.Barcode,
                             docRow.DocType,
                             docRow.DocId);
@@ -163,7 +170,7 @@ namespace Familia.TSDClient
                             scannedRow.ScannedDate = DateTime.Today;
                             scannedRow.TerminalId = Program.TerminalId;
                             _scannedProducts.ScannedBarcodes.AddScannedBarcodesRow(scannedRow);
-                        }
+                        }*/
                         byte actionCodes = docRow.DocType;
                         if (!actionDict.ContainsKey(actionCodes))
                             actionDict.Add(actionCodes,docRow);
@@ -207,7 +214,7 @@ namespace Familia.TSDClient
             System.Threading.Thread t = new System.Threading.Thread(
                 new System.Threading.ThreadStart(Init));
             t.Start();
-
+            this.SuspendLayout();
             int w = this.Width / 4;
             this.label13.Width = w;
             this.label14.Width = w;
@@ -216,9 +223,6 @@ namespace Familia.TSDClient
 
            
 
-            BTPrintClass.PrintClass.OnSetStatus += new SetStatus(PrintClass_OnSetStatus);
-            BTPrintClass.PrintClass.OnSetError += new SetError(PrintClass_OnSetError);
-            BTPrintClass.PrintClass.OnConnectionError += new ConnectionError(PrintClass_OnConnectionError);
             label5.Text = "";
             label6.Text = "";
             label7.Text = "";
@@ -236,9 +240,14 @@ namespace Familia.TSDClient
             boldFont = f1;
             
             this.actionLabel.Font = boldFont;
+            this.ResumeLayout(true);
 
             ActionsClass.Action.OnActionCompleted += new ActionsClass.ActionCompleted(Action_OnActionCompleted);
-
+            ScanClass.Scaner.InitScan();
+            ScanClass.Scaner.OnScanned += new Scanned(Scanned);
+            BTPrintClass.PrintClass.OnSetStatus += new SetStatus(PrintClass_OnSetStatus);
+            BTPrintClass.PrintClass.OnSetError += new SetError(PrintClass_OnSetError);
+            BTPrintClass.PrintClass.OnConnectionError += new ConnectionError(PrintClass_OnConnectionError);
             
             this.Refresh();
 
@@ -333,10 +342,10 @@ namespace Familia.TSDClient
                 //scannedTA.Update(this._scannedProducts);
             }
             catch { };
-            productsTa.Dispose();
-            docsTa.Dispose();
-            productsTa = null;
-            docsTa = null;
+            //productsTa.Dispose();
+            //docsTa.Dispose();
+            //productsTa = null;
+            //docsTa = null;
             ScanClass.Scaner.OnScanned = null;
             ScanClass.Scaner.StopScan();
             ActionsClass.Action.OnActionCompleted -=Action_OnActionCompleted;
@@ -344,7 +353,7 @@ namespace Familia.TSDClient
 
         }
 
-        private ProductsDataSet.ProductsTblRow GetProductRow(string barcode)
+        /*private ProductsDataSet.ProductsTblRow GetProductRow(string barcode)
         {
             ProductsDataSet.ProductsTblRow row = productsTa.GetDataByBarcode(long.Parse(barcode));
             return row;
@@ -354,7 +363,7 @@ namespace Familia.TSDClient
         private ProductsDataSet.ProductsTblRow GetProductRowByNavCode(string navCode)
         {
 
-            ProductsDataSet.ProductsTblRow[] Rows = productsTa.GetDataByNavcode(navCode);
+            ProductsDataSet.ProductsTblRow[] Rows = ActionsClass.Action.GetDataByNavcode(navCode);
                     //ta.GetDataByNavcode(TSDUtils.CustomEncodingClass.Encoding.GetBytes(navCode));
 
                 if (Rows != null && Rows.Length > 0)
@@ -364,14 +373,14 @@ namespace Familia.TSDClient
                 else
                     return null;
 
-        }
+        }*/
 
 
         private void navCodeTB_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Enter)
             {
-                DoAction(GetProductRowByNavCode(navCodeTB.Text));
+                DoAction(ActionsClass.Action.GetProductRowByNavCode(navCodeTB.Text));
                 navCodeTB.SelectAll();
                 return;
             }
@@ -408,7 +417,7 @@ namespace Familia.TSDClient
                         //{
                             using (
                                 ViewDocsForm docsForm =
-                                    new ViewDocsForm(currentProductRow, currentdocRows, _scannedProducts))
+                                    new ViewDocsForm(currentProductRow, currentdocRows, ActionsClass.Action.ScannedProducts))
                             {
                                 docsForm.ShowDialog();
                             }
@@ -457,11 +466,10 @@ namespace Familia.TSDClient
                 
                 //move_ta.ClearBeforeFill = true;
                 //move_ta.Fill(this._scannedProducts.MoveResultsTbl);
-                productsTa = new ProductsDataSetTableAdapters.ProductsTblTableAdapter(this._products);
-                docsTa = new ProductsDataSetTableAdapters.DocsTblTableAdapter(this._products);
+                //productsTa = new ProductsDataSetTableAdapters.ProductsTblTableAdapter(this._products);
+                //docsTa = new ProductsDataSetTableAdapters.DocsTblTableAdapter(this._products);
                 //scannedTA.Update
-                ScanClass.Scaner.InitScan();
-                ScanClass.Scaner.OnScanned += new Scanned(Scanned);
+                
 
                 //scanned_ta.Connection.Close();
                 //move_ta.Connection.Close();
@@ -484,17 +492,27 @@ namespace Familia.TSDClient
 
         void  Action_OnActionCompleted(ProductsDataSet.DocsTblRow docsRow, ScannedProductsDataSet.ScannedBarcodesRow scannedRow)
         {
-            currentDocRow = docsRow;
-            this.actionLabel.Text = TSDUtils.ActionCodeDescription.ActionDescription[docsRow.DocType];
+            if (this.InvokeRequired)
+            {
+                ActionsClass.ActionCompleted del = 
+                    new ActionsClass.ActionCompleted(Action_OnActionCompleted);
+                this.Invoke(del,
+                    docsRow,
+                    scannedRow);
+            }
+            else
+            {
+                currentDocRow = docsRow;
+                this.actionLabel.Text = TSDUtils.ActionCodeDescription.ActionDescription[docsRow.DocType];
 
-             label20.Text = (scannedRow["PlanQuanity"] == System.DBNull.Value ||
-                             scannedRow["PlanQuanity"] == null) ? string.Empty : scannedRow.PlanQuanity.ToString();
+                label20.Text = (scannedRow["PlanQuanity"] == System.DBNull.Value ||
+                                scannedRow["PlanQuanity"] == null) ? string.Empty : scannedRow.PlanQuanity.ToString();
 
-             label21.Text = (scannedRow["FactQuantity"] == System.DBNull.Value ||
-                             scannedRow["FactQuantity"] == null) ? string.Empty : scannedRow.FactQuantity.ToString();
+                label21.Text = (scannedRow["FactQuantity"] == System.DBNull.Value ||
+                                scannedRow["FactQuantity"] == null) ? string.Empty : scannedRow.FactQuantity.ToString();
 
-             this.Refresh();
-
+                this.Refresh();
+            }
         }
 
         

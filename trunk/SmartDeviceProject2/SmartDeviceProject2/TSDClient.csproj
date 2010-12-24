@@ -74,6 +74,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ActionsClass.cs" />
+    <Compile Include="BaseTableAdapter.cs" />
     <Compile Include="BTConnectionErrorForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -128,6 +129,9 @@
     <EmbeddedResource Include="ViewDocsForm.resx">
       <DependentUpon>ViewDocsForm.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="ViewLoadDateForm.resx">
+      <DependentUpon>ViewLoadDateForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="ViewProductForm.resx">
       <DependentUpon>ViewProductForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -176,6 +180,12 @@
     </Compile>
     <Compile Include="ViewDocsForm.Designer.cs">
       <DependentUpon>ViewDocsForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ViewLoadDateForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ViewLoadDateForm.Designer.cs">
+      <DependentUpon>ViewLoadDateForm.cs</DependentUpon>
     </Compile>
     <Compile Include="ViewProductForm.cs">
       <SubType>Form</SubType>

@@ -84,32 +84,23 @@ namespace Familia.TSDClient.ScannedProductsDataSetTableAdapters
 {
 
 
-    public class ScannedBarcodesTableAdapter : System.IDisposable
+    public class ScannedBarcodesTableAdapter :BaseTableAdapter
     {
-        bool _disposed = false;
-        string[] _fileList;
-        public string[] FileList
-        {
-            get
-            {
-                return _fileList;
-            }
-
-        }
-        FamilTsdDB.DataTable table = null;
+        
         ScannedProductsDataSet _scannedproductsDataset;
+        
+
 
         public ScannedBarcodesTableAdapter(ScannedProductsDataSet scannedproductsDataset)
+            :base(scannedproductsDataset.ScannedBarcodes)
         {
-            FamilTsdDB.DataTable.BaseDate = TSDClient.Program.Default.BaseDate;
-            FamilTsdDB.DataTable.StartupPath = TSDClient.Program.Default.DatabaseStoragePath;
             _scannedproductsDataset = scannedproductsDataset;
-            Init();
         }
 
-        private void Init()
+        protected override void Init()
         {
-            table = new FamilTsdDB.DataTable(_scannedproductsDataset.ScannedBarcodes);
+            base.Init();
+            
             table.AddIndex(
                 new System.Data.DataColumn[] {
                 _scannedproductsDataset.ScannedBarcodes.Columns["Barcode"],
@@ -119,29 +110,40 @@ namespace Familia.TSDClient.ScannedProductsDataSetTableAdapters
         }
         public void Fill(ScannedProductsDataSet scannedproductsDataset)
         {
-            try
-            {
-                table.ReadTableDef();
-                this.table.Fill(scannedproductsDataset.ScannedBarcodes);
-            }
-            catch { };
-            _fileList = table.FileList.ToArray();
+            base.Fill(scannedproductsDataset.ScannedBarcodes);
+            //try
+            //{
+            //    table.ReadTableDef();
+            //    this.table.Fill(scannedproductsDataset.ScannedBarcodes);
+            //}
+            //catch { };
+            //_fileList = table.FileList.ToArray();
         }
         public void Update(ScannedProductsDataSet scannedproductsDataset)
         {
-            lock (table)
-            {
-                if (table == null)
-                {
-                    table = new FamilTsdDB.DataTable(scannedproductsDataset.ScannedBarcodes);
-                    table.AddIndex(
-                        new System.Data.DataColumn[] {
-                        _scannedproductsDataset.ScannedBarcodes.Columns["Barcode"],
-                        _scannedproductsDataset.ScannedBarcodes.Columns["DocId"]
-                    });
-                }
-                table.Write();
-            }
+            //base.Update(scannedproductsDataset.ScannedBarcodes);
+            //table.AddIndex(
+            //            new System.Data.DataColumn[] {
+            //            _scannedproductsDataset.ScannedBarcodes.Columns["Barcode"],
+            //            _scannedproductsDataset.ScannedBarcodes.Columns["DocId"]
+            //        });
+            //_fileList = table.FileList.ToArray();
+            base.Update(scannedproductsDataset.ScannedBarcodes);
+
+            //lock (table)
+            //{
+            //    if (table == null)
+            //    {
+            //        table = new FamilTsdDB.DataTable(scannedproductsDataset.ScannedBarcodes);
+            //        table.AddIndex(
+            //            new System.Data.DataColumn[] {
+            //            _scannedproductsDataset.ScannedBarcodes.Columns["Barcode"],
+            //            _scannedproductsDataset.ScannedBarcodes.Columns["DocId"]
+            //        });
+            //    }
+            //    table.Write();
+            //    _fileList = table.FileList.ToArray();
+            //}
         }
 
         public ScannedProductsDataSet.ScannedBarcodesRow[] GetDataByBarcode(System.Int64 barcode, string docId)
@@ -174,9 +176,9 @@ namespace Familia.TSDClient.ScannedProductsDataSetTableAdapters
             }
         }
 
-        public void Clean()
+        public override void Clean()
         {
-            this._scannedproductsDataset.ScannedBarcodes.Clear();
+            base.Clean();
             try
             {
                 table.Dispose();
@@ -188,20 +190,7 @@ namespace Familia.TSDClient.ScannedProductsDataSetTableAdapters
 
             Init();
         }
-
-        #region IDisposable Members
-
-        public void Dispose()
-        {
-            if (!_disposed)
-            {
-                table.Dispose();
-                table = null;
-                _disposed = true;
-            }
-        }
-
-        #endregion
+        
     }
 
 }

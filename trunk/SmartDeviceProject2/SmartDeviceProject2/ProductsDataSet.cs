@@ -244,37 +244,34 @@ namespace Familia.TSDClient.ProductsDataSetTableAdapters
 {
     
     
-    public class DocsTblTableAdapter:System.IDisposable
+    public class DocsTblTableAdapter: BaseTableAdapter
     {
-        bool _disposed = false;
-        public string[] FileList
-        {
-            get
-            {
-                return table.FileList.ToArray();
-            }
-
-        }
-        FamilTsdDB.DataTable table = null;
+        
         ProductsDataSet _productsDataset;
+        
 
         public DocsTblTableAdapter(ProductsDataSet productsDataset)
+            :base(productsDataset.DocsTbl)
         {
-            FamilTsdDB.DataTable.BaseDate = TSDClient.Program.Default.BaseDate;
-            FamilTsdDB.DataTable.StartupPath = 
-                TSDClient.Program.Default.DatabaseStoragePath;
             _productsDataset = productsDataset;
-            table = new FamilTsdDB.DataTable(productsDataset.DocsTbl);
-            table.ReadTableDef();
-            table.AddIndex(new System.Data.DataColumn[] { productsDataset.DocsTbl.NavCodeColumn });
         }
-        
+        protected override void Init()
+        {
+            base.Init();
+            //table = new FamilTsdDB.DataTable(_productsDataset.DocsTbl);
+            //table.ReadTableDef();
+            table.AddIndex(new System.Data.DataColumn[] { _productsDataset.DocsTbl.NavCodeColumn });
+            _fileList = table.FileList.ToArray();
+        }
+
         public void Update(TSDServer.ProductsDataSet productsDataset)
         {
-            if (table == null)
-                table = new FamilTsdDB.DataTable(productsDataset.DocsTbl);
-            table.Write();
+            base.Update(productsDataset.DocsTbl);
         }
+        //    if (table == null)
+        //        table = new FamilTsdDB.DataTable(productsDataset.DocsTbl);
+        //    table.Write();
+        //}
 
         public ProductsDataSet.DocsTblRow[] GetDataByNavCode(string NavCode)
         {
@@ -305,54 +302,34 @@ namespace Familia.TSDClient.ProductsDataSetTableAdapters
                     return null;
             }
         }
-
-        public void Clean()
-        {
-            this._productsDataset.DocsTbl.Clear();
-        }
-
-        #region IDisposable Members
-
-        public void Dispose()
-        {
-            if (!_disposed)
-            {
-                table.Dispose();
-                table = null;
-                _disposed = true;
-            }
-        }
-
-        #endregion
     }
 
-    public class ProductsTblTableAdapter : System.IDisposable
+    public class ProductsTblTableAdapter : BaseTableAdapter
     {
-        public string[] FileList
-        {
-            get
-            {
-                return table.FileList.ToArray();
-            }
 
-        }
-        FamilTsdDB.DataTable table = null;
         ProductsDataSet _productsDataset;
-        bool _disposed = false;
-        public ProductsTblTableAdapter(ProductsDataSet productsDataset)
-        {
-            FamilTsdDB.DataTable.BaseDate = TSDClient.Program.Default.BaseDate;
-            FamilTsdDB.DataTable.StartupPath = TSDClient.Program.Default.DatabaseStoragePath;
-            _productsDataset = productsDataset;
 
-            table = new FamilTsdDB.DataTable(productsDataset.ProductsTbl);
-            table.ReadTableDef();
+        public ProductsTblTableAdapter(ProductsDataSet productsDataset)
+            :base(productsDataset.ProductsTbl)
+        {
+            _productsDataset = productsDataset;
         }
-        public void Update(ProductsDataSet productsDataset)
+/*        public void Update(ProductsDataSet productsDataset)
         {
             if (table == null)
                 table = new FamilTsdDB.DataTable(productsDataset.ProductsTbl);
             table.Write();
+        }*/
+        public void Update(TSDServer.ProductsDataSet productsDataset)
+        {
+            base.Update(productsDataset.ProductsTbl);
+        }
+
+        protected override void Init()
+        {
+            base.Init();
+            table.AddIndex(new System.Data.DataColumn[] { _productsDataset.ProductsTbl.NavCodeColumn });
+            _fileList = table.FileList.ToArray();
         }
         public ProductsDataSet.ProductsTblRow GetDataByBarcode(System.Int64 barcode)
         {
@@ -411,23 +388,5 @@ namespace Familia.TSDClient.ProductsDataSetTableAdapters
             }
         }
 
-        public void Clean()
-        {
-            this._productsDataset.ProductsTbl.Clear();
-        }
-        #region IDisposable Members
-
-        public void Dispose()
-        {
-            if (!_disposed)
-            {
-                table.Dispose();
-                table = null;
-                _disposed = true;
-            }
-
-        }
-
-        #endregion
-    }
+      }
 }
