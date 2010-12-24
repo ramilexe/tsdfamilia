@@ -131,14 +131,25 @@ namespace Familia.TSDClient
                 case 48: this.DialogResult = DialogResult.OK;  this.Close(); break;
                 case 49:
                     {
-                        SearchPrinterForm srchFrm = new SearchPrinterForm();
-                        srchFrm.ShowDialog();
+                        using (SearchPrinterForm srchFrm = new SearchPrinterForm())
+                        {
+                            srchFrm.ShowDialog();
+                        }
                         this.Refresh();
                         break;
                     }
                 case 50:
                     {
                         ActionsClass.Action.ClearScannedData();
+                        break;
+                    }
+                case 51:
+                    {
+                        using (ViewLoadDateForm srchFrm = new ViewLoadDateForm())
+                        {
+                            srchFrm.ShowDialog();
+                        }
+                        this.Refresh();
                         break;
                     }
 

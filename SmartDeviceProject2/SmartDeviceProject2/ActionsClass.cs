@@ -8,13 +8,25 @@ namespace Familia.TSDClient
     public class ActionsClass
     {
         ScannedProductsDataSet _scannedProducts = new ScannedProductsDataSet();
+        Familia.TSDClient.ProductsDastaSet _products
+            = new ProductsDataSet();
 
+        public Familia.TSDClient.ProductsDataSet Products
+        {
+            get { return _products; }
+            set { _products = value; }
+        }
+        
         public ScannedProductsDataSet ScannedProducts
         {
             get { return _scannedProducts; }
             set { _scannedProducts = value; }
         }
+
         Familia.TSDClient.ScannedProductsDataSetTableAdapters.ScannedBarcodesTableAdapter scannedTA;
+        Familia.TSDClient.ProductsDataSetTableAdapters.ProductsTblTableAdapter productsTa;
+        Familia.TSDClient.ProductsDataSetTableAdapters.DocsTblTableAdapter docsTa;
+
         public delegate void ActOnProduct(ProductsDataSet.ProductsTblRow datarow, ProductsDataSet.DocsTblRow docsRow);
         public delegate void ActionCompleted(ProductsDataSet.DocsTblRow docsRow, ScannedProductsDataSet.ScannedBarcodesRow scannedRow);
 
@@ -75,23 +87,51 @@ namespace Familia.TSDClient
             scannedTA =
                     new Familia.TSDClient.ScannedProductsDataSetTableAdapters.ScannedBarcodesTableAdapter(_scannedProducts);
 
-            
+            productsTa = new ProductsDataSetTableAdapters.ProductsTblTableAdapter(this._products);
+            docsTa = new ProductsDataSetTableAdapters.DocsTblTableAdapter(this._products);
+                
                 
         }
 
+        public void OpenProducts()
+        {
+            productsTa.Open();
+            
+        }
+        public void OpenScanned()
+        {
+            scannedTA.Open();
+        }
+        public void CloseProducts()
+        {
+            productsTa.Close();
+        }
+        public void ClosedScanned()
+        {
+            try
+            {
+                scannedTA.Update(this._scannedProducts);
+            }
+            catch { }
+            scannedTA.Close();
+        }
+        public void CloseDB()
+        {
+            CloseProducts();
+            ClosedScanned(); 
 
+        }
         public void BeginScan()
         {
+            OpenProducts();
+            OpenScanned();
             tmr.Change(5000, 60000);
         }
         public void EndScan()
         {
-             tmr.Change(System.Threading.Timeout.Infinite, System.Threading.Timeout.Infinite);
-             try
-             {
-                 scannedTA.Update(this._scannedProducts);
-             }
-             catch { }
+            tmr.Change(System.Threading.Timeout.Infinite, System.Threading.Timeout.Infinite);
+            CloseProducts();
+            ClosedScanned();
         }
         public void PlaySoundAsync(byte soundCode)
         {
@@ -639,6 +679,71 @@ namespace Familia.TSDClient
             {
                 ViewProductForm._mEvt.Set();
             }
+        }
+
+
+        public ProductsDataSet.ProductsTblRow GetProductRow(string barcode)
+        {
+            return productsTa.GetDataByBarcode(long.Parse(barcode));
+            //return row;
+
+        }
+
+        public ProductsDataSet.ProductsTblRow GetProductRowByNavCode(string navCode)
+        {
+
+            ProductsDataSet.ProductsTblRow[] Rows = productsTa.GetDataByNavcode(navCode);
+            //ta.GetDataByNavcode(TSDUtils.CustomEncodingClass.Encoding.GetBytes(navCode));
+
+            if (Rows != null && Rows.Length > 0)
+            {
+                return Rows[0];
+            }
+            else
+                return null;
+
+        }
+
+        public ProductsDataSet.DocsTblRow[] GetDataByNavCode(string navCode)
+        {
+            return docsTa.GetDataByNavCode(navCode);
+        }
+
+        public ScannedProductsDataSet.ScannedBarcodesRow AddScannedRow(
+            long barcode,
+            byte docType,
+            string docId,
+            int quantity,
+            byte priority
+            )
+        {
+            ScannedProductsDataSet.ScannedBarcodesRow scannedRow =
+                            _scannedProducts.ScannedBarcodes.FindByBarcodeDocTypeDocId(
+                            barcode,
+                            docType,
+                            docId);
+            if (scannedRow == null)
+            {
+                scannedRow =
+                    _scannedProducts.ScannedBarcodes.NewScannedBarcodesRow();
+                scannedRow.Barcode = barcode;
+                scannedRow.DocId = docId;
+                scannedRow.DocType =docType;
+                scannedRow.PlanQuanity = quantity;
+                scannedRow.Priority = priority;
+                scannedRow.ScannedDate = DateTime.Today;
+                scannedRow.TerminalId = Program.TerminalId;
+                _scannedProducts.ScannedBarcodes.AddScannedBarcodesRow(scannedRow);
+            }
+            return scannedRow;
+        }
+
+        public void ClearCache()
+        {
+            this.Products.ProductsTbl.Clear();
+            this.Products.DocsTbl.Clear();
+            this.Products.AcceptChanges();
+
         }
     }
 }

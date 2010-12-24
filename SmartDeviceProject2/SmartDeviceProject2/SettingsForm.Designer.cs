@@ -40,6 +40,7 @@
             // 
             // button1
             // 
+            this.button1.BackColor = System.Drawing.Color.PaleGreen;
             this.button1.Dock = System.Windows.Forms.DockStyle.Top;
             this.button1.Location = new System.Drawing.Point(0, 0);
             this.button1.Name = "button1";
@@ -49,6 +50,7 @@
             // 
             // button3
             // 
+            this.button3.BackColor = System.Drawing.Color.PaleGreen;
             this.button3.Dock = System.Windows.Forms.DockStyle.Top;
             this.button3.Enabled = true;
             this.button3.Location = new System.Drawing.Point(0, 35);
@@ -59,10 +61,11 @@
             // 
             // button4
             // 
+            this.button4.BackColor = System.Drawing.Color.PaleGreen;
             this.button4.Dock = System.Windows.Forms.DockStyle.Top;
-            this.button4.Enabled = false;
+            this.button4.Enabled = true;
             this.button4.Location = new System.Drawing.Point(0, 70);
-            this.button4.Name = "button4";
+            this.button4.Name = "3 - Информация о данных";
             this.button4.Size = new System.Drawing.Size(640, 35);
             this.button4.TabIndex = 3;
             // 
