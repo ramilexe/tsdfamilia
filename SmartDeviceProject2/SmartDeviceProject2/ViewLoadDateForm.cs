@@ -16,11 +16,12 @@ namespace Familia.TSDClient
         {
             InitializeComponent();
             this.KeyDown += new KeyEventHandler(ViewLoadDateForm_KeyDown);
+            this.button1.KeyDown += new KeyEventHandler(ViewLoadDateForm_KeyDown);
         }
 
         void ViewLoadDateForm_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.Escape || e.KeyValue == 115)
+            if (e.KeyCode == Keys.Escape || e.KeyCode == Keys.Enter)
             {
                 this.Close();
                 return;

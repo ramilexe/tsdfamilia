@@ -16,6 +16,7 @@
             if (disposing && (components != null))
             {
                 components.Dispose();
+                BTPrintClass.PrintClass.Disconnect();
             }
             base.Dispose(disposing);
         }
@@ -181,7 +182,7 @@
             this.label14.Location = new System.Drawing.Point(64, 0);
             this.label14.Name = "label14";
             this.label14.Size = new System.Drawing.Size(56, 54);
-            this.label14.Text = "F2";
+            this.label14.Text = "F2-Печать2";
             // 
             // label13
             // 
@@ -191,7 +192,7 @@
             this.label13.Location = new System.Drawing.Point(0, 0);
             this.label13.Name = "label13";
             this.label13.Size = new System.Drawing.Size(64, 54);
-            this.label13.Text = "F1-Печать";
+            this.label13.Text = "F1-Печать1";
             // 
             // label12
             // 

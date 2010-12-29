@@ -254,6 +254,7 @@ namespace Familia.TSDClient.ProductsDataSetTableAdapters
             :base(productsDataset.DocsTbl)
         {
             _productsDataset = productsDataset;
+            Init();
         }
         protected override void Init()
         {
@@ -313,7 +314,9 @@ namespace Familia.TSDClient.ProductsDataSetTableAdapters
             :base(productsDataset.ProductsTbl)
         {
             _productsDataset = productsDataset;
+            Init();
         }
+        
 /*        public void Update(ProductsDataSet productsDataset)
         {
             if (table == null)

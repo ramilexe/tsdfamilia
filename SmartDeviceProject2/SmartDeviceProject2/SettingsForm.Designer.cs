@@ -31,10 +31,10 @@
         {
             this.mainMenu1 = new System.Windows.Forms.MainMenu();
             this.button1 = new System.Windows.Forms.Button();
+            this.button2 = new System.Windows.Forms.Button();
             this.button3 = new System.Windows.Forms.Button();
             this.button4 = new System.Windows.Forms.Button();
             this.button5 = new System.Windows.Forms.Button();
-            this.button6 = new System.Windows.Forms.Button();
             this.button0 = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
@@ -50,42 +50,43 @@
             // 
             // button3
             // 
-            this.button3.BackColor = System.Drawing.Color.PaleGreen;
-            this.button3.Dock = System.Windows.Forms.DockStyle.Top;
-            this.button3.Enabled = true;
-            this.button3.Location = new System.Drawing.Point(0, 35);
-            this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(640, 35);
-            this.button3.TabIndex = 2;
-            this.button3.Text = "2 - Очистка данных";
+            this.button2.BackColor = System.Drawing.Color.PaleGreen;
+            this.button2.Dock = System.Windows.Forms.DockStyle.Top;
+            this.button2.Enabled = true;
+            this.button2.Location = new System.Drawing.Point(0, 35);
+            this.button2.Name = "button2";
+            this.button2.Size = new System.Drawing.Size(640, 35);
+            this.button2.TabIndex = 2;
+            this.button2.Text = "2 - Очистка данных";
             // 
             // button4
             // 
-            this.button4.BackColor = System.Drawing.Color.PaleGreen;
-            this.button4.Dock = System.Windows.Forms.DockStyle.Top;
-            this.button4.Enabled = true;
-            this.button4.Location = new System.Drawing.Point(0, 70);
-            this.button4.Name = "3 - Информация о данных";
-            this.button4.Size = new System.Drawing.Size(640, 35);
-            this.button4.TabIndex = 3;
+            this.button3.BackColor = System.Drawing.Color.PaleGreen;
+            this.button3.Dock = System.Windows.Forms.DockStyle.Top;
+            this.button3.Enabled = true;
+            this.button3.Location = new System.Drawing.Point(0, 70);
+            this.button3.Text = "3 - Информация о данных";
+            this.button3.Size = new System.Drawing.Size(640, 35);
+            this.button3.TabIndex = 3;
+            this.button3.Name = "button3";
             // 
             // button5
             // 
-            this.button5.Dock = System.Windows.Forms.DockStyle.Top;
-            this.button5.Enabled = false;
-            this.button5.Location = new System.Drawing.Point(0, 105);
-            this.button5.Name = "button5";
-            this.button5.Size = new System.Drawing.Size(640, 35);
-            this.button5.TabIndex = 4;
+            this.button4.Dock = System.Windows.Forms.DockStyle.Top;
+            this.button4.Enabled = false;
+            this.button4.Location = new System.Drawing.Point(0, 105);
+            this.button4.Name = "button4";
+            this.button4.Size = new System.Drawing.Size(640, 35);
+            this.button4.TabIndex = 4;
             // 
             // button6
             // 
-            this.button6.Dock = System.Windows.Forms.DockStyle.Top;
-            this.button6.Enabled = false;
-            this.button6.Location = new System.Drawing.Point(0, 140);
-            this.button6.Name = "button6";
-            this.button6.Size = new System.Drawing.Size(640, 35);
-            this.button6.TabIndex = 5;
+            this.button5.Dock = System.Windows.Forms.DockStyle.Top;
+            this.button5.Enabled = false;
+            this.button5.Location = new System.Drawing.Point(0, 140);
+            this.button5.Name = "button5";
+            this.button5.Size = new System.Drawing.Size(640, 35);
+            this.button5.TabIndex = 5;
             // 
             // button0
             // 
@@ -105,10 +106,10 @@
             this.ClientSize = new System.Drawing.Size(640, 480);
             this.ControlBox = false;
             this.Controls.Add(this.button0);
-            this.Controls.Add(this.button6);
             this.Controls.Add(this.button5);
             this.Controls.Add(this.button4);
             this.Controls.Add(this.button3);
+            this.Controls.Add(this.button2);
             this.Controls.Add(this.button1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.Menu = this.mainMenu1;
@@ -123,10 +124,10 @@
         #endregion
 
         private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Button button2;
         private System.Windows.Forms.Button button3;
         private System.Windows.Forms.Button button4;
         private System.Windows.Forms.Button button5;
-        private System.Windows.Forms.Button button6;
         private System.Windows.Forms.Button button0;
     }
 }

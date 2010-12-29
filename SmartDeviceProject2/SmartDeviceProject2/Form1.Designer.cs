@@ -16,6 +16,7 @@
             if (disposing && (components != null))
             {
                 components.Dispose();
+                BTPrintClass.PrintClass.Disconnect();
             }
             base.Dispose(disposing);
         }
@@ -60,7 +61,9 @@
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(238, 46);
             this.button2.TabIndex = 1;
-            this.button2.Text = "2 - Инвентаризация";
+            this.button2.Text = "";// "2 - Инвентаризация";
+            this.button2.Enabled = false;
+
             // 
             // button3
             // 
@@ -71,7 +74,8 @@
             this.button3.Name = "button3";
             this.button3.Size = new System.Drawing.Size(238, 46);
             this.button3.TabIndex = 2;
-            this.button3.Text = "3 - Прих. накладные";
+            this.button3.Text = "";// "3 - Прих. накладные";
+            this.button3.Enabled = false;
             // 
             // button4
             // 
@@ -82,7 +86,8 @@
             this.button4.Name = "button4";
             this.button4.Size = new System.Drawing.Size(238, 46);
             this.button4.TabIndex = 3;
-            this.button4.Text = "4 - Синхронизация";
+            this.button4.Text = "";// "4 - Синхронизация";
+            this.button4.Enabled = false;
             // 
             // button5
             // 

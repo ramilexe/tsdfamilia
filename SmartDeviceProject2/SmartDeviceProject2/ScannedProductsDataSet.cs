@@ -95,6 +95,7 @@ namespace Familia.TSDClient.ScannedProductsDataSetTableAdapters
             :base(scannedproductsDataset.ScannedBarcodes)
         {
             _scannedproductsDataset = scannedproductsDataset;
+            Init();
         }
 
         protected override void Init()

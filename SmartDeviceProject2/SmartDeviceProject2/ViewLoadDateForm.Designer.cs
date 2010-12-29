@@ -40,7 +40,7 @@
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(240, 55);
             this.button1.TabIndex = 0;
-            this.button1.Text = "CLR-Fn или Enter выход ";
+            this.button1.Text = "Закрыть CLR-Fn или Enter";
             // 
             // label1
             // 

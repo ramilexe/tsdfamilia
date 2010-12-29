@@ -115,18 +115,27 @@ namespace Familia.TSDClient
 
                     }
                 }
-                //else
-                //{
-                    Label l1 = new Label();
-                    l1.Size = new System.Drawing.Size(231, 90);
-                    l1.Name = string.Format("label{0}", documents.Count);
-                    l1.Left = 0;
-                    l1.Top = documents.Count * 60;
-                    l1.Text = "По данному товару \nнет никаких документов, \nнажмите желтую кнопку \nеще раз для выхода";
-                    l1.BackColor = System.Drawing.Color.PaleGreen;
-                    l1.TextAlign = ContentAlignment.TopCenter;
-                    this.panel2.Controls.Add(l1);
-                //}
+               else
+                {
+                    Label l = new Label();
+                    l.Size = new System.Drawing.Size(231, 30);
+                    l.Name = string.Format("label{0}", 0);
+                    l.Left = 0;
+                    l.Top = 0;
+                    l.Text = "По данному товару \nнет никаких документов";
+                    l.BackColor = System.Drawing.Color.PaleGreen;
+                    l.TextAlign = ContentAlignment.TopCenter;
+                    this.panel2.Controls.Add(l);
+                }
+                Label l1 = new Label();
+                l1.Size = new System.Drawing.Size(231, 30);
+                l1.Name = string.Format("label{0}", documents.Count+1);
+                l1.Left = 0;
+                l1.Top = (documents.Count*60) +30;
+                l1.Text = "Нажмите желтую кнопку или Clr-Fn\nеще раз для выхода";
+                l1.BackColor = System.Drawing.Color.PaleGreen;
+                l1.TextAlign = ContentAlignment.TopCenter;
+                this.panel2.Controls.Add(l1);
 
             }
 

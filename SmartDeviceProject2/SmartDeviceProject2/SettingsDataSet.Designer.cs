@@ -511,6 +511,10 @@ namespace Familia.TSDClient {
             
             private global::System.Data.DataColumn columnBlueButtonShablon;
             
+            private global::System.Data.DataColumn columnEnableExit;
+            
+            private global::System.Data.DataColumn columnEnableWorkWOPrinter;
+            
             private static System.DateTime columnBaseDate_defaultValue = global::System.DateTime.Parse("01/01/2010 00:00:00");
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -622,6 +626,20 @@ namespace Familia.TSDClient {
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public global::System.Data.DataColumn EnableExitColumn {
+                get {
+                    return this.columnEnableExit;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public global::System.Data.DataColumn EnableWorkWOPrinterColumn {
+                get {
+                    return this.columnEnableWorkWOPrinter;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             public int Count {
                 get {
                     return this.Rows.Count;
@@ -649,7 +667,7 @@ namespace Familia.TSDClient {
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            public TypedSettingsRow AddTypedSettingsRow(int StorageMemorySize, bool VibarationOn, bool ScanSoundNotifyOn, string DatabaseFileName, string DatabaseStoragePath, string BTPrinterAddress, int BTComPort, System.DateTime BaseDate, string ProductsConnectionString, uint DefaultRepriceShablon, int TerminalID, uint BlueButtonShablon) {
+            public TypedSettingsRow AddTypedSettingsRow(int StorageMemorySize, bool VibarationOn, bool ScanSoundNotifyOn, string DatabaseFileName, string DatabaseStoragePath, string BTPrinterAddress, int BTComPort, System.DateTime BaseDate, string ProductsConnectionString, uint DefaultRepriceShablon, int TerminalID, uint BlueButtonShablon, byte EnableExit, byte EnableWorkWOPrinter) {
                 TypedSettingsRow rowTypedSettingsRow = ((TypedSettingsRow)(this.NewRow()));
                 object[] columnValuesArray = new object[] {
                         StorageMemorySize,
@@ -663,7 +681,9 @@ namespace Familia.TSDClient {
                         ProductsConnectionString,
                         DefaultRepriceShablon,
                         TerminalID,
-                        BlueButtonShablon};
+                        BlueButtonShablon,
+                        EnableExit,
+                        EnableWorkWOPrinter};
                 rowTypedSettingsRow.ItemArray = columnValuesArray;
                 this.Rows.Add(rowTypedSettingsRow);
                 return rowTypedSettingsRow;
@@ -700,6 +720,8 @@ namespace Familia.TSDClient {
                 this.columnDefaultRepriceShablon = base.Columns["DefaultRepriceShablon"];
                 this.columnTerminalID = base.Columns["TerminalID"];
                 this.columnBlueButtonShablon = base.Columns["BlueButtonShablon"];
+                this.columnEnableExit = base.Columns["EnableExit"];
+                this.columnEnableWorkWOPrinter = base.Columns["EnableWorkWOPrinter"];
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -728,6 +750,10 @@ namespace Familia.TSDClient {
                 base.Columns.Add(this.columnTerminalID);
                 this.columnBlueButtonShablon = new global::System.Data.DataColumn("BlueButtonShablon", typeof(uint), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnBlueButtonShablon);
+                this.columnEnableExit = new global::System.Data.DataColumn("EnableExit", typeof(byte), null, global::System.Data.MappingType.Element);
+                base.Columns.Add(this.columnEnableExit);
+                this.columnEnableWorkWOPrinter = new global::System.Data.DataColumn("EnableWorkWOPrinter", typeof(byte), null, global::System.Data.MappingType.Element);
+                base.Columns.Add(this.columnEnableWorkWOPrinter);
                 this.columnStorageMemorySize.DefaultValue = ((int)(17000));
                 this.columnVibarationOn.DefaultValue = ((bool)(false));
                 this.columnScanSoundNotifyOn.DefaultValue = ((bool)(false));
@@ -740,6 +766,8 @@ namespace Familia.TSDClient {
                 this.columnDefaultRepriceShablon.DefaultValue = ((uint)(0u));
                 this.columnTerminalID.DefaultValue = ((int)(0));
                 this.columnBlueButtonShablon.DefaultValue = ((uint)(0u));
+                this.columnEnableExit.DefaultValue = ((byte)(1));
+                this.columnEnableWorkWOPrinter.DefaultValue = ((byte)(1));
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -1101,6 +1129,36 @@ namespace Familia.TSDClient {
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public byte EnableExit {
+                get {
+                    try {
+                        return ((byte)(this[this.tableTypedSettings.EnableExitColumn]));
+                    }
+                    catch (global::System.InvalidCastException e) {
+                        throw new global::System.Data.StrongTypingException("The value for column \'EnableExit\' in table \'TypedSettings\' is DBNull.", e);
+                    }
+                }
+                set {
+                    this[this.tableTypedSettings.EnableExitColumn] = value;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public byte EnableWorkWOPrinter {
+                get {
+                    try {
+                        return ((byte)(this[this.tableTypedSettings.EnableWorkWOPrinterColumn]));
+                    }
+                    catch (global::System.InvalidCastException e) {
+                        throw new global::System.Data.StrongTypingException("The value for column \'EnableWorkWOPrinter\' in table \'TypedSettings\' is DBNull.", e);
+                    }
+                }
+                set {
+                    this[this.tableTypedSettings.EnableWorkWOPrinterColumn] = value;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             public bool IsStorageMemorySizeNull() {
                 return this.IsNull(this.tableTypedSettings.StorageMemorySizeColumn);
             }
@@ -1218,6 +1276,26 @@ namespace Familia.TSDClient {
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             public void SetBlueButtonShablonNull() {
                 this[this.tableTypedSettings.BlueButtonShablonColumn] = global::System.Convert.DBNull;
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public bool IsEnableExitNull() {
+                return this.IsNull(this.tableTypedSettings.EnableExitColumn);
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public void SetEnableExitNull() {
+                this[this.tableTypedSettings.EnableExitColumn] = global::System.Convert.DBNull;
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public bool IsEnableWorkWOPrinterNull() {
+                return this.IsNull(this.tableTypedSettings.EnableWorkWOPrinterColumn);
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public void SetEnableWorkWOPrinterNull() {
+                this[this.tableTypedSettings.EnableWorkWOPrinterColumn] = global::System.Convert.DBNull;
             }
         }
         
