@@ -60,6 +60,11 @@ namespace Familia.TSDClient
                     b.Font = f;
                 }
             }
+            if (Program.Default.EnableExit != 1)
+                button0.Enabled = false;
+            else
+                button0.Enabled = true;
+
             ActionsClass.Action.LoadScannedData();
         }
 
@@ -161,7 +166,12 @@ namespace Familia.TSDClient
                 switch (menuId)
                 {
 
-                    case 48: Application.Exit(); break;
+                    case 48:
+                        {
+                            if (Program.Default.EnableExit == 1)
+                                Application.Exit(); 
+                            break;
+                        }
                     case 49:
                         {
                             using (ViewProductForm frm = new ViewProductForm())

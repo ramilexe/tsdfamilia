@@ -203,7 +203,32 @@ namespace Familia.TSDClient
         }
         private void ViewProductForm_Load(object sender, EventArgs e)
         {
-           
+
+            if (BTPrintClass.PrintClass.ConnToPrinter(Program.Settings.TypedSettings[0].BTPrinterAddress)
+                != Calib.BluetoothLibNet.Def.BTERR_CONNECTED)
+            {
+
+                if (Program.Default.EnableWorkWOPrinter == 1)
+                {
+
+                    using (BTConnectionErrorForm frm =
+                        new BTConnectionErrorForm())
+                    {
+                        if (frm.ShowDialog() == DialogResult.Yes)
+                        {
+                            BTPrintClass.PrintClass.Reconnect();
+                        }
+
+                    }
+                }
+                else
+                {
+                    this.Close();
+                    return;
+                }
+            }
+            ActionsClass.Action.BeginScan();
+
             /*
             foreach (Control c in this.Controls)
             {
@@ -211,9 +236,9 @@ namespace Familia.TSDClient
                 c.LostFocus += new EventHandler(c_LostFocus);
             }*/
             /*this.textBox1.Focus();*/
-            System.Threading.Thread t = new System.Threading.Thread(
-                new System.Threading.ThreadStart(Init));
-            t.Start();
+            //System.Threading.Thread t = new System.Threading.Thread(
+            //    new System.Threading.ThreadStart(Init));
+            //t.Start();
             this.SuspendLayout();
             int w = this.Width / 4;
             this.label13.Width = w;
@@ -241,6 +266,8 @@ namespace Familia.TSDClient
             
             this.actionLabel.Font = boldFont;
             this.ResumeLayout(true);
+
+            
 
             ActionsClass.Action.OnActionCompleted += new ActionsClass.ActionCompleted(Action_OnActionCompleted);
             ScanClass.Scaner.InitScan();
@@ -476,7 +503,7 @@ namespace Familia.TSDClient
                 //BTPrintClass.PrintClass.BTPrinterInit();
                 //BTPrintClass.PrintClass.SearchDevices();
 
-                BTPrintClass.PrintClass.ConnToPrinter(Program.Settings.TypedSettings[0].BTPrinterAddress);
+                
                 ActionsClass.Action.BeginScan();
                 
             }

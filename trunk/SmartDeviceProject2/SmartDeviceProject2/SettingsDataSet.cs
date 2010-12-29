@@ -2,5 +2,8 @@
     
     
     public partial class SettingsDataSet {
+        partial class TypedSettingsDataTable
+        {
+        }
     }
 }

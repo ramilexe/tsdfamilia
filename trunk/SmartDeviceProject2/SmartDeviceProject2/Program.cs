@@ -69,6 +69,8 @@ namespace Familia.TSDClient
                     r.DefaultRepriceShablon = 1;
                     r.TerminalID = 0;
                     r.BlueButtonShablon = 1;
+                    r.EnableExit = 1;
+                    r.EnableWorkWOPrinter = 1;
                     Settings.TypedSettings.AddTypedSettingsRow(r);
                     Settings.TypedSettings.AcceptChanges();
                     _terminal_id = 0;

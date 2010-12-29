@@ -20,7 +20,13 @@ namespace Familia.TSDClient
         protected FamilTsdDB.DataTable table = null;
         protected System.Data.DataTable _sysdatemdatatable;
         protected bool _disposed = false;
-        protected bool _opened = false;
+        private bool _opened = false;
+
+        public bool Opened
+        {
+            get { return _opened; }
+            set { _opened = value; }
+        }
         public BaseTableAdapter(System.Data.DataTable sysdatemdatatable)
         {
             _sysdatemdatatable = sysdatemdatatable;
@@ -28,6 +34,7 @@ namespace Familia.TSDClient
 
         protected virtual void Init()
         {
+            
             table = new FamilTsdDB.DataTable(_sysdatemdatatable);
             table.ReadTableDef();
             _fileList = table.FileList.ToArray();

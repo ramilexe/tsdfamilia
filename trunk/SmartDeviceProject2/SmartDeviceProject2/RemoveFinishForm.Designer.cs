@@ -41,7 +41,7 @@
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(238, 65);
             this.button1.TabIndex = 0;
-            this.button1.Text = "Закрыть";
+            this.button1.Text = "Закрыть Clr-Fn или Enter";
             this.button1.Click += new System.EventHandler(this.button1_Click);
             this.button1.KeyDown += new System.Windows.Forms.KeyEventHandler(this.button1_KeyDown);
             // 

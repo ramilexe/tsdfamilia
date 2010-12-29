@@ -34,8 +34,19 @@ namespace Familia.TSDClient
                 {
                     try
                     {
-                        BTPrintClass.PrintClass.SetDefaultDevice(listBox1.SelectedItem.ToString());
-                        BTPrintClass.PrintClass.TestPrint3(listBox1.SelectedItem.ToString());
+                        string key = string.Empty;
+                        foreach (string s in stringDict.Keys)
+                        {
+                            if (listBox1.SelectedItem.ToString() == stringDict[s])
+                            {
+                                key = s;
+                                break;
+                            }
+
+                        }
+
+                        BTPrintClass.PrintClass.SetDefaultDevice(key);
+                        BTPrintClass.PrintClass.TestPrint3(key);
                     }
                     catch { }
                     this.Close();
@@ -62,7 +73,7 @@ namespace Familia.TSDClient
 
             foreach (string s in stringDict.Keys)
             {
-                this.listBox1.Items.Add(s);
+                this.listBox1.Items.Add(stringDict[s]);
             }
             this.Refresh();
 

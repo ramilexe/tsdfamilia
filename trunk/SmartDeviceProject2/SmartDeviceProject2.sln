@@ -5,6 +5,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TSDClient", "SmartDevicePro
 EndProject
 Project("{B900F1C2-3D47-4FEC-85B3-04AAF18C3634}") = "TerminalSetup", "TerminalSetup\TerminalSetup.vddproj", "{22192D2F-71C5-4B52-9A76-BD99ED1E19A5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SetDeviceTime", "SetDeviceTime\SetDeviceTime.csproj", "{804A99EA-E5C8-412A-8416-72B1001964BC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SetDevTime", "SetDevTime\SetDevTime.csproj", "{9E4D7FBB-CAAE-452A-BF83-47545D696A33}"
+EndProject
 Global
 	GlobalSection(SubversionScc) = preSolution
 		Svn-Managed = True
@@ -23,6 +27,16 @@ Global
 		{3798EB33-2200-4082-BB30-A6E54F9DE300}.Release|Any CPU.Deploy.0 = Release|Any CPU
 		{22192D2F-71C5-4B52-9A76-BD99ED1E19A5}.Debug|Any CPU.ActiveCfg = Debug
 		{22192D2F-71C5-4B52-9A76-BD99ED1E19A5}.Release|Any CPU.ActiveCfg = Release
+		{804A99EA-E5C8-412A-8416-72B1001964BC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{804A99EA-E5C8-412A-8416-72B1001964BC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{804A99EA-E5C8-412A-8416-72B1001964BC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{804A99EA-E5C8-412A-8416-72B1001964BC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9E4D7FBB-CAAE-452A-BF83-47545D696A33}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9E4D7FBB-CAAE-452A-BF83-47545D696A33}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9E4D7FBB-CAAE-452A-BF83-47545D696A33}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{9E4D7FBB-CAAE-452A-BF83-47545D696A33}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9E4D7FBB-CAAE-452A-BF83-47545D696A33}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9E4D7FBB-CAAE-452A-BF83-47545D696A33}.Release|Any CPU.Deploy.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

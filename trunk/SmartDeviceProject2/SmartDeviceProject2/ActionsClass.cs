@@ -8,8 +8,8 @@ namespace Familia.TSDClient
     public class ActionsClass
     {
         ScannedProductsDataSet _scannedProducts = new ScannedProductsDataSet();
-        Familia.TSDClient.ProductsDastaSet _products
-            = new ProductsDataSet();
+        Familia.TSDClient.ProductsDataSet _products
+            = new Familia.TSDClient.ProductsDataSet();
 
         public Familia.TSDClient.ProductsDataSet Products
         {
@@ -62,6 +62,11 @@ namespace Familia.TSDClient
 
         private ActionsClass()
         {
+            FamilTsdDB.DataTable.BaseDate =
+                Program.Default.BaseDate;
+            FamilTsdDB.DataTable.StartupPath =
+                Program.Default.DatabaseStoragePath;
+
             btPrint = BTPrintClass.PrintClass;
             dateFormat.ShortDatePattern = "dd.MM.yyyy";
             dateFormat.DateSeparator = ".";
@@ -640,7 +645,11 @@ namespace Familia.TSDClient
 
         public void LoadScannedData()
         {
+            if (!scannedTA.Opened)
+                scannedTA.Open();
+
             scannedTA.Fill(this._scannedProducts);
+            scannedTA.Close();
         }
         public void PlaySoundAsyncAction(ProductsDataSet.DocsTblRow docsRow)
         {
@@ -673,6 +682,8 @@ namespace Familia.TSDClient
             try
             {
                 ViewProductForm._mEvt.Reset();
+                if (!scannedTA.Opened)
+                    scannedTA.Open();
                 scannedTA.Update(this._scannedProducts);
             }
             finally
