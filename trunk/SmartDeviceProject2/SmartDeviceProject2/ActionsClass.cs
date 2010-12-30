@@ -467,6 +467,13 @@ namespace Familia.TSDClient
             PrintLabelAsync(datarow, docsRow);
             PlayVibroAsyncAction(docsRow);
             PlaySoundAsyncAction(docsRow);
+
+             ScannedProductsDataSet.ScannedBarcodesRow r =
+                _scannedProducts.ScannedBarcodes.FindByBarcodeDocTypeDocId(datarow.Barcode, docsRow.DocType, docsRow.DocId);
+             if (r != null)
+             {
+                 r.FactQuantity += 1;
+             }
             ////System.Threading.Thread.Sleep(1000);
             //ScannedProductsDataSet.ScannedBarcodesRow r = _scannedProducts.ScannedBarcodes.UpdateQuantity(
             //docsRow.Barcode, docsRow.DocType, 1);
@@ -739,13 +746,17 @@ namespace Familia.TSDClient
                     _scannedProducts.ScannedBarcodes.NewScannedBarcodesRow();
                 scannedRow.Barcode = barcode;
                 scannedRow.DocId = docId;
-                scannedRow.DocType =docType;
+                scannedRow.DocType = docType;
                 scannedRow.PlanQuanity = quantity;
                 scannedRow.Priority = priority;
                 scannedRow.ScannedDate = DateTime.Today;
+                scannedRow.FactQuantity = 0;
                 scannedRow.TerminalId = Program.TerminalId;
+
                 _scannedProducts.ScannedBarcodes.AddScannedBarcodesRow(scannedRow);
             }
+            
+            //scannedRow.FactQuantity += 1;
             return scannedRow;
         }
 

@@ -59,6 +59,9 @@ namespace Familia.TSDClient
 
             try
             {
+                //if (System.IO.File.Exists("BTLog.txt"))
+                //    System.IO.FileInfo fi = 
+                //        System.IO.File.g
                 using (System.IO.StreamWriter wr = new System.IO.StreamWriter(
                            System.IO.Path.Combine(Program.StartupPath, "BTLog.txt"), true))
                 {
@@ -909,7 +912,8 @@ T 92 0 20 158 TEST_ATTRIBUTE_006
 T 93 0 286 265 TEST_ATTRIBUTE_009
 T 93 0 40 265 TEST_ATTRIBUTE_005
 FORM
-PRINT";
+PRINT
+";
                 Print(label1);
             }
             finally

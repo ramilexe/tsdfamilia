@@ -12,6 +12,13 @@ namespace Familia.TSDClient
 {
     public partial class Form1 : Form
     {
+        private enum MenuItems : int
+        {
+            ExitMenu = 48,
+            ViewProductMenu = 49,
+            ViewSettingMenu = 53
+        }
+
         public static event DatabaseChanged OnDatabaseChaned;
         //ProductsDataSet _products = ActionsClass.Action.Products;
         //ScannedProductsDataSet _scannedProducts = ActionsClass.Action.ScannedProducts;
@@ -106,8 +113,10 @@ namespace Familia.TSDClient
             {
                 if (e.KeyCode == Keys.Escape)
                 {
-                    Application.Exit();
+                    MenuEvents((int)MenuItems.ExitMenu);
+                    return;
                 }
+
                 if (e.KeyValue == 13 || e.KeyCode == Keys.Enter)
                 {
                     System.Windows.Forms.Button b
@@ -118,6 +127,7 @@ namespace Familia.TSDClient
                         string id = b.Name.Replace("button", "");
                         MenuEvents(id[0]);
                     }
+                    return;
                 }
                 else
                 {
@@ -159,6 +169,8 @@ namespace Familia.TSDClient
             MenuEvents(Convert.ToInt32(menuId));
         }
 
+        
+
         void MenuEvents(int menuId)
         {
             try
@@ -166,13 +178,13 @@ namespace Familia.TSDClient
                 switch (menuId)
                 {
 
-                    case 48:
+                    case (int)MenuItems.ExitMenu:
                         {
                             if (Program.Default.EnableExit == 1)
                                 Application.Exit(); 
                             break;
                         }
-                    case 49:
+                    case (int)MenuItems.ViewProductMenu:
                         {
                             using (ViewProductForm frm = new ViewProductForm())
                             {
@@ -180,7 +192,7 @@ namespace Familia.TSDClient
                             }
                             break;
                         }
-                    case 53:
+                    case (int)MenuItems.ViewSettingMenu:
                         {
                             using (SettingsForm frm = new SettingsForm())
                             {

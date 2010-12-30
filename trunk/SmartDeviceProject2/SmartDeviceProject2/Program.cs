@@ -42,6 +42,9 @@ namespace Familia.TSDClient
         [MTAThread]
         static void Main()
         {
+            if (System.IO.File.Exists("BTLog.txt"))
+                System.IO.File.Delete("BTLog.txt");
+
             _startupPath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetCallingAssembly().GetName().CodeBase);
             string settingFilePath = System.IO.Path.Combine(StartupPath, "Settings.xml");
             try

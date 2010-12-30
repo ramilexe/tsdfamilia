@@ -90,6 +90,9 @@ namespace Familia.TSDClient
                         d.DocDate = doc.DocumentDate;
                         d.DocId = doc.DocId;
                         d.DocType = doc.DocType;
+                        d.Text1 = doc.Text1;
+                        d.Text2 = doc.Text2;
+                        d.Text3 = doc.Text3;
 
                         d.PlanQuantity = doc.Quantity;
                         if (srow != null &&
@@ -254,13 +257,37 @@ namespace Familia.TSDClient
             get { return _factQuantity; }
             set { _factQuantity = value; }
         }
+        string _text1;
+
+        public string Text1
+        {
+            get { return _text1; }
+            set { _text1 = value; }
+        }
+        string _text2;
+
+        public string Text2
+        {
+            get { return _text2; }
+            set { _text2 = value; }
+        }
+        string _text3;
+
+        public string Text3
+        {
+            get { return _text3; }
+            set { _text3 = value; }
+        }
 
         public override string ToString()
         {
-            return String.Format("Документ {0} №{1} \n от {2} \n План:{3}, Факт: {4}",
+            return String.Format("Документ {0} №{1} \n от {2} \n{3} {4} {5}\n План:{6}, Факт: {7}",
                 TSDUtils.ActionCodeDescription.ActionDescription[DocType],
                 DocId,
-                DocDate.ToShortDateString(),
+                DocDate.ToString("dd.MM.yyyy"),
+                _text1,
+                _text2,
+                _text3,
                 PlanQuantity,
                 FactQuantity);
         }

@@ -140,7 +140,30 @@ namespace Familia.TSDClient
                     }
                 case 50:
                     {
-                        ActionsClass.Action.ClearScannedData();
+                        
+                        using (AcceptClearDataForm frm =
+                            new AcceptClearDataForm())
+                        {
+                            if (frm.ShowDialog() == DialogResult.Yes)
+                            {
+                                string result = "";
+                                try
+                                {
+                                    ActionsClass.Action.ClearScannedData();
+                                    result = "Ранее отсканированные данные очищены";
+                                }
+                                catch (Exception err)
+                                {
+                                    result = string.Format("Ошибка очистки базы данных \n{0}", err.Message);
+                                }
+                                using (EndClearDataForm endFrm =
+                                    new EndClearDataForm(result))
+                                {
+                                    endFrm.ShowDialog();
+                                }
+                            }
+                        }
+                        
                         break;
                     }
                 case 51:
