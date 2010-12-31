@@ -134,16 +134,32 @@ namespace TSDServer
         [STAThread]
         static void Main(string[] args)
         {
-            //if (args.Length == 4 && args[0].ToLower() == "/c")
-            //{
-            //    MyApplicationContext context = new MyApplicationContext(args);
+            if (args.Length == 4 && args[0].ToLower() == "/c")
+            {
+                InProductName = args[1];
+                InDocName = args[2];
+                Properties.Settings.Default.LocalFilePath = args[3];
 
-            //    // Run the application with the specific context. It will exit when
-            //    // all forms are closed.
-            //    Application.Run(context);
-            //    return;
-            //}
-            
+                DataLoaderClass loader = new DataLoaderClass();
+                loader.OnFinishImport +=new DataLoaderClass.FinishImport(loader_OnFinishImport);
+                mEvt.Reset();
+                loader.AutoLoadProduct(InProductName);
+
+                if (mEvt.WaitOne(1000 * 15 * 60, false) == false)
+                {
+                    Console.WriteLine("ERROR LOAD PRODUCT - TIMEOUT");
+                }
+                
+                mEvt.Reset();
+                loader.AutoLoadDoc(InDocName);
+
+                if (mEvt.WaitOne(1000 * 15 * 60, false) == false)
+                {
+                    Console.WriteLine("ERROR LOAD DOCS - TIMEOUT");
+                }
+                return;
+            }
+            #region oldtest
             /*ProductsDataSet ds = new ProductsDataSet();
             
             using (System.IO.StreamWriter wr = new System.IO.StreamWriter("documents1.txt"))
@@ -274,7 +290,7 @@ WHERE     (ProductsBinTbl.Barcode = @b)", conn))
             //TSDUtils.ActionCode a = TSDUtils.ActionCode.Remove | TSDUtils.ActionCode.Reprice;
             //TSDUtils.ActionCode b = TSDUtils.ActionCode.Remove | TSDUtils.ActionCode.Returns;
             //TSDUtils.ActionCode c = TSDUtils.ActionCode.Remove | TSDUtils.ActionCode.Returns | TSDUtils.ActionCode.Reprice;
-           
+
             /*Array e = Enum.GetValues(typeof(TSDUtils.ActionCode));
             int counter = 0;
             byte[] bArray = new byte[e.Length];
@@ -304,7 +320,7 @@ WHERE     (ProductsBinTbl.Barcode = @b)", conn))
                 }
             }
             */
-
+            #endregion
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             mainForm = new Form1();
@@ -344,6 +360,11 @@ WHERE     (ProductsBinTbl.Barcode = @b)", conn))
                 //выходим из программы
                 
             }
+        }
+
+        static void loader_OnFinishImport(string fileName)
+        {
+            mEvt.Set();
         }
 
     }
