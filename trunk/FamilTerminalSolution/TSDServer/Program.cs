@@ -8,7 +8,7 @@ namespace TSDServer
 {
     static class Program
     {
-
+        /*
         class MyApplicationContext : ApplicationContext
         {
             Form1 mainForm = null;
@@ -101,7 +101,7 @@ namespace TSDServer
                 mEvt.Set();
             }
         }
-
+        */
         //главное окно программы
         static Form1 mainForm = null;
         public static bool AutoMode = false;
@@ -134,15 +134,15 @@ namespace TSDServer
         [STAThread]
         static void Main(string[] args)
         {
-            if (args.Length == 4 && args[0].ToLower() == "/c")
-            {
-                MyApplicationContext context = new MyApplicationContext(args);
+            //if (args.Length == 4 && args[0].ToLower() == "/c")
+            //{
+            //    MyApplicationContext context = new MyApplicationContext(args);
 
-                // Run the application with the specific context. It will exit when
-                // all forms are closed.
-                Application.Run(context);
-                return;
-            }
+            //    // Run the application with the specific context. It will exit when
+            //    // all forms are closed.
+            //    Application.Run(context);
+            //    return;
+            //}
             
             /*ProductsDataSet ds = new ProductsDataSet();
             

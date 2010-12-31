@@ -16,6 +16,7 @@
             if (disposing && (components != null))
             {
                 components.Dispose();
+                loader.Dispose();
             }
             base.Dispose(disposing);
         }
@@ -43,7 +44,7 @@
             this.выходToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.notifyIcon1 = new System.Windows.Forms.NotifyIcon(this.components);
             this.richTextBox1 = new System.Windows.Forms.RichTextBox();
-            this.productsDataSet1 = new TSDServer.ProductsDataSet();
+            //this.productsDataSet1 = new TSDServer.ProductsDataSet();
             this.stopGoodBtn = new System.Windows.Forms.Button();
             this.importDocBtn = new System.Windows.Forms.Button();
             this.stopDocsBtn = new System.Windows.Forms.Button();
@@ -53,7 +54,7 @@
             this.splitter1 = new System.Windows.Forms.Splitter();
             this.statusStrip1.SuspendLayout();
             this.contextMenuStrip1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.productsDataSet1)).BeginInit();
+           // ((System.ComponentModel.ISupportInitialize)(this.productsDataSet1)).BeginInit();
             this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -158,9 +159,9 @@
             // 
             // productsDataSet1
             // 
-            this.productsDataSet1.DataSetName = "ProductsDataSet";
-            this.productsDataSet1.SchemaSerializationMode = System.Data.SchemaSerializationMode.IncludeSchema;
-            // 
+            //this.productsDataSet1.DataSetName = "ProductsDataSet";
+            //this.productsDataSet1.SchemaSerializationMode = System.Data.SchemaSerializationMode.IncludeSchema;
+            //// 
             // stopGoodBtn
             // 
             this.stopGoodBtn.Image = global::TSDServer.Properties.Resources.StopHS;
@@ -253,7 +254,7 @@
             this.statusStrip1.ResumeLayout(false);
             this.statusStrip1.PerformLayout();
             this.contextMenuStrip1.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.productsDataSet1)).EndInit();
+            //((System.ComponentModel.ISupportInitialize)(this.productsDataSet1)).EndInit();
             this.panel1.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -269,7 +270,7 @@
         private System.Windows.Forms.StatusStrip statusStrip1;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
         private System.Windows.Forms.OpenFileDialog openFileDialog1;
-        private ProductsDataSet productsDataSet1;
+        
         private System.Windows.Forms.Timer timer1;
         private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
         private System.Windows.Forms.NotifyIcon notifyIcon1;

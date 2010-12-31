@@ -16,65 +16,21 @@ namespace TSDServer
 
         public System.Threading.Mutex mutex;
 
+        DataLoaderClass loader = new DataLoaderClass();
+
         OpenNETCF.Desktop.Communication.RAPI terminalRapi =
             new OpenNETCF.Desktop.Communication.RAPI();
 
         string[] status =
             new string[] { "Подключен", "Не подключен" };
-        System.Globalization.DateTimeFormatInfo dateFormat =
-                new System.Globalization.DateTimeFormatInfo();
-
-        System.Globalization.NumberFormatInfo nfi =
-                new System.Globalization.NumberFormatInfo();
-        int rowCounter = 0;
-        string[] cols = null;
-        int[] colsLength = null;
-        DateTime BaseDate = Properties.Settings.Default.BaseDate;
-
-        char fieldDelimeter = Properties.Settings.Default.FieldDelimeter[0];
-        public delegate void AddStringDelegate(string source);
-        
-        public delegate void StartImport(string fileName);
-        public delegate void ProcessImport(string Message, bool hasError);
-        public delegate void FinishImport(string fileName);
-        public delegate void FailedImport(string message);
-
-        public event ProcessImport OnProcessImport;
-        public event FinishImport OnFinishImport;
-        public event FailedImport OnFailedImport;
-        private System.Threading.Thread loadThread = null;
-        private bool Cancelled = false;
+       
         FileCopyProgressForm frm = new FileCopyProgressForm();
-        enum ImportModeEnum { Undefined = 0, Products = 1, Documents = 2 };
-        ImportModeEnum currentImportMode = ImportModeEnum.Undefined;
-        ProductsDataSetTableAdapters.ProductsTblTableAdapter productAdapter;
-        ProductsDataSetTableAdapters.DocsTblTableAdapter docsAdapter;
- 
-        //TSDUtils.CustomEncodingClass CustomEncodingClass MyEncoder = new CustomEncodingClass();
-
-        void SetFormats()
-        {
-            cols = new string[productsDataSet1.ProductsBinTbl.Columns.Count];
-            dateFormat.ShortDatePattern = Properties.Settings.Default.ShortDatePattern;
-            dateFormat.DateSeparator = Properties.Settings.Default.DateSeparator;
-            nfi.NumberDecimalSeparator = Properties.Settings.Default.NumberDecimalSeparator;
-
-            string [] colsLengthStr =
-                Properties.Settings.Default.FieldsLength.Split(';');
-            
-            colsLength = new int[colsLengthStr.Length];
-
-            for (int i = 0; i < colsLengthStr.Length; i++)
-            {
-                colsLength[i] = int.Parse(colsLengthStr[i]);
-            }
-
-        }
+        
 
         public Form1()
         {
             InitializeComponent();
-            SetFormats();
+            //SetFormats();
 
             mutex = new System.Threading.Mutex(false, "FAMILTSDSERVER");
             if (!mutex.WaitOne(0, false))
@@ -82,27 +38,39 @@ namespace TSDServer
                 mutex.Close();
                 mutex = null;
             }
-            productAdapter =
-                      new TSDServer.ProductsDataSetTableAdapters.ProductsTblTableAdapter(this.productsDataSet1);
+            loader.OnProcessImport += new DataLoaderClass.ProcessImport(Form1_OnProcessImport);
+            loader.OnFinishImport += new DataLoaderClass.FinishImport(Form1_OnFinishImport);
+            loader.OnFailedImport += new DataLoaderClass.FailedImport(Form1_OnFailedImport);
 
-            docsAdapter =
-                new TSDServer.ProductsDataSetTableAdapters.DocsTblTableAdapter(this.productsDataSet1);
+            //productAdapter =
+            //          new TSDServer.ProductsDataSetTableAdapters.ProductsTblTableAdapter(this.productsDataSet1);
+
+            //docsAdapter =
+            //    new TSDServer.ProductsDataSetTableAdapters.DocsTblTableAdapter(this.productsDataSet1);
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
-            if (loadThread != null)
+            if (loader.Processing)
             {
                 MessageBox.Show("Идет процесс загрузки!");
                 return;
             }
             //Cancelled = false;
-            //richTextBox1.Text = "";
-            //toolStripStatusLabel2.Text = "";
+
             if (openFileDialog1.ShowDialog() == DialogResult.OK)
             {
-                currentImportMode = ImportModeEnum.Products;
-                LoadFile(openFileDialog1.FileName);
+                richTextBox1.Text = "";
+                toolStripStatusLabel2.Text = "";
+                loader.AutoLoadProduct(openFileDialog1.FileName);
+                this.importGoodBtn.Enabled = false;
+                this.importDocBtn.Enabled = false;
+                this.uploadBtn.Enabled = false;
+                this.downloadBtn.Enabled = false;
+                this.settingsBtn.Enabled = false;
+                stopGoodBtn.Enabled = true;
+                stopDocsBtn.Enabled = false;
+
                 //currentImportMode = ImportModeEnum.Products;
                 //OnProcessImport += new ProcessImport(Form1_OnProcessImport);
                 //OnFinishImport += new FinishImport(Form1_OnFinishImport);
@@ -120,52 +88,13 @@ namespace TSDServer
             }
         }
 
-        public void AutoLoadDoc(string fileName)
-        {
-            currentImportMode = ImportModeEnum.Documents;
-            LoadFile(fileName);
-        }
-
-        private void LoadFile(string fileName)
-        {
-            Cancelled = false;
-            richTextBox1.Text = "";
-            toolStripStatusLabel2.Text = "";
-            //currentImportMode = ImportModeEnum.Products;
-            OnProcessImport += new ProcessImport(Form1_OnProcessImport);
-            OnFinishImport += new FinishImport(Form1_OnFinishImport);
-            OnFailedImport += new FailedImport(Form1_OnFailedImport);
-            loadThread = new System.Threading.Thread(new System.Threading.ParameterizedThreadStart(BeginImport));
-            loadThread.Start(fileName);
-            if (currentImportMode == ImportModeEnum.Documents)
-            {
-                stopGoodBtn.Enabled = true;
-                stopDocsBtn.Enabled = false;
-            }
-            else
-                if (currentImportMode == ImportModeEnum.Products)
-                {
-                    stopGoodBtn.Enabled = false;
-                    stopDocsBtn.Enabled = true;
-                }
-            this.importGoodBtn.Enabled = false;
-            this.importDocBtn.Enabled = false;
-            this.uploadBtn.Enabled = false;
-            this.downloadBtn.Enabled = false;
-            this.settingsBtn.Enabled = false;
-        }
-        public void AutoLoadProduct(string fileName)
-        {
-            currentImportMode = ImportModeEnum.Products;
-            LoadFile(fileName);
-        }
-
+       
 
         void Form1_OnFailedImport(string message)
         {
             if (this.InvokeRequired)
             {
-                FailedImport del = new FailedImport(Form1_OnFailedImport);
+                DataLoaderClass.FailedImport del = new DataLoaderClass.FailedImport(Form1_OnFailedImport);
                 this.Invoke(del, message);
             }
             else
@@ -179,7 +108,7 @@ namespace TSDServer
         {
             if (this.InvokeRequired)
             {
-                FinishImport del = new FinishImport(Form1_OnFinishImport);
+                DataLoaderClass.FinishImport del = new DataLoaderClass.FinishImport(Form1_OnFinishImport);
                 this.Invoke(del, fileName);
             }
             else
@@ -188,9 +117,9 @@ namespace TSDServer
                 //MessageBox.Show(message, "Статус загрузки на сервер", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     MessageBox.Show(string.Format(fileName), "Статус загрузки", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
-                OnProcessImport = null;
-                OnFinishImport = null;
-                OnFailedImport = null;
+                //DataLoaderClass.OnProcessImport = null;
+                //DataLoaderClass.OnFinishImport -= Form1_OnFinishImport;
+                //DataLoaderClass.OnFailedImport = null;
                 /*try
                 {
                     //loadThread.Join();
@@ -199,7 +128,7 @@ namespace TSDServer
                 }
                 catch { }*/
                 //loadThread.Join();
-                loadThread = null;
+               
                 
                 //stopGoodBtn.Enabled = false;
                 //this.importGoodBtn.Enabled = true;
@@ -222,7 +151,7 @@ namespace TSDServer
         {
             if (this.InvokeRequired)
             {
-                ProcessImport del = new ProcessImport(Form1_OnProcessImport);
+                DataLoaderClass.ProcessImport del = new DataLoaderClass.ProcessImport(Form1_OnProcessImport);
                 this.Invoke(del,Message,hasError);
             }
             else
@@ -234,507 +163,130 @@ namespace TSDServer
                 //MessageBox.Show(message, "Статус загрузки на сервер", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
-        
-        private void BeginImport(object _fileName)
-        {
-            
-            string fileName = _fileName.ToString();
-            try
-            {
-                bool IsFileFixed = Properties.Settings.Default.ImportFileTypeIsFixed;
-                AddStringDelegate del = null;
-                if (currentImportMode == ImportModeEnum.Products)
-                {
-                    this.productsDataSet1.CleanProducts();
-                    if (IsFileFixed)
-                        del = new AddStringDelegate(AddFixedStringProducts);
-                    else
-                        del = new AddStringDelegate(AddDelimetedStringProducts);
-                }
-                else
-                {
-                    if (currentImportMode == ImportModeEnum.Documents)
-                    {
-                        this.productsDataSet1.CleanDocs();
-                        if (IsFileFixed)
-                            del = new AddStringDelegate(AddFixedStringDocs);
-                        else
-                            del = new AddStringDelegate(AddDelimetedStringDocs);
-                    }
-                    else
-                        return;
-                }
 
-                rowCounter = 0;
-                using (System.IO.StreamReader rdr =
-                    new System.IO.StreamReader(fileName, Encoding.GetEncoding("windows-1251")))
-                {
 
-                    string s = string.Empty;
-                    while ((s = rdr.ReadLine()) != null )
-                    {
-                        if (Cancelled)
-                            return;
-                        del.Invoke(s);
-                        
-                    }
-                }
-            }
-            catch (System.Threading.ThreadAbortException)
-            {
-                if (OnFailedImport != null)
-                    OnFailedImport("Загрузка отменена... ");
-            }
-            catch (Exception err)
-            {
-                if (OnFailedImport != null)
-                    OnFailedImport("Ошибка: " + err.Message);
-                //MessageBox.Show("Ошибка: " + err.Message, "Статус загрузки на сервер", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            }
-            finally
-            {
-                Cancelled = false;
-                try
-                {
-                    if (currentImportMode == ImportModeEnum.Products)
-                    {
-                        productAdapter.Update(this.productsDataSet1);
-                    }
-
-                    if (currentImportMode == ImportModeEnum.Documents)
-                    {
-                        docsAdapter.Update(this.productsDataSet1);
-                    }
-
-                    this.productsDataSet1.AcceptChanges();
-                }
-                catch{}
-
-                if (OnFinishImport != null)
-                    OnFinishImport("Загрузка завершена...");
-            }
-        }
-
-        private void ParseColumn(int i, DataRow row)
-        {
-            if (row.Table.Columns[i].DataType ==
-                        typeof(System.Byte[]))
-            {
-                if (cols[i].Trim() != string.Empty)
-                {
-                    //using (System.IO.MemoryStream ms = new System.IO.MemoryStream())
-                    //{
-                        // Use the newly created memory stream for the compressed data.
-                        //using (stream = new System.IO.Compression.DeflateStream(ms, System.IO.Compression.CompressionMode.Compress))
-                        //{
-                    
-
-                    //byte[] buffer /*= System.Text.Encoding.GetBytes(cols[i].Trim());
-                    //buffer */= System.Text.Encoding.Unicode.GetBytes(cols[i].Trim());
-                    row[i] = TSDUtils.CustomEncodingClass.Encoding.GetBytes(cols[i].Trim());//buffer;
-                    //byte[] newBuff = Encoding.Convert(Encoding.Default, Encoding.ASCII, buffer);
-                    /*stream.Write(buffer, 0, buffer.Length);
-                    stream.Flush();
-                    stream.Close();
-                    byte[] outBuffer = ms.ToArray();*/
-                    //row[i] = Compressor.Compress(buffer);
-                    
-
-      
-                        //}
-                    //}
-                        
-                    
-                }
-                return;
-            }
-            if (!String.IsNullOrEmpty(cols[i].Trim()))
-            {
-                if (row.Table.Columns[i].DataType ==
-                    typeof(string))
-                {
-                    row[i] = cols[i].Trim();
-                    return;
-                    //continue;
-                }
-                if (row.Table.Columns[i].DataType == 
-                    typeof(System.Int64)
-                    )
-                {
-                    row[i] = System.Int64.Parse(cols[i].Trim());
-                    return;
-                    //continue;
-                }
-                if (row.Table.Columns[i].DataType ==
-                   typeof(System.Byte))
-                {
-                    row[i] = System.Byte.Parse(cols[i].Trim());
-                    return;
-                    //continue;
-                }
-                if (row.Table.Columns[i].DataType ==
-                   typeof(System.Int16))
-                {
-                    row[i] = System.Int16.Parse(cols[i].Trim());
-                    return;
-                    //continue;
-                }
-                if (row.Table.Columns[i].DataType ==
-                   typeof(System.Int32))
-                {
-                    row[i] = System.Int32.Parse(cols[i].Trim());
-                    return;
-                    //continue;
-                }
-                if (row.Table.Columns[i].DataType ==
-                   typeof(System.Single))
-                {
-                    row[i] = System.Single.Parse(cols[i].Trim(),nfi);
-                    return;
-                    //continue;
-                }
-
-
-                if (row.Table.Columns[i].DataType ==
-                    typeof(DateTime))
-                {
-                    row[i] = DateTime.Parse(cols[i].Trim(), dateFormat);
-                    return;
-                    //continue;
-                }
-
-                if (row.Table.Columns[i].DataType ==
-                   typeof(decimal))
-                {
-                    row[i] = Decimal.Parse(cols[i].Trim(), nfi);
-                    return;
-                    //continue;
-                }
-            }
-        }
-        private void AddFixedStringProducts(string s)
-        {
-
-            cols = new string[productsDataSet1.ProductsTbl.Columns.Count];
-
-            ProductsDataSet.ProductsTblRow row =
-                this.productsDataSet1.ProductsTbl.NewProductsTblRow();
-
-            cols[0] = s.Substring(0, colsLength[0]);
-            int readedLength = -1;//;colsLength[0];
-
-
-            if (String.IsNullOrEmpty(cols[0].Trim())
-                //|| cols[0].Trim() == "0" 
-                //|| cols[0].Trim() == "9999999999999"
-                )
-            {
-                if (OnProcessImport != null)
-                    OnProcessImport(string.Format("Штрихкод неверный - строка пропущена {0}\n", s), true);
-                return;
-            }
-           
-            for (int i = 0; i <  productsDataSet1.ProductsTbl.Columns.Count; i++)
-            {
-                try
-                {
-                    cols[i] = s.Substring(readedLength+1, colsLength[i]);
-                    readedLength = readedLength + colsLength[i] + 1;
-
-                    ParseColumn(i, row);
-
-                   
-                }
-                catch (Exception err)
-                {
-                   if (OnProcessImport != null)
-                        OnProcessImport(string.Format("Ошибка в строке: {0}: {1}\n", s,err.Message), true);
-                    
-                }
-            }
-            //Test(row);
-            this.productsDataSet1.ProductsTbl.AddProductsTblRow(row);
-            rowCounter++;
-            if (OnProcessImport != null)
-                OnProcessImport(rowCounter.ToString(), false);
-
-        }
-
-        private void AddDelimetedStringProducts(string s)
-        {
-
-            cols = s.Split(fieldDelimeter);
-            
-            ProductsDataSet.ProductsTblRow row =
-                this.productsDataSet1.ProductsTbl.NewProductsTblRow();
-
-
-
-
-            if (String.IsNullOrEmpty(cols[0].Trim()) 
-                //||    cols[0].Trim() == "0" ||
-            //    cols[0].Trim() == "9999999999999"
-            )
-            {
-                 if (OnProcessImport != null)
-                     OnProcessImport(string.Format("Штрихкод неверный - строка пропущена {0}\n", s), true);
-                return;
-            }
-
-
-            for (int i = 0; i < productsDataSet1.ProductsTbl.Columns.Count; i++)
-            {
-                try
-                {
-
-
-                    ParseColumn(i, row);
-
-                }
-                catch (Exception err)
-                {
-                    if (OnProcessImport != null)
-                        OnProcessImport(string.Format("Ошибка в строке: {0}: {1}\n", s, err.Message), true);
-                    
-                }
-            }
-            //Test(row);
-            this.productsDataSet1.ProductsTbl.AddProductsTblRow(row);
-            rowCounter++;
-            if (OnProcessImport != null)
-                OnProcessImport(rowCounter.ToString(), false);
-            
-
-        }
-
-        private void AddDelimetedStringDocs(string s)
-        {
-
-            cols = s.Split(fieldDelimeter);
-
-            ProductsDataSet.DocsTblRow row =
-                this.productsDataSet1.DocsTbl.NewDocsTblRow();
-
-            if (String.IsNullOrEmpty(cols[0].Trim()) ||
-                cols[0].Trim() == "0" ||
-                cols[0].Trim() == "9999999999999")
-            {
-                if (OnProcessImport != null)
-                    OnProcessImport(string.Format("Штрихкод неверный - строка пропущена {0}\n", s), true);
-                return;
-            }
-
-
-            for (int i = 0; i < this.productsDataSet1.DocsTbl.Columns.Count; i++)
-            {
-                try
-                {
-                    ParseColumn(i, row);
-
-                }
-                catch (Exception err)
-                {
-                    if (OnProcessImport != null)
-                        OnProcessImport(string.Format("Ошибка в строке: {0}: {1}\n", s, err.Message), true);
-
-                }
-            }
-
-            //ProductsDataSet.DocsBinTblRow docRow = 
-            //    this.productsDataSet1.DocsBinTbl.NewDocsBinTblRow();
-            //docRow.Barcode = row.Barcode;
-            //docRow.DocId = TSDUtils.CustomEncodingClass.Encoding.GetBytes(
-            //    row.DocType.ToString("00")/*тип документа*/+ row.DocId//docid
-            //            );
-            //docRow.Priority = (System.Int16)(row.Priority | (row.WorkMode << 14));
-            //docRow.Quantity = row.Quantity;
-            //docRow.RePriceDate = (short)row.RePriceDate.Subtract(BaseDate).Days;
-            //docRow.ReturnDate = (short)row.ReturnDate.Subtract(BaseDate).Days;
-            ////int shablon = row.LabelCode ;
-            ////        shablon = row.LabelCode| (row.MusicCode << 3);
-            ////        shablon = (row.LabelCode| (row.MusicCode << 3)) | (row.VibroCode << 6);
-            //docRow.Shablon =
-            //    (row.LabelCode | (row.MusicCode << 3)) | (row.VibroCode << 6);
-            //docRow.Text1 = TSDUtils.CustomEncodingClass.Encoding.GetBytes(row.Text1);
-            //docRow.Text2 = TSDUtils.CustomEncodingClass.Encoding.GetBytes(row.Text2);
-            //docRow.Text3 = TSDUtils.CustomEncodingClass.Encoding.GetBytes(row.Text3);
-
-            this.productsDataSet1.DocsTbl.AddDocsTblRow(row);
-            rowCounter++;
-            if (OnProcessImport != null)
-                OnProcessImport(rowCounter.ToString(), false);
-
-
-        }
-
-        private void AddFixedStringDocs(string s)
-        {
-            cols = new string[productsDataSet1.DocsTbl.Columns.Count];
-
-            ProductsDataSet.DocsTblRow row =
-                this.productsDataSet1.DocsTbl.NewDocsTblRow();
-
-            cols[0] = s.Substring(0, colsLength[0]);
-            int readedLength = -1;//;colsLength[0];
-
-
-            if (String.IsNullOrEmpty(cols[0].Trim()) ||
-                cols[0].Trim() == "0" ||
-                cols[0].Trim() == "9999999999999")
-            {
-                if (OnProcessImport != null)
-                    OnProcessImport(string.Format("Штрихкод неверный - строка пропущена {0}\n", s), true);
-                return;
-            }
-
-            for (int i = 0; i < productsDataSet1.DocsTbl.Columns.Count; i++)
-            {
-                try
-                {
-                    cols[i] = s.Substring(readedLength + 1, colsLength[i]);
-                    readedLength = readedLength + colsLength[i] + 1;
-
-                    ParseColumn(i, row);
-
-
-                }
-                catch (Exception err)
-                {
-                    if (OnProcessImport != null)
-                        OnProcessImport(string.Format("Ошибка в строке: {0}: {1}\n", s, err.Message), true);
-
-                }
-            }
-
-            //ProductsDataSet.DocsBinTblRow docRow =
-            //  this.productsDataSet1.DocsBinTbl.NewDocsBinTblRow();
-            this.productsDataSet1.DocsTbl.AddDocsTblRow(row);
-
-            rowCounter++;
-            if (OnProcessImport != null)
-                OnProcessImport(rowCounter.ToString(), false);
-        }
-        
-        System.Random r = new Random();
-        private void Test(ProductsDataSet.ProductsBinTblRow row)
-        {
-            return;
-            int r1 = rowCounter % 10;//отработаем одну из 10 строк
-            if (r1 != 0)
-                return;
-
-
-            int docQuantity = r.Next(5)+1;
-            for (int i = 0; i < docQuantity; i++)
-            {
-
-                byte docType = 0;
-                do
-                {
-                    docType = (byte)r.Next(5);
-                }
-                while (docType==0);
-
-                int docs = 1;
-                if (docType == (byte)TSDUtils.ActionCode.Remove)
-                {
-                    //для перемещения сделаем несколько документов
-                    docs = r.Next(5)+1;
-                }
-                for (int j = 0; j < docs; j++)
-                {
-                    ProductsDataSet.DocsBinTblRow docRow =
-                        this.productsDataSet1.DocsBinTbl.NewDocsBinTblRow();
-
-                    docRow.Barcode = row.Barcode;
-                    //docRow.DocType = docType;
-                    docRow.DocId = TSDUtils.CustomEncodingClass.Encoding.GetBytes(
-                       docType.ToString("00")+ (i + 1).ToString()+"-"+j.ToString()//docid
-                        );
-
-                    byte LabelCode = (byte)r.Next(4);
-                    byte MusicCode = (byte)r.Next(4);
-                    byte VibroCode = (byte)r.Next(4);
-
-                    int shablon = LabelCode ;
-                    shablon = shablon | (MusicCode << 3);
-                    shablon = shablon | (VibroCode << 6);
-                    docRow.Shablon = shablon;
-
-                    if (docType == (byte)TSDUtils.ActionCode.Remove)
-                    {
-                        docRow.Priority = (System.Int16)(j | ((byte)TSDUtils.WorkMode.ByPriority << 14));
-                        //docRow.WorkMode = (byte)TSDUtils.WorkMode.ByPriority;
-                        //docRow.Priority = j;
-                        docRow.Quantity = r.Next(100) + 1;
-                    }
-                    else
-                    {
-                        //docRow.WorkMode = (byte)TSDUtils.WorkMode.Always;
-                        docRow.Priority = 0; //Always=0 и proirity=0
-                    }
-                    if (docType == (byte)TSDUtils.ActionCode.Reprice)
-                    {
-                        docRow.RePriceDate = (short)DateTime.Today.Subtract(BaseDate).Days;
-                    }
-
-                    if (docType == (byte)TSDUtils.ActionCode.Returns)
-                    {
-                        docRow.ReturnDate = (short)DateTime.Today.Subtract(BaseDate).Days;
-                    }
-                    docRow.Text1 = TSDUtils.CustomEncodingClass.Encoding.GetBytes("text1");
-                    docRow.Text2 = TSDUtils.CustomEncodingClass.Encoding.GetBytes("text1");
-                    docRow.Text3 = TSDUtils.CustomEncodingClass.Encoding.GetBytes("text1");
-
-                    this.productsDataSet1.DocsBinTbl.AddDocsBinTblRow(docRow);
-
-                }
+        #region test old
+        //System.Random r = new Random();
+        //private void Test(ProductsDataSet.ProductsBinTblRow row)
+        //{
+        //    return;
+        //    int r1 = rowCounter % 10;//отработаем одну из 10 строк
+        //    if (r1 != 0)
+        //        return;
+
+
+        //    int docQuantity = r.Next(5)+1;
+        //    for (int i = 0; i < docQuantity; i++)
+        //    {
+
+        //        byte docType = 0;
+        //        do
+        //        {
+        //            docType = (byte)r.Next(5);
+        //        }
+        //        while (docType==0);
+
+        //        int docs = 1;
+        //        if (docType == (byte)TSDUtils.ActionCode.Remove)
+        //        {
+        //            //для перемещения сделаем несколько документов
+        //            docs = r.Next(5)+1;
+        //        }
+        //        for (int j = 0; j < docs; j++)
+        //        {
+        //            ProductsDataSet.DocsBinTblRow docRow =
+        //                this.productsDataSet1.DocsBinTbl.NewDocsBinTblRow();
+
+        //            docRow.Barcode = row.Barcode;
+        //            //docRow.DocType = docType;
+        //            docRow.DocId = TSDUtils.CustomEncodingClass.Encoding.GetBytes(
+        //               docType.ToString("00")+ (i + 1).ToString()+"-"+j.ToString()//docid
+        //                );
+
+        //            byte LabelCode = (byte)r.Next(4);
+        //            byte MusicCode = (byte)r.Next(4);
+        //            byte VibroCode = (byte)r.Next(4);
+
+        //            int shablon = LabelCode ;
+        //            shablon = shablon | (MusicCode << 3);
+        //            shablon = shablon | (VibroCode << 6);
+        //            docRow.Shablon = shablon;
+
+        //            if (docType == (byte)TSDUtils.ActionCode.Remove)
+        //            {
+        //                docRow.Priority = (System.Int16)(j | ((byte)TSDUtils.WorkMode.ByPriority << 14));
+        //                //docRow.WorkMode = (byte)TSDUtils.WorkMode.ByPriority;
+        //                //docRow.Priority = j;
+        //                docRow.Quantity = r.Next(100) + 1;
+        //            }
+        //            else
+        //            {
+        //                //docRow.WorkMode = (byte)TSDUtils.WorkMode.Always;
+        //                docRow.Priority = 0; //Always=0 и proirity=0
+        //            }
+        //            if (docType == (byte)TSDUtils.ActionCode.Reprice)
+        //            {
+        //                docRow.RePriceDate = (short)DateTime.Today.Subtract(BaseDate).Days;
+        //            }
+
+        //            if (docType == (byte)TSDUtils.ActionCode.Returns)
+        //            {
+        //                docRow.ReturnDate = (short)DateTime.Today.Subtract(BaseDate).Days;
+        //            }
+        //            docRow.Text1 = TSDUtils.CustomEncodingClass.Encoding.GetBytes("text1");
+        //            docRow.Text2 = TSDUtils.CustomEncodingClass.Encoding.GetBytes("text1");
+        //            docRow.Text3 = TSDUtils.CustomEncodingClass.Encoding.GetBytes("text1");
+
+        //            this.productsDataSet1.DocsBinTbl.AddDocsBinTblRow(docRow);
+
+        //        }
                 
-            }
-            /*
-            Array vals = Enum.GetValues(typeof(TSDUtils.ActionCode));
-            Array vals1 = Enum.GetValues(typeof(TSDUtils.ShablonCode));
-            byte c = 0;
+        //    }
+        //    /*
+        //    Array vals = Enum.GetValues(typeof(TSDUtils.ActionCode));
+        //    Array vals1 = Enum.GetValues(typeof(TSDUtils.ShablonCode));
+        //    byte c = 0;
 
 
-            for (int k = 0; k < 5; k++)
-            {
-                int b = 0;
-                Double d = Math.Round(r.NextDouble());//произвольное число от 0 до 1
-                //при округлении получаем случайное значение 0 или 1
-                b = (byte)((byte)vals.GetValue(k) * ((byte)d));//Если d=0, то указанный k-й код действия не используется,
-                //иначе, если 1 - то используется
-                c = (byte)(b | c);//суммируем все биты
-            }
-            uint sum = 0;
-            //по каждому биту действия
-            for (byte k = 0; k < 8; k++)
-            {
-                //определить произвольный код шаблона
-                byte d1 = (byte)r.Next(8);
-                //код действия
-                byte b1 = (byte)(1 << k);//Math.Pow(2, k);
+        //    for (int k = 0; k < 5; k++)
+        //    {
+        //        int b = 0;
+        //        Double d = Math.Round(r.NextDouble());//произвольное число от 0 до 1
+        //        //при округлении получаем случайное значение 0 или 1
+        //        b = (byte)((byte)vals.GetValue(k) * ((byte)d));//Если d=0, то указанный k-й код действия не используется,
+        //        //иначе, если 1 - то используется
+        //        c = (byte)(b | c);//суммируем все биты
+        //    }
+        //    uint sum = 0;
+        //    //по каждому биту действия
+        //    for (byte k = 0; k < 8; k++)
+        //    {
+        //        //определить произвольный код шаблона
+        //        byte d1 = (byte)r.Next(8);
+        //        //код действия
+        //        byte b1 = (byte)(1 << k);//Math.Pow(2, k);
 
-                byte b = (byte)(c & b1);
-                if (b != 0)//если код действия продукта содержит необходимый код действия 
-                {
-                    uint b2 = (uint)(d1 << (3 * k));//сдвигаем кажый код шаблона (3 бит)
-                    //на 3k разрядов влево (код шаблона 0,1,3,4...n умножить на (2^3*k)
-                    //k=0=>2^0 = 1, код =0,1,2,3...
-                    //k=1=>2^3 = 8,код = 0,8,16,24,...
-                    //k=2=>2^6 = 16, код = 0,64,128,192...
-                    sum = sum | b2;
-                    //sum += b2;//суммируем - складываем полученные биты
-                }
-                //c = (byte)(b*Math.Pow( | c);
+        //        byte b = (byte)(c & b1);
+        //        if (b != 0)//если код действия продукта содержит необходимый код действия 
+        //        {
+        //            uint b2 = (uint)(d1 << (3 * k));//сдвигаем кажый код шаблона (3 бит)
+        //            //на 3k разрядов влево (код шаблона 0,1,3,4...n умножить на (2^3*k)
+        //            //k=0=>2^0 = 1, код =0,1,2,3...
+        //            //k=1=>2^3 = 8,код = 0,8,16,24,...
+        //            //k=2=>2^6 = 16, код = 0,64,128,192...
+        //            sum = sum | b2;
+        //            //sum += b2;//суммируем - складываем полученные биты
+        //        }
+        //        //c = (byte)(b*Math.Pow( | c);
 
-            }
+        //    }
 
-            uint res = TSDUtils.ActionCodeDescription.ActionDescription.GetShablon(c, sum);
-            row.ActionCode = c;
-            row.SoundCode = (int)sum;
-            row.Shablon = (int)sum;*/
-        }
+        //    uint res = TSDUtils.ActionCodeDescription.ActionDescription.GetShablon(c, sum);
+        //    row.ActionCode = c;
+        //    row.SoundCode = (int)sum;
+        //    row.Shablon = (int)sum;*/
+        //}
+        #endregion
         private void button2_Click(object sender, EventArgs e)
         {
             try
@@ -750,7 +302,7 @@ namespace TSDServer
                     OpenNETCF.Desktop.Communication.RAPICopingHandler onCopyDelegate = 
                         new OpenNETCF.Desktop.Communication.RAPICopingHandler(terminalRapi_RAPIFileCoping);
                     terminalRapi.RAPIFileCoping += onCopyDelegate;
-                    foreach (string fileName in productAdapter.FileList)
+                    foreach (string fileName in loader.ProductsFileList)
                     {
                         if (System.IO.File.Exists(fileName))
                         {
@@ -769,7 +321,7 @@ namespace TSDServer
                             }
                         }
                     }
-                    foreach (string fileName in docsAdapter.FileList)
+                    foreach (string fileName in loader.DocsFileList)
                     {
                         if (System.IO.File.Exists(fileName))
                         {
@@ -988,9 +540,6 @@ namespace TSDServer
             }
             else
             {
-                productAdapter.Dispose();
-                docsAdapter.Dispose();
-
                 mutex.ReleaseMutex();
                 mutex = null;
             }
@@ -1017,18 +566,20 @@ namespace TSDServer
             {
                 this.Show();
             }
+            else
+                this.BringToFront();
         }
 
         private void button4_Click(object sender, EventArgs e)
         {
-            if (loadThread != null)
+            if (loader.Processing)
             {
                 if (MessageBox.Show("Вы хотите остановить загрузку ?", "Загрузка данных", MessageBoxButtons.YesNo, MessageBoxIcon.Question)
                     == DialogResult.Yes)
                 {
                     try
                     {
-                        Cancelled = true;
+                        loader.Cancel();
                         richTextBox1.AppendText("Отмена загрузки...\n");
                         richTextBox1.AppendText("Дождитесь завершения... \n");
                         //if ((int)(loadThread.ThreadState&System.Threading.ThreadState.Running) != 0)
@@ -1057,7 +608,7 @@ namespace TSDServer
 
         private void importDocBtn_Click(object sender, EventArgs e)
         {
-            if (loadThread != null)
+            if (loader.Processing)
             {
                 MessageBox.Show("Идет процесс загрузки!");
                 return;
@@ -1069,8 +620,17 @@ namespace TSDServer
             
             if (openFileDialog1.ShowDialog() == DialogResult.OK)
             {
-                currentImportMode = ImportModeEnum.Documents;
-                LoadFile(openFileDialog1.FileName);
+                richTextBox1.Text = "";
+                toolStripStatusLabel2.Text = "";
+                //currentImportMode = ImportModeEnum.Documents;
+                loader.AutoLoadDoc(openFileDialog1.FileName);
+                stopGoodBtn.Enabled = false;
+                stopDocsBtn.Enabled = true;
+                this.importGoodBtn.Enabled = false;
+                this.importDocBtn.Enabled = false;
+                this.uploadBtn.Enabled = false;
+                this.downloadBtn.Enabled = false;
+                this.settingsBtn.Enabled = false;
                 //OnProcessImport += new ProcessImport(Form1_OnProcessImport);
                 //OnFinishImport += new FinishImport(Form1_OnFinishImport);
                 //OnFailedImport += new FailedImport(Form1_OnFailedImport);
@@ -1095,14 +655,10 @@ namespace TSDServer
             try
             {
                 //OpenNETCF.Desktop.Communication.FileList fl = terminalRapi.EnumFiles(Properties.Settings.Default.TSDDBPAth + "ScannedBarcodes.db");
-                TSDServer.ScannedProductsDataSet scannedDs =
-                    new TSDServer.ScannedProductsDataSet();
-                TSDServer.ScannedProductsDataSetTableAdapters.ScannedBarcodesTableAdapter scannedTA =
-                    new TSDServer.ScannedProductsDataSetTableAdapters.ScannedBarcodesTableAdapter(scannedDs);
-
+               
                 terminalRapi.Connect(true, 5000);
 
-                foreach (string s in scannedTA.FileList)
+                foreach (string s in loader.ScannedFileList)
                 {
                     string ext = Path.GetExtension(s).ToUpper();
                     terminalRapi.CopyFileFromDevice(s,
@@ -1110,57 +666,9 @@ namespace TSDServer
                         //"\\Program Files\\tsdfamilia\\" + 
                         Path.GetFileName(s));
                 }
-                scannedTA.Fill(scannedDs);
-                using (System.IO.StreamWriter wr = new StreamWriter(
-                    Path.Combine(
-                    Properties.Settings.Default.LocalFilePath,
-                    "scannedbarcodes.txt"), false))
-                {
-                    foreach (System.Data.DataRow row1 in
-                        scannedDs.ScannedBarcodes.Rows)
-                    {
-                        TSDServer.ScannedProductsDataSet.ScannedBarcodesRow row =
-                            (TSDServer.ScannedProductsDataSet.ScannedBarcodesRow)row1;
 
-                        string s =
-                            string.Format("{0}|{1}|{2}|{3}|{4}|{5}|", row.Barcode, row.DocId, row.DocType, row.FactQuantity, row.ScannedDate,row.TerminalId);
-                        wr.WriteLine(s);
-                    }
-                    wr.Flush();
-                    wr.Close();
-                }
-                using (System.IO.StreamWriter wr = new StreamWriter(
-                    Path.Combine(
-                    Properties.Settings.Default.LocalFilePath,
-                    "register.txt"), false))
-                {
-                    foreach (System.Data.DataRow row1 in
-                        scannedDs.ScannedBarcodes.Rows)
-                    {
-                        TSDServer.ScannedProductsDataSet.ScannedBarcodesRow row =
-                            (TSDServer.ScannedProductsDataSet.ScannedBarcodesRow)row1;
+                loader.UploadResults();
 
-                        if (row.DocType == (byte)TSDUtils.ActionCode.Reprice)
-                        {
-                            //ProductsDataSet.ProductsTblRow prodRow = 
-                            //    productsDataSet1.ProductsTbl.FindByBarcode(row.Barcode);
-                            //if (prodRow != null)
-                            //{
-                            string s =
-                                string.Format("{0},{1,11:D}, {1,7:D}", 
-                                row.Barcode,
-                                1,
-                                //prodRow.NewPrice,
-                                row.FactQuantity);
-                            wr.WriteLine(s);
-                            //}
-                        }
-                    }
-                    
-
-                    wr.Flush();
-                    wr.Close();
-                }
                 richTextBox1.AppendText("Загрузка завершена...\n");
                 //terminalRapi.CopyFileToDevice("register.txt", System.IO.Path.Combine(
                 //        Properties.Settings.Default.TSDDBPAth, "register.txt"));
