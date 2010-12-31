@@ -17,20 +17,20 @@
         <xs:element name="ScannedBarcodes" msprop:Generator_UserTableName="ScannedBarcodes" msprop:Generator_RowDeletedName="ScannedBarcodesRowDeleted" msprop:Generator_RowChangedName="ScannedBarcodesRowChanged" msprop:Generator_RowClassName="ScannedBarcodesRow" msprop:Generator_RowChangingName="ScannedBarcodesRowChanging" msprop:Generator_RowEvArgName="ScannedBarcodesRowChangeEvent" msprop:Generator_RowEvHandlerName="ScannedBarcodesRowChangeEventHandler" msprop:Generator_TableClassName="ScannedBarcodesDataTable" msprop:Generator_TableVarName="tableScannedBarcodes" msprop:Generator_RowDeletingName="ScannedBarcodesRowDeleting" msprop:Generator_TablePropName="ScannedBarcodes">
           <xs:complexType>
             <xs:sequence>
-              <xs:element name="Barcode" msprop:Generator_UserColumnName="Barcode" msprop:Generator_ColumnVarNameInTable="columnBarcode" msprop:Generator_ColumnPropNameInRow="Barcode" msprop:Generator_ColumnPropNameInTable="BarcodeColumn" type="xs:long" />
-              <xs:element name="DocId" msprop:Generator_UserColumnName="DocId" msprop:Generator_ColumnPropNameInRow="DocId" msprop:Generator_ColumnVarNameInTable="columnDocId" msprop:Generator_ColumnPropNameInTable="DocIdColumn">
+              <xs:element name="Barcode" msprop:Generator_UserColumnName="Barcode" msprop:Generator_ColumnPropNameInRow="Barcode" msprop:Generator_ColumnVarNameInTable="columnBarcode" msprop:Generator_ColumnPropNameInTable="BarcodeColumn" type="xs:long" />
+              <xs:element name="DocId" msprop:Generator_UserColumnName="DocId" msprop:Generator_ColumnVarNameInTable="columnDocId" msprop:Generator_ColumnPropNameInRow="DocId" msprop:Generator_ColumnPropNameInTable="DocIdColumn">
                 <xs:simpleType>
                   <xs:restriction base="xs:string">
                     <xs:maxLength value="20" />
                   </xs:restriction>
                 </xs:simpleType>
               </xs:element>
-              <xs:element name="DocType" msprop:Generator_UserColumnName="DocType" msprop:Generator_ColumnPropNameInRow="DocType" msprop:Generator_ColumnVarNameInTable="columnDocType" msprop:Generator_ColumnPropNameInTable="DocTypeColumn" type="xs:unsignedByte" default="0" />
-              <xs:element name="FactQuantity" msprop:Generator_UserColumnName="FactQuantity" msprop:Generator_ColumnPropNameInRow="FactQuantity" msprop:Generator_ColumnVarNameInTable="columnFactQuantity" msprop:Generator_ColumnPropNameInTable="FactQuantityColumn" type="xs:int" default="0" minOccurs="0" />
-              <xs:element name="ScannedDate" msprop:Generator_UserColumnName="ScannedDate" msprop:Generator_ColumnPropNameInRow="ScannedDate" msprop:Generator_ColumnVarNameInTable="columnScannedDate" msprop:Generator_ColumnPropNameInTable="ScannedDateColumn" type="xs:dateTime" minOccurs="0" />
-              <xs:element name="PlanQuanity" msprop:Generator_UserColumnName="PlanQuanity" msprop:Generator_ColumnVarNameInTable="columnPlanQuanity" msprop:Generator_ColumnPropNameInRow="PlanQuanity" msprop:Generator_ColumnPropNameInTable="PlanQuanityColumn" type="xs:int" default="0" minOccurs="0" />
-              <xs:element name="Priority" msprop:Generator_UserColumnName="Priority" msprop:Generator_ColumnVarNameInTable="columnPriority" msprop:Generator_ColumnPropNameInRow="Priority" msprop:Generator_ColumnPropNameInTable="PriorityColumn" type="xs:unsignedByte" default="0" minOccurs="0" />
-              <xs:element name="TerminalId" msprop:Generator_UserColumnName="TerminalId" msprop:Generator_ColumnVarNameInTable="columnTerminalId" msprop:Generator_ColumnPropNameInRow="TerminalId" msprop:Generator_ColumnPropNameInTable="TerminalIdColumn" type="xs:int" default="0" minOccurs="0" />
+              <xs:element name="DocType" msprop:Generator_UserColumnName="DocType" msprop:Generator_ColumnVarNameInTable="columnDocType" msprop:Generator_ColumnPropNameInRow="DocType" msprop:Generator_ColumnPropNameInTable="DocTypeColumn" type="xs:unsignedByte" default="0" />
+              <xs:element name="FactQuantity" msprop:Generator_UserColumnName="FactQuantity" msprop:Generator_ColumnVarNameInTable="columnFactQuantity" msprop:Generator_ColumnPropNameInRow="FactQuantity" msprop:Generator_ColumnPropNameInTable="FactQuantityColumn" type="xs:int" default="0" minOccurs="0" />
+              <xs:element name="ScannedDate" msprop:Generator_UserColumnName="ScannedDate" msprop:Generator_ColumnVarNameInTable="columnScannedDate" msprop:Generator_ColumnPropNameInRow="ScannedDate" msprop:Generator_ColumnPropNameInTable="ScannedDateColumn" type="xs:dateTime" minOccurs="0" />
+              <xs:element name="PlanQuanity" msprop:Generator_UserColumnName="PlanQuanity" msprop:Generator_ColumnPropNameInRow="PlanQuanity" msprop:Generator_ColumnVarNameInTable="columnPlanQuanity" msprop:Generator_ColumnPropNameInTable="PlanQuanityColumn" type="xs:int" default="0" minOccurs="0" />
+              <xs:element name="Priority" msprop:Generator_UserColumnName="Priority" msprop:Generator_ColumnPropNameInRow="Priority" msprop:Generator_ColumnVarNameInTable="columnPriority" msprop:Generator_ColumnPropNameInTable="PriorityColumn" type="xs:unsignedByte" default="0" minOccurs="0" />
+              <xs:element name="TerminalId" msprop:Generator_UserColumnName="TerminalId" msprop:Generator_ColumnPropNameInRow="TerminalId" msprop:Generator_ColumnVarNameInTable="columnTerminalId" msprop:Generator_ColumnPropNameInTable="TerminalIdColumn" type="xs:int" default="0" minOccurs="0" />
             </xs:sequence>
           </xs:complexType>
         </xs:element>

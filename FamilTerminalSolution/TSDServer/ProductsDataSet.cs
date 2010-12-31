@@ -233,8 +233,7 @@ namespace TSDServer.ProductsDataSetTableAdapters
         public DocsTblTableAdapter(TSDServer.ProductsDataSet productsDataset)
         {
             FamilTsdDB.DataTable.BaseDate = TSDServer.Properties.Settings.Default.BaseDate;
-            FamilTsdDB.DataTable.StartupPath = TSDServer.Program.CurrentPath;
-
+            FamilTsdDB.DataTable.StartupPath = Properties.Settings.Default.LocalFilePath;
 
             table = new FamilTsdDB.DataTable(productsDataset.DocsTbl);
 
@@ -276,7 +275,7 @@ namespace TSDServer.ProductsDataSetTableAdapters
         public ProductsTblTableAdapter(TSDServer.ProductsDataSet productsDataset)
         {
             FamilTsdDB.DataTable.BaseDate = TSDServer.Properties.Settings.Default.BaseDate;
-            FamilTsdDB.DataTable.StartupPath =TSDServer.Program.CurrentPath;
+            FamilTsdDB.DataTable.StartupPath = Properties.Settings.Default.LocalFilePath;
 
             table = new FamilTsdDB.DataTable(productsDataset.ProductsTbl);
             table.AddIndex(new System.Data.DataColumn[] { productsDataset.ProductsTbl.NavCodeColumn }

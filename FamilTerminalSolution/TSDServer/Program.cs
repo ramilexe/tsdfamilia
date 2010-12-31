@@ -8,8 +8,106 @@ namespace TSDServer
 {
     static class Program
     {
+
+        class MyApplicationContext : ApplicationContext
+        {
+            Form1 mainForm = null;
+            System.Threading.Timer tmr = null;
+
+            public MyApplicationContext(string[] args)
+            {
+                if (args.Length == 4 && args[0].ToLower() == "/c")
+                {
+                    Application.ApplicationExit += new EventHandler(this.OnApplicationExit);
+                    tmr = 
+                       new System.Threading.Timer(
+                           new System.Threading.TimerCallback(OnTimer),
+                           null, System.Threading.Timeout.Infinite,
+                           System.Threading.Timeout.Infinite);
+                   
+
+                    //c:\111\famil.txtx c:\111\famil_doc.txt  c:\222\
+                    InProductName = args[1];
+                    InDocName = args[2];
+                    Properties.Settings.Default.LocalFilePath = args[3];
+
+                    mainForm = new Form1();
+                    mainForm.Closed += new EventHandler(OnFormClosed);
+                    //mainForm.Load += new EventHandler(mainForm_Load);
+                    mainForm.Shown += new EventHandler(mainForm_Shown);
+                   // this.MainForm = mainForm;
+                    
+                    //mainForm.Closing += new CancelEventHandler(OnFormClosing);  
+                    //mainForm.Show();
+                    
+                }
+            }
+
+
+
+            void mainForm_Shown(object sender, EventArgs e)
+            {
+                mainForm.OnFinishImport += new Form1.FinishImport(mainForm_OnFinishImport);
+                mEvt.Reset();
+                tmr.Change(0, 500);
+                mainForm.AutoLoadProduct(InProductName);
+
+                if (mEvt.WaitOne(1000 * 15 * 60, false) == false)
+                {
+                    Console.WriteLine("ERROR LOAD PRODUCT - TIMEOUT");
+                }
+                mEvt.Reset();
+                mainForm.AutoLoadDoc(InDocName);
+
+                if (mEvt.WaitOne(1000 * 15 * 60, false) == false)
+                {
+                    Console.WriteLine("ERROR LOAD DOCS - TIMEOUT");
+                }
+                mainForm.Close();
+            }
+
+            
+            private void OnApplicationExit(object sender, EventArgs e)
+            {
+            
+            }
+
+
+            //private void OnFormClosing(object sender, CancelEventArgs e)
+            //{
+            //    // When a form is closing, remember the form position so it
+            //    // can be saved in the user data file.
+            //    //if (sender is AppForm1)
+            //    //    form1Position = ((Form)sender).Bounds;
+            //    //else if (sender is AppForm2)
+            //    //    form2Position = ((Form)sender).Bounds;
+            //}
+
+
+            private void OnFormClosed(object sender, EventArgs e)
+            {
+                 ExitThread();
+            }
+
+            void OnTimer(object state)
+            {
+
+                //this.MainForm.Invalidate();
+                Application.DoEvents();
+            }
+
+            void mainForm_OnFinishImport(string fileName)
+            {
+                mEvt.Set();
+            }
+        }
+
         //главное окно программы
         static Form1 mainForm = null;
+        public static bool AutoMode = false;
+        public static string InProductName = "";
+        public static string InDocName = "";
+
         //класс сервера удаленного управления
         static RemoteObject ro = new RemoteObject();
         public static string CurrentPath
@@ -19,6 +117,7 @@ namespace TSDServer
                 return Application.StartupPath;
             }
         }
+        static System.Threading.ManualResetEvent mEvt = new System.Threading.ManualResetEvent(false);
 
         /// <summary>
         /// статический метод для вызова метода Show главного окна программы
@@ -33,8 +132,18 @@ namespace TSDServer
         /// </summary>
         [SecurityPermission(SecurityAction.Demand)]
         [STAThread]
-        static void Main()
+        static void Main(string[] args)
         {
+            if (args.Length == 4 && args[0].ToLower() == "/c")
+            {
+                MyApplicationContext context = new MyApplicationContext(args);
+
+                // Run the application with the specific context. It will exit when
+                // all forms are closed.
+                Application.Run(context);
+                return;
+            }
+            
             /*ProductsDataSet ds = new ProductsDataSet();
             
             using (System.IO.StreamWriter wr = new System.IO.StreamWriter("documents1.txt"))
@@ -236,6 +345,7 @@ WHERE     (ProductsBinTbl.Barcode = @b)", conn))
                 
             }
         }
+
     }
 
 

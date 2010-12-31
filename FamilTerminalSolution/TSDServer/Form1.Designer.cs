@@ -144,6 +144,7 @@
             this.notifyIcon1.Text = "Сервер ТСД";
             this.notifyIcon1.Visible = true;
             this.notifyIcon1.MouseClick += new System.Windows.Forms.MouseEventHandler(this.notifyIcon1_MouseClick);
+            this.notifyIcon1.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(notifyIcon1_MouseDoubleClick);
             // 
             // richTextBox1
             // 
@@ -258,6 +259,8 @@
             this.PerformLayout();
 
         }
+
+        
 
         #endregion
 

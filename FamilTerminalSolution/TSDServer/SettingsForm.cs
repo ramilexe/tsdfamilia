@@ -78,7 +78,7 @@ namespace TSDServer
                 groupBox2.Enabled = false;
             }
             fieldSeparatorTB.Text = Properties.Settings.Default.FieldDelimeter;
-            dbPathTB.Text = Properties.Settings.Default.ProductsConnectionString.Replace("Data Source=", "");
+            dbPathTB.Text = Properties.Settings.Default.LocalFilePath;//Properties.Settings.Default.ProductsConnectionString.Replace("Data Source=", "");
             terminalPathTB.Text = Properties.Settings.Default.TSDDBPAth;
             for (int i = 0; i < decimalSeparatorCB.Items.Count; i++)
             {
@@ -162,7 +162,7 @@ namespace TSDServer
             Properties.Settings.Default.FieldDelimeter = fieldSeparatorTB.Text;
             //Properties.Settings.Default.ProductsConnectionString = "Data Source=" + dbPathTB.Text;
             Properties.Settings.Default.TSDDBPAth = terminalPathTB.Text;
-            
+            Properties.Settings.Default.LocalFilePath = dbPathTB.Text;
             Properties.Settings.Default.NumberDecimalSeparator = decimalSeparatorCB.SelectedItem.ToString();
             Properties.Settings.Default.DateSeparator = dateSeparatorCB.SelectedItem.ToString();
             Properties.Settings.Default.ShortDatePattern = dateFormatTB.Text;
