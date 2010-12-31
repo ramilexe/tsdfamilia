@@ -23,16 +23,6 @@ namespace TSDServer.Properties {
             }
         }
         
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.ConnectionString)]
-        [global::System.Configuration.DefaultSettingValueAttribute("Data Source=|DataDirectory|\\Products.sdf")]
-        public string ProductsConnectionString {
-            get {
-                return ((string)(this["ProductsConnectionString"]));
-            }
-        }
-        
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("\\Program files\\TSDFamilia\\")]
@@ -126,6 +116,18 @@ namespace TSDServer.Properties {
             }
             set {
                 this["BaseDate"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("c:\\")]
+        public string LocalFilePath {
+            get {
+                return ((string)(this["LocalFilePath"]));
+            }
+            set {
+                this["LocalFilePath"] = value;
             }
         }
     }
