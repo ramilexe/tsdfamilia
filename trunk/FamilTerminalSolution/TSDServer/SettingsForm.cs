@@ -53,6 +53,7 @@ namespace TSDServer
             columnsWidth = Properties.Settings.Default.FieldsLength.Split(';');
             columnsWidthList.AddRange(columnsWidth);
             
+
             int length = 0;
             for (int i = 0; i < columnsWidth.Length; i++)
             {
@@ -79,7 +80,10 @@ namespace TSDServer
             }
             fieldSeparatorTB.Text = Properties.Settings.Default.FieldDelimeter;
             dbPathTB.Text = Properties.Settings.Default.LocalFilePath;//Properties.Settings.Default.ProductsConnectionString.Replace("Data Source=", "");
+            this.folderBrowserDialog1.SelectedPath = Properties.Settings.Default.LocalFilePath;//Properties.Settings.Default.ProductsConnectionString.Replace("Data Source=", "");
             terminalPathTB.Text = Properties.Settings.Default.TSDDBPAth;
+            this.folderBrowserDialog1.SelectedPath = Properties.Settings.Default.TSDDBPAth;
+
             for (int i = 0; i < decimalSeparatorCB.Items.Count; i++)
             {
                 if (decimalSeparatorCB.Items[i].ToString() ==
@@ -146,15 +150,20 @@ namespace TSDServer
 
         private void openTerminalBtn_Click(object sender, EventArgs e)
         {
-            OpenNETCF.Desktop.Communication.OpenDeviceFileDialog dlg
-                 = new OpenNETCF.Desktop.Communication.OpenDeviceFileDialog();
-            dlg.ShowDialog();
+            //OpenNETCF.Desktop.Communication.OpenDeviceFileDialog dlg
+            //     = new OpenNETCF.Desktop.Communication.OpenDeviceFileDialog();
+            //DialogResult dlgResult = dlg.ShowDialog();
+            //if (dlgResult == DialogResult.OK)
+            //{
+            //    //terminalPathTB.Text = dlg.
+            //}
         }
 
         private void openDatabseBtn_Click(object sender, EventArgs e)
         {
-            if (openFileDialog1.ShowDialog() == DialogResult.OK)
-                dbPathTB.Text = openFileDialog1.FileName;
+
+            if (folderBrowserDialog1.ShowDialog() == DialogResult.OK)
+                dbPathTB.Text = folderBrowserDialog1.SelectedPath;
         }
 
         private void saveBtn_Click(object sender, EventArgs e)
@@ -177,6 +186,16 @@ namespace TSDServer
             
             Properties.Settings.Default.Save();
             //Properties.Settings.Default.Upgrade();
+        }
+
+        private void closeBtn_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
+
+        private void cancelBtn_Click(object sender, EventArgs e)
+        {
+            this.Close();
         }
     }
 }

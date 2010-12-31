@@ -291,6 +291,33 @@ namespace TSDServer
         {
             try
             {
+                DateTime dt = loader.GetDBDate();
+                if (DateTime.Now.Subtract(dt)>= new TimeSpan(1,0,0,0))
+                {
+                    DialogResult dr = MessageBox.Show(
+                        string.Format("Внимание, справочник который вы хотите загрузить на ТСД имеет дату {0}! \nВы уверены, что хотите загрузить старые данные?"
+                            ,dt.ToString("dd.MM.yyyy"))
+                        , "Старые данные в справочнике!"
+                        , MessageBoxButtons.YesNo
+                        , MessageBoxIcon.Warning);
+
+                    if (dr != DialogResult.Yes)
+                    {
+                        richTextBox1.AppendText("Копирование отменено...\n");
+                        return;
+                    }
+                }
+
+            }
+            catch (Exception err)
+            {
+                richTextBox1.AppendText(err.Message+"\n");
+                return;
+            }
+
+
+            try
+            {
                 terminalRapi.Connect(true,5000);
                 if (terminalRapi.Connected)
                 {
