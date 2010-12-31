@@ -613,6 +613,52 @@ namespace TSDServer
 
         }
 
+        public class NoDateException: System.Exception
+        {
+            string _inString;
+
+            public string InString
+            {
+              get { return _inString; }
+              set { _inString = value; }
+            }
+            public NoDateException(string inString)
+            {
+                _inString = inString;
+            }
+        }
+
+        public DateTime GetDBDate()
+        {
+            //return new DateTime(2000,1,1);
+
+            try
+            {
+                ProductsDataSet.ProductsTblRow row = this.productAdapter.GetDataByBarcode(0);
+                if (row != null)
+                {
+                    string s= row.ProductName;
+                    if (!String.IsNullOrEmpty(s))
+                    {
+                        string dt = s.Replace("НАЧАЛО загрузки ","");
+                        return DateTime.Parse(dt,dateFormat);
+                    }
+                    else
+                        throw new NoDateException(s);
+                        
+                }
+                else
+                    throw new NoDateException("Row empty");
+            }
+            finally
+            {
+                this.productAdapter.Close();
+            }
+
+
+        }
+
+        
         #region IDisposable Members
 
         public void Dispose()

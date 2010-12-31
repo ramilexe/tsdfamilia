@@ -114,6 +114,27 @@
 
 
         }
+
+        public partial class DocsTblDataTable
+        {
+            public ProductsDataSet.DocsTblRow[] FindByNavCode(string NavCode)
+            {
+
+                return (ProductsDataSet.DocsTblRow[])(this.Select(string.Format("NavCode = {0}", NavCode)));
+                
+            }
+        }
+
+        public partial class ProductsTblDataTable
+        {
+            public ProductsDataSet.ProductsTblRow[] FindByNavcode(string NavCode)
+            {
+                
+                return (ProductsDataSet.ProductsTblRow[])(this.Select(string.Format("NavCode = '{0}'",NavCode)));
+                
+            }
+        }
+
         /*
         public DocsBinTblRow ConvertToBin(DocsTblRow row)
         {
@@ -272,8 +293,10 @@ namespace TSDServer.ProductsDataSetTableAdapters
 
         }
         FamilTsdDB.DataTable table = null;
+        TSDServer.ProductsDataSet _productsDataset;
         public ProductsTblTableAdapter(TSDServer.ProductsDataSet productsDataset)
         {
+            _productsDataset = productsDataset;
             FamilTsdDB.DataTable.BaseDate = TSDServer.Properties.Settings.Default.BaseDate;
             FamilTsdDB.DataTable.StartupPath = Properties.Settings.Default.LocalFilePath;
 
@@ -284,6 +307,64 @@ namespace TSDServer.ProductsDataSetTableAdapters
             
 
         }
+
+        public ProductsDataSet.ProductsTblRow GetDataByBarcode(System.Int64 barcode)
+        {
+            ProductsDataSet.ProductsTblRow r = _productsDataset.ProductsTbl.FindByBarcode(barcode);
+            if (r != null)
+                return r;
+            else
+            {
+                System.Data.DataRow row = table.FindByPk(new object[] { barcode });
+                if (row != null)
+                {
+                    try
+                    {
+                        _productsDataset.ProductsTbl.AddProductsTblRow((ProductsDataSet.ProductsTblRow)row);
+                    }
+                    catch (System.Data.ConstraintException)
+                    {
+                    }
+                    return (ProductsDataSet.ProductsTblRow)row;
+                }
+                else
+                    return null;
+            }
+        }
+        public ProductsDataSet.ProductsTblRow[] GetDataByNavcode(string navcode)
+        {
+            ProductsDataSet.ProductsTblRow[] r = _productsDataset.ProductsTbl.FindByNavcode(navcode);
+            if (r != null &&
+                r.Length > 0)
+                return r;
+            else
+            {
+                System.Data.DataRow[] rows = table.FindByIndexes(1, new object[] { navcode });
+                if (rows != null && rows.Length > 0)
+                {
+                    r = new ProductsDataSet.ProductsTblRow[rows.Length];
+                    for (int i = 0; i < r.Length; i++)
+                    {
+                        r[i] = (ProductsDataSet.ProductsTblRow)rows[i];
+                        try
+                        {
+                            _productsDataset.ProductsTbl.AddProductsTblRow(r[i]);
+                        }
+                        catch (System.Data.ConstraintException)
+                        {
+                        }
+                        
+                    }
+
+                    
+                    return r;
+                }
+                else
+                    return null;
+            }
+        }
+
+ 
         public void Update(TSDServer.ProductsDataSet productsDataset)
         {
             table.AddIndex(new System.Data.DataColumn[] { productsDataset.ProductsTbl.Columns["NavCode"] });
@@ -291,6 +372,10 @@ namespace TSDServer.ProductsDataSetTableAdapters
             if (table == null)
                 table = new FamilTsdDB.DataTable(productsDataset.ProductsTbl);
             table.Write();
+        }
+        public void Close()
+        {
+            table.Close();
         }
 
         #region IDisposable Members

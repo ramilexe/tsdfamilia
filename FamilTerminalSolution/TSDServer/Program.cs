@@ -8,6 +8,15 @@ namespace TSDServer
 {
     static class Program
     {
+        enum ERRORLEVELS : byte
+        {
+            NoError =0,
+            SomeException =1,
+            TimeOut = 2,
+            ServerAlreadeyStarted=3,
+            IncorrectParametrs =4
+        }
+#region old
         /*
         class MyApplicationContext : ApplicationContext
         {
@@ -102,6 +111,9 @@ namespace TSDServer
             }
         }
         */
+#endregion
+
+
         //главное окно программы
         static Form1 mainForm = null;
         public static bool AutoMode = false;
@@ -132,32 +144,47 @@ namespace TSDServer
         /// </summary>
         [SecurityPermission(SecurityAction.Demand)]
         [STAThread]
-        static void Main(string[] args)
+        static int Main(string[] args)
         {
-            if (args.Length == 4 && args[0].ToLower() == "/c")
+            if (args.Length > 0 && args[0].ToLower() == "/c")
             {
-                InProductName = args[1];
-                InDocName = args[2];
-                Properties.Settings.Default.LocalFilePath = args[3];
-
-                DataLoaderClass loader = new DataLoaderClass();
-                loader.OnFinishImport +=new DataLoaderClass.FinishImport(loader_OnFinishImport);
-                mEvt.Reset();
-                loader.AutoLoadProduct(InProductName);
-
-                if (mEvt.WaitOne(1000 * 15 * 60, false) == false)
+                if (args.Length == 4 && args[0].ToLower() == "/c")
                 {
-                    Console.WriteLine("ERROR LOAD PRODUCT - TIMEOUT");
-                }
-                
-                mEvt.Reset();
-                loader.AutoLoadDoc(InDocName);
+                    try
+                    {
+                        InProductName = args[1];
+                        InDocName = args[2];
+                        Properties.Settings.Default.LocalFilePath = args[3];
 
-                if (mEvt.WaitOne(1000 * 15 * 60, false) == false)
-                {
-                    Console.WriteLine("ERROR LOAD DOCS - TIMEOUT");
+                        DataLoaderClass loader = new DataLoaderClass();
+                        loader.OnFinishImport += new DataLoaderClass.FinishImport(loader_OnFinishImport);
+                        mEvt.Reset();
+                        loader.AutoLoadProduct(InProductName);
+
+                        if (mEvt.WaitOne(1000 * 15 * 60, false) == false)
+                        {
+                            Console.WriteLine("ERROR LOAD PRODUCT - TIMEOUT");
+                            return (int)ERRORLEVELS.TimeOut;
+                        }
+
+                        mEvt.Reset();
+                        loader.AutoLoadDoc(InDocName);
+
+                        if (mEvt.WaitOne(1000 * 15 * 60, false) == false)
+                        {
+                            Console.WriteLine("ERROR LOAD DOCS - TIMEOUT");
+                            return (int)ERRORLEVELS.TimeOut;
+                        }
+                        return (int)ERRORLEVELS.NoError;
+                    }
+                    catch
+                    {
+                        return (int)ERRORLEVELS.SomeException;
+                    }
+
                 }
-                return;
+                else
+                    return (int)ERRORLEVELS.IncorrectParametrs;
             }
             #region oldtest
             /*ProductsDataSet ds = new ProductsDataSet();
@@ -321,45 +348,55 @@ WHERE     (ProductsBinTbl.Barcode = @b)", conn))
             }
             */
             #endregion
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
-            mainForm = new Form1();
-            //проверка на наличие второй запущеной копии программы
-            //если Null значит уже запущена другая копия
-            if (mainForm.mutex != null)
+
+            try
             {
-                //другая копия программы не запущена
-                //инициализируем IPC сервер, который может принимать сообщения
-                //(в данном случае нужно для получения сообщения от второй копии показать главное окно
-                IpcChannel serverChannel =
-                    new IpcChannel("localhost:9090");
+                Application.EnableVisualStyles();
+                Application.SetCompatibleTextRenderingDefault(false);
+                mainForm = new Form1();
+                //проверка на наличие второй запущеной копии программы
+                //если Null значит уже запущена другая копия
+                if (mainForm.mutex != null)
+                {
+                    //другая копия программы не запущена
+                    //инициализируем IPC сервер, который может принимать сообщения
+                    //(в данном случае нужно для получения сообщения от второй копии показать главное окно
+                    IpcChannel serverChannel =
+                        new IpcChannel("localhost:9090");
 
-                System.Runtime.Remoting.Channels.ChannelServices.RegisterChannel(
-                    serverChannel,false);
+                    System.Runtime.Remoting.Channels.ChannelServices.RegisterChannel(
+                        serverChannel, false);
 
-                System.Runtime.Remoting.WellKnownServiceTypeEntry WKSTE =
-               new System.Runtime.Remoting.WellKnownServiceTypeEntry(
-                   typeof(RemoteObject), "RemoteObject.rem", System.Runtime.Remoting.WellKnownObjectMode.Singleton);
-                System.Runtime.Remoting.RemotingConfiguration.RegisterWellKnownServiceType(WKSTE);
+                    System.Runtime.Remoting.WellKnownServiceTypeEntry WKSTE =
+                   new System.Runtime.Remoting.WellKnownServiceTypeEntry(
+                       typeof(RemoteObject), "RemoteObject.rem", System.Runtime.Remoting.WellKnownObjectMode.Singleton);
+                    System.Runtime.Remoting.RemotingConfiguration.RegisterWellKnownServiceType(WKSTE);
 
-                Application.Run(mainForm);//запуск главного экранного потока
+                    Application.Run(mainForm);//запуск главного экранного потока
+                    return (int)ERRORLEVELS.NoError;
+                }
+                else
+                {
+                    //есть уже запущенная копия программы
+                    IpcChannel channel = new IpcChannel();
+                    System.Runtime.Remoting.Channels.ChannelServices.RegisterChannel(channel, false);
+                    //получаем адрес сервера программы
+                    RemoteObject service = (RemoteObject)Activator.GetObject(
+                                   typeof(RemoteObject), "ipc://localhost:9090/RemoteObject.rem");
+
+                    //отправляем сообщение показать главное окно
+                    service.Show();
+                    return (int)ERRORLEVELS.ServerAlreadeyStarted;
+                    //mainForm.Activate();
+                    //выходим из программы
+
+                }
             }
-            else
+            catch
             {
-                //есть уже запущенная копия программы
-                IpcChannel channel = new IpcChannel();
-                System.Runtime.Remoting.Channels.ChannelServices.RegisterChannel(channel,false);
-                //получаем адрес сервера программы
-                RemoteObject service = (RemoteObject)Activator.GetObject(
-                               typeof(RemoteObject), "ipc://localhost:9090/RemoteObject.rem");
-                
-                //отправляем сообщение показать главное окно
-                service.Show();
-
-                //mainForm.Activate();
-                //выходим из программы
-                
+                return (int)ERRORLEVELS.SomeException;
             }
+            
         }
 
         static void loader_OnFinishImport(string fileName)

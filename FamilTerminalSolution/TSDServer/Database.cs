@@ -1831,6 +1831,13 @@ namespace FamilTsdDB
 
         }
 
+        public void Close()
+        {
+            foreach (Index i in indexes)
+            {
+                i.CloseIndex();
+            }
+        }
         #region IDisposable Members
 
         public void Dispose()
