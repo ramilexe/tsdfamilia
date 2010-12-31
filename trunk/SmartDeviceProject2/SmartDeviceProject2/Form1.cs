@@ -48,7 +48,10 @@ namespace Familia.TSDClient
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            
+            System.Reflection.Assembly a = System.Reflection.Assembly.GetExecutingAssembly();
+            System.Reflection.AssemblyName an = a.GetName();
+            //an.Version.ToString();
+            this.Text = string.Format("ТСД Версия {0}", an.Version);
             this.KeyDown += new KeyEventHandler(Form1_KeyDown);
             for (int i = 0;  i < this.Controls.Count; i++)
             {
