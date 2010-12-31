@@ -72,7 +72,7 @@ namespace TSDServer.ScannedProductsDataSetTableAdapters
         public ScannedBarcodesTableAdapter(TSDServer.ScannedProductsDataSet scannedproductsDataset)
         {
             FamilTsdDB.DataTable.BaseDate = TSDServer.Properties.Settings.Default.BaseDate;
-            FamilTsdDB.DataTable.StartupPath = TSDServer.Program.CurrentPath;
+            FamilTsdDB.DataTable.StartupPath = Properties.Settings.Default.LocalFilePath;
             _scannedproductsDataset = scannedproductsDataset;
             table = new FamilTsdDB.DataTable(_scannedproductsDataset.ScannedBarcodes);
             table.AddIndex(

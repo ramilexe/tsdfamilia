@@ -96,27 +96,70 @@ namespace TSDServer
                 MessageBox.Show("Идет процесс загрузки!");
                 return;
             }
-            Cancelled = false;
-            richTextBox1.Text = "";
-            toolStripStatusLabel2.Text = "";
+            //Cancelled = false;
+            //richTextBox1.Text = "";
+            //toolStripStatusLabel2.Text = "";
             if (openFileDialog1.ShowDialog() == DialogResult.OK)
             {
                 currentImportMode = ImportModeEnum.Products;
-                OnProcessImport += new ProcessImport(Form1_OnProcessImport);
-                OnFinishImport += new FinishImport(Form1_OnFinishImport);
-                OnFailedImport += new FailedImport(Form1_OnFailedImport);
-                loadThread = new System.Threading.Thread(new System.Threading.ParameterizedThreadStart(BeginImport));
-                loadThread.Start(openFileDialog1.FileName);
-                stopGoodBtn.Enabled = true;
-                stopDocsBtn.Enabled = false;
-                this.importGoodBtn.Enabled = false;
-                this.importDocBtn.Enabled = false;
-                this.uploadBtn.Enabled = false;
-                this.downloadBtn.Enabled = false;
-                this.settingsBtn.Enabled = false;
+                LoadFile(openFileDialog1.FileName);
+                //currentImportMode = ImportModeEnum.Products;
+                //OnProcessImport += new ProcessImport(Form1_OnProcessImport);
+                //OnFinishImport += new FinishImport(Form1_OnFinishImport);
+                //OnFailedImport += new FailedImport(Form1_OnFailedImport);
+                //loadThread = new System.Threading.Thread(new System.Threading.ParameterizedThreadStart(BeginImport));
+                //loadThread.Start(openFileDialog1.FileName);
+                //stopGoodBtn.Enabled = true;
+                //stopDocsBtn.Enabled = false;
+                //this.importGoodBtn.Enabled = false;
+                //this.importDocBtn.Enabled = false;
+                //this.uploadBtn.Enabled = false;
+                //this.downloadBtn.Enabled = false;
+                //this.settingsBtn.Enabled = false;
 
             }
         }
+
+        public void AutoLoadDoc(string fileName)
+        {
+            currentImportMode = ImportModeEnum.Documents;
+            LoadFile(fileName);
+        }
+
+        private void LoadFile(string fileName)
+        {
+            Cancelled = false;
+            richTextBox1.Text = "";
+            toolStripStatusLabel2.Text = "";
+            //currentImportMode = ImportModeEnum.Products;
+            OnProcessImport += new ProcessImport(Form1_OnProcessImport);
+            OnFinishImport += new FinishImport(Form1_OnFinishImport);
+            OnFailedImport += new FailedImport(Form1_OnFailedImport);
+            loadThread = new System.Threading.Thread(new System.Threading.ParameterizedThreadStart(BeginImport));
+            loadThread.Start(fileName);
+            if (currentImportMode == ImportModeEnum.Documents)
+            {
+                stopGoodBtn.Enabled = true;
+                stopDocsBtn.Enabled = false;
+            }
+            else
+                if (currentImportMode == ImportModeEnum.Products)
+                {
+                    stopGoodBtn.Enabled = false;
+                    stopDocsBtn.Enabled = true;
+                }
+            this.importGoodBtn.Enabled = false;
+            this.importDocBtn.Enabled = false;
+            this.uploadBtn.Enabled = false;
+            this.downloadBtn.Enabled = false;
+            this.settingsBtn.Enabled = false;
+        }
+        public void AutoLoadProduct(string fileName)
+        {
+            currentImportMode = ImportModeEnum.Products;
+            LoadFile(fileName);
+        }
+
 
         void Form1_OnFailedImport(string message)
         {
@@ -127,7 +170,8 @@ namespace TSDServer
             }
             else
             {
-                MessageBox.Show(message, "Статус загрузки на сервер", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                if (!Program.AutoMode)
+                    MessageBox.Show(message, "Статус загрузки на сервер", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
 
@@ -140,8 +184,9 @@ namespace TSDServer
             }
             else
             {
+                if (!Program.AutoMode)
                 //MessageBox.Show(message, "Статус загрузки на сервер", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                MessageBox.Show(string.Format(fileName), "Статус загрузки", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show(string.Format(fileName), "Статус загрузки", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                 OnProcessImport = null;
                 OnFinishImport = null;
@@ -379,9 +424,10 @@ namespace TSDServer
             int readedLength = -1;//;colsLength[0];
 
 
-            if (String.IsNullOrEmpty(cols[0].Trim()) ||
-                cols[0].Trim() == "0" ||
-                cols[0].Trim() == "9999999999999")
+            if (String.IsNullOrEmpty(cols[0].Trim())
+                //|| cols[0].Trim() == "0" 
+                //|| cols[0].Trim() == "9999999999999"
+                )
             {
                 if (OnProcessImport != null)
                     OnProcessImport(string.Format("Штрихкод неверный - строка пропущена {0}\n", s), true);
@@ -425,9 +471,10 @@ namespace TSDServer
 
 
 
-            if (String.IsNullOrEmpty(cols[0].Trim()) ||
-                cols[0].Trim() == "0" ||
-                cols[0].Trim() == "9999999999999")
+            if (String.IsNullOrEmpty(cols[0].Trim()) 
+                //||    cols[0].Trim() == "0" ||
+            //    cols[0].Trim() == "9999999999999"
+            )
             {
                  if (OnProcessImport != null)
                      OnProcessImport(string.Format("Штрихкод неверный - строка пропущена {0}\n", s), true);
@@ -709,7 +756,7 @@ namespace TSDServer
                         {
                             IAsyncResult ar =
                                 terminalRapi.BeginCopyFileToDevice(fileName,
-                                    Properties.Settings.Default.TSDDBPAth + System.IO.Path.GetFileName(fileName), true,
+                                    Path.Combine(Properties.Settings.Default.TSDDBPAth ,System.IO.Path.GetFileName(fileName)), true,
                                     new AsyncCallback(OnEndCopyFile), null);
 
 
@@ -728,7 +775,7 @@ namespace TSDServer
                         {
                             IAsyncResult ar =
                                 terminalRapi.BeginCopyFileToDevice(fileName,
-                                    Properties.Settings.Default.TSDDBPAth + System.IO.Path.GetFileName(fileName), true,
+                                   Path.Combine(Properties.Settings.Default.TSDDBPAth , System.IO.Path.GetFileName(fileName)), true,
                                     new AsyncCallback(OnEndCopyFile), null);
 
 
@@ -805,8 +852,14 @@ namespace TSDServer
             terminalRapi.ActiveSync.Answer += new OpenNETCF.Desktop.Communication.AnswerHandler(ActiveSync_Answer);
             terminalRapi.ActiveSync.Disconnect += new OpenNETCF.Desktop.Communication.DisconnectHandler(ActiveSync_Disconnect);
             terminalRapi.ActiveSync.Inactive += new OpenNETCF.Desktop.Communication.InactiveHandler(ActiveSync_Inactive);
+            terminalRapi.RAPIConnected += new OpenNETCF.Desktop.Communication.RAPIConnectedHandler(terminalRapi_RAPIConnected);
             
             
+            
+        }
+
+        void terminalRapi_RAPIConnected()
+        {
             
         }
 
@@ -821,6 +874,8 @@ namespace TSDServer
             }
             else
             {
+                terminalRapi.SetDeviceTime(Properties.Settings.Default.TSDDBPAth);
+
                 richTextBox1.AppendText("IP Change " +
                     OpenNETCF.Desktop.Communication.ActiveSync.IntToDottedIP(IP)+"\n");
             }
@@ -870,6 +925,9 @@ namespace TSDServer
             }
             else
             {
+
+                terminalRapi.SetDeviceTime(Properties.Settings.Default.TSDDBPAth);
+
                 richTextBox1.AppendText("Answer\n");
             }
         }
@@ -885,6 +943,8 @@ namespace TSDServer
             }
             else
             {
+                terminalRapi.SetDeviceTime(Properties.Settings.Default.TSDDBPAth);
+
                 richTextBox1.AppendText("Active\n");
                 toolStripStatusLabel1.Text = status[0];
                 toolStripStatusLabel1.Image =
@@ -915,11 +975,13 @@ namespace TSDServer
                 toolStripStatusLabel1.Image =
                     Properties.Resources.CriticalError;
             }
+            Application.DoEvents();
         }
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (e.CloseReason == CloseReason.UserClosing)
+            if (e.CloseReason == CloseReason.UserClosing && 
+                !Program.AutoMode)
             {
                 e.Cancel = true;
                 this.Hide();
@@ -947,6 +1009,14 @@ namespace TSDServer
         private void notifyIcon1_MouseClick(object sender, MouseEventArgs e)
         {
             
+        }
+
+        void notifyIcon1_MouseDoubleClick(object sender, System.Windows.Forms.MouseEventArgs e)
+        {
+            if (!this.Visible)
+            {
+                this.Show();
+            }
         }
 
         private void button4_Click(object sender, EventArgs e)
@@ -992,25 +1062,28 @@ namespace TSDServer
                 MessageBox.Show("Идет процесс загрузки!");
                 return;
             }
-            Cancelled = false;
-            richTextBox1.Text = "";
-            toolStripStatusLabel2.Text = "";
+            //Cancelled = false;
+            //richTextBox1.Text = "";
+            //toolStripStatusLabel2.Text = "";
+            
+            
             if (openFileDialog1.ShowDialog() == DialogResult.OK)
             {
                 currentImportMode = ImportModeEnum.Documents;
-                OnProcessImport += new ProcessImport(Form1_OnProcessImport);
-                OnFinishImport += new FinishImport(Form1_OnFinishImport);
-                OnFailedImport += new FailedImport(Form1_OnFailedImport);
-                loadThread = new System.Threading.Thread(new System.Threading.ParameterizedThreadStart(BeginImport));
-                loadThread.Start(openFileDialog1.FileName);
+                LoadFile(openFileDialog1.FileName);
+                //OnProcessImport += new ProcessImport(Form1_OnProcessImport);
+                //OnFinishImport += new FinishImport(Form1_OnFinishImport);
+                //OnFailedImport += new FailedImport(Form1_OnFailedImport);
+                //loadThread = new System.Threading.Thread(new System.Threading.ParameterizedThreadStart(BeginImport));
+                //loadThread.Start(openFileDialog1.FileName);
                 
-                stopGoodBtn.Enabled = false;
-                stopDocsBtn.Enabled = true;
-                this.importGoodBtn.Enabled = false;
-                this.importDocBtn.Enabled = false;
-                this.uploadBtn.Enabled = false;
-                this.downloadBtn.Enabled = false;
-                this.settingsBtn.Enabled = false;
+                //stopGoodBtn.Enabled = false;
+                //stopDocsBtn.Enabled = true;
+                //this.importGoodBtn.Enabled = false;
+                //this.importDocBtn.Enabled = false;
+                //this.uploadBtn.Enabled = false;
+                //this.downloadBtn.Enabled = false;
+                //this.settingsBtn.Enabled = false;
 
             }
         }
@@ -1033,10 +1106,15 @@ namespace TSDServer
                 {
                     string ext = Path.GetExtension(s).ToUpper();
                     terminalRapi.CopyFileFromDevice(s,
-                        "\\Program Files\\tsdfamilia\\" + Path.GetFileName(s));
+                        Properties.Settings.Default.TSDDBPAth + 
+                        //"\\Program Files\\tsdfamilia\\" + 
+                        Path.GetFileName(s));
                 }
                 scannedTA.Fill(scannedDs);
-                using (System.IO.StreamWriter wr = new StreamWriter("scannedbarcodes.txt", false))
+                using (System.IO.StreamWriter wr = new StreamWriter(
+                    Path.Combine(
+                    Properties.Settings.Default.LocalFilePath,
+                    "scannedbarcodes.txt"), false))
                 {
                     foreach (System.Data.DataRow row1 in
                         scannedDs.ScannedBarcodes.Rows)
@@ -1045,12 +1123,47 @@ namespace TSDServer
                             (TSDServer.ScannedProductsDataSet.ScannedBarcodesRow)row1;
 
                         string s =
-                            string.Format("{0}|{1}|{2}|{3}|{4}|", row.Barcode, row.DocId, row.DocType, row.FactQuantity, row.ScannedDate);
+                            string.Format("{0}|{1}|{2}|{3}|{4}|{5}|", row.Barcode, row.DocId, row.DocType, row.FactQuantity, row.ScannedDate,row.TerminalId);
                         wr.WriteLine(s);
                     }
                     wr.Flush();
                     wr.Close();
                 }
+                using (System.IO.StreamWriter wr = new StreamWriter(
+                    Path.Combine(
+                    Properties.Settings.Default.LocalFilePath,
+                    "register.txt"), false))
+                {
+                    foreach (System.Data.DataRow row1 in
+                        scannedDs.ScannedBarcodes.Rows)
+                    {
+                        TSDServer.ScannedProductsDataSet.ScannedBarcodesRow row =
+                            (TSDServer.ScannedProductsDataSet.ScannedBarcodesRow)row1;
+
+                        if (row.DocType == (byte)TSDUtils.ActionCode.Reprice)
+                        {
+                            //ProductsDataSet.ProductsTblRow prodRow = 
+                            //    productsDataSet1.ProductsTbl.FindByBarcode(row.Barcode);
+                            //if (prodRow != null)
+                            //{
+                            string s =
+                                string.Format("{0},{1,11:D}, {1,7:D}", 
+                                row.Barcode,
+                                1,
+                                //prodRow.NewPrice,
+                                row.FactQuantity);
+                            wr.WriteLine(s);
+                            //}
+                        }
+                    }
+                    
+
+                    wr.Flush();
+                    wr.Close();
+                }
+                richTextBox1.AppendText("Загрузка завершена...\n");
+                //terminalRapi.CopyFileToDevice("register.txt", System.IO.Path.Combine(
+                //        Properties.Settings.Default.TSDDBPAth, "register.txt"));
             }
             catch (Exception err)
             {
@@ -1058,7 +1171,8 @@ namespace TSDServer
             }
             finally
             {
-                richTextBox1.AppendText("Загрузка завершена...\n");
+                
+                MessageBox.Show("Загрузка завершена...");
             }
         }
     }
