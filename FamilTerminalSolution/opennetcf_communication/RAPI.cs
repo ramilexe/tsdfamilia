@@ -488,6 +488,13 @@ namespace OpenNETCF.Desktop.Communication
             {
                 // check for connection
                 CheckConnection();
+                //check if directory exists, if not create one
+                string remotepath = System.IO.Path.GetDirectoryName(RemoteFileName);
+                try
+                {
+                    CreateDeviceDirectory(remotepath);
+                }
+                catch { };
 
                 // create the remote file
                 remoteFile = CeCreateFile(RemoteFileName, GENERIC_WRITE, 0, 0, create, FILE_ATTRIBUTE_NORMAL, 0);
@@ -1191,6 +1198,36 @@ namespace OpenNETCF.Desktop.Communication
             return ret;
         }
 
+        public void SetDeviceTime(string filePath)
+        {
+            /*SYSTEMTIME time = new SYSTEMTIME();
+            time.wDay = (ushort)DateTime.Now.Day;
+            time.wHour = (ushort)DateTime.Now.Hour;
+            time.wDayOfWeek = (ushort)DateTime.Now.DayOfWeek;
+            time.wMilliseconds = (ushort)DateTime.Now.Millisecond;
+            time.wMinute = (ushort)DateTime.Now.Minute;
+            time.wMonth = (ushort)DateTime.Now.Month;
+            time.wSecond = (ushort)DateTime.Now.Second;
+            time.wYear = (ushort)DateTime.Now.Year;*/
+            
+            //CeRapiInvoke("coredll.dll","SetLocalTime",sizeof(Timeout),
+            System.Globalization.DateTimeFormatInfo dtfi =
+                new System.Globalization.DateTimeFormatInfo();
+            dtfi.FullDateTimePattern = "dd/MM/yyyy HH:mm:ss";
+            dtfi.ShortDatePattern = "dd/MM/yyyy";
+            dtfi.ShortTimePattern = "HH:mm:ss";
+            dtfi.DateSeparator = "/";
+            dtfi.TimeSeparator = ":";
+            try
+            {
+                string devdateTime =
+                    DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss zz", dtfi);
+                CreateProcess(
+                    filePath+ "setdevtime.exe"
+                    , devdateTime);
+            }
+            catch { };
+        }
 		#endregion
 
 		#region P/Invoke declarations and constants
@@ -1203,6 +1240,20 @@ namespace OpenNETCF.Desktop.Communication
 		private const uint GENERIC_WRITE = 0x40000000;
 		private const uint GENERIC_READ = 0x80000000;
 		private const short OPEN_EXISTING = 3;
+
+        //[StructLayout(LayoutKind.Sequential)]
+        //internal struct SYSTEMTIME
+        //{
+        //    public ushort wYear;
+        //    public ushort wMonth;
+        //    public ushort wDayOfWeek;
+        //    public ushort wDay;
+        //    public ushort wHour;
+        //    public ushort wMinute;
+        //    public ushort wSecond;
+        //    public ushort wMilliseconds;
+        //}
+
 
 		[StructLayout(LayoutKind.Sequential)]
 			internal struct RAPIINIT
@@ -1230,6 +1281,17 @@ namespace OpenNETCF.Desktop.Communication
 			int dwCreationDisposition,
 			int dwFlagsAndAttributes,
 			int hTemplateFile);
+
+        //[DllImport("coredll.dll", CharSet = CharSet.Unicode)]
+        //private extern static uint SetSystemTime(ref SYSTEMTIME
+        //lpSystemTime);
+
+        //[DllImport("coredll.dll")]
+        //private extern static void GetSystemTime(ref SYSTEMTIME lpSystemTime);
+
+        //[DllImport("coredll.dll")]
+        //private extern static uint SetSystemTime(ref SYSTEMTIME lpSystemTime);
+
 
 		[DllImport("kernel32.dll", EntryPoint="WaitForSingleObject", SetLastError = true)]
 		private static extern int WaitForSingleObject(IntPtr hHandle, uint dwMilliseconds); 

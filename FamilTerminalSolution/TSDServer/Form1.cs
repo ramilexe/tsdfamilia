@@ -137,11 +137,11 @@ namespace TSDServer
 
                 stopGoodBtn.Enabled = false;
                 stopDocsBtn.Enabled = false;
-                this.importGoodBtn.Enabled = true;
-                this.importDocBtn.Enabled = true;
+                this.importGoodBtn.Enabled = true & Properties.Settings.Default.ImportProductsEnabled;
+                this.importDocBtn.Enabled = true & Properties.Settings.Default.ImportDocsEnabled;
                 this.uploadBtn.Enabled = true;
                 this.downloadBtn.Enabled = true;
-                this.settingsBtn.Enabled = true;
+                this.settingsBtn.Enabled = true & Properties.Settings.Default.SettingsEnabled;
 
                 richTextBox1.AppendText("Загрузка завершена...\n");
             }
@@ -326,6 +326,20 @@ namespace TSDServer
                     this.settingsBtn.Enabled = false;
                     richTextBox1.Text = "";
 
+                    foreach (string fileName in loader.ProductsFileList)
+                    {
+                        if (terminalRapi.DeviceFileExists(Path.Combine(Properties.Settings.Default.TSDDBPAth ,System.IO.Path.GetFileName(fileName))))
+                        {
+                            terminalRapi.DeleteDeviceFile(Path.Combine(Properties.Settings.Default.TSDDBPAth ,System.IO.Path.GetFileName(fileName)));
+                        }
+                    }
+                    foreach (string fileName in loader.DocsFileList)
+                    {
+                        if (terminalRapi.DeviceFileExists(Path.Combine(Properties.Settings.Default.TSDDBPAth, System.IO.Path.GetFileName(fileName))))
+                        {
+                            terminalRapi.DeleteDeviceFile(Path.Combine(Properties.Settings.Default.TSDDBPAth, System.IO.Path.GetFileName(fileName)));
+                        }
+                    }
                     OpenNETCF.Desktop.Communication.RAPICopingHandler onCopyDelegate = 
                         new OpenNETCF.Desktop.Communication.RAPICopingHandler(terminalRapi_RAPIFileCoping);
                     terminalRapi.RAPIFileCoping += onCopyDelegate;
@@ -368,9 +382,9 @@ namespace TSDServer
                         }
                     }
                     MessageBox.Show("Копирование завершено", "Статус загрузки на терминал", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    this.importGoodBtn.Enabled = true;
+                    this.importGoodBtn.Enabled = true & Properties.Settings.Default.ImportProductsEnabled;
                     this.uploadBtn.Enabled = true;
-                    this.settingsBtn.Enabled = true;
+                    this.settingsBtn.Enabled = true & Properties.Settings.Default.SettingsEnabled;
                     richTextBox1.AppendText("Копирование завершено...\n");
                 }
                 else
@@ -422,6 +436,12 @@ namespace TSDServer
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            System.Reflection.Assembly a = System.Reflection.Assembly.GetExecutingAssembly();
+            System.Reflection.AssemblyName an = a.GetName();
+            //an.Version.ToString();
+            this.Text = string.Format("ТСД Сервер. Версия {0}", an.Version);
+
+
             timer1.Enabled = true;
             stopGoodBtn.Enabled = false;
             stopDocsBtn.Enabled = false;
@@ -432,9 +452,11 @@ namespace TSDServer
             terminalRapi.ActiveSync.Disconnect += new OpenNETCF.Desktop.Communication.DisconnectHandler(ActiveSync_Disconnect);
             terminalRapi.ActiveSync.Inactive += new OpenNETCF.Desktop.Communication.InactiveHandler(ActiveSync_Inactive);
             terminalRapi.RAPIConnected += new OpenNETCF.Desktop.Communication.RAPIConnectedHandler(terminalRapi_RAPIConnected);
-            
-            
-            
+
+
+            this.importDocBtn.Enabled = Properties.Settings.Default.ImportDocsEnabled;
+            this.importGoodBtn.Enabled = Properties.Settings.Default.ImportProductsEnabled;
+            this.settingsBtn.Enabled = Properties.Settings.Default.SettingsEnabled;
         }
 
         void terminalRapi_RAPIConnected()
@@ -559,13 +581,13 @@ namespace TSDServer
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (e.CloseReason == CloseReason.UserClosing && 
-                !Program.AutoMode)
-            {
-                e.Cancel = true;
-                this.Hide();
-            }
-            else
+            //if (e.CloseReason == CloseReason.UserClosing && 
+            //    !Program.AutoMode)
+            //{
+            //    e.Cancel = true;
+            //    this.Hide();
+            //}
+            //else
             {
                 mutex.ReleaseMutex();
                 mutex = null;
