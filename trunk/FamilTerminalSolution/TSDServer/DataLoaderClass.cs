@@ -572,7 +572,15 @@ namespace TSDServer
                         (TSDServer.ScannedProductsDataSet.ScannedBarcodesRow)row1;
 
                     string s =
-                        string.Format("{0}|{1}|{2}|{3}|{4}|{5}|", row.Barcode, row.DocId, row.DocType, row.FactQuantity, row.ScannedDate, row.TerminalId);
+                        string.Format("{0}|{1}|{2}|{3}|{4}|{5}|", 
+                            row.Barcode, 
+                            row.DocId, 
+                            row.DocType, 
+                            row.FactQuantity, 
+                            row.ScannedDate,
+                            (row["TerminalId"] == System.DBNull.Value)?
+                            string.Empty:row.TerminalId.ToString()
+                            );
                     wr.WriteLine(s);
                 }
                 wr.Flush();
@@ -596,7 +604,7 @@ namespace TSDServer
                         //if (prodRow != null)
                         //{
                         string s =
-                            string.Format("{0},{1,11:D}, {1,7:D}",
+                            string.Format("{0},{1,11:D}, {2,7:D}",
                             row.Barcode,
                             1,
                             //prodRow.NewPrice,
@@ -610,6 +618,31 @@ namespace TSDServer
                 wr.Flush();
                 wr.Close();
             }
+            try
+            {
+                File.Copy(
+                    Path.Combine(Properties.Settings.Default.LocalFilePath,
+                        "register.txt"),
+                    Path.Combine(Properties.Settings.Default.RemoteFilePath,
+                        "register.txt")
+                    , true);
+
+                File.Copy(
+                    Path.Combine(Properties.Settings.Default.LocalFilePath,
+                        "scannedbarcodes.txt"),
+                    Path.Combine(Properties.Settings.Default.RemoteFilePath,
+                        "scannedbarcodes.txt"),
+                        true);
+            }
+            catch (Exception err)
+            {
+                //System.Windows.Forms.MessageBox.Show(
+                //    err.Message, "Ошибка записи результатов",
+                //    System.Windows.Forms.MessageBoxButtons.OK,
+                //    System.Windows.Forms.MessageBoxIcon.Error);
+                throw new ApplicationException("Ошибка записи результатов", err);
+            }
+
 
         }
 

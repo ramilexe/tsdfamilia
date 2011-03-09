@@ -86,6 +86,7 @@ namespace TSDServer.ScannedProductsDataSetTableAdapters
         }
         public void Fill(TSDServer.ScannedProductsDataSet scannedproductsDataset)
         {
+            scannedproductsDataset.ScannedBarcodes.Clear();
             table.ReadTableDef();
             table.Fill(scannedproductsDataset.ScannedBarcodes);
         }
