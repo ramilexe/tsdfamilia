@@ -263,6 +263,8 @@ namespace Familia.TSDClient {
             
             private global::System.Data.DataColumn columnMessage;
             
+            private global::System.Data.DataColumn columnMessage2;
+            
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             public ProductsTblDataTable() {
                 this.TableName = "ProductsTbl";
@@ -351,6 +353,13 @@ namespace Familia.TSDClient {
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public global::System.Data.DataColumn Message2Column {
+                get {
+                    return this.columnMessage2;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             public int Count {
                 get {
                     return this.Rows.Count;
@@ -378,7 +387,7 @@ namespace Familia.TSDClient {
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            public ProductsTblRow AddProductsTblRow(long Barcode, string ProductName, string Article, string Country, string NavCode, string Structure, float OldPrice, float NewPrice, string Message) {
+            public ProductsTblRow AddProductsTblRow(long Barcode, string ProductName, string Article, string Country, string NavCode, string Structure, float OldPrice, float NewPrice, string Message, string Message2) {
                 ProductsTblRow rowProductsTblRow = ((ProductsTblRow)(this.NewRow()));
                 object[] columnValuesArray = new object[] {
                         Barcode,
@@ -389,7 +398,8 @@ namespace Familia.TSDClient {
                         Structure,
                         OldPrice,
                         NewPrice,
-                        Message};
+                        Message,
+                        Message2};
                 rowProductsTblRow.ItemArray = columnValuesArray;
                 this.Rows.Add(rowProductsTblRow);
                 return rowProductsTblRow;
@@ -429,6 +439,7 @@ namespace Familia.TSDClient {
                 this.columnOldPrice = base.Columns["OldPrice"];
                 this.columnNewPrice = base.Columns["NewPrice"];
                 this.columnMessage = base.Columns["Message"];
+                this.columnMessage2 = base.Columns["Message2"];
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -451,6 +462,8 @@ namespace Familia.TSDClient {
                 base.Columns.Add(this.columnNewPrice);
                 this.columnMessage = new global::System.Data.DataColumn("Message", typeof(string), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnMessage);
+                this.columnMessage2 = new global::System.Data.DataColumn("Message2", typeof(string), null, global::System.Data.MappingType.Element);
+                base.Columns.Add(this.columnMessage2);
                 this.Constraints.Add(new global::System.Data.UniqueConstraint("Constraint1", new global::System.Data.DataColumn[] {
                                 this.columnBarcode}, true));
                 this.columnBarcode.AllowDBNull = false;
@@ -461,6 +474,7 @@ namespace Familia.TSDClient {
                 this.columnNavCode.MaxLength = 6;
                 this.columnStructure.MaxLength = 30;
                 this.columnMessage.MaxLength = 20;
+                this.columnMessage2.MaxLength = 10;
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -1104,6 +1118,21 @@ namespace Familia.TSDClient {
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public string Message2 {
+                get {
+                    if (this.IsMessage2Null()) {
+                        return string.Empty;
+                    }
+                    else {
+                        return ((string)(this[this.tableProductsTbl.Message2Column]));
+                    }
+                }
+                set {
+                    this[this.tableProductsTbl.Message2Column] = value;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             public bool IsProductNameNull() {
                 return this.IsNull(this.tableProductsTbl.ProductNameColumn);
             }
@@ -1181,6 +1210,16 @@ namespace Familia.TSDClient {
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             public void SetMessageNull() {
                 this[this.tableProductsTbl.MessageColumn] = global::System.Convert.DBNull;
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public bool IsMessage2Null() {
+                return this.IsNull(this.tableProductsTbl.Message2Column);
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public void SetMessage2Null() {
+                this[this.tableProductsTbl.Message2Column] = global::System.Convert.DBNull;
             }
         }
         
@@ -1320,11 +1359,11 @@ namespace Familia.TSDClient {
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             public string Text1 {
                 get {
-                    try {
-                        return ((string)(this[this.tableDocsTbl.Text1Column]));
+                    if (this.IsText1Null()) {
+                        return string.Empty;
                     }
-                    catch (global::System.InvalidCastException e) {
-                        throw new global::System.Data.StrongTypingException("The value for column \'Text1\' in table \'DocsTbl\' is DBNull.", e);
+                    else {
+                        return ((string)(this[this.tableDocsTbl.Text1Column]));
                     }
                 }
                 set {
@@ -1335,11 +1374,11 @@ namespace Familia.TSDClient {
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             public string Text2 {
                 get {
-                    try {
-                        return ((string)(this[this.tableDocsTbl.Text2Column]));
+                    if (this.IsText2Null()) {
+                        return string.Empty;
                     }
-                    catch (global::System.InvalidCastException e) {
-                        throw new global::System.Data.StrongTypingException("The value for column \'Text2\' in table \'DocsTbl\' is DBNull.", e);
+                    else {
+                        return ((string)(this[this.tableDocsTbl.Text2Column]));
                     }
                 }
                 set {
@@ -1350,11 +1389,11 @@ namespace Familia.TSDClient {
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             public string Text3 {
                 get {
-                    try {
-                        return ((string)(this[this.tableDocsTbl.Text3Column]));
+                    if (this.IsText3Null()) {
+                        return string.Empty;
                     }
-                    catch (global::System.InvalidCastException e) {
-                        throw new global::System.Data.StrongTypingException("The value for column \'Text3\' in table \'DocsTbl\' is DBNull.", e);
+                    else {
+                        return ((string)(this[this.tableDocsTbl.Text3Column]));
                     }
                 }
                 set {

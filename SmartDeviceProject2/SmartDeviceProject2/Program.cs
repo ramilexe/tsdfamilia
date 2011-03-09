@@ -108,6 +108,7 @@ namespace Familia.TSDClient
             catch (Exception err)
             {
                 //MessageBox.Show(err.Message);
+                BTPrintClass.PrintClass.SetErrorEvent("Global error: {0}, Stack: {1}", err.Message, err.StackTrace);
             }
             finally
             {

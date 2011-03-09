@@ -65,6 +65,7 @@ namespace Familia.TSDClient
         private void closeFrmBtn_Click(object sender, EventArgs e)
         {
             this.DialogResult = DialogResult.OK;
+            ActionsClass.Action.ClearCache();
             this.Close();
         }
         void Scanned(string barcode)
@@ -125,9 +126,9 @@ namespace Familia.TSDClient
                 navCodeTB.Text = row.NavCode;
                 
                 label7.Text = (row["NewPrice"] == System.DBNull.Value ||
-                    row["NewPrice"] == null) ? string.Empty : row.NewPrice.ToString("### ###.00");
+                    row["NewPrice"] == null) ? string.Empty : row.NewPrice.ToString("######.00");
                 label8.Text = (row["OldPrice"] == System.DBNull.Value ||
-                    row["OldPrice"] == null) ? string.Empty : row.OldPrice.ToString("### ###.00");
+                    row["OldPrice"] == null) ? string.Empty : row.OldPrice.ToString("######.00");
                 if (label8.Text != label7.Text)
                     label7.Font = boldFont;
                 else
@@ -218,6 +219,11 @@ namespace Familia.TSDClient
                         {
                             BTPrintClass.PrintClass.Reconnect();
                         }
+                        else
+                        {
+                            this.Close();
+                            return;
+                        }
 
                     }
                 }
@@ -300,6 +306,7 @@ namespace Familia.TSDClient
                         }
 
                     }
+                     
                 }
             }
             catch (ObjectDisposedException)
@@ -461,7 +468,10 @@ namespace Familia.TSDClient
 
 
                     }
-                    catch { }
+                    catch (Exception err)
+                    {
+                        BTPrintClass.PrintClass.SetErrorEvent(err.ToString());
+                    }
                     finally
                     {
                         ScanClass.Scaner.ResumeScan();

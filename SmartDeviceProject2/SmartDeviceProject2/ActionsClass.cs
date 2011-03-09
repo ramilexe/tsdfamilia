@@ -71,6 +71,7 @@ namespace Familia.TSDClient
             dateFormat.ShortDatePattern = "dd.MM.yyyy";
             dateFormat.DateSeparator = ".";
             nfi.NumberDecimalSeparator = ".";
+            nfi.NumberGroupSeparator = "";
 
             actionsDict.Add(TSDUtils.ActionCode.NoAction, new ActOnProduct(NoActionProc));
             actionsDict.Add(TSDUtils.ActionCode.Reprice, new ActOnProduct(RepriceActionProc));
@@ -101,7 +102,7 @@ namespace Familia.TSDClient
         public void OpenProducts()
         {
             productsTa.Open();
-            
+            docsTa.Open();
         }
         public void OpenScanned()
         {
@@ -110,6 +111,7 @@ namespace Familia.TSDClient
         public void CloseProducts()
         {
             productsTa.Close();
+            docsTa.Close();
         }
         public void ClosedScanned()
         {
@@ -385,33 +387,48 @@ namespace Familia.TSDClient
                     tempList.Clear();
                     string atrName = TSDUtils.CustomEncodingClass.Encoding.GetString(bArrTmp).Replace("<", "");
                     System.Data.DataRow datarow = null;
-                    if (atrName.IndexOf("GOODS") >= 0)
+                    if (atrName.IndexOf("GOODS") >= 0 ||
+                        atrName.IndexOf("DOCS") >= 0 ||
+                        atrName.IndexOf("SCAN") >= 0)
                     {
-                        attrString = "GOODS_ATTRIBUTE_";
-                        datarow = productsRow;
-                    }
-                    else
-                        if (atrName.IndexOf("DOCS") >= 0)
+                        if (atrName.IndexOf("GOODS") >= 0)
                         {
-                            attrString = "DOCS_ATTRIBUTE_";
-                            datarow = docsRow;
+                            attrString = "GOODS_ATTRIBUTE_";
+                            datarow = productsRow;
                         }
                         else
-                            if (atrName.IndexOf("SCAN") >= 0)
+                            if (atrName.IndexOf("DOCS") >= 0)
                             {
-                                attrString = "SCAN_ATTRIBUTE_";
-                                datarow =
-                                    _scannedProducts.ScannedBarcodes.FindByBarcodeDocTypeDocId(productsRow.Barcode, docsRow.DocType, docsRow.DocId); 
+                                attrString = "DOCS_ATTRIBUTE_";
+                                datarow = docsRow;
                             }
-                    string atrCode = atrName.Replace(attrString, "");
-                    int colId = -1;
-                    //try
-                    //{
+                            else
+                                if (atrName.IndexOf("SCAN") >= 0)
+                                {
+                                    attrString = "SCAN_ATTRIBUTE_";
+                                    datarow = 
+                                        _scannedProducts.ScannedBarcodes.FindByBarcodeDocTypeDocId(
+                                        productsRow.Barcode, docsRow.DocType, docsRow.DocId); 
+                                }
+                        string atrCode = atrName.Replace(attrString, "");
+                        int colId = -1;
+
+                        //try
+                        //{
                         colId = int.Parse(atrCode) - 1;
                         if (colId >= datarow.Table.Columns.Count)
                             continue;
+                        bArrTmp = GetAttrValue(datarow[colId], datarow.Table.Columns[colId].DataType);
+                    }
+                    else
+                    {
+                        if (atrName.IndexOf("SYSTEMDATE") >= 0)
+                        {
+                            bArrTmp = GetAttrValue(DateTime.Today, typeof(DateTime));
+                        }
+                    }
                         //atrName = "Test";
-                        if (datarow.Table.Columns[colId].DataType == typeof(string) ||
+                        /*if (datarow.Table.Columns[colId].DataType == typeof(string) ||
                             datarow.Table.Columns[colId].DataType == typeof(long) ||
                             datarow.Table.Columns[colId].DataType == typeof(int) ||
                             datarow.Table.Columns[colId].DataType == typeof(byte))
@@ -423,18 +440,18 @@ namespace Familia.TSDClient
                             if (datarow.Table.Columns[colId].DataType == typeof(DateTime))
                             {
                                 bArrTmp = TSDUtils.CustomEncodingClass.Encoding.GetBytes(
-                                    ((DateTime)datarow[colId]).ToString(dateFormat));
+                                    ((DateTime)datarow[colId]).ToShortDateString());
                             }
                             else
                                 if (datarow.Table.Columns[colId].DataType == typeof(Single))
                                 {
                                     bArrTmp = TSDUtils.CustomEncodingClass.Encoding.GetBytes(
-                                        ((Single)datarow[colId]).ToString("### ###.00"));
+                                        ((Single)datarow[colId]).ToString("######.00"));
                                 }
                                 else
                                 bArrTmp =TSDUtils.CustomEncodingClass.Encoding.GetBytes(
                                     datarow[colId].ToString());
-
+                    */
                     //}
                     //catch
                     //{
@@ -452,6 +469,34 @@ namespace Familia.TSDClient
             }
             return outArray.ToArray();
         }
+        private byte[] GetAttrValue(object value, Type valueType)
+        {
+            byte[] bArrTmp;
+            if (valueType == typeof(string) ||
+                            valueType == typeof(long) ||
+                            valueType == typeof(int) ||
+                            valueType == typeof(byte))
+            {
+                bArrTmp = TSDUtils.CustomEncodingClass.Encoding.GetBytes(
+                    value.ToString());
+            }
+            else
+                if (valueType == typeof(DateTime))
+                {
+                    bArrTmp = TSDUtils.CustomEncodingClass.Encoding.GetBytes(
+                        ((DateTime)value).ToString("dd.MM.yyyy",dateFormat));
+                }
+                else
+                    if (valueType == typeof(Single))
+                    {
+                        bArrTmp = TSDUtils.CustomEncodingClass.Encoding.GetBytes(
+                            ((Single)value).ToString("######.00"));
+                    }
+                    else
+                        bArrTmp = TSDUtils.CustomEncodingClass.Encoding.GetBytes(
+                            value.ToString());
+            return bArrTmp;
+        }
 
         public void NoActionProc(ProductsDataSet.ProductsTblRow datarow, ProductsDataSet.DocsTblRow docsRow)
         {
@@ -464,16 +509,28 @@ namespace Familia.TSDClient
         }
         public void RepriceActionProc(ProductsDataSet.ProductsTblRow datarow, ProductsDataSet.DocsTblRow docsRow)
         {
-            PrintLabelAsync(datarow, docsRow);
-            PlayVibroAsyncAction(docsRow);
-            PlaySoundAsyncAction(docsRow);
+            
 
              ScannedProductsDataSet.ScannedBarcodesRow r =
                 _scannedProducts.ScannedBarcodes.FindByBarcodeDocTypeDocId(datarow.Barcode, docsRow.DocType, docsRow.DocId);
              if (r != null)
              {
                  r.FactQuantity += 1;
-             }
+                 try
+                 {
+                     PrintLabelAsync(datarow, docsRow);
+                     PlayVibroAsyncAction(docsRow);
+                     PlaySoundAsyncAction(docsRow);
+
+                 }
+                 finally
+                 {
+                     if (OnActionCompleted != null)
+                         OnActionCompleted(docsRow, r);
+                 }
+             } 
+            
+
             ////System.Threading.Thread.Sleep(1000);
             //ScannedProductsDataSet.ScannedBarcodesRow r = _scannedProducts.ScannedBarcodes.UpdateQuantity(
             //docsRow.Barcode, docsRow.DocType, 1);
@@ -496,11 +553,17 @@ namespace Familia.TSDClient
                 for (int i = 0; i < r.Length; i++)
                 {
                     r[i].FactQuantity += 1;
-                    PlayVibroAsyncAction(docsRow);
-                    PlaySoundAsyncAction(docsRow);
-                    PrintLabelAsync(datarow, docsRow);
-                    if (OnActionCompleted != null)
-                        OnActionCompleted(docsRow, r[i]);
+                    try
+                    {
+                        PlayVibroAsyncAction(docsRow);
+                        PlaySoundAsyncAction(docsRow);
+                        PrintLabelAsync(datarow, docsRow);
+                    }
+                    finally
+                    {
+                        if (OnActionCompleted != null)
+                            OnActionCompleted(docsRow, r[i]);
+                    }
 
                     /*if (r[i].FactQuantity < r[i].PlanQuanity)
                     {
@@ -538,20 +601,27 @@ namespace Familia.TSDClient
                     if (r[i].FactQuantity < r[i].PlanQuanity)
                     {
                         r[i].FactQuantity += 1;
-                        PlayVibroAsyncAction(docsRow);
-                        PlaySoundAsyncAction(docsRow);
-                        PrintLabelAsync(datarow, docsRow);
-                        if (r[i].FactQuantity == r[i].PlanQuanity)
+                        try
                         {
+                            PlayVibroAsyncAction(docsRow);
+                            PlaySoundAsyncAction(docsRow);
+                            PrintLabelAsync(datarow, docsRow);
 
-                            using (RemoveFinishForm frm = new RemoveFinishForm(datarow, docsRow))
+                            if (r[i].FactQuantity == r[i].PlanQuanity)
                             {
-                                frm.ShowDialog();
-                                
+
+                                using (RemoveFinishForm frm = new RemoveFinishForm(datarow, docsRow))
+                                {
+                                    frm.ShowDialog();
+
+                                }
                             }
                         }
-                        if (OnActionCompleted != null)
-                            OnActionCompleted(docsRow, r[i]);
+                        finally
+                        {
+                            if (OnActionCompleted != null)
+                                OnActionCompleted(docsRow, r[i]);
+                        }
                         break;
                     }
                     
