@@ -130,5 +130,53 @@ namespace TSDServer.Properties {
                 this["LocalFilePath"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool ImportProductsEnabled {
+            get {
+                return ((bool)(this["ImportProductsEnabled"]));
+            }
+            set {
+                this["ImportProductsEnabled"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool ImportDocsEnabled {
+            get {
+                return ((bool)(this["ImportDocsEnabled"]));
+            }
+            set {
+                this["ImportDocsEnabled"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool SettingsEnabled {
+            get {
+                return ((bool)(this["SettingsEnabled"]));
+            }
+            set {
+                this["SettingsEnabled"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("\\\\127.0.0.1\\share")]
+        public string RemoteFilePath {
+            get {
+                return ((string)(this["RemoteFilePath"]));
+            }
+            set {
+                this["RemoteFilePath"] = value;
+            }
+        }
     }
 }
