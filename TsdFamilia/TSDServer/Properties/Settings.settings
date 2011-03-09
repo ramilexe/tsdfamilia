@@ -29,5 +29,17 @@
     <Setting Name="LocalFilePath" Type="System.String" Scope="User">
       <Value Profile="(Default)">c:\</Value>
     </Setting>
+    <Setting Name="ImportProductsEnabled" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="ImportDocsEnabled" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="SettingsEnabled" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="RemoteFilePath" Type="System.String" Scope="User">
+      <Value Profile="(Default)">\\127.0.0.1\share</Value>
+    </Setting>
   </Settings>
 </SettingsFile>
