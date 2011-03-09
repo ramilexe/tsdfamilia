@@ -555,9 +555,10 @@ namespace TSDServer
                 return this.docsAdapter.FileList;
             }
         }
+
         public void UploadResults()
         {
-            
+
             scannedTA.Fill(scannedDs);
 
             using (System.IO.StreamWriter wr = new StreamWriter(
@@ -572,14 +573,14 @@ namespace TSDServer
                         (TSDServer.ScannedProductsDataSet.ScannedBarcodesRow)row1;
 
                     string s =
-                        string.Format("{0}|{1}|{2}|{3}|{4}|{5}|", 
-                            row.Barcode, 
-                            row.DocId, 
-                            row.DocType, 
-                            row.FactQuantity, 
+                        string.Format("{0}|{1}|{2}|{3}|{4}|{5}|",
+                            row.Barcode,
+                            row.DocId,
+                            row.DocType,
+                            row.FactQuantity,
                             row.ScannedDate,
-                            (row["TerminalId"] == System.DBNull.Value)?
-                            string.Empty:row.TerminalId.ToString()
+                            (row["TerminalId"] == System.DBNull.Value) ?
+                            string.Empty : row.TerminalId.ToString()
                             );
                     wr.WriteLine(s);
                 }
@@ -618,21 +619,49 @@ namespace TSDServer
                 wr.Flush();
                 wr.Close();
             }
+
+            string dateString = DateTime.Now.ToString("yyyyMMddhhmmss");
             try
             {
-                File.Copy(
-                    Path.Combine(Properties.Settings.Default.LocalFilePath,
-                        "register.txt"),
-                    Path.Combine(Properties.Settings.Default.RemoteFilePath,
-                        "register.txt")
-                    , true);
+                //if (File.Exists(Path.Combine(Properties.Settings.Default.RemoteFilePath,
+                //            "register.txt")))
+                //{
+                //    File.Delete(Path.Combine(Properties.Settings.Default.RemoteFilePath,
+                //                "register.txt"));
+                //}
 
-                File.Copy(
-                    Path.Combine(Properties.Settings.Default.LocalFilePath,
-                        "scannedbarcodes.txt"),
-                    Path.Combine(Properties.Settings.Default.RemoteFilePath,
-                        "scannedbarcodes.txt"),
-                        true);
+                if (File.Exists(Path.Combine(Properties.Settings.Default.LocalFilePath,
+                        "register.txt")))
+                {
+
+                    File.Copy(
+                        Path.Combine(Properties.Settings.Default.LocalFilePath,
+                            "register.txt"),
+                        Path.Combine(Properties.Settings.Default.RemoteFilePath,
+                            string.Format("{0}_{1}.txt", "register",
+                            dateString)
+                            )
+                        , true);
+                }
+
+                //if (File.Exists(Path.Combine(Properties.Settings.Default.RemoteFilePath,
+                //            "scannedbarcodes.txt")))
+                //{
+                //    File.Delete(Path.Combine(Properties.Settings.Default.RemoteFilePath,
+                //            "scannedbarcodes.txt"));
+                //}
+                if (File.Exists(Path.Combine(Properties.Settings.Default.LocalFilePath,
+                            "scannedbarcodes.txt")))
+                {
+                    File.Copy(
+                        Path.Combine(Properties.Settings.Default.LocalFilePath,
+                            "scannedbarcodes.txt"),
+                        Path.Combine(Properties.Settings.Default.RemoteFilePath,
+                        string.Format("{0}_{1}.txt", "scannedbarcodes",
+                            dateString)),
+                        /*"scannedbarcodes.txt"*/
+                            true);
+                }
             }
             catch (Exception err)
             {
@@ -646,6 +675,7 @@ namespace TSDServer
 
         }
 
+      
         public class NoDateException: System.Exception
         {
             string _inString;
