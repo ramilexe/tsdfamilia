@@ -36,6 +36,7 @@ namespace Familia.TSDClient
         {
             try
             {
+                doEvents = false;
                 Disconnect();
                 BTPrinterInit();
                 ConnToPrinter(Program.Settings.TypedSettings[0].BTPrinterAddress);
@@ -45,6 +46,10 @@ namespace Familia.TSDClient
                 BtRet = BluetoothLibNet.Def.BTERR_FAILED;
                 _connected = false;
                 SetErrorEvent(err.ToString());
+            }
+            finally
+            {
+                doEvents = true;
             }
         }
     
@@ -243,6 +248,7 @@ namespace Familia.TSDClient
         private int BtRet;
         private IntPtr hSerial;
         private int CommStatus = 0;
+        private bool doEvents = true;
         BluetoothLibNet.BTST_DEVICEINFO btDefaultdevice = new BluetoothLibNet.BTST_DEVICEINFO();
 
         BluetoothLibNet.BTST_LOCALINFO bt_li = new Calib.BluetoothLibNet.BTST_LOCALINFO();
@@ -714,8 +720,9 @@ namespace Familia.TSDClient
                 {
                     BtRet = BluetoothLibNet.Def.BTERR_FAILED;
                     SetErrorEvent("BT Printer connection failed");
-                    throw new BTConnectionFailedException();
+                    
                     _connected = false;
+                    throw new BTConnectionFailedException();
                 }
                 return BtRet;
             }
@@ -724,7 +731,7 @@ namespace Familia.TSDClient
                 BtRet = BluetoothLibNet.Def.BTERR_FAILED;
                 _connected = false;
                 SetErrorEvent(err.ToString());
-                if (OnConnectionError != null)
+                if (OnConnectionError != null && doEvents)
                     OnConnectionError();
                 return BtRet;
             }
@@ -760,7 +767,7 @@ namespace Familia.TSDClient
                         {
                             SetErrorEvent("BT printer not found!");
                             throw new BTConnectionFailedException();
-                            return BtRet;
+                            //return BtRet;
                         }
                         SetStatusEvent("Set default BT printer {0}", Program.Settings.TypedSettings[0].BTPrinterAddress.ToUpper());
 
@@ -770,8 +777,8 @@ namespace Familia.TSDClient
                     else
                     {
                         SetErrorEvent("Default BT Printer name is not set");
+//                        return BtRet;
                         throw new BTConnectionFailedException();
-                        return BtRet;
                     }
 
                 }
@@ -787,7 +794,7 @@ namespace Familia.TSDClient
                 BtRet = BluetoothLibNet.Def.BTERR_FAILED;
                 _connected = false;
                 SetErrorEvent(err.ToString());
-                if (OnConnectionError != null)
+                if (OnConnectionError != null && doEvents)
                     OnConnectionError();
                 return BtRet;
             }

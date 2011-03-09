@@ -60,10 +60,17 @@
                   </xs:restriction>
                 </xs:simpleType>
               </xs:element>
+              <xs:element name="Message2" msprop:Generator_UserColumnName="Message2" msprop:nullValue="_empty" msprop:Generator_ColumnVarNameInTable="columnMessage2" msprop:Generator_ColumnPropNameInTable="Message2Column" msprop:Generator_ColumnPropNameInRow="Message2" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:maxLength value="10" />
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
             </xs:sequence>
           </xs:complexType>
         </xs:element>
-        <xs:element name="DocsTbl" msprop:Generator_UserTableName="DocsTbl" msprop:Generator_RowDeletedName="DocsTblRowDeleted" msprop:Generator_TableClassName="DocsTblDataTable" msprop:Generator_RowChangedName="DocsTblRowChanged" msprop:Generator_RowClassName="DocsTblRow" msprop:Generator_RowChangingName="DocsTblRowChanging" msprop:Generator_RowEvArgName="DocsTblRowChangeEvent" msprop:Generator_RowEvHandlerName="DocsTblRowChangeEventHandler" msprop:Generator_TablePropName="DocsTbl" msprop:Generator_TableVarName="tableDocsTbl" msprop:Generator_RowDeletingName="DocsTblRowDeleting">
+        <xs:element name="DocsTbl" msprop:Generator_UserTableName="DocsTbl" msprop:Generator_RowDeletedName="DocsTblRowDeleted" msprop:Generator_RowChangedName="DocsTblRowChanged" msprop:Generator_RowClassName="DocsTblRow" msprop:Generator_RowChangingName="DocsTblRowChanging" msprop:Generator_RowEvArgName="DocsTblRowChangeEvent" msprop:Generator_RowEvHandlerName="DocsTblRowChangeEventHandler" msprop:Generator_TableClassName="DocsTblDataTable" msprop:Generator_TableVarName="tableDocsTbl" msprop:Generator_RowDeletingName="DocsTblRowDeleting" msprop:Generator_TablePropName="DocsTbl">
           <xs:complexType>
             <xs:sequence>
               <xs:element name="NavCode" msprop:Generator_UserColumnName="NavCode" msprop:Generator_ColumnPropNameInRow="NavCode" msprop:Generator_ColumnVarNameInTable="columnNavCode" msprop:Generator_ColumnPropNameInTable="NavCodeColumn">
@@ -87,21 +94,21 @@
               <xs:element name="LabelCode" msprop:Generator_UserColumnName="LabelCode" msprop:Generator_ColumnPropNameInRow="LabelCode" msprop:Generator_ColumnVarNameInTable="columnLabelCode" msprop:Generator_ColumnPropNameInTable="LabelCodeColumn" type="xs:unsignedByte" minOccurs="0" />
               <xs:element name="MusicCode" msprop:Generator_UserColumnName="MusicCode" msprop:Generator_ColumnPropNameInRow="MusicCode" msprop:Generator_ColumnVarNameInTable="columnMusicCode" msprop:Generator_ColumnPropNameInTable="MusicCodeColumn" type="xs:unsignedByte" minOccurs="0" />
               <xs:element name="VibroCode" msprop:Generator_UserColumnName="VibroCode" msprop:Generator_ColumnPropNameInRow="VibroCode" msprop:Generator_ColumnVarNameInTable="columnVibroCode" msprop:Generator_ColumnPropNameInTable="VibroCodeColumn" type="xs:unsignedByte" minOccurs="0" />
-              <xs:element name="Text1" msprop:Generator_UserColumnName="Text1" msprop:Generator_ColumnPropNameInRow="Text1" msprop:Generator_ColumnVarNameInTable="columnText1" msprop:Generator_ColumnPropNameInTable="Text1Column" minOccurs="0">
+              <xs:element name="Text1" msprop:Generator_UserColumnName="Text1" msprop:nullValue="_empty" msprop:Generator_ColumnVarNameInTable="columnText1" msprop:Generator_ColumnPropNameInTable="Text1Column" msprop:Generator_ColumnPropNameInRow="Text1" minOccurs="0">
                 <xs:simpleType>
                   <xs:restriction base="xs:string">
                     <xs:maxLength value="20" />
                   </xs:restriction>
                 </xs:simpleType>
               </xs:element>
-              <xs:element name="Text2" msprop:Generator_UserColumnName="Text2" msprop:Generator_ColumnPropNameInRow="Text2" msprop:Generator_ColumnVarNameInTable="columnText2" msprop:Generator_ColumnPropNameInTable="Text2Column" minOccurs="0">
+              <xs:element name="Text2" msprop:Generator_UserColumnName="Text2" msprop:nullValue="_empty" msprop:Generator_ColumnVarNameInTable="columnText2" msprop:Generator_ColumnPropNameInTable="Text2Column" msprop:Generator_ColumnPropNameInRow="Text2" minOccurs="0">
                 <xs:simpleType>
                   <xs:restriction base="xs:string">
                     <xs:maxLength value="20" />
                   </xs:restriction>
                 </xs:simpleType>
               </xs:element>
-              <xs:element name="Text3" msprop:Generator_UserColumnName="Text3" msprop:Generator_ColumnPropNameInRow="Text3" msprop:Generator_ColumnVarNameInTable="columnText3" msprop:Generator_ColumnPropNameInTable="Text3Column" minOccurs="0">
+              <xs:element name="Text3" msprop:Generator_UserColumnName="Text3" msprop:nullValue="_empty" msprop:Generator_ColumnVarNameInTable="columnText3" msprop:Generator_ColumnPropNameInTable="Text3Column" msprop:Generator_ColumnPropNameInRow="Text3" minOccurs="0">
                 <xs:simpleType>
                   <xs:restriction base="xs:string">
                     <xs:maxLength value="20" />

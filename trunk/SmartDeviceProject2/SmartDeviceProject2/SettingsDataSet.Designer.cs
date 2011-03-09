@@ -515,6 +515,8 @@ namespace Familia.TSDClient {
             
             private global::System.Data.DataColumn columnEnableWorkWOPrinter;
             
+            private global::System.Data.DataColumn columnCurrentDate;
+            
             private static System.DateTime columnBaseDate_defaultValue = global::System.DateTime.Parse("01/01/2010 00:00:00");
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -640,6 +642,13 @@ namespace Familia.TSDClient {
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public global::System.Data.DataColumn CurrentDateColumn {
+                get {
+                    return this.columnCurrentDate;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             public int Count {
                 get {
                     return this.Rows.Count;
@@ -667,7 +676,7 @@ namespace Familia.TSDClient {
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            public TypedSettingsRow AddTypedSettingsRow(int StorageMemorySize, bool VibarationOn, bool ScanSoundNotifyOn, string DatabaseFileName, string DatabaseStoragePath, string BTPrinterAddress, int BTComPort, System.DateTime BaseDate, string ProductsConnectionString, uint DefaultRepriceShablon, int TerminalID, uint BlueButtonShablon, byte EnableExit, byte EnableWorkWOPrinter) {
+            public TypedSettingsRow AddTypedSettingsRow(int StorageMemorySize, bool VibarationOn, bool ScanSoundNotifyOn, string DatabaseFileName, string DatabaseStoragePath, string BTPrinterAddress, int BTComPort, System.DateTime BaseDate, string ProductsConnectionString, uint DefaultRepriceShablon, int TerminalID, uint BlueButtonShablon, byte EnableExit, byte EnableWorkWOPrinter, string CurrentDate) {
                 TypedSettingsRow rowTypedSettingsRow = ((TypedSettingsRow)(this.NewRow()));
                 object[] columnValuesArray = new object[] {
                         StorageMemorySize,
@@ -683,7 +692,8 @@ namespace Familia.TSDClient {
                         TerminalID,
                         BlueButtonShablon,
                         EnableExit,
-                        EnableWorkWOPrinter};
+                        EnableWorkWOPrinter,
+                        CurrentDate};
                 rowTypedSettingsRow.ItemArray = columnValuesArray;
                 this.Rows.Add(rowTypedSettingsRow);
                 return rowTypedSettingsRow;
@@ -722,6 +732,7 @@ namespace Familia.TSDClient {
                 this.columnBlueButtonShablon = base.Columns["BlueButtonShablon"];
                 this.columnEnableExit = base.Columns["EnableExit"];
                 this.columnEnableWorkWOPrinter = base.Columns["EnableWorkWOPrinter"];
+                this.columnCurrentDate = base.Columns["CurrentDate"];
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -754,6 +765,8 @@ namespace Familia.TSDClient {
                 base.Columns.Add(this.columnEnableExit);
                 this.columnEnableWorkWOPrinter = new global::System.Data.DataColumn("EnableWorkWOPrinter", typeof(byte), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnEnableWorkWOPrinter);
+                this.columnCurrentDate = new global::System.Data.DataColumn("CurrentDate", typeof(string), null, global::System.Data.MappingType.Element);
+                base.Columns.Add(this.columnCurrentDate);
                 this.columnStorageMemorySize.DefaultValue = ((int)(17000));
                 this.columnVibarationOn.DefaultValue = ((bool)(false));
                 this.columnScanSoundNotifyOn.DefaultValue = ((bool)(false));
@@ -1159,6 +1172,21 @@ namespace Familia.TSDClient {
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public string CurrentDate {
+                get {
+                    try {
+                        return ((string)(this[this.tableTypedSettings.CurrentDateColumn]));
+                    }
+                    catch (global::System.InvalidCastException e) {
+                        throw new global::System.Data.StrongTypingException("The value for column \'CurrentDate\' in table \'TypedSettings\' is DBNull.", e);
+                    }
+                }
+                set {
+                    this[this.tableTypedSettings.CurrentDateColumn] = value;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             public bool IsStorageMemorySizeNull() {
                 return this.IsNull(this.tableTypedSettings.StorageMemorySizeColumn);
             }
@@ -1296,6 +1324,16 @@ namespace Familia.TSDClient {
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             public void SetEnableWorkWOPrinterNull() {
                 this[this.tableTypedSettings.EnableWorkWOPrinterColumn] = global::System.Convert.DBNull;
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public bool IsCurrentDateNull() {
+                return this.IsNull(this.tableTypedSettings.CurrentDateColumn);
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public void SetCurrentDateNull() {
+                this[this.tableTypedSettings.CurrentDateColumn] = global::System.Convert.DBNull;
             }
         }
         

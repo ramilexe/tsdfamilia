@@ -62,7 +62,7 @@ namespace Familia.TSDClient
             _docsRows = docsRows;
             //this.listBox1.KeyDown += new KeyEventHandler(listBox1_KeyDown);
             this.Load += new EventHandler(ViewDocsForm_Load);
-            
+            int docCounter = 0;
             //this.Paint += new PaintEventHandler(ViewDocsForm_Paint);
             if (_productRow != null)
             {
@@ -114,14 +114,14 @@ namespace Familia.TSDClient
                         documents.Add(d);
                         this.panel2.Controls.Add(l);
                         selectedItem = 0;
-                        
+                        docCounter++;
 
                     }
                 }
                else
                 {
                     Label l = new Label();
-                    l.Size = new System.Drawing.Size(231, 30);
+                    l.Size = new System.Drawing.Size(231, 60);
                     l.Name = string.Format("label{0}", 0);
                     l.Left = 0;
                     l.Top = 0;
@@ -129,12 +129,13 @@ namespace Familia.TSDClient
                     l.BackColor = System.Drawing.Color.PaleGreen;
                     l.TextAlign = ContentAlignment.TopCenter;
                     this.panel2.Controls.Add(l);
+                    docCounter++;
                 }
                 Label l1 = new Label();
                 l1.Size = new System.Drawing.Size(231, 30);
-                l1.Name = string.Format("label{0}", documents.Count+1);
+                l1.Name = string.Format("label{0}", docCounter + 1);
                 l1.Left = 0;
-                l1.Top = (documents.Count*60) +30;
+                l1.Top = (docCounter * 60);
                 l1.Text = "Нажмите желтую кнопку или Clr-Fn\nеще раз для выхода";
                 l1.BackColor = System.Drawing.Color.PaleGreen;
                 l1.TextAlign = ContentAlignment.TopCenter;
