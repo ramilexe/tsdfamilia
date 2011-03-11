@@ -829,7 +829,7 @@ namespace Familia.TSDClient
             
             try
             {
-                mEvt.WaitOne(WaitPrintTimeDefault + WaitPrintTimeDefault / 2, true);
+                mEvt.WaitOne((int)(WaitPrintTimeDefault + WaitPrintTimeDefault / 2),false);
                 mEvt.Reset();
                 try
                 {
