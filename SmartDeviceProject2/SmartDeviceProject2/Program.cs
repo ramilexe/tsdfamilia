@@ -74,8 +74,10 @@ namespace Familia.TSDClient
                     r.BlueButtonShablon = 1;
                     r.EnableExit = 1;
                     r.EnableWorkWOPrinter = 1;
+                    r.WaitPrintTimeDefault = 1000;
                     Settings.TypedSettings.AddTypedSettingsRow(r);
                     Settings.TypedSettings.AcceptChanges();
+                    
                     _terminal_id = 0;
 
                     Settings.WriteXml(settingFilePath);

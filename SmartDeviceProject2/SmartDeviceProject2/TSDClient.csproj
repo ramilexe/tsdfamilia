@@ -107,7 +107,6 @@
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
     <Compile Include="NativeClass.cs" />
-    <Compile Include="PrintLabelClass.cs" />
     <Compile Include="ProductsDataSet.cs">
       <DependentUpon>ProductsDataSet.xsd</DependentUpon>
     </Compile>

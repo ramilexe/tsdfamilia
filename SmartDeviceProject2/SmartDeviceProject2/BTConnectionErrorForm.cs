@@ -13,6 +13,7 @@ namespace Familia.TSDClient
     {
         public BTConnectionErrorForm()
         {
+            BTPrintClass.PrintClass.SetStatusEvent("Open BTConnectionErrorForm form");
             InitializeComponent();
         }
 
@@ -22,11 +23,13 @@ namespace Familia.TSDClient
             if (e.KeyCode == Keys.Enter)
             {
                 this.DialogResult = DialogResult.Yes;
+                BTPrintClass.PrintClass.SetStatusEvent("BTConnectionErrorForm form - choose Yes");
                 this.Close();
             }
             if (e.KeyCode == Keys.Escape)
             {
                 this.DialogResult = DialogResult.No;
+                BTPrintClass.PrintClass.SetStatusEvent("BTConnectionErrorForm form - choose No");
                 this.Close();
             }
         }

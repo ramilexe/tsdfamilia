@@ -14,6 +14,8 @@ namespace Familia.TSDClient
 
     public class BTPrintClass
     {
+        static int WaitPrintTimeDefault = Program.Default.WaitPrintTimeDefault;
+
         static BTPrintClass _PrintClass = new BTPrintClass();
         public static BTPrintClass PrintClass
         {
@@ -34,6 +36,7 @@ namespace Familia.TSDClient
 
         public void Reconnect()
         {
+            Thread.Sleep(1000);
             try
             {
                 doEvents = false;
@@ -70,7 +73,8 @@ namespace Familia.TSDClient
                 using (System.IO.StreamWriter wr = new System.IO.StreamWriter(
                            System.IO.Path.Combine(Program.StartupPath, "BTLog.txt"), true))
                 {
-                    wr.WriteLine(text);
+                   // wr.WriteLine(text);
+                    wr.WriteLine(string.Format("{0} {1}", DateTime.Now, text));
                 }
             }
             catch { }
@@ -93,7 +97,7 @@ namespace Familia.TSDClient
                 using (System.IO.StreamWriter wr = new System.IO.StreamWriter(
                            System.IO.Path.Combine(Program.StartupPath, "BTLog.txt"), true))
                 {
-                    wr.WriteLine(text);
+                    wr.WriteLine(string.Format("{0} {1}",DateTime.Now,text));
                 }
             }
             catch { }
@@ -116,7 +120,7 @@ namespace Familia.TSDClient
 
         System.Collections.Specialized.StringDictionary foundedDevices =
                new System.Collections.Specialized.StringDictionary();
-
+        System.Threading.ManualResetEvent mEvt = new ManualResetEvent(false);
         // DCB structure
         [StructLayout(LayoutKind.Sequential)]
         private class DCB
@@ -343,7 +347,7 @@ namespace Familia.TSDClient
                 {
                     //Status.Text = "";
                     //Result = MessageBox.Show(
-                    SetErrorEvent("BT Init Error");
+                    SetErrorEvent("BT Init Error " + BtRet.ToString());
                     return BtRet;
                 }
 
@@ -401,7 +405,10 @@ namespace Familia.TSDClient
                     BluetoothLibNet.Api.BTDeInitialize();
                     return BtRet;
                 }
+                
+                
             }
+            mEvt.Set();
             return BtRet;
         }
 
@@ -709,7 +716,7 @@ namespace Familia.TSDClient
             try
             {
                 sp.Open();
-
+                
                 if (sp.IsOpen)
                 {
                     SetStatusEvent("BT Printer connected");
@@ -819,33 +826,43 @@ namespace Familia.TSDClient
 
         public void Print(byte[] prnout)
         {
+            
             try
             {
-                if (BtRet == BluetoothLibNet.Def.BTERR_CONNECTED)
+                mEvt.WaitOne(WaitPrintTimeDefault + WaitPrintTimeDefault / 2, true);
+                mEvt.Reset();
+                try
                 {
-                    SetStatusEvent("sending datas...");
-                    sp.Write(prnout, 0, prnout.Length);
-                    SetStatusEvent("BT Printing");
-                    Thread.Sleep(1000);
-                    #region
-                    /*
-                SetStatusEvent("sending datas...");
-                if (PortWrite(prnout, prnout.Length, hSerial) == 1)
-                {
-                    //Status.Text = "";
-                    //MessageBox.Show
-                    SetErrorEvent("BT Write Error");
-                }
-
+                    if (BtRet == BluetoothLibNet.Def.BTERR_CONNECTED)
+                    {
+                        SetStatusEvent("sending datas...");
+                        sp.Write(prnout, 0, prnout.Length);
+                        SetStatusEvent("BT Printing");
+                        Thread.Sleep(WaitPrintTimeDefault);
+                        #region
+                        /*
+            SetStatusEvent("sending datas...");
+            if (PortWrite(prnout, prnout.Length, hSerial) == 1)
+            {
+                //Status.Text = "";
                 //MessageBox.Show
-                SetStatusEvent("BT Printing");
-                */
-                    #endregion
+                SetErrorEvent("BT Write Error");
+            }
+
+            //MessageBox.Show
+            SetStatusEvent("BT Printing");
+            */
+                        #endregion
+                    }
+                    else
+                    {
+                        SetErrorEvent("BT Printer not connected");
+                        throw new BTConnectionFailedException();
+                    }
                 }
-                else
+                finally
                 {
-                    SetErrorEvent("BT Printer not connected");
-                    throw new BTConnectionFailedException();
+                    mEvt.Set();
                 }
             }
             catch (Exception err)
@@ -868,6 +885,8 @@ namespace Familia.TSDClient
 
         public void Disconnect()
         {
+
+            
             try
             {
                 SetStatusEvent("disconnect printer...");
@@ -884,6 +903,7 @@ namespace Familia.TSDClient
             finally
             {
                 BluetoothLibNet.Api.BTDeInitialize();
+                Calib.BluetoothLibNet.Api.BTWaitForBtReady();
             }
 
         }
@@ -1462,7 +1482,7 @@ PRINT
         int comNum = 0;
 
         
-        private System.Threading.ManualResetEvent mEvt = new ManualResetEvent(false);
+        
         
         private bool signalled = false;
 
@@ -1601,6 +1621,22 @@ PRINT
 
     public class BTConnectionFailedException : System.Exception
     {
-
+        /*private int last_error = 0;
+        //public BluetoothLibNet.Def
+        public BTConnectionFailedException ()
+        {
+            
+        }*/
+        /*public string GetLastErrorText()
+        {
+            int last_error = BluetoothLibNet.Api.BTGetLastError();
+            if (BluetoothLibNet.Def.FUNCTION_UNSUPPORT != last_error)
+            {
+                BluetoothLibNet.Api.
+            }
+            else
+                return "FUNCTION_UNSUPPORT";
+        }*/
+        
     }
 }

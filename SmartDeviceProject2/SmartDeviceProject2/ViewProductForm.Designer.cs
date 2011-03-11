@@ -17,6 +17,7 @@
             {
                 components.Dispose();
                 BTPrintClass.PrintClass.Disconnect();
+                BTPrintClass.PrintClass.SetStatusEvent("Disposed Products form");
             }
             base.Dispose(disposing);
         }

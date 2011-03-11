@@ -44,6 +44,7 @@ namespace Familia.TSDClient
 
         public ViewProductForm()
         {
+            BTPrintClass.PrintClass.SetStatusEvent("Open Products form");
             InitializeComponent();
 
             //tmr = new System.Threading.Timer(
@@ -383,7 +384,7 @@ namespace Familia.TSDClient
             ScanClass.Scaner.OnScanned = null;
             ScanClass.Scaner.StopScan();
             ActionsClass.Action.OnActionCompleted -=Action_OnActionCompleted;
-
+            BTPrintClass.PrintClass.SetStatusEvent("Close Products form");
 
         }
 

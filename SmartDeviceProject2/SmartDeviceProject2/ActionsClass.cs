@@ -300,24 +300,34 @@ namespace Familia.TSDClient
                 //btPrint.SetStatusEvent(fileContent);
                 //return;
 
-
-                if (btPrint.Connected)
+                try
                 {
-                    btPrint.Print(/*fileContent*/bArray2);
-                }
-                else
-                {
-
-                    btPrint.ConnToPrinter(Program.Settings.TypedSettings[0].BTPrinterAddress);
                     if (btPrint.Connected)
                     {
                         btPrint.Print(/*fileContent*/bArray2);
                     }
+                    else
+                    {
 
+                        btPrint.ConnToPrinter(Program.Settings.TypedSettings[0].BTPrinterAddress);
+                        if (btPrint.Connected)
+                        {
+                            btPrint.Print(/*fileContent*/bArray2);
+                        }
+
+                    }
+                }
+                catch
+                {
+                    //BTPrintClass.PrintClass.Reconnect();
+                    System.Threading.Thread.Sleep(5000);
+                    //btPrint.ConnToPrinter(Program.Settings.TypedSettings[0].BTPrinterAddress);
+                    btPrint.Print(/*fileContent*/bArray2);
                 }
             }
             catch (BTConnectionFailedException)
             {
+                
                 try
                 {
                     using (BTConnectionErrorForm frm =
@@ -331,11 +341,12 @@ namespace Familia.TSDClient
 
                     }
                 }
-                catch { }
+                catch (Exception err) { BTPrintClass.PrintClass.SetErrorEvent(err.ToString()); }
             }
             catch (Exception err)
             {
                 BTPrintClass.PrintClass.SetErrorEvent(err.ToString());
+                BTPrintClass.PrintClass.SetErrorEvent("Отключите принтер и подключите заново");
             }
 
         }
