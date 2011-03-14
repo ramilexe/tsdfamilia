@@ -36,12 +36,22 @@ namespace Familia.TSDClient
             }
 
         }
+        //static System.Threading.ManualResetEvent mEvt =
+        //    new System.Threading.ManualResetEvent(false);
+        //static int WaitPrintTimeDefault = 1000;
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
         [MTAThread]
         static void Main()
         {
+            //mEvt.WaitOne((int)(WaitPrintTimeDefault + WaitPrintTimeDefault / 2), false);
+            //mEvt.Reset();
+
+            //System.Threading.Thread.Sleep(1000);
+            //mEvt.Set();
+
+
             if (System.IO.File.Exists("BTLog.txt"))
                 System.IO.File.Delete("BTLog.txt");
 
