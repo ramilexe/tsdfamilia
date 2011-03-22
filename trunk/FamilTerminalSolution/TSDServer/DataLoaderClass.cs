@@ -11,7 +11,7 @@ namespace TSDServer
         private ProductsDataSet productsDataSet1;
         TSDServer.ScannedProductsDataSet scannedDs;
         bool _disposed = false;
-
+        SendMailAttach.SendMailClass sendmail;
         public bool Processing
         {
             get
@@ -31,7 +31,7 @@ namespace TSDServer
         string[] cols = null;
         int[] colsLength = null;
         DateTime BaseDate = Properties.Settings.Default.BaseDate;
-
+        bool hasErrorForMail = false;
         char fieldDelimeter = Properties.Settings.Default.FieldDelimeter[0];
         public delegate void AddStringDelegate(string source);
 
@@ -45,13 +45,14 @@ namespace TSDServer
         public event FailedImport OnFailedImport;
         private System.Threading.Thread loadThread = null;
         private bool Cancelled = false;
+        StringBuilder logBuilder = new StringBuilder();
 
         public enum ImportModeEnum { Undefined = 0, Products = 1, Documents = 2 };
         ImportModeEnum currentImportMode = ImportModeEnum.Undefined;
         ProductsDataSetTableAdapters.ProductsTblTableAdapter productAdapter;
         ProductsDataSetTableAdapters.DocsTblTableAdapter docsAdapter;
         TSDServer.ScannedProductsDataSetTableAdapters.ScannedBarcodesTableAdapter scannedTA;
-
+        private System.Threading.ManualResetEvent mEvt = new System.Threading.ManualResetEvent(false);
 
         //TSDUtils.CustomEncodingClass CustomEncodingClass MyEncoder = new CustomEncodingClass();
         public DataLoaderClass()
@@ -63,6 +64,14 @@ namespace TSDServer
             scannedDs = new TSDServer.ScannedProductsDataSet();
             scannedTA = new TSDServer.ScannedProductsDataSetTableAdapters.ScannedBarcodesTableAdapter(scannedDs);
             SetFormats();
+            sendmail = new SendMailAttach.SendMailClass(Properties.Settings.Default.AddressFrom,
+                Properties.Settings.Default.UserNameFrom,
+                false,
+                Properties.Settings.Default.SmtpClient);
+
+            mEvt.Set();
+            
+
         }
         void SetFormats()
         {
@@ -135,18 +144,24 @@ namespace TSDServer
 
         void DataLoaderClass_OnFailedImport(string message)
         {
-            
+            hasErrorForMail = true;
+            logBuilder.AppendLine(message);
         }
 
         void DataLoaderClass_OnFinishImport(string fileName)
         {
             //Cancelled = false;
             loadThread = null;
+            logBuilder.AppendLine(fileName);
+
+            sendmail.SendMail(
+                new string[] { "", "Статус загрузки данных", logBuilder.ToString(), Properties.Settings.Default.AddressToList, "", "" });
         }
 
         void DataLoaderClass_OnProcessImport(string Message, bool hasError)
         {
-            
+            if (hasError)
+                logBuilder.AppendLine(Message);
         }
         public void AutoLoadProduct(string fileName)
         {
@@ -155,10 +170,14 @@ namespace TSDServer
 
         private void BeginImport(object _fileName)
         {
-
-            string fileName = _fileName.ToString();
+            if (mEvt.WaitOne(1000 * 60 * 30) == false)
+                return;
+            mEvt.Reset();
+            
             try
             {
+                hasErrorForMail = false;
+                string fileName = _fileName.ToString();
                 bool IsFileFixed = Properties.Settings.Default.ImportFileTypeIsFixed;
                 AddStringDelegate del = null;
                 if (currentImportMode == ImportModeEnum.Products)
@@ -191,9 +210,24 @@ namespace TSDServer
                     string s = string.Empty;
                     while ((s = rdr.ReadLine()) != null)
                     {
-                        if (Cancelled)
-                            return;
-                        del.Invoke(s);
+                        try
+                        {
+                            if (Cancelled)
+                                return;
+                            del.Invoke(s);
+                        }
+                        catch (Exception err)
+                        {
+                            hasErrorForMail = true;
+                            if (Properties.Settings.Default.BreakOnError)
+                                throw;
+                            else
+                            {
+                                if (OnProcessImport != null)
+                                    OnProcessImport(string.Format("Ошибка в строке: {0}: {1}\n", s, err.Message), true);
+                            }
+                        }
+                        
 
                     }
                 }
@@ -212,6 +246,7 @@ namespace TSDServer
             finally
             {
                 Cancelled = false;
+                mEvt.Set();
                 try
                 {
                     if (currentImportMode == ImportModeEnum.Products)
@@ -230,6 +265,7 @@ namespace TSDServer
 
                 if (OnFinishImport != null)
                     OnFinishImport("Загрузка завершена...");
+                mEvt.Set();
             }
         }
 
@@ -365,9 +401,10 @@ namespace TSDServer
                 }
                 catch (Exception err)
                 {
+                    hasErrorForMail = true;
                     if (OnProcessImport != null)
                         OnProcessImport(string.Format("Ошибка в строке: {0}: {1}\n", s, err.Message), true);
-
+                    
                 }
             }
             //Test(row);
@@ -411,6 +448,7 @@ namespace TSDServer
                 }
                 catch (Exception err)
                 {
+                    hasErrorForMail = true;
                     if (OnProcessImport != null)
                         OnProcessImport(string.Format("Ошибка в строке: {0}: {1}\n", s, err.Message), true);
 
@@ -452,6 +490,7 @@ namespace TSDServer
                 }
                 catch (Exception err)
                 {
+                    hasErrorForMail = true;
                     if (OnProcessImport != null)
                         OnProcessImport(string.Format("Ошибка в строке: {0}: {1}\n", s, err.Message), true);
 
@@ -518,6 +557,7 @@ namespace TSDServer
                 }
                 catch (Exception err)
                 {
+                    hasErrorForMail = true;
                     if (OnProcessImport != null)
                         OnProcessImport(string.Format("Ошибка в строке: {0}: {1}\n", s, err.Message), true);
 
