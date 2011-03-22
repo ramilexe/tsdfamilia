@@ -2,9 +2,6 @@
 <SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="TSDServer.Properties" GeneratedClassName="Settings">
   <Profiles />
   <Settings>
-    <Setting Name="TSDDBPAth" Type="System.String" Scope="User">
-      <Value Profile="(Default)">\Program files\TSDFamilia\</Value>
-    </Setting>
     <Setting Name="NumberDecimalSeparator" Type="System.String" Scope="User">
       <Value Profile="(Default)">.</Value>
     </Setting>
@@ -33,13 +30,31 @@
       <Value Profile="(Default)">False</Value>
     </Setting>
     <Setting Name="ImportDocsEnabled" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">False</Value>
+      <Value Profile="(Default)">True</Value>
     </Setting>
     <Setting Name="SettingsEnabled" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
+    <Setting Name="TSDDBPAth" Type="System.String" Scope="User">
+      <Value Profile="(Default)">\Storage Card\tsdfamilia\</Value>
+    </Setting>
     <Setting Name="RemoteFilePath" Type="System.String" Scope="User">
-      <Value Profile="(Default)">\\127.0.0.1\share</Value>
+      <Value Profile="(Default)">\\127.0.0.1\share\</Value>
+    </Setting>
+    <Setting Name="UserNameFrom" Type="System.String" Scope="User">
+      <Value Profile="(Default)">volkov</Value>
+    </Setting>
+    <Setting Name="AddressFrom" Type="System.String" Scope="User">
+      <Value Profile="(Default)">volkov@famil.ru</Value>
+    </Setting>
+    <Setting Name="SmtpClient" Type="System.String" Scope="User">
+      <Value Profile="(Default)">exchange.famil.ru</Value>
+    </Setting>
+    <Setting Name="BreakOnError" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="AddressToList" Type="System.String" Scope="User">
+      <Value Profile="(Default)">volkov@famil.ru;volkov@famil.ru;volkov@famil.ru</Value>
     </Setting>
   </Settings>
 </SettingsFile>
