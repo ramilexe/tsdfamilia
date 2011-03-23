@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Windows.Forms;
 using System.Runtime.Remoting.Channels.Ipc;
 using System.Security.Permissions;
+using log4net;
+using log4net.Config;
 
 namespace TSDServer
 {
@@ -112,10 +114,11 @@ namespace TSDServer
         }
         */
 #endregion
-
+        public static readonly ILog log = LogManager.GetLogger(typeof(Program));
 
         //главное окно программы
         static Form1 mainForm = null;
+        public static SendMailAttach.SendMailClass sendmail;
         public static bool AutoMode = false;
         public static string InProductName = "";
         public static string InDocName = "";
@@ -146,6 +149,12 @@ namespace TSDServer
         [STAThread]
         static int Main(string[] args)
         {
+            sendmail = new SendMailAttach.SendMailClass(Properties.Settings.Default.AddressFrom,
+                Properties.Settings.Default.UserNameFrom,
+                false,
+                Properties.Settings.Default.SmtpClient);
+
+
             if (args.Length > 0 && args[0].ToLower() == "/c")
             {
                 if (args.Length == 4 && args[0].ToLower() == "/c")
@@ -155,6 +164,11 @@ namespace TSDServer
                         InProductName = args[1];
                         InDocName = args[2];
                         Properties.Settings.Default.LocalFilePath = args[3];
+                        
+                        System.IO.FileInfo fi = new System.IO.FileInfo(
+                            System.IO.Path.Combine(Application.StartupPath, 
+                            "log4netconfig.xml"));
+                        XmlConfigurator.Configure(fi);
 
                         DataLoaderClass loader = new DataLoaderClass();
                         loader.OnFinishImport += new DataLoaderClass.FinishImport(loader_OnFinishImport);
@@ -177,8 +191,14 @@ namespace TSDServer
                         }
                         return (int)ERRORLEVELS.NoError;
                     }
-                    catch
+                    catch (Exception err)
                     {
+                        log.Fatal(err);
+                        
+                        sendmail.SendMail(
+                            new string[] { "", "Ошибка загрузки данных", err.ToString(), 
+                                Properties.Settings.Default.AddressToList, "", "" });
+                        MessageBox.Show(err.ToString());
                         return (int)ERRORLEVELS.SomeException;
                     }
 

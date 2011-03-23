@@ -11,7 +11,7 @@ namespace TSDServer
         private ProductsDataSet productsDataSet1;
         TSDServer.ScannedProductsDataSet scannedDs;
         bool _disposed = false;
-        SendMailAttach.SendMailClass sendmail;
+        
         public bool Processing
         {
             get
@@ -52,8 +52,8 @@ namespace TSDServer
         ProductsDataSetTableAdapters.ProductsTblTableAdapter productAdapter;
         ProductsDataSetTableAdapters.DocsTblTableAdapter docsAdapter;
         TSDServer.ScannedProductsDataSetTableAdapters.ScannedBarcodesTableAdapter scannedTA;
-        private System.Threading.ManualResetEvent mEvt = new System.Threading.ManualResetEvent(false);
-
+        //private System.Threading.ManualResetEvent mEvt = new System.Threading.ManualResetEvent(false);
+        SendMailAttach.SendMailClass sendmail;
         //TSDUtils.CustomEncodingClass CustomEncodingClass MyEncoder = new CustomEncodingClass();
         public DataLoaderClass()
         {
@@ -64,12 +64,10 @@ namespace TSDServer
             scannedDs = new TSDServer.ScannedProductsDataSet();
             scannedTA = new TSDServer.ScannedProductsDataSetTableAdapters.ScannedBarcodesTableAdapter(scannedDs);
             SetFormats();
-            sendmail = new SendMailAttach.SendMailClass(Properties.Settings.Default.AddressFrom,
-                Properties.Settings.Default.UserNameFrom,
-                false,
-                Properties.Settings.Default.SmtpClient);
+            sendmail = Program.sendmail;
 
-            mEvt.Set();
+
+           // mEvt.Set();
             
 
         }
@@ -103,8 +101,8 @@ namespace TSDServer
 
         private void LoadFile(string fileName, ImportModeEnum _currentImportMode)
         {
-            if (loadThread == null)
-            {
+            //if (loadThread == null)
+            //{
 
                 Cancelled = false;
                 currentImportMode = _currentImportMode;
@@ -117,9 +115,9 @@ namespace TSDServer
                 OnFailedImport += new FailedImport(DataLoaderClass_OnFailedImport);
                 loadThread = new System.Threading.Thread(new System.Threading.ParameterizedThreadStart(BeginImport));
                 loadThread.Start(fileName);
-            }
-            else
-                throw new ApplicationException("Processing");
+            //}
+            //else
+            //    throw new ApplicationException("Processing");
             //if (currentImportMode == ImportModeEnum.Documents)
             //{
             //    stopGoodBtn.Enabled = true;
@@ -156,6 +154,7 @@ namespace TSDServer
 
             sendmail.SendMail(
                 new string[] { "", "Статус загрузки данных", logBuilder.ToString(), Properties.Settings.Default.AddressToList, "", "" });
+            loadThread = null;
         }
 
         void DataLoaderClass_OnProcessImport(string Message, bool hasError)
@@ -170,9 +169,9 @@ namespace TSDServer
 
         private void BeginImport(object _fileName)
         {
-            if (mEvt.WaitOne(1000 * 60 * 30) == false)
-                return;
-            mEvt.Reset();
+            //if (mEvt.WaitOne(1000 * 60 * 30) == false)
+            //    return;
+            //mEvt.Reset();
             
             try
             {
@@ -246,7 +245,7 @@ namespace TSDServer
             finally
             {
                 Cancelled = false;
-                mEvt.Set();
+                //mEvt.Set();
                 try
                 {
                     if (currentImportMode == ImportModeEnum.Products)
@@ -265,7 +264,7 @@ namespace TSDServer
 
                 if (OnFinishImport != null)
                     OnFinishImport("Загрузка завершена...");
-                mEvt.Set();
+               // mEvt.Set();
             }
         }
 
