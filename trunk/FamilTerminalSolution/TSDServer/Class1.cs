@@ -15,11 +15,12 @@ namespace SendMailAttach
     {
         //public static System.Threading.Mutex mut = new System.Threading.Mutex();
         public static System.Threading.ManualResetEvent mEvt = new System.Threading.ManualResetEvent(true);
-        public static readonly ILog log = LogManager.GetLogger(typeof(SendMailClass));
+        
         private string _From;
         private string _nameFrom;
         bool _sendCopyToSender = false;
         string _smtpAdress;
+        private ILog log;
         /// <summary>
         /// Конструктор должен содержать следущие поля
         /// </summary>
@@ -33,6 +34,7 @@ namespace SendMailAttach
             _nameFrom = nameFrom;
             _sendCopyToSender = sendCopyToSender;
             _smtpAdress = smtpAdress;
+            log = TSDServer.Program.log;
         }
         private void Log(string text)
         {
@@ -42,11 +44,11 @@ namespace SendMailAttach
                 log.Info(s);
                 Console.WriteLine(s);
 
-                using (System.IO.StreamWriter wr = new System.IO.StreamWriter(
-                           Path.Combine(TSDServer.Properties.Settings.Default.LocalFilePath,"Log.txt"), true))
-                {
-                    wr.WriteLine(s);
-                }
+                //using (System.IO.StreamWriter wr = new System.IO.StreamWriter(
+                //           Path.Combine(TSDServer.Properties.Settings.Default.LocalFilePath,"Log.txt"), true))
+                //{
+                //    wr.WriteLine(s);
+                //}
             }
             catch (Exception err)
             {
@@ -115,8 +117,7 @@ namespace SendMailAttach
         public void SendMail(string[] args)
         {
             int cnt = -1;
-            System.IO.FileInfo fi = new System.IO.FileInfo(Path.Combine(TSDServer.Properties.Settings.Default.LocalFilePath,"log4netconfig.xml"));
-            XmlConfigurator.Configure(fi);
+           
 
 
             Log("START process");
