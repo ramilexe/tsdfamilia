@@ -9,8 +9,8 @@ namespace Familia.TSDClient
     static class Program
     {
         
-        public static SystemMemoryChangeStatusEnum SystemMemoryChangeStatus = SystemMemoryChangeStatusEnum.SYSMEM_NEEDREBOOT;
-        public static SettingsDataSet Settings = new SettingsDataSet();
+        public static SystemMemoryChangeStatusEnum SystemMemoryChangeStatus;
+        public static SettingsDataSet Settings = null;
         static string _startupPath = string.Empty;
         static Int32 _terminal_id;
         public static Int32 TerminalId
@@ -39,12 +39,20 @@ namespace Familia.TSDClient
         //static System.Threading.ManualResetEvent mEvt =
         //    new System.Threading.ManualResetEvent(false);
         //static int WaitPrintTimeDefault = 1000;
+
+        //static System.Threading.ManualResetEvent mEvt = new System.Threading.ManualResetEvent(true);
+
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
         [MTAThread]
         static void Main()
         {
+            //mEvt.Reset();
+
+            //bool result = mEvt.WaitOne((int)(WaitPrintTimeDefault + WaitPrintTimeDefault / 2), false);
+            //mEvt.Reset();
+            //MessageBox.Show("test");
             //mEvt.WaitOne((int)(WaitPrintTimeDefault + WaitPrintTimeDefault / 2), false);
             //mEvt.Reset();
 
@@ -52,6 +60,9 @@ namespace Familia.TSDClient
             //mEvt.Set();
             try
             {
+
+                SystemMemoryChangeStatus = SystemMemoryChangeStatusEnum.SYSMEM_NEEDREBOOT;
+                Settings = new SettingsDataSet();
 
                 string settingFilePath = string.Empty;
                 //try

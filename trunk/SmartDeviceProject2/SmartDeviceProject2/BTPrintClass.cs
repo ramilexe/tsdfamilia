@@ -14,7 +14,7 @@ namespace Familia.TSDClient
 
     public class BTPrintClass
     {
-        static int WaitPrintTimeDefault = Program.Default.WaitPrintTimeDefault;
+        static int WaitPrintTimeDefault = 0;
 
         static BTPrintClass _PrintClass = new BTPrintClass();
         public static BTPrintClass PrintClass
@@ -27,6 +27,7 @@ namespace Familia.TSDClient
 
         private BTPrintClass()
         {
+            WaitPrintTimeDefault = Program.Default.WaitPrintTimeDefault;
             for (int iCnt = 0; iCnt < BTDEF_MAX_INQUIRY_NUM; iCnt++)
             {
                 bt_di[iCnt] = new Calib.BluetoothLibNet.BTST_DEVICEINFO();
@@ -826,10 +827,17 @@ namespace Familia.TSDClient
 
         public void Print(byte[] prnout)
         {
-            
+            int counter = 0;
             try
             {
-                mEvt.WaitOne((int)(WaitPrintTimeDefault + WaitPrintTimeDefault / 2),false);
+                tryagain:
+                if (mEvt.WaitOne((int)(WaitPrintTimeDefault + WaitPrintTimeDefault / 2), false) == false)
+                {
+                    counter++;
+                    if (counter >= 5)
+                        throw new ApplicationException("Принтер занят...");
+                    goto tryagain;
+                }
                 mEvt.Reset();
                 try
                 {
