@@ -837,8 +837,10 @@ namespace Familia.TSDClient
                     {
                         SetStatusEvent("sending datas...");
                         sp.Write(prnout, 0, prnout.Length);
+                        
                         SetStatusEvent("BT Printing");
                         Thread.Sleep(WaitPrintTimeDefault);
+                        SetStatusEvent("BT Succefully printed");
                         #region
                         /*
             SetStatusEvent("sending datas...");
