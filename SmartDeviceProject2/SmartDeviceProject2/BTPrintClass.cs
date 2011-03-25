@@ -37,11 +37,14 @@ namespace Familia.TSDClient
 
         public void Reconnect()
         {
-            Thread.Sleep(1000);
+            SetErrorEvent("Выполняется отключение BlueTooth. Ждите...");
+            
             try
             {
                 doEvents = false;
                 Disconnect();
+                Thread.Sleep(1000);
+                SetErrorEvent("Выполняется подключение BlueTooth. Ждите...");
                 BTPrinterInit();
                 ConnToPrinter(Program.Settings.TypedSettings[0].BTPrinterAddress);
             }
@@ -50,13 +53,36 @@ namespace Familia.TSDClient
                 BtRet = BluetoothLibNet.Def.BTERR_FAILED;
                 _connected = false;
                 SetErrorEvent(err.ToString());
+                SetErrorEvent("Ошибка подключения. Переподключите принтер и попробуйте еще раз.");
             }
             finally
             {
                 doEvents = true;
             }
         }
-    
+
+        public void PartialReconnect()
+        {
+            Thread.Sleep(1000);
+            try
+            {
+                doEvents = false;
+                //Disconnect();
+                //BTPrinterInit();
+                ConnToPrinter(Program.Settings.TypedSettings[0].BTPrinterAddress);
+            }
+            catch (Exception err)
+            {
+                BtRet = BluetoothLibNet.Def.BTERR_FAILED;
+                _connected = false;
+                SetErrorEvent(err.ToString());
+                SetErrorEvent("Ошибка подключения. Переподключите принтер и попробуйте еще раз.");
+            }
+            finally
+            {
+                doEvents = true;
+            }
+        }
 
         public event SetStatus OnSetStatus;
         public event ConnectionError OnConnectionError;
@@ -121,7 +147,7 @@ namespace Familia.TSDClient
 
         System.Collections.Specialized.StringDictionary foundedDevices =
                new System.Collections.Specialized.StringDictionary();
-        System.Threading.ManualResetEvent mEvt = new ManualResetEvent(false);
+        public System.Threading.ManualResetEvent mEvt = new ManualResetEvent(false);
         // DCB structure
         [StructLayout(LayoutKind.Sequential)]
         private class DCB
@@ -336,7 +362,7 @@ namespace Familia.TSDClient
             {
 
                 //Status.Text = 
-                SetStatusEvent("initialize bluetooth modul...");
+                SetStatusEvent("Инициализация модуля Bluetooth...");
 
                 //Cursor.Current = Cursors.WaitCursor;
                 // initialize bluetooth device (power on)
@@ -348,7 +374,7 @@ namespace Familia.TSDClient
                 {
                     //Status.Text = "";
                     //Result = MessageBox.Show(
-                    SetErrorEvent("BT Init Error " + BtRet.ToString());
+                    SetErrorEvent("BT ошибка инициализации " + BtRet.ToString());
                     return BtRet;
                 }
 
@@ -367,14 +393,14 @@ namespace Familia.TSDClient
 
 
                 //Status.Text = 
-                SetStatusEvent("get local device info...");
+                SetStatusEvent("Получение локальных настроек...");
                 BtRet = BluetoothLibNet.Api.BTGetLocalInfo(bt_li);
 
                 if (BtRet != BluetoothLibNet.Def.BTERR_SUCCESS)
                 {
                     //Status.Text = "";
                     //Result = MessageBox.Show(
-                    SetErrorEvent("BT get local info Error {0}", BtRet);
+                    SetErrorEvent("Получение локальных настроек - Ошибка {0}", BtRet);
                     BluetoothLibNet.Api.BTDeInitialize();
                     return BtRet;
                 }
@@ -386,13 +412,13 @@ namespace Familia.TSDClient
                 bt_li.Authentication = false;
                 bt_li.Encryption = false;
                 //Status.Text = 
-                SetStatusEvent("set new local device info...");
+                SetStatusEvent("Установка новых локальных настроек...");
                 BtRet = BluetoothLibNet.Api.BTSetLocalInfo(bt_li);
                 if (BtRet != BluetoothLibNet.Def.BTERR_SUCCESS)
                 {
                     //Status.Text = "";
                     //Result = MessageBox.Show
-                    SetErrorEvent("BT set local info Error {0}",BtRet);
+                    SetErrorEvent("Установка новых локальных настроек - Ошибка {0}", BtRet);
                     BluetoothLibNet.Api.BTDeInitialize();
                     return BtRet;
                 }
@@ -402,7 +428,7 @@ namespace Familia.TSDClient
                 {
                     //Status.Text = "";
                     //Result = MessageBox.Show
-                    SetErrorEvent("BT register local info Error");
+                    SetErrorEvent("BT Регистрация локальных настроек - Ошибка");
                     BluetoothLibNet.Api.BTDeInitialize();
                     return BtRet;
                 }
@@ -426,17 +452,17 @@ namespace Familia.TSDClient
             /************BEGIN SERACH PRINTER*************************************/
             // search for availible bluetooth devices
             bt_dmax = BTDEF_MAX_INQUIRY_NUM;
-            SetStatusEvent("searching bluetooth devices...");
+            SetStatusEvent("Поиск Bluetooth устройств...");
             BtRet = BluetoothLibNet.Api.BTInquiry(IntPtr.Zero, ref bt_dmax, 5000);
             
             if (BtRet != BluetoothLibNet.Def.BTERR_SUCCESS)
             {
-                SetErrorEvent("BT Inquiry Error");
+                SetErrorEvent("BT Ошибка поиска устройст");
                 BluetoothLibNet.Api.BTDeInitialize();
                 return BtRet;
             }
 
-            SetStatusEvent("Found {0} bluetooth devices!", bt_dmax);
+            SetStatusEvent("Найдено {0} bluetooth устройств!", bt_dmax);
             PrinterFound = false;
 
             string swork = new string(' ', 82);
@@ -555,24 +581,24 @@ namespace Familia.TSDClient
                     BtRet = BluetoothLibNet.Api.BTRegisterDeviceInfo(btDefaultdevice);
                     if (BtRet != BluetoothLibNet.Def.BTERR_SUCCESS)
                     {
-                        SetErrorEvent("BT register printer info {0} Error", xxx);
+                        SetErrorEvent("BT регистрация принтера {0} - ошибка", xxx);
                         BluetoothLibNet.Api.BTDeInitialize();
                         PrinterFound = false;
                         _connected = false;
                         return BtRet;
                     }
-                    SetStatusEvent("BT register printer info {0} Success",xxx);
+                    SetStatusEvent("BT регистрация принтера {0} - успешно", xxx);
 
                     PrinterFound = true;
                     BtRet = BluetoothLibNet.Api.BTSetDefaultDevice(btDefaultdevice, BluetoothLibNet.Def.BTPORT_SERIAL);
                     if (BtRet != BluetoothLibNet.Def.BTERR_SUCCESS)
                     {
-                        SetErrorEvent("BT Printer set default device {0} Error", xxx);
+                        SetErrorEvent("BT установка принтера стандартным {0} - ошибка", xxx);
                         BluetoothLibNet.Api.BTDeInitialize();
                         _connected = false;
                         return BtRet;
                     }
-                    SetStatusEvent("BT Printer set default device {0} Success", xxx);
+                    SetStatusEvent("BT установка принтера стандартным {0} - успешно", xxx);
                     Program.Settings.TypedSettings[0].BTPrinterAddress = xxx;
                     return BtRet;//BluetoothLibNet.Def.BTERR_SUCCESS
                 }
@@ -720,14 +746,14 @@ namespace Familia.TSDClient
                 
                 if (sp.IsOpen)
                 {
-                    SetStatusEvent("BT Printer connected");
+                    SetStatusEvent("BT Принтер подключен");
                     BtRet = BluetoothLibNet.Def.BTERR_CONNECTED;
                     _connected = true;
                 }
                 else
                 {
                     BtRet = BluetoothLibNet.Def.BTERR_FAILED;
-                    SetErrorEvent("BT Printer connection failed");
+                    SetErrorEvent("BT сбой подключения принтера");
                     
                     _connected = false;
                     throw new BTConnectionFailedException();
@@ -739,6 +765,7 @@ namespace Familia.TSDClient
                 BtRet = BluetoothLibNet.Def.BTERR_FAILED;
                 _connected = false;
                 SetErrorEvent(err.ToString());
+                SetErrorEvent("Ошибка подключения. Переподключите принтер и попробуйте еще раз.");
                 if (OnConnectionError != null && doEvents)
                     OnConnectionError();
                 return BtRet;
@@ -762,29 +789,29 @@ namespace Familia.TSDClient
                 BtRet = BluetoothLibNet.Api.BTSelectDevice(IntPtr.Zero, BluetoothLibNet.Def.BTPORT_SERIAL);
                 if (BtRet != BluetoothLibNet.Def.BTERR_SUCCESS)
                 {
-                    SetErrorEvent("Default BT printer not found!");
+                    SetErrorEvent("Стандартный принтер не найден!");
                     if (Program.Settings.TypedSettings[0]["BTPrinterAddress"] != null &&
                         Program.Settings.TypedSettings[0]["BTPrinterAddress"] != DBNull.Value &&
                         Program.Settings.TypedSettings[0]["BTPrinterAddress"].ToString() != string.Empty &&
                         Program.Settings.TypedSettings[0]["BTPrinterAddress"].ToString() != "00:00:00:00:00:00")
                     {
 
-                        SetStatusEvent("Search printer {0}", Program.Settings.TypedSettings[0].BTPrinterAddress.ToUpper());
+                        SetStatusEvent("Поиск принтера {0}", Program.Settings.TypedSettings[0].BTPrinterAddress.ToUpper());
                         BtRet = SearchDevices();
                         if (BtRet != BluetoothLibNet.Def.BTERR_SUCCESS)
                         {
-                            SetErrorEvent("BT printer not found!");
+                            SetErrorEvent("Принтер не найден!");
                             throw new BTConnectionFailedException();
                             //return BtRet;
                         }
-                        SetStatusEvent("Set default BT printer {0}", Program.Settings.TypedSettings[0].BTPrinterAddress.ToUpper());
+                        SetStatusEvent("Установка принтера {0} стандартным", Program.Settings.TypedSettings[0].BTPrinterAddress.ToUpper());
 
                         SetDefaultDevice(Program.Settings.TypedSettings[0].BTPrinterAddress.ToUpper());
 
                     }
                     else
                     {
-                        SetErrorEvent("Default BT Printer name is not set");
+                        SetErrorEvent("Стандартный принтер не установлен");
 //                        return BtRet;
                         throw new BTConnectionFailedException();
                     }
@@ -793,7 +820,7 @@ namespace Familia.TSDClient
 
                 PrinterFound = true;
 
-                SetStatusEvent("{0} BT printer found!", Program.Settings.TypedSettings[0].BTPrinterAddress.ToUpper());
+                SetStatusEvent("{0} BT принтер найден!", Program.Settings.TypedSettings[0].BTPrinterAddress.ToUpper());
 
                 return ConnToPrinter3();
             }
@@ -802,6 +829,7 @@ namespace Familia.TSDClient
                 BtRet = BluetoothLibNet.Def.BTERR_FAILED;
                 _connected = false;
                 SetErrorEvent(err.ToString());
+                SetErrorEvent("Ошибка подключения. Переподключите принтер и попробуйте еще раз.");
                 if (OnConnectionError != null && doEvents)
                     OnConnectionError();
                 return BtRet;
@@ -833,9 +861,14 @@ namespace Familia.TSDClient
                 tryagain:
                 if (mEvt.WaitOne((int)(WaitPrintTimeDefault + WaitPrintTimeDefault / 2), false) == false)
                 {
+                    SetStatusEvent("Ожидание очереди печати...");
                     counter++;
                     if (counter >= 5)
-                        throw new ApplicationException("Принтер занят...");
+                    {
+                        SetStatusEvent("Принтер занят...");
+                        //throw new ApplicationException("Принтер занят...");
+                        return;
+                    }
                     goto tryagain;
                 }
                 mEvt.Reset();
@@ -843,12 +876,12 @@ namespace Familia.TSDClient
                 {
                     if (BtRet == BluetoothLibNet.Def.BTERR_CONNECTED)
                     {
-                        SetStatusEvent("sending datas...");
+                        SetStatusEvent("Отправка на принтер...");
                         sp.Write(prnout, 0, prnout.Length);
                         
-                        SetStatusEvent("BT Printing");
+                        SetStatusEvent("Идет печать...");
                         Thread.Sleep(WaitPrintTimeDefault);
-                        SetStatusEvent("BT Succefully printed");
+                        SetStatusEvent("BT принтер успешно напечатал");
                         #region
                         /*
             SetStatusEvent("sending datas...");
@@ -866,7 +899,7 @@ namespace Familia.TSDClient
                     }
                     else
                     {
-                        SetErrorEvent("BT Printer not connected");
+                        SetErrorEvent("BT Принтер не подключен");
                         throw new BTConnectionFailedException();
                     }
                 }
@@ -880,6 +913,7 @@ namespace Familia.TSDClient
                 BtRet = BluetoothLibNet.Def.BTERR_FAILED;
                 _connected = false;
                 SetErrorEvent(err.ToString());
+                SetErrorEvent("Ошибка печати. Переподключите принтер и попробуйте еще раз.");
                 throw new BTConnectionFailedException();
                 //if (OnConnectionError != null)
                 //    OnConnectionError();
@@ -899,7 +933,7 @@ namespace Familia.TSDClient
             
             try
             {
-                SetStatusEvent("disconnect printer...");
+                SetStatusEvent("Отключение принтера...");
                 // deinitialize bt device (power off)
                 if (sp.IsOpen)
                     sp.Close();
@@ -908,7 +942,7 @@ namespace Familia.TSDClient
             }
             catch (Exception err)
             {
-                SetErrorEvent("Disconnect BT printer error {0}", err);
+                SetErrorEvent("Ошибка отключения  BT принтера {0}", err);
             }
             finally
             {
