@@ -336,58 +336,72 @@ namespace Familia.TSDClient.ProductsDataSetTableAdapters
         }
         public ProductsDataSet.ProductsTblRow GetDataByBarcode(System.Int64 barcode)
         {
-            ProductsDataSet.ProductsTblRow r = _productsDataset.ProductsTbl.FindByBarcode(barcode);
-            if (r != null)
-                return r;
-            else
+            try
             {
-                System.Data.DataRow row = table.FindByPk(new object[] { barcode });
-                if (row != null)
-                {
-                    try
-                    {
-                        _productsDataset.ProductsTbl.AddProductsTblRow((ProductsDataSet.ProductsTblRow)row);
-                    }
-                    catch (System.Data.ConstraintException)
-                    {
-                    }
-                    return (ProductsDataSet.ProductsTblRow)row;
-                }
+                ProductsDataSet.ProductsTblRow r = _productsDataset.ProductsTbl.FindByBarcode(barcode);
+                if (r != null)
+                    return r;
                 else
-                    return null;
+                {
+                    System.Data.DataRow row = table.FindByPk(new object[] { barcode });
+                    if (row != null)
+                    {
+                        try
+                        {
+                            _productsDataset.ProductsTbl.AddProductsTblRow((ProductsDataSet.ProductsTblRow)row);
+                        }
+                        catch (System.Data.ConstraintException)
+                        {
+                        }
+                        return (ProductsDataSet.ProductsTblRow)row;
+                    }
+                    else
+                        return null;
+                }
+            }
+            catch
+            {
+                return null;
             }
         }
 
         public ProductsDataSet.ProductsTblRow[] GetDataByNavcode(string navcode)
         {
-            ProductsDataSet.ProductsTblRow[] r = _productsDataset.ProductsTbl.FindByNavcode(navcode);
-            if (r != null &&
-                r.Length > 0)
-                return r;
-            else
+            try
             {
-                System.Data.DataRow[] rows = table.FindByIndexes(1, new object[] { navcode });
-                if (rows != null && rows.Length > 0)
-                {
-                    r = new ProductsDataSet.ProductsTblRow[rows.Length];
-                    for (int i = 0; i < r.Length; i++)
-                    {
-                        r[i] = (ProductsDataSet.ProductsTblRow)rows[i];
-                        try
-                        {
-                            _productsDataset.ProductsTbl.AddProductsTblRow(r[i]);
-                        }
-                        catch (System.Data.ConstraintException)
-                        {
-                        }
-                        
-                    }
-
-                    
+                ProductsDataSet.ProductsTblRow[] r = _productsDataset.ProductsTbl.FindByNavcode(navcode);
+                if (r != null &&
+                    r.Length > 0)
                     return r;
-                }
                 else
-                    return null;
+                {
+                    System.Data.DataRow[] rows = table.FindByIndexes(1, new object[] { navcode });
+                    if (rows != null && rows.Length > 0)
+                    {
+                        r = new ProductsDataSet.ProductsTblRow[rows.Length];
+                        for (int i = 0; i < r.Length; i++)
+                        {
+                            r[i] = (ProductsDataSet.ProductsTblRow)rows[i];
+                            try
+                            {
+                                _productsDataset.ProductsTbl.AddProductsTblRow(r[i]);
+                            }
+                            catch (System.Data.ConstraintException)
+                            {
+                            }
+
+                        }
+
+
+                        return r;
+                    }
+                    else
+                        return null;
+                }
+            }
+            catch
+            {
+                return null;
             }
         }
 

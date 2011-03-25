@@ -261,8 +261,18 @@ namespace Familia.TSDClient
 
         public void PrintLabel(ProductsDataSet.ProductsTblRow datarow,  ProductsDataSet.DocsTblRow docRow, uint shablonCode)
         {
+            int counter = 0;
             try
             {
+                tryagain:
+                if (btPrint.mEvt.WaitOne(Program.Default.WaitPrintTimeDefault, false) == false)
+                {
+                    counter++;
+                    btPrint.SetStatusEvent("Ожидание очереди печати {0} попытка...",counter);
+                    if (counter < 5)
+                        goto tryagain;
+                }
+
                 string fileContent = string.Empty;
                 int fileLength = 0;
                 byte[] bArray = null;
@@ -319,6 +329,7 @@ namespace Familia.TSDClient
                 }
                 catch
                 {
+                    btPrint.SetErrorEvent("Ошибка связи BlueTooth. Ждите 5 сек...");
                     //BTPrintClass.PrintClass.Reconnect();
                     System.Threading.Thread.Sleep(5000);
                     //btPrint.ConnToPrinter(Program.Settings.TypedSettings[0].BTPrinterAddress);
@@ -327,7 +338,6 @@ namespace Familia.TSDClient
             }
             catch (BTConnectionFailedException)
             {
-                
                 try
                 {
                     using (BTConnectionErrorForm frm =
@@ -341,7 +351,11 @@ namespace Familia.TSDClient
 
                     }
                 }
-                catch (Exception err) { BTPrintClass.PrintClass.SetErrorEvent(err.ToString()); }
+                catch (Exception err) 
+                { 
+                    BTPrintClass.PrintClass.SetErrorEvent(err.ToString());
+                    BTPrintClass.PrintClass.SetErrorEvent("Ошибка! Отключите принтер и подключите заново");
+                }
             }
             catch (Exception err)
             {
@@ -783,29 +797,49 @@ namespace Familia.TSDClient
 
         public ProductsDataSet.ProductsTblRow GetProductRow(string barcode)
         {
-            return productsTa.GetDataByBarcode(long.Parse(barcode));
+            try
+            {
+                return productsTa.GetDataByBarcode(long.Parse(barcode));
+            }
+            catch
+            {
+                return null;
+            }
             //return row;
 
         }
 
         public ProductsDataSet.ProductsTblRow GetProductRowByNavCode(string navCode)
         {
-
-            ProductsDataSet.ProductsTblRow[] Rows = productsTa.GetDataByNavcode(navCode);
-            //ta.GetDataByNavcode(TSDUtils.CustomEncodingClass.Encoding.GetBytes(navCode));
-
-            if (Rows != null && Rows.Length > 0)
+            try
             {
-                return Rows[0];
+                ProductsDataSet.ProductsTblRow[] Rows = productsTa.GetDataByNavcode(navCode);
+                //ta.GetDataByNavcode(TSDUtils.CustomEncodingClass.Encoding.GetBytes(navCode));
+
+                if (Rows != null && Rows.Length > 0)
+                {
+                    return Rows[0];
+                }
+                else
+                    return null;
             }
-            else
+            catch
+            {
                 return null;
+            }
 
         }
 
         public ProductsDataSet.DocsTblRow[] GetDataByNavCode(string navCode)
         {
-            return docsTa.GetDataByNavCode(navCode);
+            try
+            {
+                return docsTa.GetDataByNavCode(navCode);
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         public ScannedProductsDataSet.ScannedBarcodesRow AddScannedRow(

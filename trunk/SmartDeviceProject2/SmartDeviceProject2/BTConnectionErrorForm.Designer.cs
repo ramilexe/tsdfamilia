@@ -67,7 +67,7 @@
             this.label3.Location = new System.Drawing.Point(0, 115);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(238, 59);
-            this.label3.Text = "Соединить принтер вновь ?";
+            this.label3.Text = "Соединить принтер вновь ?\nДля продолжения переподключите принтер , подождите 5 сек.";
             this.label3.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             // 
             // panel1

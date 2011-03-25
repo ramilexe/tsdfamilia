@@ -78,6 +78,7 @@ namespace Familia.TSDClient
             }
             else
             {
+                this.label18.Text = "";
                 //tmr.Change(0, 200);
                 //if (docsForm != null)
                 //{
@@ -327,6 +328,8 @@ namespace Familia.TSDClient
                 {
                     label18.ForeColor = Color.Red;
                     label18.Text = text;
+                    this.Refresh();
+                    System.Threading.Thread.Sleep(500);
                 }
             }
             catch (ObjectDisposedException)
@@ -346,6 +349,8 @@ namespace Familia.TSDClient
                 {
                     label18.ForeColor = Color.Black;
                     label18.Text = text;
+                    this.Refresh();
+                    System.Threading.Thread.Sleep(500);
                 }
             }
             catch (ObjectDisposedException)
@@ -413,6 +418,8 @@ namespace Familia.TSDClient
 
         private void navCodeTB_KeyDown(object sender, KeyEventArgs e)
         {
+            this.label18.Text = "";
+            //label11.Text = e.KeyValue.ToString();
             if (e.KeyCode == Keys.Enter)
             {
                 DoAction(ActionsClass.Action.GetProductRowByNavCode(navCodeTB.Text));
@@ -483,6 +490,17 @@ namespace Familia.TSDClient
                 }
                 return;
             }
+            //if (e.KeyValue == 9)
+            //{
+            //    try
+            //    {
+            //        BTPrintClass.PrintClass.PartialReconnect();
+            //    }
+            //    catch (Exception err)
+            //    { BTPrintClass.PrintClass.SetErrorEvent(err.ToString()); }
+            //    return;
+            //}
+            
         }
 
         private void Init()
@@ -540,6 +558,7 @@ namespace Familia.TSDClient
             }
             else
             {
+                this.label18.Text = "";
                 currentDocRow = docsRow;
                 this.actionLabel.Text = TSDUtils.ActionCodeDescription.ActionDescription[docsRow.DocType];
 
