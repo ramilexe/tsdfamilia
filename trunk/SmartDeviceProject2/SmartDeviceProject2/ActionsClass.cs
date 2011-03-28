@@ -112,6 +112,8 @@ namespace Familia.TSDClient
         {
             productsTa.Close();
             docsTa.Close();
+            _products.ProductsTbl.Clear();
+            _products.DocsTbl.Clear();
         }
         public void ClosedScanned()
         {
