@@ -33,6 +33,7 @@ namespace Familia.TSDClient
                 bt_di[iCnt] = new Calib.BluetoothLibNet.BTST_DEVICEINFO();
             }
             BTPrinterInit();
+            
         }
 
         public void Reconnect()
@@ -742,6 +743,20 @@ namespace Familia.TSDClient
         {
             try
             {
+                if (sp.IsOpen)
+                {
+                    try
+                    {
+                        sp.Close();
+                        Thread.Sleep(500);
+                        sp.DiscardOutBuffer();
+                        sp.DiscardInBuffer();
+                    }
+                    catch (Exception err1)
+                    {
+                        SetErrorEvent(err1.ToString());
+                    }
+                }
                 sp.Open();
                 
                 if (sp.IsOpen)
@@ -877,7 +892,9 @@ namespace Familia.TSDClient
                     if (BtRet == BluetoothLibNet.Def.BTERR_CONNECTED)
                     {
                         SetStatusEvent("Отправка на принтер...");
+                        sp.DiscardOutBuffer();
                         sp.Write(prnout, 0, prnout.Length);
+
                         
                         SetStatusEvent("Идет печать...");
                         Thread.Sleep(WaitPrintTimeDefault);
