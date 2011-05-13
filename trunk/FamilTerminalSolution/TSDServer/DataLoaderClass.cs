@@ -11,7 +11,8 @@ namespace TSDServer
         private ProductsDataSet productsDataSet1;
         TSDServer.ScannedProductsDataSet scannedDs;
         bool _disposed = false;
-        
+        public static object locker = new object();
+
         public bool Processing
         {
             get
@@ -149,12 +150,21 @@ namespace TSDServer
         void DataLoaderClass_OnFinishImport(string fileName)
         {
             //Cancelled = false;
-            loadThread = null;
-            logBuilder.AppendLine(fileName);
+            lock (locker)
+            {
+                loadThread = null;
+                logBuilder.AppendLine(fileName);
+            
+                if (hasErrorForMail)
+                {
+                    sendmail.SendMail(
+                        new string[] { "", "Статус загрузки данных", logBuilder.ToString(), Properties.Settings.Default.AddressToList, "", "" });
 
-            sendmail.SendMail(
-                new string[] { "", "Статус загрузки данных", logBuilder.ToString(), Properties.Settings.Default.AddressToList, "", "" });
-            loadThread = null;
+                    logBuilder.Remove(0, logBuilder.Length);
+                    hasErrorForMail = false;
+                }
+            }
+            //loadThread = null;
         }
 
         void DataLoaderClass_OnProcessImport(string Message, bool hasError)

@@ -117,8 +117,9 @@ namespace SendMailAttach
         public void SendMail(string[] args)
         {
             int cnt = -1;
-           
 
+            if (String.IsNullOrEmpty(_smtpAdress))
+                return;
 
             Log("START process");
             if (mEvt.WaitOne(5000, false) == false)
