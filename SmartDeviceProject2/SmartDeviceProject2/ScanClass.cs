@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 
 using Calib;
 
-namespace Familia.TSDClient
+namespace TSDServer
 {
     public delegate void Scanned(string scannedBarcode);
     public delegate void ScanError(string error);

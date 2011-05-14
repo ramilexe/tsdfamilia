@@ -1,4 +1,4 @@
-﻿namespace Familia.TSDClient
+﻿namespace TSDServer
 {
     partial class Form1
     {
@@ -35,8 +35,8 @@
             this.button4 = new System.Windows.Forms.Button();
             this.button5 = new System.Windows.Forms.Button();
             this.button0 = new System.Windows.Forms.Button();
-            this.productsDataSet1 = new Familia.TSDClient.ProductsDataSet();
-            this.productsDataSet2 = new Familia.TSDClient.ProductsDataSet();
+            this.productsDataSet1 = new TSDServer.ProductsDataSet();
+            this.productsDataSet2 = new TSDServer.ProductsDataSet();
             ((System.ComponentModel.ISupportInitialize)(this.productsDataSet1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.productsDataSet2)).BeginInit();
             this.SuspendLayout();
