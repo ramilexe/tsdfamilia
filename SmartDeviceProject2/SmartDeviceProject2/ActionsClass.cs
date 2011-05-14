@@ -101,8 +101,10 @@ namespace Familia.TSDClient
 
         public void OpenProducts()
         {
-            productsTa.Open();
-            docsTa.Open();
+            if (!productsTa.Opened)
+                productsTa.Open();
+            if (!docsTa.Opened)
+                docsTa.Open();
         }
         public void OpenScanned()
         {
@@ -681,21 +683,31 @@ namespace Familia.TSDClient
         {
             ScannedProductsDataSet.ScannedBarcodesRow[] r =
                 _scannedProducts.ScannedBarcodes.FindByBarcodeAndDocType(datarow.Barcode, docsRow.DocType);
-            if (r != null)
+            if (r == null)
             {
-                for (int i = 0; i < r.Length; i++)
-                {
-                    
-                        r[i].FactQuantity += 1;
-                        PlayVibroAsyncAction(docsRow);
-                        PlaySoundAsyncAction(docsRow);
-                        PrintLabelAsync(datarow, docsRow);
-                        if (OnActionCompleted != null)
-                            OnActionCompleted(docsRow, r[i]);
-                        break;
-                    
+                ScannedProductsDataSet.ScannedBarcodesRow scannedRow =
+                               ActionsClass.Action.AddScannedRow(
+                               datarow.Barcode,
+                               docsRow.DocType,
+                               docsRow.DocId,
+                               docsRow.Quantity,
+                               docsRow.Priority);
+                r = new ScannedProductsDataSet.ScannedBarcodesRow[1];
+                r[0] = scannedRow;
+            }
 
-                }
+            for (int i = 0; i < r.Length; i++)
+            {
+
+                r[i].FactQuantity += 1;
+                //PlayVibroAsyncAction(docsRow);
+                //PlaySoundAsyncAction(docsRow);
+                //PrintLabelAsync(datarow, docsRow);
+                if (OnActionCompleted != null)
+                    OnActionCompleted(docsRow, r[i]);
+                break;
+
+
             }
         }
 
@@ -795,8 +807,122 @@ namespace Familia.TSDClient
                 ViewProductForm._mEvt.Set();
             }
         }
+        /// <summary>
+        /// Посчитать общее кол-во ШК в документе
+        /// и кол-во уникальных ШК
+        /// </summary>
+        /// <param name="docId">№ док-та</param>
+        /// <param name="docType">Тип документа</param>
+        /// <param name="totalBk">уникальное кол-во ШК</param>
+        /// <param name="total">Всего записей</param>
+        
+        public void CalculateTotals(string docId, TSDUtils.ActionCode docType, out int totalBk, out int total)
+        {
+
+            total = 0;
+            totalBk = 0;
 
 
+            ScannedProductsDataSet.ScannedBarcodesRow [] scannedrow  =
+            _scannedProducts.ScannedBarcodes.FindByDocIdAndDocType(docId,
+                (byte)docType);
+            if (scannedrow == null ||
+                scannedrow.Length == 0)
+            {
+                return;
+            }
+            else
+            {
+                total = scannedrow.Length;
+                List<long> scannedList =
+                    new List<long>();
+                for (int i = 0; i < scannedrow.Length; i++)
+                {
+                    if (!scannedList.Contains(scannedrow[i].Barcode))
+                    {
+                        scannedList.Add(scannedrow[i].Barcode);
+                        totalBk += 1;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Подсчет ШК в документах с указанным типом
+        /// и Приоритетом = 0 
+        /// </summary>
+        /// <param name="docType">Тип документа</param>
+        /// <param name="totalBk">Возврат всего уникальных ШК</param>
+        /// <param name="total">Возврат всего записей</param>
+        public void CalculateTotals(TSDUtils.ActionCode docType, 
+            out int totalBk, 
+            out int total)
+        {
+
+            total = 0;
+            totalBk = 0;
+
+
+            ScannedProductsDataSet.ScannedBarcodesRow[] scannedrow =
+            _scannedProducts.ScannedBarcodes.FindByDocTypeAndPriority(
+                (byte)docType,
+                0);
+            if (scannedrow == null ||
+                scannedrow.Length == 0)
+            {
+                return;
+            }
+            else
+            {
+                total = scannedrow.Length;
+                List<long> scannedList =
+                    new List<long>();
+                for (int i = 0; i < scannedrow.Length; i++)
+                {
+                    if (!scannedList.Contains(scannedrow[i].Barcode))
+                    {
+                        scannedList.Add(scannedrow[i].Barcode);
+                        totalBk += 1;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Закрыть просчет инвентаризации
+        /// Просчет закрыт обозначает Priority=Byte.MaxValue
+        /// </summary>
+        /// <param name="docId">Номер док-та = адрес просчета</param>
+        /// <param name="docType">Тип документа</param>
+        public void CloseInv(string docId, TSDUtils.ActionCode docType)
+        {
+
+
+            ScannedProductsDataSet.ScannedBarcodesRow[] scannedrow =
+            _scannedProducts.ScannedBarcodes.FindByDocIdAndDocType(docId,
+                (byte)docType);
+            if (scannedrow == null ||
+                scannedrow.Length == 0)
+            {
+                throw new ApplicationException(string.Format("Документ {0} с типом {1} не найден!",
+                    docId,
+                    docType.ToString())
+                    );
+            }
+            else
+            {
+                for (int i = 0; i < scannedrow.Length; i++)
+                {
+                    scannedrow[i].Priority = byte.MaxValue;
+                }
+                //текущий открытый просчет теперь пуст
+                Program.СurrentInvId = string.Empty;
+                
+            }
+
+
+
+        }
         public ProductsDataSet.ProductsTblRow GetProductRow(string barcode)
         {
             try
@@ -883,6 +1009,22 @@ namespace Familia.TSDClient
             this.Products.DocsTbl.Clear();
             this.Products.AcceptChanges();
 
+        }
+
+        public string FindOpenInventar()
+        {
+            ScannedProductsDataSet.ScannedBarcodesRow[] scannedrow =
+           _scannedProducts.ScannedBarcodes.FindByDocTypeAndPriority(
+           (byte)TSDUtils.ActionCode.InventoryGlobal,
+           0);//openInventar;
+
+            if (scannedrow != null &&
+                scannedrow.Length != 0)
+            {
+                return scannedrow[0].DocId;
+            }
+            else
+                return string.Empty;
         }
     }
 }

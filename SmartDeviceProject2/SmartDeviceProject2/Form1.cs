@@ -16,6 +16,8 @@ namespace Familia.TSDClient
         {
             ExitMenu = 48,
             ViewProductMenu = 49,
+            InventarMenu = 50,
+            IncomeMenu = 51,
             ViewSettingMenu = 53
         }
 
@@ -190,6 +192,22 @@ namespace Familia.TSDClient
                     case (int)MenuItems.ViewProductMenu:
                         {
                             using (ViewProductForm frm = new ViewProductForm())
+                            {
+                                frm.ShowDialog();
+                            }
+                            break;
+                        }
+                    case (int)MenuItems.InventarMenu:
+                        {
+                            using (InventarForm frm = new InventarForm())
+                            {
+                                frm.ShowDialog();
+                            }
+                            break;
+                        }
+                    case (int)MenuItems.IncomeMenu:
+                        {
+                            using (IncomeForm frm = new IncomeForm())
                             {
                                 frm.ShowDialog();
                             }

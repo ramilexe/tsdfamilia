@@ -48,19 +48,20 @@
   <ItemGroup>
     <Reference Include="BluetoothLibNet, Version=2.0.3.6336, Culture=neutral, PublicKeyToken=4079e79a5891f674">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\CASIO\MBSys\WindowsCE\BluetoothLibNet.dll</HintPath>
-      <Private>False</Private>
+      <HintPath>..\..\..\..\..\..\..\..\Program Files (x86)\CASIO\MBSys\WindowsCE\BluetoothLibNet.dll</HintPath>
     </Reference>
-    <Reference Include="ControlsLib, Version=1.0.3218.30636, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="ImagerLibNet, Version=2.0.4.6336, Culture=neutral, PublicKeyToken=4079e79a5891f674">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>.\ControlsLib.dll</HintPath>
-      <Private>False</Private>
+      <HintPath>..\..\..\..\..\..\..\..\Program Files (x86)\CASIO\MBSys\WindowsCE\ImagerLibNet.dll</HintPath>
+    </Reference>
+    <Reference Include="MoFlinkLibNet, Version=3.0.7.6336, Culture=neutral, PublicKeyToken=4079e79a5891f674">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\..\..\..\Program Files (x86)\CASIO\MBSys\WindowsCE\MoFlinkLibNet.dll</HintPath>
     </Reference>
     <Reference Include="mscorlib" />
     <Reference Include="OBReadLibNet, Version=2.0.5.6336, Culture=neutral, PublicKeyToken=4079e79a5891f674">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\CASIO\MBSys\WindowsCE\OBReadLibNet.dll</HintPath>
-      <Private>False</Private>
+      <HintPath>..\..\..\..\..\..\..\..\Program Files (x86)\CASIO\MBSys\WindowsCE\OBReadLibNet.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -69,8 +70,7 @@
     <Reference Include="System.Xml" />
     <Reference Include="SystemLibnet, Version=2.0.6.6336, Culture=neutral, PublicKeyToken=4079e79a5891f674">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\CASIO\MBSys\WindowsCE\SystemLibnet.dll</HintPath>
-      <Private>False</Private>
+      <HintPath>..\..\..\..\..\..\..\..\Program Files (x86)\CASIO\MBSys\WindowsCE\SystemLibnet.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -89,6 +89,30 @@
     </Compile>
     <Compile Include="AcceptClearDataForm.Designer.cs">
       <DependentUpon>AcceptClearDataForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ViewInventarForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ViewInventarForm.Designer.cs">
+      <DependentUpon>ViewInventarForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="IncomeForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="IncomeForm.Designer.cs">
+      <DependentUpon>IncomeForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DialogForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DialogForm.Designer.cs">
+      <DependentUpon>DialogForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="InventarForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="InventarForm.Designer.cs">
+      <DependentUpon>InventarForm.cs</DependentUpon>
     </Compile>
     <Compile Include="EndClearDataForm.cs">
       <SubType>Form</SubType>
@@ -123,6 +147,18 @@
     </EmbeddedResource>
     <EmbeddedResource Include="AcceptClearDataForm.resx">
       <DependentUpon>AcceptClearDataForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ViewInventarForm.resx">
+      <DependentUpon>ViewInventarForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="IncomeForm.resx">
+      <DependentUpon>IncomeForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DialogForm.resx">
+      <DependentUpon>DialogForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="InventarForm.resx">
+      <DependentUpon>InventarForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="EndClearDataForm.resx">
       <DependentUpon>EndClearDataForm.cs</DependentUpon>

@@ -11,8 +11,11 @@ namespace Familia.TSDClient
 {
     public partial class ViewProductForm : Form
     {
+        WorkMode _mode;
+        string _documentId;
         string[] waitStr = new string[] { "\\", "|", "/", "-" };
         int currentItem = 0;
+        ProductsDataSet.DocsTblRow inventRow;
 
         public static System.Threading.ManualResetEvent _mEvt =
              new System.Threading.ManualResetEvent(false);
@@ -44,6 +47,7 @@ namespace Familia.TSDClient
 
         public ViewProductForm()
         {
+            _mode = WorkMode.ProductsScan;
             BTPrintClass.PrintClass.SetStatusEvent("Open Products form");
             InitializeComponent();
 
@@ -54,7 +58,31 @@ namespace Familia.TSDClient
             // System.Threading.Timeout.Infinite);
         }
 
+        public ViewProductForm(WorkMode mode, string docId):this()
+        {
+            _mode = mode;
+            _documentId = docId;
+            Program.СurrentInvId = docId;
+  
+            inventRow = ActionsClass.Action.Products.DocsTbl.NewDocsTblRow();
+            inventRow.DocId = _documentId;
+            inventRow.DocType = (byte)(TSDUtils.ActionCode.InventoryGlobal);
+            inventRow.DocumentDate = DateTime.Today;
+            inventRow.LabelCode = (byte)TSDUtils.ShablonCode.NoShablon;
+            inventRow.MusicCode = 0;
+//            docRows.NavCode = row.NavCode;
+            inventRow.Priority = 0;
+            inventRow.Quantity = 0;
+            inventRow.VibroCode = 0;
+            inventRow.Text1 = "";
+            inventRow.Text2 = "";
+            inventRow.Text3 = "";
 
+            currentdocRows = new ProductsDataSet.DocsTblRow[1];
+            currentdocRows[0] = inventRow;
+
+
+        }
         //public ViewProductForm(ProductsDataSet products, ScannedProductsDataSet scannedProducts):this()
         //{
         //    _products = products;
@@ -139,24 +167,26 @@ namespace Familia.TSDClient
                 
                 label9.Text = (row["Article"] == System.DBNull.Value ||
                     row["Article"] == null)?string.Empty:row.Article;
-                
-                ProductsDataSet.DocsTblRow[] docRows = 
-                    ActionsClass.Action.GetDataByNavCode(row.NavCode);
-                actionDict.Clear();
-                currentdocRows = docRows;
 
-                if (docRows != null)
+                if (_mode == WorkMode.ProductsScan)
                 {
+                    ProductsDataSet.DocsTblRow[] docRows =
+                        ActionsClass.Action.GetDataByNavCode(row.NavCode);
+                    actionDict.Clear();
+                    currentdocRows = docRows;
 
-                    foreach (ProductsDataSet.DocsTblRow docRow in docRows)
+                    if (docRows != null)
                     {
-                        ScannedProductsDataSet.ScannedBarcodesRow scannedRow =
-                            ActionsClass.Action.AddScannedRow(
-                            row.Barcode,
-                            docRow.DocType,
-                            docRow.DocId,
-                            docRow.Quantity,
-                            docRow.Priority);
+
+                        foreach (ProductsDataSet.DocsTblRow docRow in docRows)
+                        {
+                            ScannedProductsDataSet.ScannedBarcodesRow scannedRow =
+                                ActionsClass.Action.AddScannedRow(
+                                row.Barcode,
+                                docRow.DocType,
+                                docRow.DocId,
+                                docRow.Quantity,
+                                docRow.Priority);
                             /*_scannedProducts.ScannedBarcodes.FindByBarcodeDocTypeDocId(
                             row.Barcode,
                             docRow.DocType,
@@ -174,19 +204,30 @@ namespace Familia.TSDClient
                             scannedRow.TerminalId = Program.TerminalId;
                             _scannedProducts.ScannedBarcodes.AddScannedBarcodesRow(scannedRow);
                         }*/
-                        byte actionCodes = docRow.DocType;
-                        if (!actionDict.ContainsKey(actionCodes))
-                            actionDict.Add(actionCodes,docRow);
+                            byte actionCodes = docRow.DocType;
+                            if (!actionDict.ContainsKey(actionCodes))
+                                actionDict.Add(actionCodes, docRow);
+                        }
+                        foreach (byte acode in actionDict.Keys)
+                        {
+                            ActionsClass.Action.InvokeAction((TSDUtils.ActionCode)acode, row, actionDict[acode]);
+                            this.Refresh();
+                        }
                     }
-                    foreach (byte acode in actionDict.Keys)
+                    else
                     {
-                        ActionsClass.Action.InvokeAction((TSDUtils.ActionCode)acode, row, actionDict[acode]);
-                        this.Refresh();
+                        ActionsClass.Action.InvokeAction(TSDUtils.ActionCode.DocNotFound, row, null);
                     }
                 }
                 else
                 {
-                    ActionsClass.Action.InvokeAction(TSDUtils.ActionCode.DocNotFound, row, null);
+                   
+                    inventRow.NavCode = row.NavCode;
+                    ActionsClass.Action.InventoryGlobalActionProc(
+                        row,
+                        inventRow);
+
+                    this.Refresh();
                 }
                     
                 
@@ -431,7 +472,57 @@ namespace Familia.TSDClient
                 this.Close();
                 return;
             }
-            if (e.KeyValue == 18)
+            if (e.KeyCode == Keys.Tab)
+            {
+                if (_mode == WorkMode.InventarScan)
+                {
+                    ScanClass.Scaner.PauseScan();
+                    try
+                    {
+                        int total = 0;
+                        int totalBk = 0;
+
+                        ActionsClass.Action.CalculateTotals(
+                            _documentId,
+                            TSDUtils.ActionCode.InventoryGlobal,
+                            out totalBk,
+                            out totalBk);
+
+                        DialogForm dlgfrm =
+                            new DialogForm(
+                                "Вы хотите закрыть просчет?"
+                                , string.Format("Посчитано: {0} кодов", totalBk)
+                                , string.Format("Посчитано: {0} всего штук", total)
+                                , "Закрытие просчета");
+
+                        if (dlgfrm.ShowDialog() == DialogResult.Yes)
+                        {
+                            ActionsClass.Action.CloseInv(
+                                _documentId,
+                                TSDUtils.ActionCode.InventoryGlobal);
+
+                            this.Close();
+                        }
+                    }
+                    catch (Exception err)
+                    {
+                        BTPrintClass.PrintClass.SetErrorEvent(err.ToString());
+                        DialogForm dlgfrm =
+                            new DialogForm(
+                                err.Message
+                                , err.StackTrace
+                                , ""
+                                , "Ошибка");
+                        dlgfrm.ShowDialog();
+                    }
+                    finally
+                    {
+                        ScanClass.Scaner.ResumeScan();
+                    }
+                }
+                return;
+            }
+            if (e.KeyValue == 18)//RedBtn
             {
                 if (currentProductRow != null)
                 {
@@ -439,7 +530,7 @@ namespace Familia.TSDClient
                 }
                 return;
             }
-            if (e.KeyValue == 16)
+            if (e.KeyValue == 16)//BluBtn
             {
                 if (currentProductRow != null)
                 {
@@ -447,7 +538,7 @@ namespace Familia.TSDClient
                 }
                 return;
             }
-            if (e.KeyValue == 115)
+            if (e.KeyValue == 115)//YellowBtn
             {
                 if (currentProductRow != null)
                 {
@@ -573,5 +664,11 @@ namespace Familia.TSDClient
         }
 
         
+    }
+
+    public enum WorkMode
+    {
+        ProductsScan,
+        InventarScan
     }
 }

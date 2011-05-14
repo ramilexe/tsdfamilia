@@ -57,7 +57,7 @@ namespace TSDUtils
         /// <summary>
         /// Зарезервировано для дальнейшего использования
         /// </summary>
-        Action7 = 7,
+        IncomeBox = 7,
 
         //[Description("Действие8")]
         /// <summary>
@@ -117,10 +117,11 @@ namespace TSDUtils
             dict.Add(ActionCode.InventoryGlobal, "Инвент-ция Глобальная");
             dict.Add(ActionCode.QuickHelp, "СКОРАЯ ПОМОЩЬ");
             dict.Add(ActionCode.InventoryLocal, "Инвент-ция Точечная");
-            dict.Add(ActionCode.Action7, "Действие7");
+            dict.Add(ActionCode.IncomeBox, "Прием коробов");
             dict.Add(ActionCode.Action8, "Действие8");
             dict.Add(ActionCode.NotFound, "Товар не найден");
             dict.Add(ActionCode.DocNotFound, "Документ не найден");
+            
 
 
             
