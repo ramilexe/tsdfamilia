@@ -114,7 +114,7 @@
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.Menu = this.mainMenu1;
             this.Name = "SettingsForm";
-            this.Text = "SettingsForm";
+            this.Text = "Настройки";
             this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
             this.Load += new System.EventHandler(this.SettingsForm_Load);
             this.ResumeLayout(false);

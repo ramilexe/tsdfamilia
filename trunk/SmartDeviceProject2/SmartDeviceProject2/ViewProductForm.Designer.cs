@@ -173,7 +173,7 @@
             this.label15.Location = new System.Drawing.Point(120, 0);
             this.label15.Name = "label15";
             this.label15.Size = new System.Drawing.Size(61, 54);
-            this.label15.Text = "F3";
+            this.label15.Text = "F3-Инв.Закрыть";
             // 
             // label14
             // 

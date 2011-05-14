@@ -22,6 +22,31 @@
 
 
             }
+
+            public ScannedProductsDataSet.ScannedBarcodesRow[] FindByDocIdAndDocType(string docId, byte docType)
+            {
+
+                return (ScannedProductsDataSet.ScannedBarcodesRow[])
+                        this.Select(
+                        string.Format("DocId = {0} and DocType = {1}", docId, docType),
+                        "Priority ASC");
+
+
+
+
+            }
+            public ScannedProductsDataSet.ScannedBarcodesRow[] FindByDocTypeAndPriority(byte docType, byte Priority)
+            {
+
+                return (ScannedProductsDataSet.ScannedBarcodesRow[])
+                        this.Select(
+                        string.Format("DocType = {0} and Priority={1}", docType, Priority),
+                        "Priority ASC");
+
+
+
+
+            }
             /*
             public ScannedProductsDataSet.ScannedBarcodesRow FindByBarcodeAndDoc(long Barcode, string docId, byte docType)
             {

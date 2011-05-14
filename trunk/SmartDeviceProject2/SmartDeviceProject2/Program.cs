@@ -8,7 +8,10 @@ namespace Familia.TSDClient
     public delegate void DatabaseChanged();
     static class Program
     {
-        
+        /// <summary>
+        /// Номер Текущего открытого просчета
+        /// </summary>
+        public static string СurrentInvId = string.Empty;
         public static SystemMemoryChangeStatusEnum SystemMemoryChangeStatus;
         public static SettingsDataSet Settings = null;
         static string _startupPath = string.Empty;
@@ -60,6 +63,7 @@ namespace Familia.TSDClient
             //mEvt.Set();
             try
             {
+                //BTPrintClass.PrintClass.SetErrorEvent("Started");
 
                 SystemMemoryChangeStatus = SystemMemoryChangeStatusEnum.SYSMEM_NEEDREBOOT;
                 Settings = new SettingsDataSet();
@@ -160,5 +164,16 @@ namespace Familia.TSDClient
                 System.Windows.Forms.MessageBox.Show(err.ToString());
             }
         }
+    }
+    public enum SpecialButton:int
+    {
+
+        EscBtn = 9,
+        EnterBtn=13,
+
+        BlueBtn=16,
+        RedBtn=18,
+        GreenBtn=9,
+        YellowBtn = 115
     }
 }
