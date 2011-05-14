@@ -7,7 +7,7 @@ using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
 
-namespace Familia.TSDClient
+namespace TSDServer
 {
     public partial class ViewProductForm : Form
     {
@@ -20,7 +20,7 @@ namespace Familia.TSDClient
         public static System.Threading.ManualResetEvent _mEvt =
              new System.Threading.ManualResetEvent(false);
 
-        //Familia.TSDClient.ProductsDataSet _products;
+        //TSDServer.ProductsDataSet _products;
         //ScannedProductsDataSet _scannedProducts;
         Color lastColor;
         Font boldFont;
@@ -33,13 +33,13 @@ namespace Familia.TSDClient
 
         delegate void PrepareConnectionDelegate();
         //ScannedProductsDataSetTableAdapters.ScannedBarcodesTableAdapter scanned_ta = null;
-                //= new Familia.TSDClient.ScannedProductsDataSetTableAdapters.ScannedBarcodesTableAdapter();
+                //= new TSDServer.ScannedProductsDataSetTableAdapters.ScannedBarcodesTableAdapter();
         //ScannedProductsDataSetTableAdapters.MoveResultsTblTableAdapter move_ta = null;
-                //= new Familia.TSDClient.ScannedProductsDataSetTableAdapters.MoveResultsTblTableAdapter();
+                //= new TSDServer.ScannedProductsDataSetTableAdapters.MoveResultsTblTableAdapter();
 
-        //Familia.TSDClient.ProductsDataSetTableAdapters.ProductsTblTableAdapter productsTa;
-        //Familia.TSDClient.ProductsDataSetTableAdapters.DocsTblTableAdapter docsTa;
-        //Familia.TSDClient.ScannedProductsDataSetTableAdapters.ScannedBarcodesTableAdapter scannedTA;
+        //TSDServer.ProductsDataSetTableAdapters.ProductsTblTableAdapter productsTa;
+        //TSDServer.ProductsDataSetTableAdapters.DocsTblTableAdapter docsTa;
+        //TSDServer.ScannedProductsDataSetTableAdapters.ScannedBarcodesTableAdapter scannedTA;
 
         Dictionary<byte, ProductsDataSet.DocsTblRow> actionDict = new Dictionary<byte, ProductsDataSet.DocsTblRow>();
 
@@ -101,7 +101,7 @@ namespace Familia.TSDClient
         {
             if (this.InvokeRequired)
             {
-                Familia.TSDClient.Scanned del = new Scanned(Scanned);
+                TSDServer.Scanned del = new Scanned(Scanned);
                 this.Invoke(del, barcode);
             }
             else
@@ -335,7 +335,7 @@ namespace Familia.TSDClient
             {
                 if (this.InvokeRequired)
                 {
-                    TSDClient.ConnectionError del = new ConnectionError(PrintClass_OnConnectionError);
+                    ConnectionError del = new ConnectionError(PrintClass_OnConnectionError);
                     this.Invoke(del);
                 }
                 else
@@ -362,7 +362,7 @@ namespace Familia.TSDClient
             {
                 if (this.InvokeRequired)
                 {
-                    TSDClient.SetError del = new SetError(PrintClass_OnSetError);
+                    SetError del = new SetError(PrintClass_OnSetError);
                     this.Invoke(del, text);
                 }
                 else
@@ -383,7 +383,7 @@ namespace Familia.TSDClient
             {
                 if (this.InvokeRequired)
                 {
-                    TSDClient.SetStatus del = new SetStatus(PrintClass_OnSetStatus);
+                    SetStatus del = new SetStatus(PrintClass_OnSetStatus);
                     this.Invoke(del, text);
                 }
                 else
@@ -599,9 +599,9 @@ namespace Familia.TSDClient
            // _mutex.WaitOne();
             /*
             scanned_ta = 
-                new Familia.TSDClient.ScannedProductsDataSetTableAdapters.ScannedBarcodesTableAdapter();
+                new TSDServer.ScannedProductsDataSetTableAdapters.ScannedBarcodesTableAdapter();
             move_ta = 
-                new Familia.TSDClient.ScannedProductsDataSetTableAdapters.MoveResultsTblTableAdapter();
+                new TSDServer.ScannedProductsDataSetTableAdapters.MoveResultsTblTableAdapter();
             */
             try
             {

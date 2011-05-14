@@ -7,7 +7,7 @@ using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
 
-namespace Familia.TSDClient
+namespace TSDServer
 {
     public partial class InventarForm : Form
     {
@@ -53,7 +53,7 @@ namespace Familia.TSDClient
         {
             if (this.InvokeRequired)
             {
-                Familia.TSDClient.Scanned del = new Scanned(Scanned);
+                TSDServer.Scanned del = new Scanned(Scanned);
                 this.Invoke(del, barcode);
             }
             else

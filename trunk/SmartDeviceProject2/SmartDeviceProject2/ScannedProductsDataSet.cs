@@ -1,4 +1,5 @@
-﻿namespace Familia.TSDClient {
+﻿namespace TSDServer
+{
     
     
     public partial class ScannedProductsDataSet {
@@ -105,7 +106,7 @@
     }
 }
 
-namespace Familia.TSDClient.ScannedProductsDataSetTableAdapters
+namespace TSDServer.ScannedProductsDataSetTableAdapters
 {
 
 

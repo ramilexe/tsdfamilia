@@ -3,7 +3,7 @@
 using System.Collections.Generic;
 using System.Windows.Forms;
 
-namespace Familia.TSDClient
+namespace TSDServer
 {
     public delegate void DatabaseChanged();
     static class Program

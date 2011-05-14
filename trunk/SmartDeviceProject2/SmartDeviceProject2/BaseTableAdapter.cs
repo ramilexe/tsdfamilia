@@ -3,7 +3,7 @@ using System.Data;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Familia.TSDClient
+namespace TSDServer
 {
     public class BaseTableAdapter
     {

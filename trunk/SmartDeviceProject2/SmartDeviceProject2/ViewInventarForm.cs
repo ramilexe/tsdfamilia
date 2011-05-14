@@ -7,7 +7,7 @@ using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
 
-namespace Familia.TSDClient
+namespace TSDServer
 {
     public partial class ViewInventarForm : Form
     {

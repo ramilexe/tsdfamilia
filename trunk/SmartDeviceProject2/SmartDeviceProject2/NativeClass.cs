@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Familia.TSDClient
+namespace TSDServer
 {
     /*
      0 - memory division changed successfully

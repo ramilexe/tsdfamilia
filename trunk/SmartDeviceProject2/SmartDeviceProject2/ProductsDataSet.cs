@@ -1,4 +1,4 @@
-﻿namespace Familia.TSDClient
+﻿namespace TSDServer
 {
 
 
@@ -219,7 +219,7 @@
             {
 
                 return (ProductsDataSet.DocsTblRow[])(this.Select(string.Format("NavCode = {0}", NavCode)));
-                
+
             }
         }
 
@@ -227,31 +227,26 @@
         {
             public ProductsDataSet.ProductsTblRow[] FindByNavcode(string NavCode)
             {
-                
-                return (ProductsDataSet.ProductsTblRow[])(this.Select(string.Format("NavCode = '{0}'",NavCode)));
-                
+
+                return (ProductsDataSet.ProductsTblRow[])(this.Select(string.Format("NavCode = '{0}'", NavCode)));
+
             }
         }
     }
 
-    
-            
 
-        
+
 }
-
-namespace Familia.TSDClient.ProductsDataSetTableAdapters
+namespace TSDServer.ProductsDataSetTableAdapters
 {
-    
-    
-    public class DocsTblTableAdapter: BaseTableAdapter
+    public class DocsTblTableAdapter : BaseTableAdapter
     {
-        
+
         ProductsDataSet _productsDataset;
-        
+
 
         public DocsTblTableAdapter(ProductsDataSet productsDataset)
-            :base(productsDataset.DocsTbl)
+            : base(productsDataset.DocsTbl)
         {
             _productsDataset = productsDataset;
             Init();
@@ -311,18 +306,18 @@ namespace Familia.TSDClient.ProductsDataSetTableAdapters
         ProductsDataSet _productsDataset;
 
         public ProductsTblTableAdapter(ProductsDataSet productsDataset)
-            :base(productsDataset.ProductsTbl)
+            : base(productsDataset.ProductsTbl)
         {
             _productsDataset = productsDataset;
             Init();
         }
-        
-/*        public void Update(ProductsDataSet productsDataset)
-        {
-            if (table == null)
-                table = new FamilTsdDB.DataTable(productsDataset.ProductsTbl);
-            table.Write();
-        }*/
+
+        /*        public void Update(ProductsDataSet productsDataset)
+                {
+                    if (table == null)
+                        table = new FamilTsdDB.DataTable(productsDataset.ProductsTbl);
+                    table.Write();
+                }*/
         public void Update(TSDServer.ProductsDataSet productsDataset)
         {
             base.Update(productsDataset.ProductsTbl);
@@ -405,5 +400,6 @@ namespace Familia.TSDClient.ProductsDataSetTableAdapters
             }
         }
 
-      }
+    }
+
 }

@@ -90,6 +90,11 @@
     <Compile Include="AcceptClearDataForm.Designer.cs">
       <DependentUpon>AcceptClearDataForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="ProductsDataSet2.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ProductsDataSet.xsd</DependentUpon>
+    </Compile>
     <Compile Include="ViewInventarForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -130,14 +135,6 @@
     </Compile>
     <Compile Include="NativeClass.cs" />
     <Compile Include="ProductsDataSet.cs">
-      <DependentUpon>ProductsDataSet.xsd</DependentUpon>
-    </Compile>
-    <Compile Include="ProductsDataSet.Designer.cs">
-      <DependentUpon>ProductsDataSet.cs</DependentUpon>
-    </Compile>
-    <Compile Include="ProductsDataSet2.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
       <DependentUpon>ProductsDataSet.xsd</DependentUpon>
     </Compile>
     <Compile Include="Program.cs" />

@@ -1,4 +1,4 @@
-﻿namespace Familia.TSDClient
+﻿namespace TSDServer
 {
     partial class RemoveFinishForm
     {

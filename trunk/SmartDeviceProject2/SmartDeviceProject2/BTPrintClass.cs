@@ -6,7 +6,7 @@ using System.Threading;
 using System.Runtime.InteropServices;
 using Calib;
 
-namespace Familia.TSDClient
+namespace TSDServer
 {
     public delegate void SetStatus(string text);
     public delegate void SetError(string text);

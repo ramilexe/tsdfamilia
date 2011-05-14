@@ -3,15 +3,15 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Familia.TSDClient
+namespace TSDServer
 {
     public class ActionsClass
     {
         ScannedProductsDataSet _scannedProducts = new ScannedProductsDataSet();
-        Familia.TSDClient.ProductsDataSet _products
-            = new Familia.TSDClient.ProductsDataSet();
+        TSDServer.ProductsDataSet _products
+            = new TSDServer.ProductsDataSet();
 
-        public Familia.TSDClient.ProductsDataSet Products
+        public TSDServer.ProductsDataSet Products
         {
             get { return _products; }
             set { _products = value; }
@@ -23,9 +23,9 @@ namespace Familia.TSDClient
             set { _scannedProducts = value; }
         }
 
-        Familia.TSDClient.ScannedProductsDataSetTableAdapters.ScannedBarcodesTableAdapter scannedTA;
-        Familia.TSDClient.ProductsDataSetTableAdapters.ProductsTblTableAdapter productsTa;
-        Familia.TSDClient.ProductsDataSetTableAdapters.DocsTblTableAdapter docsTa;
+        TSDServer.ScannedProductsDataSetTableAdapters.ScannedBarcodesTableAdapter scannedTA;
+        TSDServer.ProductsDataSetTableAdapters.ProductsTblTableAdapter productsTa;
+        TSDServer.ProductsDataSetTableAdapters.DocsTblTableAdapter docsTa;
 
         public delegate void ActOnProduct(ProductsDataSet.ProductsTblRow datarow, ProductsDataSet.DocsTblRow docsRow);
         public delegate void ActionCompleted(ProductsDataSet.DocsTblRow docsRow, ScannedProductsDataSet.ScannedBarcodesRow scannedRow);
@@ -91,7 +91,7 @@ namespace Familia.TSDClient
             System.Threading.Timeout.Infinite);
 
             scannedTA =
-                    new Familia.TSDClient.ScannedProductsDataSetTableAdapters.ScannedBarcodesTableAdapter(_scannedProducts);
+                    new TSDServer.ScannedProductsDataSetTableAdapters.ScannedBarcodesTableAdapter(_scannedProducts);
 
             productsTa = new ProductsDataSetTableAdapters.ProductsTblTableAdapter(this._products);
             docsTa = new ProductsDataSetTableAdapters.DocsTblTableAdapter(this._products);
