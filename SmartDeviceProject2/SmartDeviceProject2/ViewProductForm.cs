@@ -247,33 +247,35 @@ namespace TSDServer
         }
         private void ViewProductForm_Load(object sender, EventArgs e)
         {
-
-            if (BTPrintClass.PrintClass.ConnToPrinter(Program.Settings.TypedSettings[0].BTPrinterAddress)
-                != Calib.BluetoothLibNet.Def.BTERR_CONNECTED)
+            if (WorkMode.ProductsScan == _mode)
             {
-
-                if (Program.Default.EnableWorkWOPrinter == 1)
+                if (BTPrintClass.PrintClass.ConnToPrinter(Program.Settings.TypedSettings[0].BTPrinterAddress)
+                    != Calib.BluetoothLibNet.Def.BTERR_CONNECTED)
                 {
 
-                    using (BTConnectionErrorForm frm =
-                        new BTConnectionErrorForm())
+                    if (Program.Default.EnableWorkWOPrinter == 1)
                     {
-                        if (frm.ShowDialog() == DialogResult.Yes)
-                        {
-                            BTPrintClass.PrintClass.Reconnect();
-                        }
-                        else
-                        {
-                            this.Close();
-                            return;
-                        }
 
+                        using (BTConnectionErrorForm frm =
+                            new BTConnectionErrorForm())
+                        {
+                            if (frm.ShowDialog() == DialogResult.Yes)
+                            {
+                                BTPrintClass.PrintClass.Reconnect();
+                            }
+                            else
+                            {
+                                this.Close();
+                                return;
+                            }
+
+                        }
                     }
-                }
-                else
-                {
-                    this.Close();
-                    return;
+                    else
+                    {
+                        this.Close();
+                        return;
+                    }
                 }
             }
             ActionsClass.Action.BeginScan();
@@ -412,23 +414,27 @@ namespace TSDServer
         private void ViewProductForm_Closing(object sender, CancelEventArgs e)
         {
             //tmr.Change(System.Threading.Timeout.Infinite, System.Threading.Timeout.Infinite);
-            ActionsClass.Action.EndScan();
-            try
+            if (_mode != WorkMode.InventarScan)
             {
-                
-                BTPrintClass.PrintClass.OnSetStatus -= (PrintClass_OnSetStatus);
-                BTPrintClass.PrintClass.OnSetError -= (PrintClass_OnSetError);
-                BTPrintClass.PrintClass.Disconnect();
+                ActionsClass.Action.EndScan();
+                try
+                {
 
-                //scannedTA.Update(this._scannedProducts);
+                    BTPrintClass.PrintClass.OnSetStatus -= (PrintClass_OnSetStatus);
+                    BTPrintClass.PrintClass.OnSetError -= (PrintClass_OnSetError);
+                    BTPrintClass.PrintClass.Disconnect();
+
+                    //scannedTA.Update(this._scannedProducts);
+                }
+                catch { };
+                //productsTa.Dispose();
+                //docsTa.Dispose();
+                //productsTa = null;
+                //docsTa = null;
+                ScanClass.Scaner.OnScanned = null;
+                if (_mode != WorkMode.InventarScan)
+                    ScanClass.Scaner.StopScan();
             }
-            catch { };
-            //productsTa.Dispose();
-            //docsTa.Dispose();
-            //productsTa = null;
-            //docsTa = null;
-            ScanClass.Scaner.OnScanned = null;
-            ScanClass.Scaner.StopScan();
             ActionsClass.Action.OnActionCompleted -=Action_OnActionCompleted;
             BTPrintClass.PrintClass.SetStatusEvent("Close Products form");
 

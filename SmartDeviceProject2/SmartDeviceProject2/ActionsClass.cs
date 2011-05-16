@@ -684,34 +684,36 @@ namespace TSDServer
 
         public void InventoryGlobalActionProc(ProductsDataSet.ProductsTblRow datarow, ProductsDataSet.DocsTblRow docsRow)
         {
-            ScannedProductsDataSet.ScannedBarcodesRow[] r =
-                _scannedProducts.ScannedBarcodes.FindByBarcodeAndDocType(datarow.Barcode, docsRow.DocType);
-            if (r == null)
-            {
-                ScannedProductsDataSet.ScannedBarcodesRow scannedRow =
+            //ScannedProductsDataSet.ScannedBarcodesRow[] r =
+            //    _scannedProducts.ScannedBarcodes.FindByBarcodeAndDocType(datarow.Barcode, docsRow.DocType);
+            ScannedProductsDataSet.ScannedBarcodesRow scannedRow =
                                ActionsClass.Action.AddScannedRow(
                                datarow.Barcode,
                                docsRow.DocType,
                                docsRow.DocId,
                                docsRow.Quantity,
                                docsRow.Priority);
-                r = new ScannedProductsDataSet.ScannedBarcodesRow[1];
-                r[0] = scannedRow;
-            }
 
-            for (int i = 0; i < r.Length; i++)
-            {
+            //if (scannedRow == null)
+            //{
+            //    return 
+            //    //r = new ScannedProductsDataSet.ScannedBarcodesRow[1];
+            //    //r[0] = scannedRow;
+            //}
 
-                r[i].FactQuantity += 1;
+            //for (int i = 0; i < r.Length; i++)
+            //{
+
+                scannedRow.FactQuantity += 1;
                 //PlayVibroAsyncAction(docsRow);
                 //PlaySoundAsyncAction(docsRow);
                 //PrintLabelAsync(datarow, docsRow);
                 if (OnActionCompleted != null)
-                    OnActionCompleted(docsRow, r[i]);
-                break;
+                    OnActionCompleted(docsRow, scannedRow);
+                //break;
 
 
-            }
+            //}
         }
 
         public void InventoryLocalActionProc(ProductsDataSet.ProductsTblRow datarow, ProductsDataSet.DocsTblRow docsRow)
