@@ -59,52 +59,59 @@ namespace TSDServer
                 this.dateLabel.Visible = false;
                 this.textBox1.Text = barcode;
                 
-                if (barcode.StartsWith("3"))
-                {
-                    ProductsDataSet.ProductsTblRow row =
-                        ActionsClass.Action.GetProductRow(barcode);
+                //if (barcode.StartsWith("3"))
+                //{
+                ProductsDataSet.DocsTblRow [] rows =
+                        ActionsClass.Action.GetDataByDocIdAndType(barcode,
+                        (byte)TSDUtils.ActionCode.IncomeBox);
 
-                    if (row != null)
+
+                    if (rows != null && rows.Length>0)
                     {
+                        ProductsDataSet.DocsTblRow row = rows[0];
+
                         this.bkLabel.Visible = true;
                         this.bkLabel.Text = string.Format("ШК: {0}", barcode);
                         this.docLabel.Visible = true;
                         this.docLabel.Text = string.Format
-                            ("Накладная № {0}", row.Article);
+                            ("Накладная № {0}", row.Text2);
 
                         this.txtLabel.Visible = true;
 
                         this.dateLabel.Visible = true;
-                        this.dateLabel.Text = row.Message;
+                        this.dateLabel.Text = row.Text3;
                             //string.Format(
                             //"Дата: {0}", DateTime.Today.ToString("dd.MM.yyyy"));
 
                         ScannedProductsDataSet.ScannedBarcodesRow scannedRow =
                                ActionsClass.Action.AddScannedRow(
-                               row.Barcode,
+                               long.Parse(barcode),
                                (byte)TSDUtils.ActionCode.IncomeBox,
-                               row.Article,
+                               row.DocId,
                                0,
                                0);
+                        ActionsClass.Action.PlaySoundAsync(7);
+                        ActionsClass.Action.PlayVibroAsync(7);
 
                     }
                     else
                     {
+                        ActionsClass.Action.PlaySoundAsync(251);
+                        ActionsClass.Action.PlayVibroAsync(251);
                         this.errLabel.Text = string.Format("ШК {0} чужой короб!",
                             barcode);
 
                         this.errLabel.Visible = true;
                     }
 
+                //}
+                //else
+                //{
+                //    this.errLabel.Text = string.Format("ШК {0} неверный № короба!",
+                //            barcode);
 
-                }
-                else
-                {
-                    this.errLabel.Text = string.Format("ШК {0} неверный № короба!",
-                            barcode);
-
-                    this.errLabel.Visible = true;
-                }
+                //    this.errLabel.Visible = true;
+                //}
                 
             }
         }

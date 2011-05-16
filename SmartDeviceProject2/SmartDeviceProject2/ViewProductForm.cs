@@ -69,11 +69,11 @@ namespace TSDServer
             inventRow.DocType = (byte)(TSDUtils.ActionCode.InventoryGlobal);
             inventRow.DocumentDate = DateTime.Today;
             inventRow.LabelCode = (byte)TSDUtils.ShablonCode.NoShablon;
-            inventRow.MusicCode = 0;
+            inventRow.MusicCode = 253;
 //            docRows.NavCode = row.NavCode;
             inventRow.Priority = 0;
             inventRow.Quantity = 0;
-            inventRow.VibroCode = 0;
+            inventRow.VibroCode = 253;
             inventRow.Text1 = "";
             inventRow.Text2 = "";
             inventRow.Text3 = "";
