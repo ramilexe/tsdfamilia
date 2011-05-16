@@ -221,6 +221,13 @@
                 return (ProductsDataSet.DocsTblRow[])(this.Select(string.Format("NavCode = {0}", NavCode)));
 
             }
+
+            public ProductsDataSet.DocsTblRow[] FindByDocIdAndType(string DocId, byte docType)
+            {
+
+                return (ProductsDataSet.DocsTblRow[])(this.Select(string.Format("DocId = {0} and DocType={1}", DocId, docType)));
+
+            }
         }
 
         public partial class ProductsTblDataTable
@@ -257,7 +264,13 @@ namespace TSDServer.ProductsDataSetTableAdapters
             //table = new FamilTsdDB.DataTable(_productsDataset.DocsTbl);
             //table.ReadTableDef();
             table.AddIndex(new System.Data.DataColumn[] { _productsDataset.DocsTbl.NavCodeColumn });
+            //table.AddIndex(new System.Data.DataColumn[] { _productsDataset.DocsTbl.NavCodeColumn });
             _fileList = table.FileList.ToArray();
+        }
+
+        public void Fill(ProductsDataSet productsDataset)
+        {
+            base.Fill(productsDataset.DocsTbl);
         }
 
         public void Update(TSDServer.ProductsDataSet productsDataset)
@@ -296,6 +309,18 @@ namespace TSDServer.ProductsDataSetTableAdapters
                 }
                 else
                     return null;
+            }
+        }
+
+        public ProductsDataSet.DocsTblRow[] GetDataByDocIdAndType(string DocId, byte docType)
+        {
+            ProductsDataSet.DocsTblRow[] r = _productsDataset.DocsTbl.FindByDocIdAndType(DocId, docType);
+            if (r != null &&
+                r.Length > 0)
+                return r;
+            else
+            {
+               return null;
             }
         }
     }

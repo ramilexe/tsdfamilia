@@ -180,11 +180,13 @@ namespace TSDServer
             }
             if (e.KeyValue == (int)SpecialButton.YellowBtn)
             {
-                ViewInventarForm prod =
-                    new ViewInventarForm(lastBk,
-                        (byte)TSDUtils.ActionCode.InventoryGlobal);
-                prod.ShowDialog();
-
+                if (!String.IsNullOrEmpty(lastBk))
+                {
+                    ViewInventarForm prod =
+                        new ViewInventarForm(lastBk,
+                            (byte)TSDUtils.ActionCode.InventoryGlobal);
+                    prod.ShowDialog();
+                }
 
                return;
             }
