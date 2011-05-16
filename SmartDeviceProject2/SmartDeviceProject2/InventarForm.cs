@@ -138,6 +138,7 @@ namespace TSDServer
                 }
                 else
                 {
+                    ActionsClass.Action.InvokeAction(TSDUtils.ActionCode.NotFound, null, null);
                     enableInvent = false;
                 }
                 //tmr.Change(0, 200);

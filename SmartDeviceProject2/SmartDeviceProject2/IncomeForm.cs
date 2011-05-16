@@ -88,8 +88,8 @@ namespace TSDServer
                                long.Parse(barcode),
                                (byte)TSDUtils.ActionCode.IncomeBox,
                                row.DocId,
-                               0,
-                               0);
+                               row.Quantity,
+                               row.Priority);
                         ActionsClass.Action.PlaySoundAsync(7);
                         ActionsClass.Action.PlayVibroAsync(7);
 
