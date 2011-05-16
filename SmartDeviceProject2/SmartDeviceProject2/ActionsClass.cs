@@ -977,7 +977,9 @@ namespace TSDServer
         {
             try
             {
-                return docsTa.GetDataByDocIdAndType(DocId, docType);
+                return this._products.DocsTbl.FindByDocIdAndType(DocId, docType);
+
+                    //docsTa.GetDataByDocIdAndType(DocId, docType);
             }
             catch
             {
