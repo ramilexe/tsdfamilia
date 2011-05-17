@@ -489,13 +489,13 @@ namespace TSDServer
                             _documentId,
                             TSDUtils.ActionCode.InventoryGlobal,
                             out totalBk,
-                            out totalBk);
+                            out total);
 
                         using (DialogForm dlgfrm =
                             new DialogForm(
                                 "Вы хотите закрыть просчет?"
-                                , string.Format("Посчитано: {0} кодов", totalBk)
-                                , string.Format("Посчитано: {0} всего штук", total)
+                                , string.Format("Посчитано: {0} кодов", total)
+                                , string.Format("Посчитано: {0} всего штук", totalBk)
                                 , "Закрытие просчета"))
                         {
                             if (dlgfrm.ShowDialog() == DialogResult.Yes)

@@ -320,7 +320,7 @@ namespace TSDServer.ProductsDataSetTableAdapters
                 return r;
             else
             {
-                System.Data.DataRow[] rows = table.FindByPartIndexes(0, //0 индекс - первичный ключ
+                System.Data.DataRow[] rows = table.FindFirstByPartIndexes(0, //0 индекс - первичный ключ
                     new int[] { 1, 2 }, //индекс состоит из 3х колонок: NavCode|6, DocId|20, DocType|1
                     //ищем по DocId|20, DocType|1
                     new object[] { DocId, docType }, //значения которые ищем

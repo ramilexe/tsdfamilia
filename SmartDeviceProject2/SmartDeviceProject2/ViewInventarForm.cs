@@ -50,14 +50,14 @@ namespace TSDServer
                     if (r != null)
                     listBox1.Items.Add(
                         string.Format(
-                        "{0:D13}|{1,25}|{2:D4}",
+                        "{0:D13}|{1,12} {2}",
                         rows[i].Barcode,
-                        r.ProductName,
+                        (r.ProductName.Length>12)?r.ProductName.Substring(0,12):r.ProductName,
                         rows[i].FactQuantity));
                     else
                         listBox1.Items.Add(
                         string.Format(
-                        "{0:D13}|{1,25}|{2:D4}",
+                        "{0:D13}|{1,12}  {2}",
                         rows[i].Barcode,
                         "Товар не найден",
                         rows[i].FactQuantity));

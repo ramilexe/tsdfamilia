@@ -846,7 +846,7 @@ namespace TSDServer
                     if (!scannedList.Contains(scannedrow[i].Barcode))
                     {
                         scannedList.Add(scannedrow[i].Barcode);
-                        totalBk += 1;
+                        totalBk += scannedrow[i].FactQuantity;
                     }
                 }
             }
@@ -893,6 +893,45 @@ namespace TSDServer
             }
         }
 
+        /// <summary>
+        /// Подсчет ШК в документах с указанным типом
+        /// </summary>
+        /// <param name="docType">Тип документа</param>
+        /// <param name="totalBk">Возврат всего уникальных ШК</param>
+        /// <param name="total">Возврат всего записей</param>
+        public void CalculateTotalsWOPriority(TSDUtils.ActionCode docType,
+            out int totalBk,
+            out int total)
+        {
+
+            total = 0;
+            totalBk = 0;
+
+
+            ScannedProductsDataSet.ScannedBarcodesRow[] scannedrow =
+            _scannedProducts.ScannedBarcodes.FindByDocType(
+                (byte)docType);
+
+            if (scannedrow == null ||
+                scannedrow.Length == 0)
+            {
+                return;
+            }
+            else
+            {
+                total = scannedrow.Length;
+                List<long> scannedList =
+                    new List<long>();
+                for (int i = 0; i < scannedrow.Length; i++)
+                {
+                    if (!scannedList.Contains(scannedrow[i].Barcode))
+                    {
+                        scannedList.Add(scannedrow[i].Barcode);
+                        totalBk += 1;
+                    }
+                }
+            }
+        }
         /// <summary>
         /// Закрыть просчет инвентаризации
         /// Просчет закрыт обозначает Priority=Byte.MaxValue
