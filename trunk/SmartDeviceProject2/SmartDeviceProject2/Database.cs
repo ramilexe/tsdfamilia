@@ -1855,7 +1855,10 @@ namespace FamilTsdDB
                             //go over all input column
                             for (int i = 0; i < columnId.Length; i++)
                                 // if input column values equal to index column value
-                                if (item.IndexItemData[columnId[i]].CompareTo(pkValues[i]) == 0)
+                                if (item.IndexItemData[columnId[i]].CompareTo(
+                                    new DataRowItem(
+                                        item.IndexItemData[columnId[i]].Column,
+                                        pkValues[i])) == 0)
                                 {
                                     System.Data.DataRow out_row = _data.NewRow();
                                     fs.Seek(item.Offset, System.IO.SeekOrigin.Begin);
