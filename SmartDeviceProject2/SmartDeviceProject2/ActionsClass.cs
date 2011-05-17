@@ -106,8 +106,8 @@ namespace TSDServer
             if (!docsTa.Opened)
             {
                 docsTa.Open();
-                docsTa.Fill(this._products);
             }
+            //docsTa.Fill(this._products);
         }
         public void OpenScanned()
         {
@@ -977,16 +977,16 @@ namespace TSDServer
 
         public ProductsDataSet.DocsTblRow[] GetDataByDocIdAndType(string DocId, byte docType)
         {
-            try
-            {
+            //try
+            //{
                 return this._products.DocsTbl.FindByDocIdAndType(DocId, docType);
 
                     //docsTa.GetDataByDocIdAndType(DocId, docType);
-            }
-            catch
-            {
-                return null;
-            }
+            //}
+            //catch
+            //{
+            //    return null;
+            //}
         }
         public ScannedProductsDataSet.ScannedBarcodesRow AddScannedRow(
             long barcode,
