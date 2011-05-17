@@ -979,9 +979,9 @@ namespace TSDServer
         {
             //try
             //{
-                return this._products.DocsTbl.FindByDocIdAndType(DocId, docType);
+                //return this._products.DocsTbl.FindByDocIdAndType(DocId, docType);
 
-                    //docsTa.GetDataByDocIdAndType(DocId, docType);
+                    return docsTa.GetDataByDocIdAndType(DocId, docType);
             //}
             //catch
             //{
