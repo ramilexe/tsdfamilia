@@ -80,22 +80,27 @@ namespace TSDServer
                             barcode);
                         this.label4.Visible = true;
                         //lastBk = barcode;
-                        DialogForm frm =
+                        using (DialogForm frm =
                               new DialogForm("Вы хотите начать просчет?",
                                   string.Format(" № {0}", barcode),
                                    "ДА – продолжить. Нет – выйти",
-                                   "Новый просчет");
-
-                        if (frm.ShowDialog() == DialogResult.Yes)
+                                   "Новый просчет"))
                         {
-                            ViewProductForm prodfrm =
-                                new ViewProductForm(
-                                    WorkMode.InventarScan,
-                                    barcode);
-                            enableInvent = true;
-                            prodfrm.ShowDialog();
-                            //this.Close();
+                            if (frm.ShowDialog() == DialogResult.Yes)
+                            {
+                                using (ViewProductForm prodfrm =
+                                    new ViewProductForm(
+                                        WorkMode.InventarScan,
+                                        barcode))
+                                {
+                                    prodfrm.ShowDialog();
+                                }
+                            
+                                //this.Close();
+                            }
+
                         }
+                        this.Refresh();
                         
                         
 
@@ -106,21 +111,28 @@ namespace TSDServer
                     {
                         if (row.Priority != byte.MaxValue)
                         {
-                            DialogForm frm =
+                            using (DialogForm frm =
                                 new DialogForm(
                                     string.Format("Идет просчет № {0}", barcode),
                                     "Продолжить просчет?",
                                      "ДА – продолжить. Нет – выйти",
-                                     "Просчет уже существует!");
-                            if (frm.ShowDialog() == DialogResult.Yes)
+                                     "Просчет уже существует!"))
                             {
-                                ViewProductForm prodfrm =
-                                    new ViewProductForm(
-                                        WorkMode.InventarScan,
-                                        barcode);
-                                enableInvent = true;
-                                prodfrm.ShowDialog();
                                 
+                                if (frm.ShowDialog() == DialogResult.Yes)
+                                {
+                                    enableInvent = true;
+                                    using (ViewProductForm prodfrm =
+                                        new ViewProductForm(
+                                            WorkMode.InventarScan,
+                                            barcode))
+                                    {
+                                        prodfrm.ShowDialog();
+                                    }
+                                    
+
+                                }
+                                this.Refresh();
                             }
                             this.Close();
 
@@ -131,6 +143,7 @@ namespace TSDServer
                             label2.Text = string.Format("Просчет {0} уже завершен!",barcode);
                             label2.Visible = true;
                             enableInvent = false;
+                            this.Refresh();
                         }
 
                     }
@@ -140,7 +153,10 @@ namespace TSDServer
                 {
                     ActionsClass.Action.InvokeAction(TSDUtils.ActionCode.NotFound, null, null);
                     enableInvent = false;
+                    label2.Text = string.Format("Штрихкод {0} неверный адрес!", barcode);
+                    label2.Visible = true;
                 }
+                this.Refresh();
                 //tmr.Change(0, 200);
                 //if (docsForm != null)
                 //{
@@ -183,10 +199,12 @@ namespace TSDServer
             {
                 if (!String.IsNullOrEmpty(lastBk))
                 {
-                    ViewInventarForm prod =
+                    using (ViewInventarForm prod =
                         new ViewInventarForm(lastBk,
-                            (byte)TSDUtils.ActionCode.InventoryGlobal);
-                    prod.ShowDialog();
+                            (byte)TSDUtils.ActionCode.InventoryGlobal))
+                    {
+                        prod.ShowDialog();
+                    }
                 }
 
                return;

@@ -103,17 +103,9 @@ namespace TSDServer
 
                         this.errLabel.Visible = true;
                     }
-
-                //}
-                //else
-                //{
-                //    this.errLabel.Text = string.Format("ШК {0} неверный № короба!",
-                //            barcode);
-
-                //    this.errLabel.Visible = true;
-                //}
-                
+                    this.Refresh();    
             }
+            
         }
 
        
@@ -153,13 +145,17 @@ namespace TSDServer
                     out totalBk,
                     out totals);
 
-                DialogForm dlgfrm =
+                using (DialogForm dlgfrm =
                             new DialogForm(
-                                string.Format("За {0} отсканировано", 
+                                string.Format("За {0} отсканировано",
                                 DateTime.Today.ToString("dd.MM.yyyy"))
                                 , string.Format(" {0} правильных коробов", totalBk)
                                 , ""
-                                , "Подсчет коробов");
+                                , "Подсчет коробов"))
+                {
+                    dlgfrm.ShowDialog();
+                }
+                this.Refresh();
 
                 return;
             }
