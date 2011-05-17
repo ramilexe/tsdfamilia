@@ -29,7 +29,7 @@
 
                 return (ScannedProductsDataSet.ScannedBarcodesRow[])
                         this.Select(
-                        string.Format("DocId = {0} and DocType = {1}", docId, docType),
+                        string.Format("DocId = '{0}' and DocType = {1}", docId, docType),
                         "Priority ASC");
 
 
@@ -42,6 +42,18 @@
                 return (ScannedProductsDataSet.ScannedBarcodesRow[])
                         this.Select(
                         string.Format("DocType = {0} and Priority={1}", docType, Priority),
+                        "Priority ASC");
+
+
+
+
+            }
+            public ScannedProductsDataSet.ScannedBarcodesRow[] FindByDocType(byte docType)
+            {
+
+                return (ScannedProductsDataSet.ScannedBarcodesRow[])
+                        this.Select(
+                        string.Format("DocType = {0}", docType),
                         "Priority ASC");
 
 

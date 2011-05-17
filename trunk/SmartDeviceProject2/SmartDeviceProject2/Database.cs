@@ -631,14 +631,17 @@ namespace FamilTsdDB
             byte pos = 0;
             for (int i = 0; i < col.Length; i++)
             {
-                int l = col[i].ColumnLength;
+                int colL = col[i].ColumnLength;
                 if (col[i].DataType == DataColumnTypes.String)
-                    l += 1;
-                byte[] b = new byte[l];
+                    colL += 1;
+                byte[] b = new byte[colL];
 
                 Array.Copy(foundedArray, pos, b, 0, b.Length);
                 currentIndexItem[i] = new DataRowItem(col[i], b);
-                pos = (byte)(pos + l);
+                //if (col[i].DataType == DataColumnTypes.String)
+                //    pos = (byte)(pos + colL-1);
+                //else
+                    pos = (byte)(pos + colL);
             }
             byte[] b1 = new byte[4];
 
@@ -659,7 +662,11 @@ namespace FamilTsdDB
                 if (currentIndexItem[i].RawData != null)
                     Array.Copy(currentIndexItem[i].RawData, 0, bArray, pos, currentIndexItem[i].RawData.Length);
 
-                pos = (byte)(pos + currentIndexItem[i].Column.ColumnLength);
+                //pos = (byte)(pos + currentIndexItem[i].Column.ColumnLength);
+                if (currentIndexItem[i].Column.DataType == DataColumnTypes.String)
+                    pos = (byte)(pos + currentIndexItem[i].Column.ColumnLength + 1);
+                else
+                    pos = (byte)(pos + currentIndexItem[i].Column.ColumnLength);
             }
             byte[] a = BitConverter.GetBytes(_offset);
 
@@ -1830,7 +1837,7 @@ namespace FamilTsdDB
         /// <param name="data">целевая таблица данных</param>
         /// <returns>массив найденных колонок</returns>
         public System.Data.DataRow[]
-           FindByPartIndexes(int indexId, int [] columnId, Object[] pkValues,System.Data.DataTable data)
+           FindFirstByPartIndexes(int indexId, int [] columnId, Object[] pkValues,System.Data.DataTable data)
         {
             //if (pkValues.Length != indexes[indexId].IndexColumns.Count)
             //    throw new System.Data.DataException();
@@ -1852,14 +1859,27 @@ namespace FamilTsdDB
                         //{
                         if (item != null && item.Offset >= 0)
                         {
+                            bool equal = true;
+
                             //go over all input column
                             for (int i = 0; i < columnId.Length; i++)
+                            {
                                 // if input column values equal to index column value
                                 if (item.IndexItemData[columnId[i]].CompareTo(
                                     new DataRowItem(
                                         item.IndexItemData[columnId[i]].Column,
                                         pkValues[i])) == 0)
                                 {
+                                    equal = equal & true;
+                                }
+                                else
+                                {
+                                    equal = false;
+                                    break;
+                                }
+                            }
+                            if (equal)
+                            {
                                     System.Data.DataRow out_row = _data.NewRow();
                                     fs.Seek(item.Offset, System.IO.SeekOrigin.Begin);
 
@@ -1877,11 +1897,12 @@ namespace FamilTsdDB
                                     for (int j = 0; j < _data.Columns.Count; j++)
                                     {
                                         if (r[j].Data != null)
-                                            out_row[i] = r[j].Data;
+                                            out_row[j] = r[j].Data;
                                         else
                                             out_row[j] = System.DBNull.Value;
                                     }
                                     Rows.Add(out_row);
+                                    break;
                                 }
                         }
                         //}

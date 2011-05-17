@@ -142,7 +142,7 @@ namespace TSDServer
             {
                 int totals=0;
                 int totalBk=0;
-                ActionsClass.Action.CalculateTotals(
+                ActionsClass.Action.CalculateTotalsWOPriority(
                     TSDUtils.ActionCode.IncomeBox,
                     out totalBk,
                     out totals);

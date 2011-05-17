@@ -66,14 +66,15 @@ namespace TSDServer
                 {
                     lastBk = barcode;
 
-                    ScannedProductsDataSet.ScannedBarcodesRow row =
+                    ScannedProductsDataSet.ScannedBarcodesRow [] row =
                     ActionsClass.Action.ScannedProducts.
-                        ScannedBarcodes.
-                        FindFirstByBarcodeAndDocType(
-                        long.Parse(barcode),
+                        ScannedBarcodes.FindByDocIdAndDocType
+                        (
+                        barcode,
                         (byte)TSDUtils.ActionCode.InventoryGlobal);
 
-                    if (row == null)
+                    if (row == null ||
+                        row.Length==0)
                     {
                         this.label3.Visible = true;
                         this.label4.Text = string.Format("№ {0}?",
@@ -109,7 +110,7 @@ namespace TSDServer
                     }
                     else
                     {
-                        if (row.Priority != byte.MaxValue)
+                        if (row[0].Priority != byte.MaxValue)
                         {
                             using (DialogForm frm =
                                 new DialogForm(
@@ -140,7 +141,7 @@ namespace TSDServer
                         }
                         else
                         {
-                            label2.Text = string.Format("Просчет {0} уже завершен!",barcode);
+                            label2.Text = string.Format("Просчет {0} завершен!",barcode);
                             label2.Visible = true;
                             enableInvent = false;
                             this.Refresh();
