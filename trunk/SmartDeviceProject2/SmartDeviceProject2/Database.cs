@@ -555,6 +555,13 @@ namespace FamilTsdDB
     public class IndexItem : IDisposable, IComparable
     {
         DataRowItem[] currentIndexItem;
+        public DataRowItem[] IndexItemData
+        {
+            get
+            {
+                return currentIndexItem;
+            }
+        }
         public DataRowItem this[int i]
         {
             get
@@ -1182,6 +1189,36 @@ namespace FamilTsdDB
 
         }
 
+        public IEnumerable<IndexItem> FindIndexesData()
+        {
+            Int32 indexPosition = 0;
+            operationCounter = 0;
+            indexPosition = (int)fsPk.Seek(0, System.IO.SeekOrigin.Begin);
+
+            indexCounter = indexPosition / IndexLength;
+
+            while (indexPosition <= fsPk.Length)
+            {
+                operationCounter++;
+                int readed = rdr.Read(srchtemplate, 0, srchtemplate.Length);
+                indexPosition += readed;
+                indexCounter++;
+
+                if (readed == 0)
+                    break;
+
+                if (readed >= IndexLength)
+                {
+                    IndexItem itemI = new IndexItem(IndexColumns.ToArray(), srchtemplate);
+                    yield return itemI;
+                }
+                else
+                    break;
+
+            }
+
+        }
+
         public void Clear()
         {
             keyItems1.Clear();
@@ -1737,17 +1774,18 @@ namespace FamilTsdDB
 
             indexes[indexId].OpenIndex();
             //Int32 offset = 0;
-            foreach (Int32 offset in indexes[indexId].FindIndexes(new IndexItem(item)))
+            using (System.IO.FileStream fs =
+                new System.IO.FileStream(string.Format("{0}\\{1}.db", DataTable.StartupPath, this.TableName), System.IO.FileMode.Open))
             {
-                try
+                foreach (Int32 offset in indexes[indexId].FindIndexes(new IndexItem(item)))
                 {
-                    if (offset >= 0)
+                    try
                     {
-                        System.Data.DataRow out_row = _data.NewRow();
-
-                        using (System.IO.FileStream fs =
-                            new System.IO.FileStream(string.Format("{0}\\{1}.db", DataTable.StartupPath, this.TableName), System.IO.FileMode.Open))
+                        if (offset >= 0)
                         {
+                            System.Data.DataRow out_row = _data.NewRow();
+
+
                             fs.Seek(offset, System.IO.SeekOrigin.Begin);
 
                             int readed = 0;
@@ -1771,11 +1809,86 @@ namespace FamilTsdDB
                             Rows.Add(out_row);
                         }
                     }
+                    finally
+                    {
+                        //indexes[0].CloseIndex();
+                    }
                 }
-                finally
+        
+            }
+        
+            return Rows.ToArray();
+
+
+        }
+        /// <summary>
+        /// Поиск по части индекса
+        /// </summary>
+        /// <param name="indexId">номер индекса</param>
+        /// <param name="columnId">список колонок индекса - массив целых</param>
+        /// <param name="pkValues">список объектов из индекса</param>
+        /// <param name="data">целевая таблица данных</param>
+        /// <returns>массив найденных колонок</returns>
+        public System.Data.DataRow[]
+           FindByPartIndexes(int indexId, int [] columnId, Object[] pkValues,System.Data.DataTable data)
+        {
+            //if (pkValues.Length != indexes[indexId].IndexColumns.Count)
+            //    throw new System.Data.DataException();
+
+            List<System.Data.DataRow> Rows =
+                new List<System.Data.DataRow>();
+
+            
+            indexes[indexId].OpenIndex();
+            try
+            {
+                using (System.IO.FileStream fs =
+                               new System.IO.FileStream(string.Format("{0}\\{1}.db", DataTable.StartupPath, this.TableName), System.IO.FileMode.Open))
                 {
-                    //indexes[0].CloseIndex();
+                    //go over all indexes
+                    foreach (IndexItem item in indexes[indexId].FindIndexesData())
+                    {
+                        //try
+                        //{
+                        if (item != null && item.Offset >= 0)
+                        {
+                            //go over all input column
+                            for (int i = 0; i < columnId.Length; i++)
+                                // if input column values equal to index column value
+                                if (item.IndexItemData[columnId[i]].CompareTo(pkValues[i]) == 0)
+                                {
+                                    System.Data.DataRow out_row = _data.NewRow();
+                                    fs.Seek(item.Offset, System.IO.SeekOrigin.Begin);
+
+                                    int readed = 0;
+
+                                    byte[] bLength = new byte[2];
+                                    fs.Read(bLength, 0, 2);
+                                    UInt16 length = BitConverter.ToUInt16(bLength, 0);
+                                    byte[] rawData = new byte[length];
+                                    fs.Seek(-2, System.IO.SeekOrigin.Current);
+                                    fs.Read(rawData, 0, rawData.Length);
+
+                                    DataRow r = DataRow.GetRow(this, rawData);
+
+                                    for (int j = 0; j < _data.Columns.Count; j++)
+                                    {
+                                        if (r[j].Data != null)
+                                            out_row[i] = r[j].Data;
+                                        else
+                                            out_row[j] = System.DBNull.Value;
+                                    }
+                                    Rows.Add(out_row);
+                                }
+                        }
+                        //}
+                        //catch { }
+                    }
                 }
+            }
+            finally
+            {
+                indexes[indexId].CloseIndex();
             }
             return Rows.ToArray();
 

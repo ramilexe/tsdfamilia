@@ -90,6 +90,8 @@ namespace TSDServer
                                row.DocId,
                                row.Quantity,
                                row.Priority);
+                        scannedRow.FactQuantity += 1;
+
                         ActionsClass.Action.PlaySoundAsync(7);
                         ActionsClass.Action.PlayVibroAsync(7);
 

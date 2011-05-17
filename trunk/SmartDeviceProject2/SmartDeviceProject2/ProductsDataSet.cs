@@ -218,14 +218,14 @@
             public ProductsDataSet.DocsTblRow[] FindByNavCode(string NavCode)
             {
 
-                return (ProductsDataSet.DocsTblRow[])(this.Select(string.Format("NavCode = {0}", NavCode)));
+                return (ProductsDataSet.DocsTblRow[])(this.Select(string.Format("NavCode = '{0}'", NavCode)));
 
             }
 
             public ProductsDataSet.DocsTblRow[] FindByDocIdAndType(string DocId, byte docType)
             {
 
-                return (ProductsDataSet.DocsTblRow[])(this.Select(string.Format("DocId = {0} and DocType={1}", DocId, docType)));
+                return (ProductsDataSet.DocsTblRow[])(this.Select(string.Format("DocId = '{0}' and DocType={1}", DocId, docType)));
 
             }
         }
@@ -320,7 +320,29 @@ namespace TSDServer.ProductsDataSetTableAdapters
                 return r;
             else
             {
-               return null;
+                System.Data.DataRow[] rows = table.FindByPartIndexes(0, //0 индекс - первичный ключ
+                    new int[] { 1, 2 }, //индекс состоит из 3х колонок: NavCode|6, DocId|20, DocType|1
+                    //ищем по DocId|20, DocType|1
+                    new object[] { DocId, docType }, //значения которые ищем
+                    _productsDataset.DocsTbl); //таблица куда записывать
+                if (rows != null && rows.Length > 0)
+                {
+                    r = new ProductsDataSet.DocsTblRow[rows.Length];
+                    for (int i = 0; i < r.Length; i++)
+                    {
+                        r[i] = (ProductsDataSet.DocsTblRow)rows[i];
+                        try
+                        {
+                            _productsDataset.DocsTbl.AddDocsTblRow(r[i]);
+                        }
+                        catch (System.Data.ConstraintException)
+                        {
+                        }
+                    }
+                    return r;
+                }
+                else
+                    return null;
             }
         }
     }
