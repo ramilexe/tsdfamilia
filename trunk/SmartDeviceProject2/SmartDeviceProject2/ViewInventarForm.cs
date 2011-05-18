@@ -33,6 +33,10 @@ namespace TSDServer
 
         private void ViewInventarForm_Load(object sender, EventArgs e)
         {
+            this.listBox1.Font = new Font(FontFamily.GenericMonospace, 8f, FontStyle.Regular);
+            this.listBox1.Items.Clear();
+
+
             ScannedProductsDataSet.ScannedBarcodesRow [] rows
              = ActionsClass.Action.ScannedProducts.ScannedBarcodes.FindByDocIdAndDocType
                 (_docId,
@@ -50,17 +54,18 @@ namespace TSDServer
                     if (r != null)
                     listBox1.Items.Add(
                         string.Format(
-                        "{0:D13}|{1,12} {2}",
+                        "{0:D13}|{1,12}|{2}",
                         rows[i].Barcode,
-                        (r.ProductName.Length>12)?r.ProductName.Substring(0,12):r.ProductName,
-                        rows[i].FactQuantity));
+                        (r.ProductName.Length>12)?r.ProductName.Substring(0,12):
+                        r.ProductName,
+                        rows[i].FactQuantity.ToString()));
                     else
                         listBox1.Items.Add(
                         string.Format(
-                        "{0:D13}|{1,12}  {2}",
+                        "{0:D13}|{1,12}|{2}",
                         rows[i].Barcode,
                         "Товар не найден",
-                        rows[i].FactQuantity));
+                        rows[i].FactQuantity.ToString()));
                         
                 }
             }
@@ -82,7 +87,8 @@ namespace TSDServer
 
         private void listBox1_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.Escape)
+            if (e.KeyCode == Keys.Escape ||
+             e.KeyValue == 115)//YellowBtn
             {
                 this.Close();
                 return;
