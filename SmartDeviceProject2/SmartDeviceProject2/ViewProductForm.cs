@@ -80,6 +80,8 @@ namespace TSDServer
 
             currentdocRows = new ProductsDataSet.DocsTblRow[1];
             currentdocRows[0] = inventRow;
+            label14.Text="";
+            label13.Text = "";
 
 
         }
@@ -548,12 +550,14 @@ namespace TSDServer
             }
             if (e.KeyValue == 115)//YellowBtn
             {
-                if (currentProductRow != null && WorkMode.ProductsScan == _mode)
+                try
                 {
-                    try
+                    ScanClass.Scaner.PauseScan();
+                    if (currentProductRow != null && WorkMode.ProductsScan == _mode)
                     {
 
-                        ScanClass.Scaner.PauseScan();
+
+                        
                         //if (currentdocRows != null && currentdocRows.Length > 0)
                         //{
                         using (
@@ -573,35 +577,34 @@ namespace TSDServer
                         //    }
                         //}
 
+                    }
+                    else
+                    {
+                        if (!String.IsNullOrEmpty(_documentId))
+                        {
+                            using (ViewInventarForm prod =
+                                new ViewInventarForm(_documentId,
+                                    (byte)TSDUtils.ActionCode.InventoryGlobal))
+                            {
+                                prod.ShowDialog();
 
+                            }
+                        }
                     }
-                    catch (Exception err)
-                    {
-                        BTPrintClass.PrintClass.SetErrorEvent(err.ToString());
-                    }
-                    finally
-                    {
-                        ScanClass.Scaner.ResumeScan();
-                        this.Refresh();
+                }
+                catch (Exception err)
+                {
+                    BTPrintClass.PrintClass.SetErrorEvent(err.ToString());
+                }
+                finally
+                {
+                    ScanClass.Scaner.ResumeScan();
+                    this.Refresh();
+                }
 
                         //this.BringToFront();
                         //this.Focus();
-                    }
-                }
-                else
-                {
-                    if (!String.IsNullOrEmpty(_documentId))
-                    {
-                        using (ViewInventarForm prod =
-                            new ViewInventarForm(_documentId,
-                                (byte)TSDUtils.ActionCode.InventoryGlobal)) 
-                        {
-                            prod.ShowDialog();
-
-                        }
-                        this.Refresh();
-                    }
-                }
+                    
                 return;
             }
             //if (e.KeyValue == 9)

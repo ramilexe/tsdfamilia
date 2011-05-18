@@ -62,7 +62,8 @@ namespace TSDServer
                 this.label4.Visible = false;
                 this.label2.Visible = false;
                 this.textBox1.Text = barcode;
-                if (barcode.StartsWith("3"))
+                this.textBox1.SelectAll();
+                if (barcode.StartsWith("3") && barcode.Length == 13)
                 {
                     lastBk = barcode;
 
@@ -133,7 +134,7 @@ namespace TSDServer
                                     
 
                                 }
-                                this.Refresh();
+                                //this.Refresh();
                             }
                             this.Close();
 
@@ -144,7 +145,7 @@ namespace TSDServer
                             label2.Text = string.Format("Просчет {0} завершен!",barcode);
                             label2.Visible = true;
                             enableInvent = false;
-                            this.Refresh();
+                            //this.Refresh();
                         }
 
                     }
@@ -157,6 +158,7 @@ namespace TSDServer
                     label2.Text = string.Format("Штрихкод {0} неверный адрес!", barcode);
                     label2.Visible = true;
                 }
+                
                 this.Refresh();
                 //tmr.Change(0, 200);
                 //if (docsForm != null)

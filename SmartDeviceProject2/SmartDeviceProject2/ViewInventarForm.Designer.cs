@@ -47,6 +47,10 @@
             // listBox1
             // 
             this.listBox1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.listBox1.Font = new System.Drawing.Font("Tahoma", 10F, System.Drawing.FontStyle.Regular);
+            this.listBox1.Items.Add("123456789123|Дисконтная карта|  5");
+            this.listBox1.Items.Add("123456789123|Еще какой то про|   5");
+            this.listBox1.Items.Add("123456789123|ТАМП. PLAYTEX 16| 10");
             this.listBox1.Location = new System.Drawing.Point(0, 0);
             this.listBox1.Name = "listBox1";
             this.listBox1.Size = new System.Drawing.Size(235, 242);
@@ -60,14 +64,14 @@
             this.panel2.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.panel2.Location = new System.Drawing.Point(0, 253);
             this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(239, 42);
+            this.panel2.Size = new System.Drawing.Size(235, 42);
             // 
             // label1
             // 
             this.label1.Location = new System.Drawing.Point(0, 0);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(235, 20);
-            this.label1.Text = "Fn-Clr - выход";
+            this.label1.Text = "Выход: Fn-Clr или F4 Желтая кнопка";
             this.label1.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             // 
             // ViewInventarForm
@@ -76,7 +80,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.AutoScroll = true;
             this.BackColor = System.Drawing.Color.White;
-            this.ClientSize = new System.Drawing.Size(239, 295);
+            this.ClientSize = new System.Drawing.Size(235, 295);
             this.ControlBox = false;
             this.Controls.Add(this.panel2);
             this.Controls.Add(this.panel1);

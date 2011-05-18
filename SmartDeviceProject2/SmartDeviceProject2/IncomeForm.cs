@@ -58,15 +58,16 @@ namespace TSDServer
                 this.txtLabel.Visible = false;
                 this.dateLabel.Visible = false;
                 this.textBox1.Text = barcode;
-                
-                //if (barcode.StartsWith("3"))
-                //{
-                ProductsDataSet.DocsTblRow [] rows =
-                        ActionsClass.Action.GetDataByDocIdAndType(barcode,
-                        (byte)TSDUtils.ActionCode.IncomeBox);
+                this.textBox1.SelectAll();
+
+                if (barcode.StartsWith("3") && barcode.Length == 13)
+                {
+                    ProductsDataSet.DocsTblRow[] rows =
+                            ActionsClass.Action.GetDataByDocIdAndType(barcode,
+                            (byte)TSDUtils.ActionCode.IncomeBox);
 
 
-                    if (rows != null && rows.Length>0)
+                    if (rows != null && rows.Length > 0)
                     {
                         ProductsDataSet.DocsTblRow row = rows[0];
 
@@ -80,8 +81,8 @@ namespace TSDServer
 
                         this.dateLabel.Visible = true;
                         this.dateLabel.Text = row.Text3;
-                            //string.Format(
-                            //"Дата: {0}", DateTime.Today.ToString("dd.MM.yyyy"));
+                        //string.Format(
+                        //"Дата: {0}", DateTime.Today.ToString("dd.MM.yyyy"));
 
                         ScannedProductsDataSet.ScannedBarcodesRow scannedRow =
                                ActionsClass.Action.AddScannedRow(
@@ -105,8 +106,21 @@ namespace TSDServer
 
                         this.errLabel.Visible = true;
                     }
-                    this.Refresh();    
+                    this.Refresh();
+                }
+                else
+                {
+                     ActionsClass.Action.PlaySoundAsync(251);
+                     ActionsClass.Action.PlayVibroAsync(251);
+                     this.errLabel.Text = string.Format("Это не ШК короба!",
+                            barcode);
+
+                     this.errLabel.Visible = true;
+                    
+                }
+               // this.textBox1.SelectAll();
             }
+            
             
         }
 
