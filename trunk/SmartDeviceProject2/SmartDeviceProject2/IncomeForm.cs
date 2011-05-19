@@ -158,6 +158,7 @@ namespace TSDServer
                 int totalBk=0;
                 ActionsClass.Action.CalculateTotalsWOPriority(
                     TSDUtils.ActionCode.IncomeBox,
+                    DateTime.Today,
                     out totalBk,
                     out totals);
 

@@ -15,6 +15,7 @@ namespace TSDServer
     public class BTPrintClass
     {
         static int WaitPrintTimeDefault = 0;
+        
 
         static BTPrintClass _PrintClass = new BTPrintClass();
         public static BTPrintClass PrintClass
@@ -95,8 +96,21 @@ namespace TSDServer
 
             try
             {
-                //if (System.IO.File.Exists("BTLog.txt"))
-                //    System.IO.FileInfo fi = 
+                
+                try{
+                
+                if (System.IO.File.Exists(System.IO.Path.Combine(Program.StartupPath, "BTLog.txt")))
+                {
+                    System.IO.FileInfo fi = new System.IO.FileInfo(System.IO.Path.Combine(Program.StartupPath, "BTLog.txt"));
+                    fi.Refresh();
+                    if (fi.Length > 1000000)
+                        System.IO.File.Delete(System.IO.Path.Combine(Program.StartupPath, "BTLog.txt"));
+                }
+                }
+                catch
+                { //не удалось удалить или получить информацию - ну фиг с ним
+                }
+                
                 //        System.IO.File.g
                 using (System.IO.StreamWriter wr = new System.IO.StreamWriter(
                            System.IO.Path.Combine(Program.StartupPath, "BTLog.txt"), true))
@@ -122,6 +136,20 @@ namespace TSDServer
 
             try
             {
+
+                try
+                {
+                    if (System.IO.File.Exists(System.IO.Path.Combine(Program.StartupPath, "BTLog.txt")))
+                    {
+                        System.IO.FileInfo fi = new System.IO.FileInfo(System.IO.Path.Combine(Program.StartupPath, "BTLog.txt"));
+                        fi.Refresh();
+                        if (fi.Length > 1000000)
+                            System.IO.File.Delete(System.IO.Path.Combine(Program.StartupPath, "BTLog.txt"));
+                    }
+                }
+                catch { //не удалось удалить или получить информацию - ну фиг с ним
+                }
+
                 using (System.IO.StreamWriter wr = new System.IO.StreamWriter(
                            System.IO.Path.Combine(Program.StartupPath, "BTLog.txt"), true))
                 {
