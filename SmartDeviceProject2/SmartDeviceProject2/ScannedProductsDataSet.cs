@@ -8,7 +8,7 @@
         {
             public ScannedProductsDataSet.ScannedBarcodesRow[] FindByBarcodeAndDoc(long Barcode, string docId)
             {
-                return (ScannedProductsDataSet.ScannedBarcodesRow[])(this.Select(string.Format("Barcode = {0} and DocId = \"{1}\"", Barcode,docId)));
+                return (ScannedProductsDataSet.ScannedBarcodesRow[])(this.Select(string.Format("Barcode = {0} and DocId = '{1}'", Barcode,docId)));
             }
 
             public ScannedProductsDataSet.ScannedBarcodesRow[] FindByBarcodeAndDocType(long Barcode, byte docType)
@@ -29,7 +29,7 @@
 
                 return (ScannedProductsDataSet.ScannedBarcodesRow[])
                         this.Select(
-                        string.Format("DocId = '{0}' and DocType = {1}", docId, docType),
+                        string.Format("DocId ='{0}' and DocType = {1}", docId, docType),
                         "Priority ASC");
 
 

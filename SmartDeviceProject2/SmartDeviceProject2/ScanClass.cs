@@ -275,6 +275,7 @@ namespace TSDServer
         /// </summary>
         public void StopScan()
         {
+            OnScanned = null;
             paused = false;
             aborted = true;
             OBReadLibNet.Api.OBRClose();				//OBRDRV Close

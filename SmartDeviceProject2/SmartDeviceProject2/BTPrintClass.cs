@@ -98,14 +98,16 @@ namespace TSDServer
             {
                 
                 try{
-                
-                if (System.IO.File.Exists(System.IO.Path.Combine(Program.StartupPath, "BTLog.txt")))
-                {
-                    System.IO.FileInfo fi = new System.IO.FileInfo(System.IO.Path.Combine(Program.StartupPath, "BTLog.txt"));
-                    fi.Refresh();
-                    if (fi.Length > 1000000)
-                        System.IO.File.Delete(System.IO.Path.Combine(Program.StartupPath, "BTLog.txt"));
-                }
+                    lock (this)
+                    {
+                        if (System.IO.File.Exists(System.IO.Path.Combine(Program.StartupPath, "BTLog.txt")))
+                        {
+                            System.IO.FileInfo fi = new System.IO.FileInfo(System.IO.Path.Combine(Program.StartupPath, "BTLog.txt"));
+                            fi.Refresh();
+                            if (fi.Length > 1000000)
+                                System.IO.File.Delete(System.IO.Path.Combine(Program.StartupPath, "BTLog.txt"));
+                        }
+                    }
                 }
                 catch
                 { //не удалось удалить или получить информацию - ну фиг с ним
@@ -139,12 +141,15 @@ namespace TSDServer
 
                 try
                 {
-                    if (System.IO.File.Exists(System.IO.Path.Combine(Program.StartupPath, "BTLog.txt")))
+                    lock (this)
                     {
-                        System.IO.FileInfo fi = new System.IO.FileInfo(System.IO.Path.Combine(Program.StartupPath, "BTLog.txt"));
-                        fi.Refresh();
-                        if (fi.Length > 1000000)
-                            System.IO.File.Delete(System.IO.Path.Combine(Program.StartupPath, "BTLog.txt"));
+                        if (System.IO.File.Exists(System.IO.Path.Combine(Program.StartupPath, "BTLog.txt")))
+                        {
+                            System.IO.FileInfo fi = new System.IO.FileInfo(System.IO.Path.Combine(Program.StartupPath, "BTLog.txt"));
+                            fi.Refresh();
+                            if (fi.Length > 1000000)
+                                System.IO.File.Delete(System.IO.Path.Combine(Program.StartupPath, "BTLog.txt"));
+                        }
                     }
                 }
                 catch { //не удалось удалить или получить информацию - ну фиг с ним

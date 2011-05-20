@@ -13,9 +13,13 @@ namespace TSDServer
     {
         string lastBk = string.Empty;
         private bool enableInvent = false;
+        private bool enableScan = false;
+        Scanned scannedDelegate = null;
         public InventarForm()
         {
             InitializeComponent();
+
+            scannedDelegate = new Scanned(OnScanned);
         }
 
 
@@ -30,34 +34,39 @@ namespace TSDServer
             ActionsClass.Action.BeginScan();
             //ActionsClass.Action.OnActionCompleted += new ActionsClass.ActionCompleted(Action_OnActionCompleted);
             ScanClass.Scaner.InitScan();
-            ScanClass.Scaner.OnScanned += new Scanned(Scanned);
+            //ScanClass.Scaner.OnScanned += new Scanned(Scanned);
             this.Refresh();
-
-
+            ScanClass.Scaner.OnScanned += scannedDelegate;
+            enableScan = true;
             if (
                 Program.СurrentInvId != string.Empty ||
                (Program.СurrentInvId = ActionsClass.Action.FindOpenInventar()) != string.Empty
                )
             {
-                Scanned(Program.СurrentInvId);
+                OnScanned(Program.СurrentInvId);
             }
             
         }
         void InventarForm_Closed(object sender, System.EventArgs e)
         {
+            ScanClass.Scaner.OnScanned -= scannedDelegate; ;
             ActionsClass.Action.EndScan();
             ScanClass.Scaner.StopScan();
+            enableScan = false;
         }
 
-        void Scanned(string barcode)
+        void OnScanned(string barcode)
         {
-            if (this.InvokeRequired)
+            if (this.InvokeRequired )
             {
-                TSDServer.Scanned del = new Scanned(Scanned);
+                TSDServer.Scanned del = new Scanned(OnScanned);
                 this.Invoke(del, barcode);
             }
             else
             {
+                if (!enableScan)
+                    return;
+                
                 this.label3.Visible = false;
                 this.label4.Visible = false;
                 this.label2.Visible = false;
@@ -90,12 +99,29 @@ namespace TSDServer
                         {
                             if (frm.ShowDialog() == DialogResult.Yes)
                             {
-                                using (ViewProductForm prodfrm =
-                                    new ViewProductForm(
-                                        WorkMode.InventarScan,
-                                        barcode))
+                                try
                                 {
-                                    prodfrm.ShowDialog();
+                                    enableScan = false;
+                                    //ScanClass.Scaner.StopScan();
+                                    //ScanClass.Scaner.OnScanned -= scannedDelegate;
+                                    //ScanClass.Scaner.OnScanned =null;
+                                    //this.Visible = false;
+                                    //this.Enabled = false;
+                                    using (ViewProductForm prodfrm =
+                                        new ViewProductForm(
+                                            WorkMode.InventarScan,
+                                            barcode))
+                                    {
+                                        prodfrm.ShowDialog();
+                                    }
+                                }
+                                finally
+                                {
+                                    enableScan = true;
+                                    //this.Visible = true;
+                                    //this.Enabled = true;
+                                    //ScanClass.Scaner.InitScan();
+                                    //ScanClass.Scaner.OnScanned += new Scanned(OnScanned);
                                 }
                             
                                 //this.Close();
@@ -123,13 +149,21 @@ namespace TSDServer
                                 
                                 if (frm.ShowDialog() == DialogResult.Yes)
                                 {
+                                    enableScan = false;
                                     enableInvent = true;
-                                    using (ViewProductForm prodfrm =
-                                        new ViewProductForm(
-                                            WorkMode.InventarScan,
-                                            barcode))
+                                    try
                                     {
-                                        prodfrm.ShowDialog();
+                                        using (ViewProductForm prodfrm =
+                                            new ViewProductForm(
+                                                WorkMode.InventarScan,
+                                                barcode))
+                                        {
+                                            prodfrm.ShowDialog();
+                                        }
+                                    }
+                                    finally
+                                    {
+                                        enableScan = true;
                                     }
                                     
 
@@ -179,7 +213,7 @@ namespace TSDServer
             if (e.KeyCode == Keys.Enter)
             {
                 if (textBox1.Text != string.Empty)
-                    Scanned(textBox1.Text);
+                    OnScanned(textBox1.Text);
   
                 return;
             }
@@ -202,11 +236,22 @@ namespace TSDServer
             {
                 if (!String.IsNullOrEmpty(lastBk))
                 {
-                    using (ViewInventarForm prod =
-                        new ViewInventarForm(lastBk,
-                            (byte)TSDUtils.ActionCode.InventoryGlobal))
+                    
+                    try
                     {
-                        prod.ShowDialog();
+                        enableScan = false;
+                        //ScanClass.Scaner.OnScanned = null;
+                        using (ViewInventarForm prod =
+                            new ViewInventarForm(lastBk,
+                                (byte)TSDUtils.ActionCode.InventoryGlobal))
+                        {
+                            prod.ShowDialog();
+                        }
+                    }
+                    finally
+                    {
+                        enableScan = true;
+                        //ScanClass.Scaner.OnScanned += scannedDelegate;
                     }
                 }
 
@@ -216,7 +261,7 @@ namespace TSDServer
             {
                 if (enableInvent)
                 {
-                    Scanned(lastBk);
+                    OnScanned(lastBk);
                 }
                 return;
             }

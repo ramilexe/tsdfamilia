@@ -1845,7 +1845,7 @@ namespace FamilTsdDB
             List<System.Data.DataRow> Rows =
                 new List<System.Data.DataRow>();
 
-            
+            bool founded = false;
             indexes[indexId].OpenIndex();
             try
             {
@@ -1880,30 +1880,38 @@ namespace FamilTsdDB
                             }
                             if (equal)
                             {
-                                    System.Data.DataRow out_row = _data.NewRow();
-                                    fs.Seek(item.Offset, System.IO.SeekOrigin.Begin);
+                                founded = true;
+                                System.Data.DataRow out_row = _data.NewRow();
+                                fs.Seek(item.Offset, System.IO.SeekOrigin.Begin);
 
-                                    int readed = 0;
+                                //int readed = 0;
 
-                                    byte[] bLength = new byte[2];
-                                    fs.Read(bLength, 0, 2);
-                                    UInt16 length = BitConverter.ToUInt16(bLength, 0);
-                                    byte[] rawData = new byte[length];
-                                    fs.Seek(-2, System.IO.SeekOrigin.Current);
-                                    fs.Read(rawData, 0, rawData.Length);
+                                byte[] bLength = new byte[2];
+                                fs.Read(bLength, 0, 2);
+                                UInt16 length = BitConverter.ToUInt16(bLength, 0);
+                                byte[] rawData = new byte[length];
+                                fs.Seek(-2, System.IO.SeekOrigin.Current);
+                                fs.Read(rawData, 0, rawData.Length);
 
-                                    DataRow r = DataRow.GetRow(this, rawData);
+                                DataRow r = DataRow.GetRow(this, rawData);
 
-                                    for (int j = 0; j < _data.Columns.Count; j++)
-                                    {
-                                        if (r[j].Data != null)
-                                            out_row[j] = r[j].Data;
-                                        else
-                                            out_row[j] = System.DBNull.Value;
-                                    }
-                                    Rows.Add(out_row);
-                                    break;
+                                for (int j = 0; j < _data.Columns.Count; j++)
+                                {
+                                    if (r[j].Data != null)
+                                        out_row[j] = r[j].Data;
+                                    else
+                                        out_row[j] = System.DBNull.Value;
                                 }
+                                Rows.Add(out_row);
+                                break;
+                            }
+                            else
+                            {
+                                //признак того что ранее уже находили записи по индексу.
+                                //не найдено - дальше можно не искать
+                                if (founded)
+                                    break;
+                            }
                         }
                         //}
                         //catch { }
@@ -1937,7 +1945,7 @@ namespace FamilTsdDB
                         {
                             fs.Seek(offset, System.IO.SeekOrigin.Begin);
 
-                            int readed = 0;
+                            //int readed = 0;
 
                             byte[] bLength = new byte[2];
                             fs.Read(bLength, 0, 2);

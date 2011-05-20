@@ -705,8 +705,8 @@ namespace TSDServer
             //{
 
                 scannedRow.FactQuantity += 1;
-                //PlayVibroAsyncAction(docsRow);
-                //PlaySoundAsyncAction(docsRow);
+                PlayVibroAsyncAction(docsRow);
+                PlaySoundAsyncAction(docsRow);
                 //PrintLabelAsync(datarow, docsRow);
                 if (OnActionCompleted != null)
                     OnActionCompleted(docsRow, scannedRow);

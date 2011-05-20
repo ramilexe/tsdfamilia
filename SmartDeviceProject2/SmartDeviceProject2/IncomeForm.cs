@@ -11,12 +11,15 @@ namespace TSDServer
 {
     public partial class IncomeForm : Form
     {
-        private bool enableInvent = false;
+        //private bool enableInvent = false;
+        Scanned scannedDelegate = null;
         public IncomeForm()
         {
             InitializeComponent();
-        }
 
+            scannedDelegate = new Scanned(OnScanned);
+        }
+        
 
         private void InventarForm_Load(object sender, EventArgs e)
         {
@@ -29,7 +32,7 @@ namespace TSDServer
             ActionsClass.Action.BeginScan();
             //ActionsClass.Action.OnActionCompleted += new ActionsClass.ActionCompleted(Action_OnActionCompleted);
             ScanClass.Scaner.InitScan();
-            ScanClass.Scaner.OnScanned += new Scanned(Scanned);
+            ScanClass.Scaner.OnScanned += scannedDelegate;
             
             this.Refresh();
 
@@ -39,15 +42,16 @@ namespace TSDServer
         }
         void InventarForm_Closed(object sender, System.EventArgs e)
         {
+            ScanClass.Scaner.OnScanned -= scannedDelegate;
             ActionsClass.Action.EndScan();
             ScanClass.Scaner.StopScan();
         }
 
-        void Scanned(string barcode)
+        void OnScanned(string barcode)
         {
             if (this.InvokeRequired)
             {
-                TSDServer.Scanned del = new Scanned(Scanned);
+                TSDServer.Scanned del = new Scanned(OnScanned);
                 this.Invoke(del, barcode);
             }
             else
@@ -133,7 +137,7 @@ namespace TSDServer
             if (e.KeyCode == Keys.Enter)
             {
                 if (textBox1.Text != string.Empty)
-                    Scanned(textBox1.Text);
+                    OnScanned(textBox1.Text);
   
                 return;
             }
@@ -161,16 +165,24 @@ namespace TSDServer
                     DateTime.Today,
                     out totalBk,
                     out totals);
-
-                using (DialogForm dlgfrm =
-                            new DialogForm(
-                                string.Format("За {0} отсканировано",
-                                DateTime.Today.ToString("dd.MM.yyyy"))
-                                , string.Format(" {0} правильных коробов", totalBk)
-                                , ""
-                                , "Подсчет коробов"))
+                try
                 {
-                    dlgfrm.ShowDialog();
+                    ScanClass.Scaner.OnScanned -= scannedDelegate;
+                    using (DialogForm dlgfrm =
+                                new DialogForm(
+                                    string.Format("За {0} отсканировано",
+                                    DateTime.Today.ToString("dd.MM.yyyy"))
+                                    , string.Format(" {0} правильных коробов", totalBk)
+                                    , ""
+                                    , "Подсчет коробов"))
+                    {
+                        dlgfrm.ShowDialog();
+                    }
+                }
+                finally
+                {
+                    ScanClass.Scaner.OnScanned += scannedDelegate;
+
                 }
                 this.Refresh();
 
