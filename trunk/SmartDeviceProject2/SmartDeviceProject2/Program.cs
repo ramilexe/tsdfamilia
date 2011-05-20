@@ -74,8 +74,8 @@ namespace TSDServer
                 _startupPath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetCallingAssembly().GetName().CodeBase);
                 settingFilePath = System.IO.Path.Combine(StartupPath, "Settings.xml");
 
-                if (System.IO.File.Exists(System.IO.Path.Combine(_startupPath, "BTLog.txt")))
-                    System.IO.File.Delete(System.IO.Path.Combine(_startupPath, "BTLog.txt"));
+                //if (System.IO.File.Exists(System.IO.Path.Combine(_startupPath, "BTLog.txt")))
+                //    System.IO.File.Delete(System.IO.Path.Combine(_startupPath, "BTLog.txt"));
                 //}
                 //catch (Exception err)
                 //{

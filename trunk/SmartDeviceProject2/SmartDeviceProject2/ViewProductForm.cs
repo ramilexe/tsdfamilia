@@ -69,11 +69,11 @@ namespace TSDServer
             inventRow.DocType = (byte)(TSDUtils.ActionCode.InventoryGlobal);
             inventRow.DocumentDate = DateTime.Today;
             inventRow.LabelCode = (byte)TSDUtils.ShablonCode.NoShablon;
-            inventRow.MusicCode = 253;
+            inventRow.MusicCode = 5;
 //            docRows.NavCode = row.NavCode;
             inventRow.Priority = 0;
             inventRow.Quantity = 0;
-            inventRow.VibroCode = 253;
+            inventRow.VibroCode = 5;
             inventRow.Text1 = "";
             inventRow.Text2 = "";
             inventRow.Text3 = "";
@@ -225,9 +225,15 @@ namespace TSDServer
                 {
                    
                     inventRow.NavCode = row.NavCode;
-                    ActionsClass.Action.InventoryGlobalActionProc(
+                    ActionsClass.Action.InvokeAction(TSDUtils.ActionCode.InventoryGlobal, 
                         row,
-                        inventRow);
+                        inventRow
+                        );
+
+                    this.Refresh();
+                    //ActionsClass.Action.InventoryGlobalActionProc(
+                    //    row,
+                    //    inventRow);
 
 
                 }
@@ -280,8 +286,11 @@ namespace TSDServer
                         return;
                     }
                 }
+                ActionsClass.Action.BeginScan();
+                ScanClass.Scaner.InitScan();
+
             }
-            ActionsClass.Action.BeginScan();
+           
 
             /*
             foreach (Control c in this.Controls)
@@ -300,7 +309,8 @@ namespace TSDServer
             this.label15.Width = w;
             this.navCodeTB.Focus();
 
-           
+            
+            ScanClass.Scaner.OnScanned += new Scanned(Scanned);
 
             label5.Text = "";
             label6.Text = "";
@@ -324,8 +334,8 @@ namespace TSDServer
             
 
             ActionsClass.Action.OnActionCompleted += new ActionsClass.ActionCompleted(Action_OnActionCompleted);
-            ScanClass.Scaner.InitScan();
-            ScanClass.Scaner.OnScanned += new Scanned(Scanned);
+            
+            
             BTPrintClass.PrintClass.OnSetStatus += new SetStatus(PrintClass_OnSetStatus);
             BTPrintClass.PrintClass.OnSetError += new SetError(PrintClass_OnSetError);
             BTPrintClass.PrintClass.OnConnectionError += new ConnectionError(PrintClass_OnConnectionError);
@@ -434,6 +444,7 @@ namespace TSDServer
                 ScanClass.Scaner.OnScanned = null;
                 ScanClass.Scaner.StopScan();
             }
+            
             ActionsClass.Action.OnActionCompleted -=Action_OnActionCompleted;
             BTPrintClass.PrintClass.SetStatusEvent("Close Products form");
 

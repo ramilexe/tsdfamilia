@@ -28,15 +28,14 @@ namespace TSDServer
             _docId = docId;
             _docType = docType;
 
+            this.listBox1.Font = new Font(FontFamily.GenericMonospace, 8f, FontStyle.Regular);
+            this.listBox1.Items.Clear();
+
         }
 
 
         private void ViewInventarForm_Load(object sender, EventArgs e)
         {
-            this.listBox1.Font = new Font(FontFamily.GenericMonospace, 8f, FontStyle.Regular);
-            this.listBox1.Items.Clear();
-
-
             ScannedProductsDataSet.ScannedBarcodesRow [] rows
              = ActionsClass.Action.ScannedProducts.ScannedBarcodes.FindByDocIdAndDocType
                 (_docId,
