@@ -23,6 +23,7 @@ namespace TSDServer
         {
             InitializeComponent();
             this.KeyDown += new KeyEventHandler(ViewDocsForm_KeyDown);
+
         }
 
         //public ViewDocsForm(ProductsDataSet.ProductsTblRow productRow):this()

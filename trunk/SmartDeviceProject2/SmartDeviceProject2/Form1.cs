@@ -191,6 +191,7 @@ namespace TSDServer
                         }
                     case (int)MenuItems.ViewProductMenu:
                         {
+                            BTPrintClass.PrintClass.CheckForClear();
                             using (ViewProductForm frm = new ViewProductForm())
                             {
                                 frm.ShowDialog();
@@ -199,6 +200,7 @@ namespace TSDServer
                         }
                     case (int)MenuItems.InventarMenu:
                         {
+                            BTPrintClass.PrintClass.CheckForClear();
                             using (InventarForm frm = new InventarForm())
                             {
                                 frm.ShowDialog();
@@ -207,6 +209,7 @@ namespace TSDServer
                         }
                     case (int)MenuItems.IncomeMenu:
                         {
+                            BTPrintClass.PrintClass.CheckForClear();
                             using (IncomeForm frm = new IncomeForm())
                             {
                                 frm.ShowDialog();
@@ -215,6 +218,7 @@ namespace TSDServer
                         }
                     case (int)MenuItems.ViewSettingMenu:
                         {
+                            BTPrintClass.PrintClass.CheckForClear();
                             using (SettingsForm frm = new SettingsForm())
                             {
                                 frm.ShowDialog();
