@@ -89,14 +89,33 @@ namespace TSDServer
         public event SetStatus OnSetStatus;
         public event ConnectionError OnConnectionError;
 
+        public void CheckForClear()
+        {
+            try
+            {
+                lock (this)
+                {
+                    if (System.IO.File.Exists(System.IO.Path.Combine(Program.StartupPath, "BTLog.txt")))
+                    {
+                        System.IO.FileInfo fi = new System.IO.FileInfo(System.IO.Path.Combine(Program.StartupPath, "BTLog.txt"));
+                        fi.Refresh();
+                        if (fi.Length > 1000000)
+                            System.IO.File.Delete(System.IO.Path.Combine(Program.StartupPath, "BTLog.txt"));
+                    }
+                }
+            }
+            catch
+            { //не удалось удалить или получить информацию - ну фиг с ним
+            }
+        }
         public void SetStatusEvent(string text)
         {
             if (OnSetStatus != null)
                 OnSetStatus(text);
-
+            
             try
             {
-                
+                /*
                 try{
                     lock (this)
                     {
@@ -111,7 +130,7 @@ namespace TSDServer
                 }
                 catch
                 { //не удалось удалить или получить информацию - ну фиг с ним
-                }
+                }*/
                 
                 //        System.IO.File.g
                 using (System.IO.StreamWriter wr = new System.IO.StreamWriter(
@@ -138,7 +157,7 @@ namespace TSDServer
 
             try
             {
-
+                /*
                 try
                 {
                     lock (this)
@@ -153,7 +172,7 @@ namespace TSDServer
                     }
                 }
                 catch { //не удалось удалить или получить информацию - ну фиг с ним
-                }
+                }*/
 
                 using (System.IO.StreamWriter wr = new System.IO.StreamWriter(
                            System.IO.Path.Combine(Program.StartupPath, "BTLog.txt"), true))

@@ -259,7 +259,7 @@ namespace FamilTsdDB
                     if (table.Columns[i].DataType == DataColumnTypes.String)
                     {
                         byte strLength = rawData[offset];
-                        byte[] str = new byte[strLength+1];
+                        byte[] str = new byte[strLength + 1];
                         Array.Copy(rawData, offset, str, 0, str.Length);
                         r.Items[i] = new DataRowItem(table.Columns[i], str);
                         //r.Items[i].Data =
@@ -379,9 +379,10 @@ namespace FamilTsdDB
 
                 case DataColumnTypes.String:
                     {
-                        byte[] b = new byte[str.Length - 1];
 
-                        Array.Copy(str, 1, b, 0, b.Length);
+                        byte length = str[0];
+                        byte[] b = new byte[length];
+                        Array.Copy(str, 1, b, 0, length);
                         Data = TSDUtils.CustomEncodingClass.Encoding.GetString(b);
                         break;
                     }
@@ -553,7 +554,7 @@ namespace FamilTsdDB
         {
             if (Data == null)
                 return base.GetHashCode();
-            
+
             switch (Column.DataType)
             {
                 case DataColumnTypes.String:
@@ -579,18 +580,12 @@ namespace FamilTsdDB
 
         private int CalcHash(string obj)
         {
-           /* int hsh = 0;
-            for (int i = 0; i < obj.Length;i++ )
-            {
-                hsh = hsh+(int)(Convert.ToByte(obj[i]) << i);
-            }
-            return hsh;*/
             return obj.GetHashCode();
         }
 
         private int CalcHash(Int64 obj)
         {
-            return (int)(obj.GetHashCode());
+            return (obj.GetHashCode());
         }
         private int CalcHash(Byte obj)
         {
@@ -598,21 +593,28 @@ namespace FamilTsdDB
         }
         private int CalcHash(Int16 obj)
         {
-            return (int)(obj.GetHashCode());
+            return (obj.GetHashCode());
         }
         private int CalcHash(Int32 obj)
         {
-            return (int)(obj.GetHashCode());
+            return (obj.GetHashCode());
         }
         private int CalcHash(Single obj)
         {
-            return (int)(obj.GetHashCode());
+            return (obj.GetHashCode());
         }
         private int CalcHash(object obj)
         {
             return obj.GetHashCode();
         }
 
+        public override string ToString()
+        {
+            if (Data == null)
+                return string.Empty;
+            else
+                return Data.ToString();
+        }
     }
 
     public class DataColumn
@@ -681,7 +683,7 @@ namespace FamilTsdDB
         }
         private bool _disposed = false;
         byte[] bArray;
-
+        int hsh = 0;
         public IndexItem(DataRowItem[] ri, int offset)
         {
             currentIndexItem = ri;
@@ -693,6 +695,8 @@ namespace FamilTsdDB
                 length += (byte)currentIndexItem[i].Column.ColumnLength;
                 if (currentIndexItem[i].Column.DataType == DataColumnTypes.String)
                     length += 1;
+
+                hsh += currentIndexItem[i].GetHashCode();
             }
             length = length + 4;
 
@@ -709,15 +713,19 @@ namespace FamilTsdDB
                 length += (byte)currentIndexItem[i].Column.ColumnLength;
                 if (currentIndexItem[i].Column.DataType == DataColumnTypes.String)
                     length += 1;
+
+                hsh += currentIndexItem[i].GetHashCode();
             }
             length = length + 4;
 
         }
+
         public IndexItem(List<DataColumn> col, byte[] foundedArray) :
             this(col.ToArray(), foundedArray)
         {
 
         }
+
         public IndexItem(DataColumn[] col, byte[] foundedArray)
         {
             currentIndexItem = new DataRowItem[col.Length];
@@ -732,10 +740,11 @@ namespace FamilTsdDB
 
                 Array.Copy(foundedArray, pos, b, 0, b.Length);
                 currentIndexItem[i] = new DataRowItem(col[i], b);
+                hsh += currentIndexItem[i].GetHashCode();
                 //if (col[i].DataType == DataColumnTypes.String)
                 //    pos = (byte)(pos + colL-1);
                 //else
-                    pos = (byte)(pos + colL);
+                pos = (byte)(pos + colL);
             }
             byte[] b1 = new byte[4];
 
@@ -746,6 +755,7 @@ namespace FamilTsdDB
 
 
         }
+
         public byte[] GetBytes()
         {
             bArray = new byte[length];
@@ -803,90 +813,41 @@ namespace FamilTsdDB
             }
             return res;
         }
-    }
-    public class SecondIndexItem : IComparable
-    {
-        Dictionary<int, DataRowItem> secondItemList =
-            new Dictionary<int, DataRowItem>();
-
-        DataRowItem rowItem;
-
-        public DataRowItem this[int key]
-        {
-            get { return secondItemList[key]; }
-            set {
-                if (secondItemList.ContainsKey(key))
-                    secondItemList[key] = value;
-                else
-                {
-                    secondItemList.Add(key, value);
-                }
-                }
-        }
-
-
-        #region IComparable Members
-
-        public int CompareTo(object obj)
-        {
-            bool equal = true;
-            Dictionary<int, DataRowItem> dictRI = obj as Dictionary<int, DataRowItem>;
-            if (obj != null)
-            {
-                if (dictRI.Count == secondItemList.Count)
-                {
-                    foreach (int key in secondItemList.Keys)
-                    {
-                        if (dictRI[key] != null && dictRI[key] == secondItemList[key])
-                            equal = equal & true;
-                        else
-                            return -1;
-
-                    }
-                    if (equal)
-                        return 0;
-                }
-            }
-            return -1;
-        }
 
         public override bool Equals(object obj)
         {
-            bool equal = true;
-            Dictionary<int, DataRowItem> dictRI = obj as Dictionary<int, DataRowItem>;
+            IndexItem idx = obj as IndexItem;
+            if (obj == null ||
+                idx == null)
+                return false;
 
-            if (obj != null &&
-                dictRI != null)
+            if (currentIndexItem == null ||
+                currentIndexItem.Length == 0)
+                return false;
+
+            bool equal = false;
+
+
+
+            for (int i = 0; i < currentIndexItem.Length; i++)
             {
-                if (dictRI.Count == secondItemList.Count)
-                {
-                    foreach (int key in secondItemList.Keys)
-                    {
-                        if (dictRI[key] != null && dictRI[key] == secondItemList[key])
-                            equal = equal & true;
-                        else
-                            return false;
-
-                    }
-                    return equal;
-                }
+                if (currentIndexItem[i] != idx[i])
+                    return false;
+                else
+                    equal = true;
             }
-            return false;
+            return equal;
         }
 
         public override int GetHashCode()
         {
-            int hsh = 0;
-            foreach (int key in secondItemList.Keys)
-            {
-                hsh += secondItemList[key].GetHashCode();
+            if (currentIndexItem == null ||
+                currentIndexItem.Length == 0)
+                return base.GetHashCode();
 
-            }
             return hsh;
-
         }
 
-        #endregion
     }
 
     public class SecondaryIndex : IDisposable
@@ -894,9 +855,9 @@ namespace FamilTsdDB
         private bool _disposed = false;
         Dictionary<string, List<int>> secondaryItems =
             new Dictionary<string, List<int>>();
-        public List<DataColumn> columns =
+        /*public List<DataColumn> columns =
             new List<DataColumn>();
-        /*
+        
         public SecondaryIndex(List<DataColumn> _cols)
         {
             columns.AddRange(_cols);
@@ -910,7 +871,7 @@ namespace FamilTsdDB
             }
         }
 
-        public void Add(Object[] pkValues, Int32 offset)
+        public void Add(string sItem, Int32 offset)
         {
             /*
             string str = string.Empty;
@@ -919,20 +880,23 @@ namespace FamilTsdDB
             for (int i=0;i<pkValues.Length;i++)
             {
                 str 
-            }
-            
+            }*/
+
             if (secondaryItems.ContainsKey(sItem))
-                secondaryItems[sItem].Add(item);
+                secondaryItems[sItem].Add(offset);
             else
             {
-                secondaryItems.Add(sItem, new List<IndexItem>());
-                secondaryItems[sItem].Add(item);
-            }*/
+                secondaryItems.Add(sItem, new List<int>());
+                secondaryItems[sItem].Add(offset);
+            }
         }
 
-        public List<IndexItem> GetItems(SecondIndexItem sItem)
+        public List<int> GetItems(string sItem)
         {
-            return secondaryItems[sItem];
+            if (secondaryItems.ContainsKey(sItem))
+                return secondaryItems[sItem];
+            else
+                return new List<int>();
         }
 
         #region IDisposable Members
@@ -944,16 +908,34 @@ namespace FamilTsdDB
                 secondaryItems.Clear();
                 secondaryItems = null;
             }
-            
+
         }
 
         #endregion
 
-        
+
     }
+
+    public class IndexMapItem
+    {
+        List<IndexMapItem> nodes = new List<IndexMapItem>();
+        IndexItem item;
+        public IndexMapItem(IndexItem _item)
+        {
+            item = _item;
+        }
+
+        public void Add(IndexItem item)
+        {
+            nodes.Add(new IndexMapItem(item));
+        }
+
+    }
+
     public class Index : IDisposable, IComparable
     {
         SecondaryIndex seIndex = new SecondaryIndex();
+        //List<IndexMapItem> seIndex = new List<IndexMapItem>();
 
         public DataTable Table;
         //public System.Collections.Generic.Dictionary<DataRowItem[], Int32> keyItems =
@@ -1285,7 +1267,7 @@ namespace FamilTsdDB
             {
                 operationCounter++;
                 int readed = rdr.Read(srchtemplate, 0, srchtemplate.Length);
-                
+
 
 
                 if (readed == 0)
@@ -1301,7 +1283,7 @@ namespace FamilTsdDB
                         return itemI.Offset;
                     }
                     else
-                        indexPosition = indexPosition - 2*readed;
+                        indexPosition = indexPosition - 2 * readed;
                 }
                 else
                     return -1;
@@ -1468,9 +1450,9 @@ namespace FamilTsdDB
 
         }
 
-        public IEnumerable<IndexItem> FindIndexesData(int[] columnId, Object[] pkValues)
+        public IEnumerable<int> FindIndexesData(int[] columnId, Object[] pkValues)
         {
-           
+            StringBuilder sb = new StringBuilder();
             if (seIndex.Count == 0)
             {
 
@@ -1488,6 +1470,8 @@ namespace FamilTsdDB
 
                 indexCounter = indexPosition / IndexLength;
 
+
+
                 while (indexPosition <= fsPk.Length)
                 {
                     operationCounter++;
@@ -1502,14 +1486,21 @@ namespace FamilTsdDB
                     {
                         IndexItem itemI = new IndexItem(IndexColumns.ToArray(), srchtemplate);
 
+
                         //bool equal = true;
                         //bool greater = false;
-                        SecondIndexItem seItem = new SecondIndexItem();
+                        //SecondIndexItem seItem = new SecondIndexItem();
                         //go over all input column
                         for (int i = 0; i < columnId.Length; i++)
                         {
 
-                            seItem[columnId[i]] = itemI[columnId[i]];
+                            sb.Append(itemI[columnId[i]].ToString());
+
+                            //seIndex.Add(new IndexMapItem(
+                            //    new IndexItem(new DataColumn[]{IndexColumns[i]},
+                            //        itemI[
+
+                            //seItem[columnId[i]] = itemI[columnId[i]];
 
 
                             // if input column values equal to index column value
@@ -1529,7 +1520,10 @@ namespace FamilTsdDB
                                 break;
                             }*/
                         }
-                        seIndex.Add(seItem, itemI);
+                        seIndex.Add(sb.ToString(), itemI.Offset);
+                        sb.Length = 0;
+
+                        //seIndex.Add(seItem, itemI);
                         /*
                         if (itemI.IndexItemData[columnId[0]].CompareTo(
                                 new DataRowItem(
@@ -1552,22 +1546,18 @@ namespace FamilTsdDB
                 CloseIndex();
             }
 
-            SecondIndexItem seItem1 = new SecondIndexItem();
+            //SecondIndexItem seItem1 = new SecondIndexItem();
             for (int i = 0; i < columnId.Length; i++)
             {
-
-                seItem1[columnId[i]] = new DataRowItem(
-                    IndexColumns[columnId[i]],
-                     //keyItems1[0][columnId[i]].Column,
-                     pkValues[i]);
-
+                sb.Append(
+                    new DataRowItem(
+                        IndexColumns[columnId[i]],
+                         pkValues[i]).ToString());
             }
-            return this.seIndex.GetItems(seItem1);
 
-            
-            
-
+            return this.seIndex.GetItems(sb.ToString());
         }
+
 
         public void Clear()
         {
@@ -1814,7 +1804,7 @@ namespace FamilTsdDB
                         if (!fouded && idx != null)
                             indexes.Add(idx);
                     }
-                    
+
                 }
             }
             catch { }
@@ -2164,9 +2154,9 @@ namespace FamilTsdDB
                         //indexes[0].CloseIndex();
                     }
                 }
-        
+
             }
-        
+
             return Rows.ToArray();
 
 
@@ -2180,7 +2170,7 @@ namespace FamilTsdDB
         /// <param name="data">целевая таблица данных</param>
         /// <returns>массив найденных колонок</returns>
         public System.Data.DataRow[]
-           FindFirstByPartIndexes(int indexId, int [] columnId, Object[] pkValues,System.Data.DataTable data)
+           FindFirstByPartIndexes(int indexId, int[] columnId, Object[] pkValues, System.Data.DataTable data)
         {
             //if (pkValues.Length != indexes[indexId].IndexColumns.Count)
             //    throw new System.Data.DataException();
@@ -2188,7 +2178,7 @@ namespace FamilTsdDB
             List<System.Data.DataRow> Rows =
                 new List<System.Data.DataRow>();
 
-            bool founded = false;
+            //bool founded = false;
             //indexes[indexId].OpenIndex();
             try
             {
@@ -2196,74 +2186,41 @@ namespace FamilTsdDB
                                new System.IO.FileStream(string.Format("{0}\\{1}.db", DataTable.StartupPath, this.TableName), System.IO.FileMode.Open))
                 {
                     //go over all indexes
-                    foreach (IndexItem item in indexes[indexId].FindIndexesData(columnId,pkValues))
+                    foreach (int Offset in indexes[indexId].FindIndexesData(columnId, pkValues))
                     {
-                        //try
-                        //{
-                        if (item != null && item.Offset >= 0)
+
+                        //founded = true;
+                        System.Data.DataRow out_row = _data.NewRow();
+                        fs.Seek(Offset, System.IO.SeekOrigin.Begin);
+
+                        //int readed = 0;
+
+                        byte[] bLength = new byte[2];
+                        fs.Read(bLength, 0, 2);
+                        UInt16 length = BitConverter.ToUInt16(bLength, 0);
+                        byte[] rawData = new byte[length];
+                        fs.Seek(-2, System.IO.SeekOrigin.Current);
+                        fs.Read(rawData, 0, rawData.Length);
+
+                        DataRow r = DataRow.GetRow(this, rawData);
+
+                        for (int j = 0; j < _data.Columns.Count; j++)
                         {
-                           // bool equal = true;
-
-                            //go over all input column
-                            /*for (int i = 0; i < columnId.Length; i++)
-                            {
-                                // if input column values equal to index column value
-                                if (item.IndexItemData[columnId[i]].CompareTo(
-                                    new DataRowItem(
-                                        item.IndexItemData[columnId[i]].Column,
-                                        pkValues[i])) == 0)
-                                {
-                                    equal = equal & true;
-                                }
-                                else
-                                {
-                                    equal = false;
-                                    break;
-                                }
-                            }
-                            if (equal)
-                            {*/
-                                founded = true;
-                                System.Data.DataRow out_row = _data.NewRow();
-                                fs.Seek(item.Offset, System.IO.SeekOrigin.Begin);
-
-                                //int readed = 0;
-
-                                byte[] bLength = new byte[2];
-                                fs.Read(bLength, 0, 2);
-                                UInt16 length = BitConverter.ToUInt16(bLength, 0);
-                                byte[] rawData = new byte[length];
-                                fs.Seek(-2, System.IO.SeekOrigin.Current);
-                                fs.Read(rawData, 0, rawData.Length);
-
-                                DataRow r = DataRow.GetRow(this, rawData);
-
-                                for (int j = 0; j < _data.Columns.Count; j++)
-                                {
-                                    if (r[j].Data != null)
-                                        out_row[j] = r[j].Data;
-                                    else
-                                        out_row[j] = System.DBNull.Value;
-                                }
-                                Rows.Add(out_row);
-                                break;
-                            /*}
+                            if (r[j].Data != null)
+                                out_row[j] = r[j].Data;
                             else
-                            {
-                                //признак того что ранее уже находили записи по индексу.
-                                //не найдено - дальше можно не искать
-                                if (founded)
-                                    break;
-                            }*/
+                                out_row[j] = System.DBNull.Value;
                         }
-                        //}
-                        //catch { }
+                        Rows.Add(out_row);
+                        break;
                     }
+                    //}
+                    //catch { }
                 }
             }
             finally
             {
-                //indexes[indexId].CloseIndex();
+                indexes[indexId].CloseIndex();
             }
             return Rows.ToArray();
 
@@ -2343,5 +2300,5 @@ namespace FamilTsdDB
         #endregion
 
     }
-    
+
 }
