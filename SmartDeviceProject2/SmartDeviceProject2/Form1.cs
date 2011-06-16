@@ -210,10 +210,12 @@ namespace TSDServer
                     case (int)MenuItems.IncomeMenu:
                         {
                             BTPrintClass.PrintClass.CheckForClear();
-                            using (IncomeForm frm = new IncomeForm())
+                            using (
+                                IncomeForm frm = new IncomeForm())
                             {
                                 frm.ShowDialog();
                             }
+                            //BTPrintClass.PrintClass.SetStatusEvent("Form Closed");
                             break;
                         }
                     case (int)MenuItems.ViewSettingMenu:
@@ -228,7 +230,7 @@ namespace TSDServer
 
                     default:
                         {
-                            return;
+                            break;
                         }
 
                 }
@@ -239,6 +241,7 @@ namespace TSDServer
                     , "Ошибка!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1);
             }
             this.Refresh();
+            BTPrintClass.PrintClass.SetStatusEvent("Main Form Refreshed");
         }
 
         private void FillData()
