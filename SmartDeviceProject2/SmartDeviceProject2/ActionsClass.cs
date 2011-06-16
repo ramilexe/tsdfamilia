@@ -95,9 +95,17 @@ namespace TSDServer
 
             productsTa = new ProductsDataSetTableAdapters.ProductsTblTableAdapter(this._products);
             docsTa = new ProductsDataSetTableAdapters.DocsTblTableAdapter(this._products);
+
+            
                 
                 
         }
+        System.Data.DataRowChangeEventHandler onRowChanged;
+        //    new System.Data.DataRowChangeEventHandler(ScannedBarcodes_RowChanged);
+
+        System.Data.DataColumnChangeEventHandler onColChanged;
+        //    new System.Data.DataColumnChangeEventHandler(ScannedBarcodes_ColumnChanged);
+
 
         public void OpenProducts()
         {
@@ -143,12 +151,92 @@ namespace TSDServer
         }
         public void BeginScan()
         {
+            onRowChanged = new System.Data.DataRowChangeEventHandler(ScannedBarcodes_RowChanged);
+            onColChanged = new System.Data.DataColumnChangeEventHandler(ScannedBarcodes_ColumnChanged);
+            _scannedProducts.ScannedBarcodes.RowChanged += onRowChanged;
+ //                new System.Data.DataRowChangeEventHandler(ScannedBarcodes_RowChanged); 
+
+            _scannedProducts.ScannedBarcodes.ColumnChanged += onColChanged;
+                //new System.Data.DataColumnChangeEventHandler(ScannedBarcodes_ColumnChanged);
             OpenProducts();
             OpenScanned();
             tmr.Change(5000, 60000);
         }
+
+        void ScannedBarcodes_ColumnChanged(object sender, 
+            System.Data.DataColumnChangeEventArgs e)
+        {
+            if (e.Column.ColumnName == 
+                _scannedProducts.ScannedBarcodes.FactQuantityColumn.ColumnName ||
+                e.Column.ColumnName == 
+                _scannedProducts.ScannedBarcodes.PriorityColumn.ColumnName 
+                )
+            {
+                WriteDbTxt((ScannedProductsDataSet.ScannedBarcodesRow)e.Row);
+            }
+        }
+        void WriteDbTxt(ScannedProductsDataSet.ScannedBarcodesRow row)
+        {
+            if (row.RowState == System.Data.DataRowState.Detached ||
+                row.RowState == System.Data.DataRowState.Deleted)
+                return;
+
+            using (System.IO.StreamWriter wr =
+                new System.IO.StreamWriter(
+                    System.IO.Path.Combine(Program.StartupPath,"scannedbarcodes.txt"), true))
+            {
+                if (row["FactQuantity"] != System.DBNull.Value
+                    && row.FactQuantity > 0)
+                {
+                    string s =
+                            string.Format("{0}|{1}|{2}|{3}|{4}|{5}|{6}",
+                                row.Barcode,
+                                row.DocId,
+                                row.DocType,
+                                1,
+                                (row["ScannedDate"] == System.DBNull.Value) ?
+                                  DateTime.Today : row.ScannedDate,
+
+                                (row["TerminalId"] == System.DBNull.Value) ?
+                                   string.Empty : row.TerminalId.ToString(),
+                                row.Priority
+                                );
+                    wr.WriteLine(s);
+                }
+
+            }
+            if (row.DocType == (byte)TSDUtils.ActionCode.Reprice)
+            {
+                using (System.IO.StreamWriter wr =
+                   new System.IO.StreamWriter(
+                       System.IO.Path.Combine(Program.StartupPath,"register.txt"), true))
+                {
+                    string s =
+                                string.Format("{0},{1,11:D}, {2,7:D}",
+                                row.Barcode,
+                                1,
+                                1);
+                    wr.WriteLine(s);
+
+
+                }
+            }
+        }
+
+        void ScannedBarcodes_RowChanged(object sender, System.Data.DataRowChangeEventArgs e)
+        {
+            if (e.Action == System.Data.DataRowAction.Add)
+            {
+                WriteDbTxt((ScannedProductsDataSet.ScannedBarcodesRow)e.Row);
+            }
+        }
         public void EndScan()
         {
+
+            _scannedProducts.ScannedBarcodes.RowChanged -= onRowChanged;
+            _scannedProducts.ScannedBarcodes.ColumnChanged -= onColChanged;
+
+
             //BTPrintClass.PrintClass.SetStatusEvent("Begin end scan");
             tmr.Change(System.Threading.Timeout.Infinite, System.Threading.Timeout.Infinite);
             CloseProducts();
@@ -555,10 +643,11 @@ namespace TSDServer
                 _scannedProducts.ScannedBarcodes.FindByBarcodeDocTypeDocId(datarow.Barcode, docsRow.DocType, docsRow.DocId);
              if (r != null)
              {
-                 r.FactQuantity += 1;
+                 
                  try
                  {
                      PrintLabelAsync(datarow, docsRow);
+                     r.FactQuantity += 1;
                      PlayVibroAsyncAction(docsRow);
                      PlaySoundAsyncAction(docsRow);
 
@@ -592,12 +681,13 @@ namespace TSDServer
             {
                 for (int i = 0; i < r.Length; i++)
                 {
-                    r[i].FactQuantity += 1;
+                    
                     try
                     {
                         PlayVibroAsyncAction(docsRow);
                         PlaySoundAsyncAction(docsRow);
                         PrintLabelAsync(datarow, docsRow);
+                        r[i].FactQuantity += 1;
                     }
                     finally
                     {
@@ -640,12 +730,13 @@ namespace TSDServer
                 {
                     if (r[i].FactQuantity < r[i].PlanQuanity)
                     {
-                        r[i].FactQuantity += 1;
+                        //r[i].FactQuantity += 1;
                         try
                         {
                             PlayVibroAsyncAction(docsRow);
                             PlaySoundAsyncAction(docsRow);
                             PrintLabelAsync(datarow, docsRow);
+                            r[i].FactQuantity += 1;
 
                             if (r[i].FactQuantity == r[i].PlanQuanity)
                             {
@@ -712,9 +803,10 @@ namespace TSDServer
             //for (int i = 0; i < r.Length; i++)
             //{
 
-                scannedRow.FactQuantity += 1;
+                
                 PlayVibroAsyncAction(docsRow);
                 PlaySoundAsyncAction(docsRow);
+                scannedRow.FactQuantity += 1;
                 //PrintLabelAsync(datarow, docsRow);
                 if (OnActionCompleted != null)
                     OnActionCompleted(docsRow, scannedRow);
@@ -734,10 +826,12 @@ namespace TSDServer
                 {
                     if (r[i].FactQuantity < r[i].PlanQuanity)
                     {
-                        r[i].FactQuantity += 1;
+                        
                         PlayVibroAsyncAction(docsRow);
                         PlaySoundAsyncAction(docsRow);
                         PrintLabelAsync(datarow, docsRow);
+                        r[i].FactQuantity += 1;
+
                         if (r[i].FactQuantity == r[i].PlanQuanity)
                         {
 
