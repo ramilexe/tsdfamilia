@@ -115,19 +115,25 @@ namespace TSDServer
         }
         public void CloseProducts()
         {
+            //BTPrintClass.PrintClass.SetStatusEvent("Begin close prodducts");
             productsTa.Close();
+            //BTPrintClass.PrintClass.SetStatusEvent("Begin close docs");
             docsTa.Close();
             _products.ProductsTbl.Clear();
             _products.DocsTbl.Clear();
+            //BTPrintClass.PrintClass.SetStatusEvent("end close prodducts");
         }
         public void ClosedScanned()
         {
+            //BTPrintClass.PrintClass.SetStatusEvent("Begin close scanned");
             try
             {
                 scannedTA.Update(this._scannedProducts);
+                //BTPrintClass.PrintClass.SetStatusEvent("Update scanned finished");
             }
             catch { }
             scannedTA.Close();
+            //BTPrintClass.PrintClass.SetStatusEvent("end close scanned");
         }
         public void CloseDB()
         {
@@ -143,9 +149,11 @@ namespace TSDServer
         }
         public void EndScan()
         {
+            //BTPrintClass.PrintClass.SetStatusEvent("Begin end scan");
             tmr.Change(System.Threading.Timeout.Infinite, System.Threading.Timeout.Infinite);
             CloseProducts();
             ClosedScanned();
+            //BTPrintClass.PrintClass.SetStatusEvent("end scan");
         }
         public void PlaySoundAsync(byte soundCode)
         {
