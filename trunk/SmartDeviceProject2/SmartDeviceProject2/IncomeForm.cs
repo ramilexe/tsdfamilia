@@ -42,9 +42,11 @@ namespace TSDServer
         }
         void InventarForm_Closed(object sender, System.EventArgs e)
         {
+            //BTPrintClass.PrintClass.SetStatusEvent("Begin closing");
             ScanClass.Scaner.OnScanned -= scannedDelegate;
             ActionsClass.Action.EndScan();
             ScanClass.Scaner.StopScan();
+            //BTPrintClass.PrintClass.SetStatusEvent("End closing");
         }
 
         void OnScanned(string barcode)
@@ -132,6 +134,7 @@ namespace TSDServer
 
         private void textBox1_KeyDown(object sender, KeyEventArgs e)
         {
+            //BTPrintClass.PrintClass.SetStatusEvent("KeyDown pressed");
             //this.textBox1.Text = e.KeyValue.ToString();
             //this.textBox1.Text = e.KeyCode.ToString();
             if (e.KeyCode == Keys.Enter)
