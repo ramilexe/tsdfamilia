@@ -175,6 +175,7 @@ namespace TSDServer
                 WriteDbTxt((ScannedProductsDataSet.ScannedBarcodesRow)e.Row,1);
             }
         }
+        
         void ScannedBarcodes_RowChanged(object sender, System.Data.DataRowChangeEventArgs e)
         {
             if (e.Action == System.Data.DataRowAction.Add)
@@ -192,7 +193,7 @@ namespace TSDServer
 
             using (System.IO.StreamWriter wr =
                 new System.IO.StreamWriter(
-                    System.IO.Path.Combine(Program.StartupPath, "scannedbarcodes.txt"), true))
+                    System.IO.Path.Combine(Program.Default.DatabaseStoragePath, "scannedbarcodes.txt"), true))
             {
                 //if (row["FactQuantity"] != System.DBNull.Value
                 //    && row.FactQuantity > 0)
@@ -204,7 +205,8 @@ namespace TSDServer
                                 row.DocType,
                                 quantity,
                                 (row["ScannedDate"] == System.DBNull.Value) ?
-                                  DateTime.Today : row.ScannedDate,
+                                  DateTime.Today.ToString("dd.MM.yyyy") 
+                                  : row.ScannedDate.ToString("dd.MM.yyyy"),
 
                                 (row["TerminalId"] == System.DBNull.Value) ?
                                    string.Empty : row.TerminalId.ToString(),
@@ -218,7 +220,7 @@ namespace TSDServer
             {
                 using (System.IO.StreamWriter wr =
                    new System.IO.StreamWriter(
-                       System.IO.Path.Combine(Program.StartupPath, "register.txt"), true))
+                       System.IO.Path.Combine(Program.Default.DatabaseStoragePath, "register.txt"), true))
                 {
                     string s =
                                 string.Format("{0},{1,11:D}, {2,7:D}",
@@ -934,7 +936,18 @@ namespace TSDServer
 
         public void ClearScannedData()
         {
-            //scannedTA.Clean();
+            scannedTA = new TSDServer.ScannedProductsDataSetTableAdapters.ScannedBarcodesTableAdapter(
+                this.ScannedProducts);
+            
+            scannedTA.Clean();
+
+            string [] str= new string[scannedTA.FileList.Length];
+            Array.Copy(scannedTA.FileList,str,str.Length);
+
+            
+            scannedTA.Close();
+            scannedTA.Dispose();
+
             this.ScannedProducts.Clear();
 
             if (System.IO.File.Exists(
@@ -944,6 +957,12 @@ namespace TSDServer
             if (System.IO.File.Exists(
                 System.IO.Path.Combine(Program.StartupPath, "register.txt")))
                 System.IO.File.Delete(System.IO.Path.Combine(Program.StartupPath, "register.txt"));
+
+            foreach (string s in str)
+            {
+                if (System.IO.File.Exists(s))
+                    System.IO.File.Delete(s);
+            }
         }
 
         public void LoadScannedData()
@@ -1012,8 +1031,45 @@ namespace TSDServer
             total = 0;
             totalBk = 0;
 
+            if (!System.IO.File.Exists(System.IO.Path.Combine(
+                        Program.Default.DatabaseStoragePath,
+                        "scannedbarcodes.txt")))
+                return;
 
-            ScannedProductsDataSet.ScannedBarcodesRow [] scannedrow  =
+             using (System.IO.StreamReader wr =
+                new System.IO.StreamReader(
+                    System.IO.Path.Combine(
+                        Program.Default.DatabaseStoragePath,
+                        "scannedbarcodes.txt"), true))
+            {
+                string s = string.Empty;
+                List<long> scannedList =
+                    new List<long>();
+                while ((s = wr.ReadLine()) != null)
+                {
+                    string[] strAr = s.Split('|');
+                    if (strAr.Length > 0)
+                    {
+                        if (strAr[2] == ((byte)docType).ToString() &&
+                            strAr[1] == docId)
+                        {
+                            //if (strAr[4] == date.ToString("dd.MM.yyyy"))
+                            //{
+                                total += 1;
+                                if (!scannedList.Contains(long.Parse(strAr[0])))
+                                {
+                                    scannedList.Add(long.Parse(strAr[0]));
+                                    totalBk += 1;
+                                }
+                            //}
+                        }
+
+                            
+                    }
+                }
+            }
+
+            /*ScannedProductsDataSet.ScannedBarcodesRow [] scannedrow  =
             _scannedProducts.ScannedBarcodes.FindByDocIdAndDocType(docId,
                 (byte)docType);
             if (scannedrow == null ||
@@ -1034,7 +1090,7 @@ namespace TSDServer
                         totalBk += scannedrow[i].FactQuantity;
                     }
                 }
-            }
+            }*/
         }
 
         /// <summary>
@@ -1051,9 +1107,43 @@ namespace TSDServer
 
             total = 0;
             totalBk = 0;
+            if (!System.IO.File.Exists(System.IO.Path.Combine(
+            Program.Default.DatabaseStoragePath,
+            "scannedbarcodes.txt")))
+                return;
+            using (System.IO.StreamReader wr =
+                new System.IO.StreamReader(
+                    System.IO.Path.Combine(
+                        Program.Default.DatabaseStoragePath,
+                        "scannedbarcodes.txt"), true))
+            {
+                string s = string.Empty;
+                List<long> scannedList =
+                    new List<long>();
+                while ((s = wr.ReadLine()) != null)
+                {
+                    string[] strAr = s.Split('|');
+                    if (strAr.Length > 0)
+                    {
+                        if (strAr[2] == ((byte)docType).ToString() &&
+                            strAr[6] == "255")
+                        {
+                            //if (strAr[4] == date.ToString("dd.MM.yyyy"))
+                            //{
+                                total += 1;
+                                if (!scannedList.Contains(long.Parse(strAr[0])))
+                                {
+                                    scannedList.Add(long.Parse(strAr[0]));
+                                    totalBk += 1;
+                                }
+                            //}
+                        }
 
-
-            ScannedProductsDataSet.ScannedBarcodesRow[] scannedrow =
+                            
+                    }
+                }
+            }
+            /*ScannedProductsDataSet.ScannedBarcodesRow[] scannedrow =
             _scannedProducts.ScannedBarcodes.FindByDocTypeAndPriority(
                 (byte)docType,
                 0);
@@ -1075,7 +1165,7 @@ namespace TSDServer
                         totalBk += 1;
                     }
                 }
-            }
+            }*/
         }
 
         /// <summary>
@@ -1091,9 +1181,42 @@ namespace TSDServer
 
             total = 0;
             totalBk = 0;
+            if (!System.IO.File.Exists(System.IO.Path.Combine(
+            Program.Default.DatabaseStoragePath,
+            "scannedbarcodes.txt")))
+                return;
+            using (System.IO.StreamReader wr =
+                new System.IO.StreamReader(
+                    System.IO.Path.Combine(
+                        Program.Default.DatabaseStoragePath,
+                        "scannedbarcodes.txt"), true))
+            {
+                string s = string.Empty;
+                List<long> scannedList =
+                    new List<long>();
+                while ((s = wr.ReadLine()) != null)
+                {
+                    string[] strAr = s.Split('|');
+                    if (strAr.Length > 0)
+                    {
+                        if (strAr[2] == ((byte)docType).ToString())
+                        {
+                            //if (strAr[4] == date.ToString("dd.MM.yyyy"))
+                            //{
+                            total += 1;
+                            if (!scannedList.Contains(long.Parse(strAr[0])))
+                            {
+                                scannedList.Add(long.Parse(strAr[0]));
+                                totalBk += 1;
+                            }
+                            //}
+                        }
 
 
-            ScannedProductsDataSet.ScannedBarcodesRow[] scannedrow =
+                    }
+                }
+            }
+            /*ScannedProductsDataSet.ScannedBarcodesRow[] scannedrow =
             _scannedProducts.ScannedBarcodes.FindByDocType(
                 (byte)docType);
 
@@ -1115,7 +1238,7 @@ namespace TSDServer
                         totalBk += 1;
                     }
                 }
-            }
+            }*/
         }
 
         /// <summary>
@@ -1133,7 +1256,53 @@ namespace TSDServer
             total = 0;
             totalBk = 0;
 
+            using (System.IO.StreamReader wr =
+                new System.IO.StreamReader(
+                    System.IO.Path.Combine(
+                        Program.Default.DatabaseStoragePath,
+                        "scannedbarcodes.txt"), true))
+            {
+                string s = string.Empty;
+                List<long> scannedList =
+                    new List<long>();
+                while ((s = wr.ReadLine()) != null)
+                {
+                    string[] strAr = s.Split('|');
+                    if (strAr.Length > 0)
+                    {
+                        if (strAr[2] == ((byte)docType).ToString())
+                        {
+                            if (strAr[4] == date.ToString("dd.MM.yyyy"))
+                            {
+                                total += 1;
+                                if (!scannedList.Contains(long.Parse(strAr[0])))
+                                {
+                                    scannedList.Add(long.Parse(strAr[0]));
+                                    totalBk += 1;
+                                }
+                            }
+                        }
 
+                            
+                    }
+                }
+                //string.Format("{0}|{1}|{2}|{3}|{4}|{5}|{6}",
+                //    row.Barcode,
+                //    row.DocId,
+                //    row.DocType,
+                //    quantity,
+                //    (row["ScannedDate"] == System.DBNull.Value) ?
+                //      DateTime.Today : row.ScannedDate,
+
+                //    (row["TerminalId"] == System.DBNull.Value) ?
+                //       string.Empty : row.TerminalId.ToString(),
+                //    row.Priority
+                //    );
+                //wr.WriteLine(s);
+                //}
+
+            }
+            /*
             ScannedProductsDataSet.ScannedBarcodesRow[] scannedrow =
             _scannedProducts.ScannedBarcodes.FindByDocType(
                 (byte)docType);
@@ -1159,7 +1328,7 @@ namespace TSDServer
                         }
                     }
                 }
-            }
+            }*/
         }
         /// <summary>
         /// Закрыть просчет инвентаризации
@@ -1177,26 +1346,134 @@ namespace TSDServer
             if (scannedrow == null ||
                 scannedrow.Length == 0)
             {
-                throw new ApplicationException(string.Format("Документ {0} с типом {1} не найден!",
+                /*throw new ApplicationException(string.Format("Документ {0} с типом {1} не найден!",
                     docId,
                     docType.ToString())
-                    );
+                    );*/
             }
             else
             {
                 for (int i = 0; i < scannedrow.Length; i++)
                 {
                     scannedrow[i].Priority = byte.MaxValue;
-                    WriteDbTxt(scannedrow[i]);
+                    //WriteDbTxt(scannedrow[i]);
                 }
-                //текущий открытый просчет теперь пуст
-                Program.СurrentInvId = string.Empty;
-                
+
             }
+            using (System.IO.StreamWriter wr =
+                new System.IO.StreamWriter(
+                    System.IO.Path.Combine(Program.Default.DatabaseStoragePath, "scannedbarcodes.txt"), true))
+            {
+                //if (row["FactQuantity"] != System.DBNull.Value
+                //    && row.FactQuantity > 0)
+                //{
+                string s =
+                        string.Format("{0}|{1}|{2}|{3}|{4}|{5}|{6}",
+                            docId,
+                            docId,
+                            ((byte)TSDUtils.ActionCode.CloseInventar),
+                            0,
+                            DateTime.Today.ToString("dd.MM.yyyy"),
+                            Program.Default.TerminalID,
+                            255
+                            );
+                wr.WriteLine(s);
+                //}
+
+            }
+            //текущий открытый просчет теперь пуст
+            Program.СurrentInvId = string.Empty;
+                
+            
 
 
 
         }
+        public bool CheckInv(string docId)
+        {
+                if (!System.IO.File.Exists(System.IO.Path.Combine(
+                        Program.Default.DatabaseStoragePath,
+                        "scannedbarcodes.txt")))
+                return false;
+
+                List<String> openedDocs = new List<string>();
+            //найти все открытые и закрытые инв-ции
+                using (System.IO.StreamReader wr =
+                new System.IO.StreamReader(
+                    System.IO.Path.Combine(
+                        Program.Default.DatabaseStoragePath,
+                        "scannedbarcodes.txt"), true))
+                {
+                    string s = string.Empty;
+                    while ((s = wr.ReadLine()) != null)
+                    {
+                        string[] strAr = s.Split('|');
+                        //string openedDocId=string.Empty;
+                        if (strAr.Length > 0)
+                        {
+                            if (strAr[2] == ((byte)TSDUtils.ActionCode.CloseInventar).ToString() &&
+                                strAr[6] == "255" &&
+                                strAr[1] == docId)
+                            {
+                                if (openedDocs.Contains(strAr[0]))
+                                {
+                                    openedDocs.Remove(strAr[0]);
+                                    return false;
+                                }
+                            }
+
+                            if (strAr[2] == ((byte)TSDUtils.ActionCode.CloseInventar).ToString() &&
+                                strAr[6] == "0" &&
+                                strAr[1] == docId)
+                                openedDocs.Add(strAr[0]);
+                            //openedDocId = strAr[0];
+
+                            //return strAr[0];
+                        }
+                    }
+                    if (openedDocs.Count > 0)
+                        return true;
+                    else
+                        return false;
+                }
+        }
+        public void OpenInv(string docId, TSDUtils.ActionCode docType)
+        {
+            ScannedProductsDataSet.ScannedBarcodesRow[] r = FindByDocIdAndDocType(docId,
+                (byte)TSDUtils.ActionCode.CloseInventar);
+
+            if (r != null &&
+                r.Length > 0)
+                throw new ApplicationException(string.Format("Инв-ция {0} уже просчитана",docId));
+
+            using (System.IO.StreamWriter wr =
+                new System.IO.StreamWriter(
+                    System.IO.Path.Combine(Program.Default.DatabaseStoragePath, "scannedbarcodes.txt"), true))
+            {
+                //if (row["FactQuantity"] != System.DBNull.Value
+                //    && row.FactQuantity > 0)
+                //{
+                string s =
+                        string.Format("{0}|{1}|{2}|{3}|{4}|{5}|{6}",
+                            docId,
+                            docId,
+                            ((byte)TSDUtils.ActionCode.CloseInventar),
+                            0,
+                            DateTime.Today.ToString("dd.MM.yyyy"),
+                            Program.Default.TerminalID,
+                            0
+                            );
+                wr.WriteLine(s);
+                //}
+
+            }
+
+
+
+
+        }
+       
+
         public ProductsDataSet.ProductsTblRow GetProductRow(string barcode)
         {
             try
@@ -1290,6 +1567,119 @@ namespace TSDServer
             return scannedRow;
         }
 
+        public ScannedProductsDataSet.ScannedBarcodesRow[] 
+             FindByDocIdAndDocType(string _docId,byte _docType)
+             {
+                 List<ScannedProductsDataSet.ScannedBarcodesRow> rows =
+                     new List<ScannedProductsDataSet.ScannedBarcodesRow>();
+            
+            if (!System.IO.File.Exists(System.IO.Path.Combine(
+                 Program.Default.DatabaseStoragePath,
+                 "scannedbarcodes.txt")))
+                     return null;
+
+                 using (System.IO.StreamReader wr =
+                 new System.IO.StreamReader(
+                     System.IO.Path.Combine(
+                         Program.Default.DatabaseStoragePath,
+                         "scannedbarcodes.txt"), true))
+                 {
+                     string s = string.Empty;
+                     //List<long> scannedList =
+                     //    new List<long>();
+                     while ((s = wr.ReadLine()) != null)
+                     {
+                         string[] strAr = s.Split('|');
+                         if (strAr.Length > 0)
+                         {
+                             if (strAr[2] == ((byte)_docType).ToString() &&
+                                 strAr[1] == _docId)
+                             {
+                                 ScannedProductsDataSet.ScannedBarcodesRow row =
+                                         ScannedProducts.ScannedBarcodes.NewScannedBarcodesRow();
+                                 row.Barcode = long.Parse(strAr[0]);
+                                 row.DocId = strAr[1];
+                                 row.DocType = byte.Parse(strAr[2]);
+                                 row.FactQuantity = int.Parse(strAr[3]);
+                                 row.ScannedDate = DateTime.Parse(strAr[4]);
+                                 row.TerminalId = int.Parse(strAr[5]);
+                                 row.Priority = byte.Parse(strAr[6]);
+
+                                 rows.Add(row);
+                             }
+
+                              /*   string s =
+                            string.Format("{0}|{1}|{2}|{3}|{4}|{5}|{6}",
+                                row.Barcode,
+                                row.DocId,
+                                row.DocType,
+                                quantity,
+                                (row["ScannedDate"] == System.DBNull.Value) ?
+                                  DateTime.Today.ToString("dd.MM.yyyy")
+                                  : row.ScannedDate.ToString("dd.MM.yyyy"),
+
+                                (row["TerminalId"] == System.DBNull.Value) ?
+                                   string.Empty : row.TerminalId.ToString(),
+                                row.Priority
+                                );
+                                 
+                             }*/
+
+
+                         }
+                     }
+                 }
+                 return rows.ToArray();
+
+             }
+
+        public ScannedProductsDataSet.ScannedBarcodesRow
+              FindByBarcodeDocTypeDocId(long Barcode,
+                                        byte DocType,
+                                        string DocId)
+        {
+            if (!System.IO.File.Exists(System.IO.Path.Combine(
+                 Program.Default.DatabaseStoragePath,
+                 "scannedbarcodes.txt")))
+                return null;
+
+            using (System.IO.StreamReader wr =
+                 new System.IO.StreamReader(
+                     System.IO.Path.Combine(
+                         Program.Default.DatabaseStoragePath,
+                         "scannedbarcodes.txt"), true))
+            {
+                string s = string.Empty;
+                //List<long> scannedList =
+                //    new List<long>();
+                while ((s = wr.ReadLine()) != null)
+                {
+                    string[] strAr = s.Split('|');
+                    if (strAr.Length > 0)
+                    {
+                        if (strAr[2] == DocType.ToString() &&
+                            strAr[1] == DocId &&
+                            strAr[0] == Barcode.ToString())
+                        {
+                            ScannedProductsDataSet.ScannedBarcodesRow row =
+                                    ScannedProducts.ScannedBarcodes.NewScannedBarcodesRow();
+                            row.Barcode = long.Parse(strAr[0]);
+                            row.DocId = strAr[1];
+                            row.DocType = byte.Parse(strAr[2]);
+                            row.FactQuantity = int.Parse(strAr[3]);
+                            row.ScannedDate = DateTime.Parse(strAr[4]);
+                            row.TerminalId = int.Parse(strAr[5]);
+                            row.Priority = byte.Parse(strAr[6]);
+
+                            return row;
+                        }
+                    }
+                }
+            }
+            return null;
+
+        }
+
         public void ClearCache()
         {
             this.Products.ProductsTbl.Clear();
@@ -1300,7 +1690,7 @@ namespace TSDServer
 
         public string FindOpenInventar()
         {
-            ScannedProductsDataSet.ScannedBarcodesRow[] scannedrow =
+            /*ScannedProductsDataSet.ScannedBarcodesRow[] scannedrow =
            _scannedProducts.ScannedBarcodes.FindByDocTypeAndPriority(
            (byte)TSDUtils.ActionCode.InventoryGlobal,
            0);//openInventar;
@@ -1311,7 +1701,82 @@ namespace TSDServer
                 return scannedrow[0].DocId;
             }
             else
+            {*/
+            if (!System.IO.File.Exists(System.IO.Path.Combine(
+                        Program.Default.DatabaseStoragePath,
+                        "scannedbarcodes.txt")))
                 return string.Empty;
+
+                List<String> openedDocs = new List<string>();
+            //найти все открытые и закрытые инв-ции
+                using (System.IO.StreamReader wr =
+                new System.IO.StreamReader(
+                    System.IO.Path.Combine(
+                        Program.Default.DatabaseStoragePath, 
+                        "scannedbarcodes.txt"), true))
+                {
+                    string s = string.Empty;
+                    while ((s = wr.ReadLine()) != null)
+                    {
+                        string[] strAr = s.Split('|');
+                        //string openedDocId=string.Empty;
+                        if (strAr.Length > 0)
+                        {
+                            if (strAr[2] == ((byte)TSDUtils.ActionCode.CloseInventar).ToString() &&
+                                strAr[6] == "255")
+                            {
+                                if (openedDocs.Contains(strAr[0]))
+                                {
+                                    openedDocs.Remove(strAr[0]);
+                                }
+                            }
+
+                            if (strAr[2] == ((byte)TSDUtils.ActionCode.CloseInventar).ToString() &&
+                                strAr[6] == "0")
+                                openedDocs.Add(strAr[0]);
+                                //openedDocId = strAr[0];
+
+                                //return strAr[0];
+                        }
+                    }
+                    if (openedDocs.Count > 0)
+                        return openedDocs[0];
+                    else
+                        return string.Empty;
+                    //if (row["FactQuantity"] != System.DBNull.Value
+                    //    && row.FactQuantity > 0)
+                    //{
+                    //string s =
+                    //        string.Format("{0}|{1}|{2}|{3}|{4}|{5}|{6}",
+                    //            docId,
+                    //            docId,
+                    //            docType,
+                    //            0,
+                    //            DateTime.Today,
+                    //            Program.Default.TerminalID,
+                    //            255
+                    //            );
+                            //  string s =
+                            //string.Format("{0}|{1}|{2}|{3}|{4}|{5}|{6}",
+                            //    row.Barcode,
+                            //    row.DocId,
+                            //    row.DocType,
+                            //    quantity,
+                            //    (row["ScannedDate"] == System.DBNull.Value) ?
+                            //      DateTime.Today : row.ScannedDate,
+
+                            //    (row["TerminalId"] == System.DBNull.Value) ?
+                            //       string.Empty : row.TerminalId.ToString(),
+                            //    row.Priority
+                            //    );
+                    //wr.WriteLine(s);
+                    //}
+
+                //}
+                //return string.Empty;
+            }
         }
+
+      
     }
 }
