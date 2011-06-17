@@ -15,6 +15,9 @@ namespace TSDServer
         private bool enableInvent = false;
         private bool enableScan = false;
         Scanned scannedDelegate = null;
+        private System.Threading.ManualResetEvent _mevt =
+            new System.Threading.ManualResetEvent(false);
+
         public InventarForm()
         {
             InitializeComponent();
@@ -37,14 +40,18 @@ namespace TSDServer
             //ScanClass.Scaner.OnScanned += new Scanned(Scanned);
             this.Refresh();
             ScanClass.Scaner.OnScanned += scannedDelegate;
+            TSDServer.Scanned del = new Scanned(OnScanned);
+
             enableScan = true;
             if (
                 Program.СurrentInvId != string.Empty ||
                (Program.СurrentInvId = ActionsClass.Action.FindOpenInventar()) != string.Empty
                )
             {
-                OnScanned(Program.СurrentInvId);
+                this.BeginInvoke(del, Program.СurrentInvId);
+                //OnScanned(Program.СurrentInvId);
             }
+            _mevt.Set();
             
         }
         void InventarForm_Closed(object sender, System.EventArgs e)
@@ -64,6 +71,9 @@ namespace TSDServer
             }
             else
             {
+                if (_mevt.WaitOne(5000, false) == false)
+                    return;
+
                 if (!enableScan)
                     return;
                 
@@ -77,14 +87,13 @@ namespace TSDServer
                     lastBk = barcode;
 
                     ScannedProductsDataSet.ScannedBarcodesRow [] row =
-                    ActionsClass.Action.ScannedProducts.
-                        ScannedBarcodes.FindByDocIdAndDocType
+                    ActionsClass.Action.FindByDocIdAndDocType
                         (
                         barcode,
-                        (byte)TSDUtils.ActionCode.InventoryGlobal);
+                        (byte)TSDUtils.ActionCode.CloseInventar);
 
                     if (row == null ||
-                        row.Length==0)
+                        row.Length==0 )
                     {
                         this.label3.Visible = true;
                         this.label4.Text = string.Format("№ {0}?",
@@ -101,12 +110,18 @@ namespace TSDServer
                             {
                                 try
                                 {
+                                    ActionsClass.Action.OpenInv(
+                                         barcode,
+                                         TSDUtils.ActionCode.InventoryGlobal
+                                        );
+
                                     enableScan = false;
                                     //ScanClass.Scaner.StopScan();
-                                    //ScanClass.Scaner.OnScanned -= scannedDelegate;
+                                    ScanClass.Scaner.OnScanned -= scannedDelegate;
                                     //ScanClass.Scaner.OnScanned =null;
                                     //this.Visible = false;
                                     //this.Enabled = false;
+                                    ScanClass.Scaner.StopScan();
                                     using (ViewProductForm prodfrm =
                                         new ViewProductForm(
                                             WorkMode.InventarScan,
@@ -115,17 +130,33 @@ namespace TSDServer
                                         prodfrm.ShowDialog();
                                     }
                                 }
+                                catch (Exception err)
+                                {
+                                    using (DialogForm frmErr =
+                                        new DialogForm("Ошибка инв-ции",
+                                            err.Message,
+                                            "ДА – продолжить. Нет – выйти",
+                                             "Ошибка"))
+                                    {
+                                        if (frmErr.ShowDialog() == DialogResult.No)
+                                            return;
+                                    }
+                                }
                                 finally
                                 {
+                                    ScanClass.Scaner.OnScanned += scannedDelegate;
+                                    ScanClass.Scaner.InitScan();
                                     enableScan = true;
                                     //this.Visible = true;
                                     //this.Enabled = true;
                                     //ScanClass.Scaner.InitScan();
                                     //ScanClass.Scaner.OnScanned += new Scanned(OnScanned);
                                 }
-                            
+
                                 //this.Close();
                             }
+                            else
+                                this.Close();
 
                         }
                         this.Refresh();
@@ -137,7 +168,7 @@ namespace TSDServer
                     }
                     else
                     {
-                        if (row[0].Priority != byte.MaxValue)
+                        if (ActionsClass.Action.CheckInv(barcode))
                         {
                             using (DialogForm frm =
                                 new DialogForm(
@@ -153,6 +184,8 @@ namespace TSDServer
                                     enableInvent = true;
                                     try
                                     {
+                                        ScanClass.Scaner.OnScanned -= scannedDelegate;
+                                        ScanClass.Scaner.StopScan();
                                         using (ViewProductForm prodfrm =
                                             new ViewProductForm(
                                                 WorkMode.InventarScan,
@@ -163,14 +196,19 @@ namespace TSDServer
                                     }
                                     finally
                                     {
+                                        
+                                        ScanClass.Scaner.InitScan();
+                                        ScanClass.Scaner.OnScanned += scannedDelegate;
                                         enableScan = true;
                                     }
                                     
 
                                 }
+                                else
+                                    this.Close();
                                 //this.Refresh();
                             }
-                            this.Close();
+                            
 
                             
                         }
