@@ -586,7 +586,29 @@ namespace TSDServer
         {
             get
             {
-                return this.scannedTA.FileList;
+                List<String> slist = 
+                    new List<String>();
+                slist.AddRange(this.scannedTA.FileList);
+                slist.Add(Path.Combine(
+                    Properties.Settings.Default.LocalFilePath,
+                    "scannedbarcodes.txt"));
+                slist.Add(
+                    Path.Combine(
+                    Properties.Settings.Default.LocalFilePath,
+                    "register.txt")
+                    );
+                return slist.ToArray();
+
+                /*return new string[]
+                {
+                    Path.Combine(
+                    Properties.Settings.Default.LocalFilePath,
+                    "scannedbarcodes.txt")
+                    ,Path.Combine(
+                    Properties.Settings.Default.LocalFilePath,
+                    "register.txt")
+                };*/
+                //return this.scannedTA.FileList;
             }
         }
 
@@ -608,66 +630,71 @@ namespace TSDServer
         public void UploadResults()
         {
 
-            scannedTA.Fill(scannedDs);
+            try
+            {
+                scannedTA.Fill(scannedDs);
 
-            using (System.IO.StreamWriter wr = new StreamWriter(
+                using (System.IO.StreamWriter wr = new StreamWriter(
+                        Path.Combine(
+                        Properties.Settings.Default.LocalFilePath,
+                        "scannedbarcodes.txt"), false))
+                {
+                    foreach (System.Data.DataRow row1 in
+                        scannedDs.ScannedBarcodes.Rows)
+                    {
+                        TSDServer.ScannedProductsDataSet.ScannedBarcodesRow row =
+                            (TSDServer.ScannedProductsDataSet.ScannedBarcodesRow)row1;
+
+                        string s =
+                            string.Format("{0}|{1}|{2}|{3}|{4}|{5}|{6}",
+                                row.Barcode,
+                                row.DocId,
+                                row.DocType,
+                                row.FactQuantity,
+                                row.ScannedDate,
+                                (row["TerminalId"] == System.DBNull.Value) ?
+                                string.Empty : row.TerminalId.ToString(),
+                                row.Priority
+                                );
+                        wr.WriteLine(s);
+                    }
+                    wr.Flush();
+                    wr.Close();
+                }
+                using (System.IO.StreamWriter wr = new StreamWriter(
                     Path.Combine(
                     Properties.Settings.Default.LocalFilePath,
-                    "scannedbarcodes.txt"), false))
-            {
-                foreach (System.Data.DataRow row1 in
-                    scannedDs.ScannedBarcodes.Rows)
+                    "register.txt"), false))
                 {
-                    TSDServer.ScannedProductsDataSet.ScannedBarcodesRow row =
-                        (TSDServer.ScannedProductsDataSet.ScannedBarcodesRow)row1;
-
-                    string s =
-                        string.Format("{0}|{1}|{2}|{3}|{4}|{5}|",
-                            row.Barcode,
-                            row.DocId,
-                            row.DocType,
-                            row.FactQuantity,
-                            row.ScannedDate,
-                            (row["TerminalId"] == System.DBNull.Value) ?
-                            string.Empty : row.TerminalId.ToString()
-                            );
-                    wr.WriteLine(s);
-                }
-                wr.Flush();
-                wr.Close();
-            }
-            using (System.IO.StreamWriter wr = new StreamWriter(
-                Path.Combine(
-                Properties.Settings.Default.LocalFilePath,
-                "register.txt"), false))
-            {
-                foreach (System.Data.DataRow row1 in
-                    scannedDs.ScannedBarcodes.Rows)
-                {
-                    TSDServer.ScannedProductsDataSet.ScannedBarcodesRow row =
-                        (TSDServer.ScannedProductsDataSet.ScannedBarcodesRow)row1;
-
-                    if (row.DocType == (byte)TSDUtils.ActionCode.Reprice)
+                    foreach (System.Data.DataRow row1 in
+                        scannedDs.ScannedBarcodes.Rows)
                     {
-                        //ProductsDataSet.ProductsTblRow prodRow = 
-                        //    productsDataSet1.ProductsTbl.FindByBarcode(row.Barcode);
-                        //if (prodRow != null)
-                        //{
-                        string s =
-                            string.Format("{0},{1,11:D}, {2,7:D}",
-                            row.Barcode,
-                            1,
-                            //prodRow.NewPrice,
-                            row.FactQuantity);
-                        wr.WriteLine(s);
-                        //}
+                        TSDServer.ScannedProductsDataSet.ScannedBarcodesRow row =
+                            (TSDServer.ScannedProductsDataSet.ScannedBarcodesRow)row1;
+
+                        if (row.DocType == (byte)TSDUtils.ActionCode.Reprice)
+                        {
+                            //ProductsDataSet.ProductsTblRow prodRow = 
+                            //    productsDataSet1.ProductsTbl.FindByBarcode(row.Barcode);
+                            //if (prodRow != null)
+                            //{
+                            string s =
+                                string.Format("{0},{1,11:D}, {2,7:D}",
+                                row.Barcode,
+                                1,
+                                //prodRow.NewPrice,
+                                row.FactQuantity);
+                            wr.WriteLine(s);
+                            //}
+                        }
                     }
+
+
+                    wr.Flush();
+                    wr.Close();
                 }
-
-
-                wr.Flush();
-                wr.Close();
             }
+            catch { }
 
             string dateString = DateTime.Now.ToString("yyyyMMddhhmmss");
             try
