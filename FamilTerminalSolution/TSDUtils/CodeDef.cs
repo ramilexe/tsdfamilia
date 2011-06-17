@@ -28,23 +28,35 @@ namespace TSDUtils
         [Description("Инвент-ция Точечная")]
         InventoryLocal = 6,
 
-        [Description("Действие7")]
-        Action7 = 7,
 
-        [Description("Действие8")]
-        Action8 = 8,
+        [Description("Прием коробов")]
+        /// <summary>
+        /// Зарезервировано для дальнейшего использования
+        /// </summary>
+        IncomeBox = 7,
 
+        [Description("Закрытие глобальной инвентаризации")]
+        /// <summary>
+        /// Закрытие глобальной инвентаризации
+        /// </summary>
+        CloseInventar = 8,
+
+        [Description("Чужой короб")]
+        /// <summary>
+        /// Чужой короб
+        /// </summary>
+        StrangeBox = 251,
+
+        [Description("Документ не найден")]
         /// <summary>
         /// Документ не найден
         /// </summary>
-        [Description("Документ не найден")]
         DocNotFound = 254,
-        
         /// <summary>
         /// Товар не найден
         /// </summary>
-        [Description("Товар не найден")]
         NotFound = 255
+
 
 
     }
