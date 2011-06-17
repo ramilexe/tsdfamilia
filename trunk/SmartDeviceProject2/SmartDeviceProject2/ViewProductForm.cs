@@ -256,91 +256,98 @@ namespace TSDServer
         }
         private void ViewProductForm_Load(object sender, EventArgs e)
         {
-            if (WorkMode.ProductsScan == _mode)
+            try
             {
-                if (BTPrintClass.PrintClass.ConnToPrinter(Program.Settings.TypedSettings[0].BTPrinterAddress)
-                    != Calib.BluetoothLibNet.Def.BTERR_CONNECTED)
+                if (WorkMode.ProductsScan == _mode)
                 {
-
-                    if (Program.Default.EnableWorkWOPrinter == 1)
+                    if (BTPrintClass.PrintClass.ConnToPrinter(Program.Settings.TypedSettings[0].BTPrinterAddress)
+                        != Calib.BluetoothLibNet.Def.BTERR_CONNECTED)
                     {
 
-                        using (BTConnectionErrorForm frm =
-                            new BTConnectionErrorForm())
+                        if (Program.Default.EnableWorkWOPrinter == 1)
                         {
-                            if (frm.ShowDialog() == DialogResult.Yes)
-                            {
-                                BTPrintClass.PrintClass.Reconnect();
-                            }
-                            else
-                            {
-                                this.Close();
-                                return;
-                            }
 
+                            using (BTConnectionErrorForm frm =
+                                new BTConnectionErrorForm())
+                            {
+                                if (frm.ShowDialog() == DialogResult.Yes)
+                                {
+                                    BTPrintClass.PrintClass.Reconnect();
+                                }
+                                else
+                                {
+                                    this.Close();
+                                    return;
+                                }
+
+                            }
+                        }
+                        else
+                        {
+                            this.Close();
+                            return;
                         }
                     }
-                    else
-                    {
-                        this.Close();
-                        return;
-                    }
+                    ActionsClass.Action.BeginScan();
+                    
+
                 }
-                ActionsClass.Action.BeginScan();
                 ScanClass.Scaner.InitScan();
 
+                /*
+                foreach (Control c in this.Controls)
+                {
+                    c.GotFocus += new EventHandler(c_GotFocus);
+                    c.LostFocus += new EventHandler(c_LostFocus);
+                }*/
+                /*this.textBox1.Focus();*/
+                //System.Threading.Thread t = new System.Threading.Thread(
+                //    new System.Threading.ThreadStart(Init));
+                //t.Start();
+                this.SuspendLayout();
+                int w = this.Width / 4;
+                this.label13.Width = w;
+                this.label14.Width = w;
+                this.label15.Width = w;
+                this.navCodeTB.Focus();
+
+
+                ScanClass.Scaner.OnScanned += new Scanned(Scanned);
+
+                label5.Text = "";
+                label6.Text = "";
+                label7.Text = "";
+                label8.Text = "";
+                label9.Text = "";
+                label17.Text = "";
+                label20.Text = "";
+                label21.Text = "";
+                actionLabel.Text = "";
+                navCodeTB.Text = "";
+                Font f = this.actionLabel.Font;
+                normalFont = f;
+                System.Drawing.Font f1 =
+                    new Font(f.Name, f.Size, FontStyle.Bold);
+                boldFont = f1;
+
+                this.actionLabel.Font = boldFont;
+                this.ResumeLayout(true);
+
+
+
+                ActionsClass.Action.OnActionCompleted += new ActionsClass.ActionCompleted(Action_OnActionCompleted);
+
+
+                BTPrintClass.PrintClass.OnSetStatus += new SetStatus(PrintClass_OnSetStatus);
+                BTPrintClass.PrintClass.OnSetError += new SetError(PrintClass_OnSetError);
+                BTPrintClass.PrintClass.OnConnectionError += new ConnectionError(PrintClass_OnConnectionError);
+
+                this.Refresh();
             }
-           
-
-            /*
-            foreach (Control c in this.Controls)
+            finally
             {
-                c.GotFocus += new EventHandler(c_GotFocus);
-                c.LostFocus += new EventHandler(c_LostFocus);
-            }*/
-            /*this.textBox1.Focus();*/
-            //System.Threading.Thread t = new System.Threading.Thread(
-            //    new System.Threading.ThreadStart(Init));
-            //t.Start();
-            this.SuspendLayout();
-            int w = this.Width / 4;
-            this.label13.Width = w;
-            this.label14.Width = w;
-            this.label15.Width = w;
-            this.navCodeTB.Focus();
-
-            
-            ScanClass.Scaner.OnScanned += new Scanned(Scanned);
-
-            label5.Text = "";
-            label6.Text = "";
-            label7.Text = "";
-            label8.Text = "";
-            label9.Text = "";
-            label17.Text = "";
-            label20.Text = "";
-            label21.Text = "";
-            actionLabel.Text = "";
-            navCodeTB.Text = "";
-            Font f = this.actionLabel.Font;
-            normalFont = f;
-            System.Drawing.Font f1 =
-                new Font(f.Name, f.Size, FontStyle.Bold);
-            boldFont = f1;
-            
-            this.actionLabel.Font = boldFont;
-            this.ResumeLayout(true);
-
-            
-
-            ActionsClass.Action.OnActionCompleted += new ActionsClass.ActionCompleted(Action_OnActionCompleted);
-            
-            
-            BTPrintClass.PrintClass.OnSetStatus += new SetStatus(PrintClass_OnSetStatus);
-            BTPrintClass.PrintClass.OnSetError += new SetError(PrintClass_OnSetError);
-            BTPrintClass.PrintClass.OnConnectionError += new ConnectionError(PrintClass_OnConnectionError);
-            
-            this.Refresh();
+                _mEvt.Set();
+            }
 
         }
 
@@ -430,9 +437,10 @@ namespace TSDServer
         private void ViewProductForm_Closing(object sender, CancelEventArgs e)
         {
             //tmr.Change(System.Threading.Timeout.Infinite, System.Threading.Timeout.Infinite);
+           
             if (_mode != WorkMode.InventarScan)
             {
-                ActionsClass.Action.EndScan();
+                 ActionsClass.Action.EndScan();
                 try
                 {
 
@@ -442,8 +450,9 @@ namespace TSDServer
                 }
                 catch { };
                 ScanClass.Scaner.OnScanned = null;
-                ScanClass.Scaner.StopScan();
+                
             }
+            ScanClass.Scaner.StopScan();
             
             ActionsClass.Action.OnActionCompleted -=Action_OnActionCompleted;
             BTPrintClass.PrintClass.SetStatusEvent("Close Products form");
@@ -507,8 +516,8 @@ namespace TSDServer
                         using (DialogForm dlgfrm =
                             new DialogForm(
                                 "Вы хотите закрыть просчет?"
-                                , string.Format("Посчитано: {0} кодов", total)
-                                , string.Format("Посчитано: {0} всего штук", totalBk)
+                                , string.Format("Посчитано: {0} кодов", totalBk)
+                                , string.Format("Посчитано: {0} всего штук",total)
                                 , "Закрытие просчета"))
                         {
                             if (dlgfrm.ShowDialog() == DialogResult.Yes)
