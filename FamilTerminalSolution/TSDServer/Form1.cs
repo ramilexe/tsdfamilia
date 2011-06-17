@@ -709,11 +709,21 @@ namespace TSDServer
 
                 foreach (string s in loader.ScannedFileList)
                 {
-                    string ext = Path.GetExtension(s).ToUpper();
-                    terminalRapi.CopyFileFromDevice(s,
-                        Properties.Settings.Default.TSDDBPAth + 
-                        //"\\Program Files\\tsdfamilia\\" + 
-                        Path.GetFileName(s));
+                    try
+                    {
+                        if (System.IO.File.Exists(s))
+                            System.IO.File.Delete(s);
+
+                        string ext = Path.GetExtension(s).ToUpper();
+                        terminalRapi.CopyFileFromDevice(s,
+                            Properties.Settings.Default.TSDDBPAth +
+                            //"\\Program Files\\tsdfamilia\\" + 
+                            Path.GetFileName(s));
+                    }
+                    catch (Exception err)
+                    {
+                        richTextBox1.AppendText(err.ToString());
+                    }
                 }
 
                 loader.UploadResults();
