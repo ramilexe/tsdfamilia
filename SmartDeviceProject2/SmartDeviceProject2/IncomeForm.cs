@@ -33,7 +33,11 @@ namespace TSDServer
             //ActionsClass.Action.OnActionCompleted += new ActionsClass.ActionCompleted(Action_OnActionCompleted);
             ScanClass.Scaner.InitScan();
             ScanClass.Scaner.OnScanned += scannedDelegate;
-            
+
+            //READ FIRST ANY VALUE - CASHE INDEX
+            ActionsClass.Action.GetDataByDocIdAndType("3000000000000",
+                            (byte)TSDUtils.ActionCode.IncomeBox);
+
             this.Refresh();
 
 
