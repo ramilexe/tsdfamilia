@@ -651,8 +651,10 @@ namespace FamilTsdDB
 
                 if (currentIndexItem[i].RawData != null)
                     Array.Copy(currentIndexItem[i].RawData, 0, bArray, pos, currentIndexItem[i].RawData.Length);
-
-                pos = (byte)(pos + currentIndexItem[i].Column.ColumnLength);
+                if (currentIndexItem[i].Column.DataType == DataColumnTypes.String)
+                    pos = (byte)(pos + currentIndexItem[i].Column.ColumnLength+1);
+                else
+                    pos = (byte)(pos + currentIndexItem[i].Column.ColumnLength);
             }
             byte[] a = BitConverter.GetBytes(_offset);
 
