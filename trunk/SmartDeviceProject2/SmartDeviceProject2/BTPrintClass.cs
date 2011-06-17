@@ -560,7 +560,8 @@ namespace TSDServer
                     string xxx = "";
                     for (int ia = 0; ia < 17; ia++)
                     {
-                        xxx = xxx + btd.DeviceAddress[ia].ToString().ToUpper();
+                        if (btd.DeviceAddress[ia] != '\0')
+                            xxx = xxx + btd.DeviceAddress[ia].ToString().ToUpper();
                     }
                     //SetStatusEvent(xxx);
 
@@ -593,7 +594,8 @@ namespace TSDServer
                 string xxx = "";
                 for (int ia = 0; ia < 17; ia++)
                 {
-                    xxx = xxx + bt_di[i].DeviceAddress[ia].ToString().ToUpper();
+                    if (bt_di[i].DeviceAddress[ia] != '\0')
+                        xxx = xxx + bt_di[i].DeviceAddress[ia].ToString().ToUpper();
                 }
 
                 SetErrorEvent(xxx);
@@ -619,7 +621,9 @@ namespace TSDServer
                 string xxx = "";
                 for (int ia = 0; ia < 17; ia++)
                 {
-                    xxx = xxx + bt_di[i].DeviceAddress[ia].ToString().ToUpper();
+                    //xxx = xxx + bt_di[i].DeviceAddress[ia].ToString().ToUpper();
+                    if (bt_di[i].DeviceAddress[ia] != '\0')
+                        xxx = xxx + bt_di[i].DeviceAddress[ia].ToString().ToUpper();
                 }
 
                 //SetErrorEvent(xxx);
