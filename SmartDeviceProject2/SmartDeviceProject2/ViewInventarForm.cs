@@ -11,7 +11,9 @@ namespace TSDServer
 {
     public partial class ViewInventarForm : Form
     {
-        
+        Dictionary<long,ListBoxItem> items =
+            new Dictionary<long,ListBoxItem>();
+
         string _docId;
         byte _docType;
 
@@ -37,7 +39,7 @@ namespace TSDServer
         private void ViewInventarForm_Load(object sender, EventArgs e)
         {
             ScannedProductsDataSet.ScannedBarcodesRow [] rows
-             = ActionsClass.Action.ScannedProducts.ScannedBarcodes.FindByDocIdAndDocType
+             = ActionsClass.Action.FindByDocIdAndDocType
                 (_docId,
                 _docType);
 
@@ -49,24 +51,51 @@ namespace TSDServer
                     ProductsDataSet.ProductsTblRow r = 
                         ActionsClass.Action.GetProductRow(
                         rows[i].Barcode.ToString());
+
+                    
                     
                     if (r != null)
-                    listBox1.Items.Add(
+                    /*listBox1.Items.Add(
                         string.Format(
                         "{0:D13}|{1,12}|{2}",
                         rows[i].Barcode,
                         (r.ProductName.Length>12)?r.ProductName.Substring(0,12):
                         r.ProductName,
                         rows[i].FactQuantity.ToString()));
+                     */
+                    {
+                        if (items.ContainsKey(rows[i].Barcode))
+                            items[rows[i].Barcode].FactQuantity += rows[i].FactQuantity;
+                        else
+                            items.Add(rows[i].Barcode,
+                                new ListBoxItem(
+                                    rows[i].Barcode,
+                                    r.ProductName,
+                                    rows[i].FactQuantity));
+                    }
                     else
+                        if (items.ContainsKey(rows[i].Barcode))
+                            items[rows[i].Barcode].FactQuantity += rows[i].FactQuantity;
+                        else
+                            items.Add(rows[i].Barcode,
+                                new ListBoxItem(
+                                    rows[i].Barcode,
+                                    "Товар не найден",
+                                    rows[i].FactQuantity));
+
+                        /*
                         listBox1.Items.Add(
                         string.Format(
                         "{0:D13}|{1,12}|{2}",
                         rows[i].Barcode,
                         "Товар не найден",
-                        rows[i].FactQuantity.ToString()));
+                        rows[i].FactQuantity.ToString()));*/
                         
                 }
+            }
+            foreach (long bk in items.Keys)
+            {
+                listBox1.Items.Add(items[bk]);
             }
 
             this.Width = 238;
@@ -93,7 +122,27 @@ namespace TSDServer
                 return;
             }
         }
-            
 
+        public class ListBoxItem
+        {
+            public long Barcode;
+            public string ProductName;
+            public int FactQuantity;
+            public ListBoxItem(long _Barcode, string _ProductName, int _FactQuantity)
+            {
+                Barcode = _Barcode;
+                ProductName = _ProductName;
+                FactQuantity = _FactQuantity;
+            }
+            public override string ToString()
+            {
+                return string.Format(
+                        "{0:D13}|{1,12}|{2}",
+                        Barcode,
+                        (ProductName.Length > 12) ? ProductName.Substring(0, 12) :
+                            ProductName,
+                        FactQuantity.ToString());
+            }
+        }
     }
 }
