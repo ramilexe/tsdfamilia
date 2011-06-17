@@ -99,14 +99,14 @@ namespace TSDServer
                                row.Priority);
                         scannedRow.FactQuantity += 1;
 
-                        ActionsClass.Action.PlaySoundAsync(7);
-                        ActionsClass.Action.PlayVibroAsync(7);
+                        ActionsClass.Action.PlaySoundAsync((byte)TSDUtils.ActionCode.IncomeBox);
+                        ActionsClass.Action.PlayVibroAsync((byte)TSDUtils.ActionCode.IncomeBox);
 
                     }
                     else
                     {
-                        ActionsClass.Action.PlaySoundAsync(251);
-                        ActionsClass.Action.PlayVibroAsync(251);
+                        ActionsClass.Action.PlaySoundAsync((byte)TSDUtils.ActionCode.StrangeBox);
+                        ActionsClass.Action.PlayVibroAsync((byte)TSDUtils.ActionCode.StrangeBox);
                         this.errLabel.Text = string.Format("ШК {0} чужой короб!",
                             barcode);
 
@@ -116,8 +116,8 @@ namespace TSDServer
                 }
                 else
                 {
-                     ActionsClass.Action.PlaySoundAsync(251);
-                     ActionsClass.Action.PlayVibroAsync(251);
+                    ActionsClass.Action.PlaySoundAsync((byte)TSDUtils.ActionCode.StrangeBox);
+                    ActionsClass.Action.PlayVibroAsync((byte)TSDUtils.ActionCode.StrangeBox);
                      this.errLabel.Text = string.Format("Это не ШК короба!",
                             barcode);
 
