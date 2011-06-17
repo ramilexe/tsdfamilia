@@ -55,15 +55,15 @@ namespace TSDUtils
 
         //[Description("Действие7")]
         /// <summary>
-        /// Зарезервировано для дальнейшего использования
+        /// Прием по коробам
         /// </summary>
         IncomeBox = 7,
 
         //[Description("Действие8")]
         /// <summary>
-        /// Зарезервировано для дальнейшего использования
+        /// Закрытие глобальной инвентаризации
         /// </summary>
-        Action8 = 8,
+        CloseInventar = 8,
         /// <summary>
         /// Чужой короб
         /// </summary>
@@ -122,7 +122,7 @@ namespace TSDUtils
             dict.Add(ActionCode.QuickHelp, "СКОРАЯ ПОМОЩЬ");
             dict.Add(ActionCode.InventoryLocal, "Инвент-ция Точечная");
             dict.Add(ActionCode.IncomeBox, "Прием коробов");
-            dict.Add(ActionCode.Action8, "Действие8");
+            dict.Add(ActionCode.CloseInventar, "Закрытие глобальной инвентаризации");
             dict.Add(ActionCode.NotFound, "Товар не найден");
             dict.Add(ActionCode.DocNotFound, "Документ не найден");
             
