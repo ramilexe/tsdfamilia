@@ -65,6 +65,10 @@ namespace TSDUtils
         /// </summary>
         Action8 = 8,
         /// <summary>
+        /// Чужой короб
+        /// </summary>
+        StrangeBox = 251,
+        /// <summary>
         /// Документ не найден
         /// </summary>
         DocNotFound = 254,
