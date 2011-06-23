@@ -56,5 +56,8 @@
     <Setting Name="AddressToList" Type="System.String" Scope="User">
       <Value Profile="(Default)">volkov@famil.ru;volkov@famil.ru;volkov@famil.ru</Value>
     </Setting>
+    <Setting Name="EraseTerminalDB" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
   </Settings>
 </SettingsFile>
