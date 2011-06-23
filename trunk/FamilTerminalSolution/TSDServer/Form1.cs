@@ -163,7 +163,7 @@ namespace TSDServer
                 //MessageBox.Show(message, "Статус загрузки на сервер", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
-
+        StringBuilder copyStatesb = new StringBuilder();
 
         #region test old
         //System.Random r = new Random();
@@ -315,9 +315,12 @@ namespace TSDServer
                 return;
             }
 
-
+           
+            
             try
             {
+                copyStatesb.Length = 0;
+
                 terminalRapi.Connect(true,5000);
                 if (terminalRapi.Connected)
                 {
@@ -381,7 +384,17 @@ namespace TSDServer
                             }
                         }
                     }
-                    MessageBox.Show("Копирование завершено", "Статус загрузки на терминал", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    if (copyStatesb.Length ==0)
+                        MessageBox.Show("Копирование завершено успешно", 
+                            "Статус загрузки на терминал", 
+                            MessageBoxButtons.OK, 
+                            MessageBoxIcon.Information);
+                    else
+                        MessageBox.Show(string.Format("Копирование завершено с ошибкой: {0}",copyStatesb.ToString())
+                            , "Статус загрузки на терминал", 
+                            MessageBoxButtons.OK, 
+                            MessageBoxIcon.Exclamation);
+
                     this.importGoodBtn.Enabled = true & Properties.Settings.Default.ImportProductsEnabled;
                     this.uploadBtn.Enabled = true;
                     this.settingsBtn.Enabled = true & Properties.Settings.Default.SettingsEnabled;
@@ -396,9 +409,10 @@ namespace TSDServer
             {
                 MessageBox.Show("Ошибка загрузки на терминал: "+err.Message, "Статус загрузки на терминал", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+            copyStatesb.Length = 0;
         }
 
-        void terminalRapi_RAPIFileCoping(long totalSize, long completed, Exception e)
+        void terminalRapi_RAPIFileCoping(string name, long totalSize, long completed, Exception e)
         {
             if (this.InvokeRequired)
             {
@@ -411,10 +425,14 @@ namespace TSDServer
             else
             {
                 if (e == null)
+                {
                     frm.SetProgress(totalSize, completed);
+                }
                 else
                 {
-                    frm.SetError(totalSize, completed,e);
+                    frm.SetError(totalSize, completed, e);
+                    copyStatesb.AppendFormat("Ошибка копирования {0}.\n", name);
+                    richTextBox1.AppendText(string.Format("Ошибка копирования {0}. \n",name));
                 }
             }
         }
@@ -701,13 +719,18 @@ namespace TSDServer
         {
             richTextBox1.AppendText("Начало загрузки ...\n");
             richTextBox1.AppendText("Подключите терминал и не отключайте до окончания загрузки\n");
+            //string loadState = string.Empty;
+            //StringBuilder sb = new StringBuilder();
+            copyStatesb.Length = 0;
+            bool success_upload = false;
+
             try
             {
                 //OpenNETCF.Desktop.Communication.FileList fl = terminalRapi.EnumFiles(Properties.Settings.Default.TSDDBPAth + "ScannedBarcodes.db");
                
                 terminalRapi.Connect(true, 5000);
 
-                foreach (string s in loader.ScannedFileList)
+                foreach (string s in loader.OldScannedFileList)
                 {
                     try
                     {
@@ -719,28 +742,132 @@ namespace TSDServer
                             Properties.Settings.Default.TSDDBPAth +
                             //"\\Program Files\\tsdfamilia\\" + 
                             Path.GetFileName(s));
+                        success_upload = true;
+                        //copyStatesb.AppendFormat("Файл {0} скопирован.\n", s);
+                        //loadState = "Успешно";
                     }
                     catch (Exception err)
                     {
-                        richTextBox1.AppendText(err.ToString());
+                        richTextBox1.AppendText(string.Format("Ошибка: Файл {0} не скопирован. \n",s));
+                        copyStatesb.AppendFormat("Ошибка: Файл {0} не скопирован.\n", s);
+                        success_upload = false;
+                        //loadState = "Ошибка";
+                    }
+                }
+                if (copyStatesb.Length > 0)
+                {//have error
+                    copyStatesb.Length = 0;
+                    //loadState = string.Empty;
+                    foreach (string s in loader.NewScannedFileList)
+                    {
+                        try
+                        {
+                            if (System.IO.File.Exists(s))
+                                System.IO.File.Delete(s);
+
+                            string ext = Path.GetExtension(s).ToUpper();
+                            terminalRapi.CopyFileFromDevice(s,
+                                Properties.Settings.Default.TSDDBPAth +
+                                //"\\Program Files\\tsdfamilia\\" + 
+                                Path.GetFileName(s));
+                            success_upload = true;
+                            //copyStatesb.AppendFormat("Файл {0} скопирован.\n", s);
+                            //loadState = "Успешно";
+                        }
+                        catch (Exception err)
+                        {
+                            richTextBox1.AppendText(string.Format("Ошибка: Файл {0} не скопирован. \n", s));
+                            copyStatesb.AppendFormat("Файл {0} не скопирован.\n", s);
+                            success_upload = false;
+                            //loadState = "Ошибка";
+                        }
                     }
                 }
 
                 loader.UploadResults();
 
                 richTextBox1.AppendText("Загрузка завершена...\n");
+                richTextBox1.AppendText(copyStatesb.ToString());
+                success_upload = true;
                 //terminalRapi.CopyFileToDevice("register.txt", System.IO.Path.Combine(
                 //        Properties.Settings.Default.TSDDBPAth, "register.txt"));
             }
             catch (Exception err)
             {
-                richTextBox1.AppendText(err.ToString());
+                richTextBox1.AppendText(err.Message.ToString());
+                copyStatesb.Append(err.Message.ToString());
+                success_upload = false;
             }
             finally
             {
-                
-                MessageBox.Show("Загрузка завершена...");
+                if (copyStatesb.Length == 0 && success_upload)
+                {
+                    MessageBox.Show("Загрузка завершена успешно.",
+                        "Успех загрузки", MessageBoxButtons.OK,
+                        MessageBoxIcon.Information);
+                    DeleteOldDB();
+                }
+                else
+                    MessageBox.Show(string.Format("Загрузка завершена с ошибкой: \n{0}",
+                        copyStatesb.ToString()),
+                        "Ошибка загрузки", MessageBoxButtons.OK,
+                        MessageBoxIcon.Stop);
+
+                copyStatesb.Length = 0;
             }
+        }
+
+        private void DeleteOldDB()
+        {
+            try
+            {
+                bool EraseTerminalDB = Properties.Settings.Default.EraseTerminalDB;
+                if (EraseTerminalDB)
+                {
+                    foreach (string s in loader.NewScannedFileList)
+                    {
+                        try
+                        {
+                            //if (System.IO.File.Exists(s))
+                            //    System.IO.File.Delete(s);
+
+                            //string ext = Path.GetExtension(s).ToUpper();
+                            terminalRapi.DeleteDeviceFile(
+                                Properties.Settings.Default.TSDDBPAth +
+                                Path.GetFileName(s));
+                        }
+                        catch
+                        {
+                            richTextBox1.AppendText(
+                                string.Format("Ошибка стирания сканированных результатов на терминале - файла [0}\n",s));
+                        }
+ 
+                    }
+                    foreach (string s in loader.OldScannedFileList)
+                    {
+                        try
+                        {
+                            //if (System.IO.File.Exists(s))
+                            //    System.IO.File.Delete(s);
+
+                            //string ext = Path.GetExtension(s).ToUpper();
+                            terminalRapi.DeleteDeviceFile(
+                                Properties.Settings.Default.TSDDBPAth +
+                                Path.GetFileName(s));
+                        }
+                        catch
+                        {
+                            richTextBox1.AppendText(
+                                string.Format("Ошибка стирания сканированных результатов на терминале - файла [0}\n", s));
+                        }
+
+                    }
+                }
+            }
+            catch {
+               // richTextBox1.AppendText("Ошибка стирания сканированных результатов на терминале\n");
+            }
+                
         }
     }
 }
