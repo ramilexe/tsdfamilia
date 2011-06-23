@@ -589,14 +589,17 @@ namespace TSDServer
                 List<String> slist = 
                     new List<String>();
                 slist.AddRange(this.scannedTA.FileList);
-                slist.Add(Path.Combine(
-                    Properties.Settings.Default.LocalFilePath,
-                    "scannedbarcodes.txt"));
+                
                 slist.Add(
                     Path.Combine(
                     Properties.Settings.Default.LocalFilePath,
                     "register.txt")
                     );
+
+                slist.Add(Path.Combine(
+                    Properties.Settings.Default.LocalFilePath,
+                    "scannedbarcodes.txt"));
+
                 return slist.ToArray();
 
                 /*return new string[]
@@ -612,6 +615,62 @@ namespace TSDServer
             }
         }
 
+        public string[] OldScannedFileList
+        {
+            get
+            {
+                return this.scannedTA.FileList;
+                //List<String> slist =
+                //    new List<String>();
+                //slist.AddRange();
+                
+
+                //return slist.ToArray();
+
+                /*return new string[]
+                {
+                    Path.Combine(
+                    Properties.Settings.Default.LocalFilePath,
+                    "scannedbarcodes.txt")
+                    ,Path.Combine(
+                    Properties.Settings.Default.LocalFilePath,
+                    "register.txt")
+                };*/
+                //return this.scannedTA.FileList;
+            }
+        }
+
+        public string[] NewScannedFileList
+        {
+            get
+            {
+                List<String> slist =
+                    new List<String>();
+
+                slist.Add(
+                    Path.Combine(
+                    Properties.Settings.Default.LocalFilePath,
+                    "register.txt")
+                    );
+
+                slist.Add(Path.Combine(
+                    Properties.Settings.Default.LocalFilePath,
+                    "scannedbarcodes.txt"));
+
+                return slist.ToArray();
+
+                /*return new string[]
+                {
+                    Path.Combine(
+                    Properties.Settings.Default.LocalFilePath,
+                    "scannedbarcodes.txt")
+                    ,Path.Combine(
+                    Properties.Settings.Default.LocalFilePath,
+                    "register.txt")
+                };*/
+                //return this.scannedTA.FileList;
+            }
+        }
         public string[] ProductsFileList
         {
             get
