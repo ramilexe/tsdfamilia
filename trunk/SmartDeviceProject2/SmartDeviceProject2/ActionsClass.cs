@@ -7,6 +7,7 @@ namespace TSDServer
 {
     public class ActionsClass
     {
+        
         ScannedProductsDataSet _scannedProducts = new ScannedProductsDataSet();
         TSDServer.ProductsDataSet _products
             = new TSDServer.ProductsDataSet();
@@ -62,6 +63,7 @@ namespace TSDServer
 
         private ActionsClass()
         {
+            
             FamilTsdDB.DataTable.BaseDate =
                 Program.Default.BaseDate;
             FamilTsdDB.DataTable.StartupPath =
@@ -951,12 +953,12 @@ namespace TSDServer
             this.ScannedProducts.Clear();
 
             if (System.IO.File.Exists(
-                System.IO.Path.Combine(Program.StartupPath, "scannedbarcodes.txt")))
-                System.IO.File.Delete(System.IO.Path.Combine(Program.StartupPath, "scannedbarcodes.txt"));
+                System.IO.Path.Combine(Program.Default.DatabaseStoragePath, "scannedbarcodes.txt")))
+                System.IO.File.Delete(System.IO.Path.Combine(Program.Default.DatabaseStoragePath, "scannedbarcodes.txt"));
 
             if (System.IO.File.Exists(
-                System.IO.Path.Combine(Program.StartupPath, "register.txt")))
-                System.IO.File.Delete(System.IO.Path.Combine(Program.StartupPath, "register.txt"));
+                System.IO.Path.Combine(Program.Default.DatabaseStoragePath, "register.txt")))
+                System.IO.File.Delete(System.IO.Path.Combine(Program.Default.DatabaseStoragePath, "register.txt"));
 
             foreach (string s in str)
             {
