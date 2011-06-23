@@ -238,5 +238,17 @@ namespace TSDServer.Properties {
                 this["AddressToList"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool EraseTerminalDB {
+            get {
+                return ((bool)(this["EraseTerminalDB"]));
+            }
+            set {
+                this["EraseTerminalDB"] = value;
+            }
+        }
     }
 }
