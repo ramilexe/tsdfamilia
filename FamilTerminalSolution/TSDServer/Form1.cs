@@ -419,7 +419,7 @@ namespace TSDServer
 
                 OpenNETCF.Desktop.Communication.RAPICopingHandler del =
                     new OpenNETCF.Desktop.Communication.RAPICopingHandler(terminalRapi_RAPIFileCoping);
-                this.Invoke(del, totalSize, completed, e);
+                this.Invoke(del,name, totalSize, completed, e);
 
             }
             else
@@ -427,6 +427,7 @@ namespace TSDServer
                 if (e == null)
                 {
                     frm.SetProgress(totalSize, completed);
+                    frm.FormCaption = string.Format("Копирование {0}",System.IO.Path.GetFileName( name));
                 }
                 else
                 {
