@@ -35,7 +35,7 @@ using System.Runtime.Remoting.Messaging;
 namespace OpenNETCF.Desktop.Communication
 {
     public delegate void CopyFileToDeviceDelegate(string LocalFileName, string RemoteFileName, bool Overwrite);
-    public delegate void RAPICopingHandler(long totalSize, long completed, Exception e);
+    public delegate void RAPICopingHandler(string name, long totalSize, long completed, Exception e);
 
 	/// <summary>
 	/// RapiConnectedHandler delegate
@@ -523,7 +523,7 @@ namespace OpenNETCF.Desktop.Communication
                         throw new RAPIException("Could not write to remote file");
                     }
                     if (RAPIFileCoping != null)
-                        RAPIFileCoping(totalFileSize, filepos, null);
+                        RAPIFileCoping(LocalFileName, totalFileSize, filepos, null);
                     try
                     {
                         // refill the local buffer
@@ -532,7 +532,7 @@ namespace OpenNETCF.Desktop.Communication
                     catch (Exception)
                     {
                         if (RAPIFileCoping != null)
-                            RAPIFileCoping(totalFileSize, filepos, null);
+                            RAPIFileCoping(LocalFileName, totalFileSize, filepos, null);
                         bytesread = 0;
                     }
                 }
@@ -552,7 +552,7 @@ namespace OpenNETCF.Desktop.Communication
             catch (Exception err)
             {
                 if (RAPIFileCoping != null)
-                    RAPIFileCoping(totalFileSize, filepos, err);
+                    RAPIFileCoping(LocalFileName, totalFileSize, filepos, err);
             }
             finally
             {

@@ -10,6 +10,17 @@ namespace TSDServer
 {
     public partial class FileCopyProgressForm : Form
     {
+        public string FormCaption
+        {
+            get
+            {
+                return this.Text;
+            }
+            set
+            {
+                this.Text = value;
+            }
+        }
         public FileCopyProgressForm()
         {
             InitializeComponent();
