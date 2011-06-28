@@ -1779,6 +1779,111 @@ namespace TSDServer
             }
         }
 
-      
+        public string TestDB(out bool noerrors)
+        {
+            noerrors = true;
+
+            StringBuilder sb = new StringBuilder();
+            DateTime dtDB = DateTime.Now;
+            string fileDB = 
+                string.Format("{0}\\{1}.db", Program.Default.DatabaseStoragePath, 
+                this.Products.ProductsTbl.TableName);
+            sb.Append(CheckDbFile(ref noerrors, fileDB, out dtDB));
+
+            /*System.IO.FileInfo fi = new System.IO.FileInfo(fileDB);
+            fi.Refresh();
+            if (fi.Exists && fi.Length>0)
+            {
+               dtDB = fi.CreationTime;
+            }
+            else
+                return string.Format("Файл Базы {0} отсутствует!", fileDB);
+            */
+            sb.Append(TestFileArray(ref noerrors, dtDB, this.productsTa.FileList));
+            /*
+            foreach (string file in this.productsTa.FileList)
+            {
+
+                if (System.IO.File.Exists(file))
+                {
+                    System.IO.FileInfo fi = new System.IO.FileInfo(
+                    file
+                    );
+                    fi.Refresh();
+                    if (Math.Abs(fi.CreationTime.Subtract(dtDB).Minutes)>15)
+                        sb.Append(string.Format("Файл БД {0} возможно старый!", file));
+                }
+                else
+                    sb.Append(string.Format("Файл {0} отсутствует!", file));
+
+            }*/
+
+            fileDB =
+                string.Format("{0}\\{1}.db", Program.Default.DatabaseStoragePath,
+                this.Products.DocsTbl.TableName);
+            sb.Append(CheckDbFile(ref noerrors, fileDB, out dtDB));
+            /*
+            System.IO.FileInfo fi = new System.IO.FileInfo(fileDB);
+            fi.Refresh();
+            if (fi.Exists && fi.Length > 0)
+            {
+                dtDB = fi.CreationTime;
+            }
+            else
+                return string.Format("Файл Базы {0} отсутствует!", fileDB);
+            */
+            sb.Append(TestFileArray(ref noerrors, dtDB, this.docsTa.FileList));
+
+           
+            return sb.ToString();
+        }
+
+        private string TestFileArray(ref bool noerrors, DateTime dtDB, string[] fileList)
+        {
+            StringBuilder sb = new StringBuilder();
+            foreach (string file in fileList)
+            {
+
+                if (System.IO.File.Exists(file))
+                {
+                    System.IO.FileInfo fi = new System.IO.FileInfo(
+                    file
+                    );
+                    fi.Refresh();
+                    if (Math.Abs(fi.CreationTime.Subtract(dtDB).Minutes) > 15)
+                    {
+                        sb.Append(string.Format("Файл БД\n {0}\n возможно старый!\n", file));
+                        noerrors = noerrors & false;
+                    }
+                }
+                else
+                {
+                    noerrors = noerrors & false;
+                    sb.Append(string.Format("Файл\n {0}\n отсутствует!\n", file));
+                }
+
+            }
+            return sb.ToString();
+        }
+
+        private string CheckDbFile(ref bool noerrors, string fileDB, out DateTime dtDB)
+        {
+            dtDB = DateTime.Now;
+            System.IO.FileInfo fi = new System.IO.FileInfo(fileDB);
+            fi.Refresh();
+            if (fi.Exists && fi.Length > 0)
+            {
+                dtDB = fi.CreationTime;
+
+                return string.Format("Дата файла Базы\n {0}: \n{1} \n", fileDB,
+                    dtDB.ToString("dd.MM.yyyy hh:mm"));
+            }
+            else
+            {
+                noerrors = noerrors & false;
+                return string.Format("Файл Базы \n{0} \nне найден!\n", fileDB);
+                
+            }
+        }
     }
 }
