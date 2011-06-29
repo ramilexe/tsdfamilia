@@ -6,8 +6,9 @@ using System.Windows.Forms;
 namespace TSDServer
 {
     public delegate void DatabaseChanged();
-    static class Program
+    public static class Program
     {
+        
         /// <summary>
         /// Номер Текущего открытого просчета
         /// </summary>
@@ -49,8 +50,9 @@ namespace TSDServer
         /// The main entry point for the application.
         /// </summary>
         [MTAThread]
-        static void Main()
+        public static void Main()
         {
+            
             //mEvt.Reset();
 
             //bool result = mEvt.WaitOne((int)(WaitPrintTimeDefault + WaitPrintTimeDefault / 2), false);
@@ -140,7 +142,7 @@ namespace TSDServer
                     //catch { }
 
 
-                    Application.Run(new Form1());
+                    Application.Run(new MainForm());
                 }
                 catch (Exception err)
                 {
