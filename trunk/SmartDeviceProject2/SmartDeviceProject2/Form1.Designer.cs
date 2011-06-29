@@ -1,6 +1,6 @@
 ﻿namespace TSDServer
 {
-    partial class Form1
+    partial class MainForm
     {
         /// <summary>
         /// Required designer variable.
@@ -141,11 +141,14 @@
             this.Text = "Терминал сбора данных";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.Form1_KeyPress);
+            this.Closed += new System.EventHandler(Form1_Closed);
             ((System.ComponentModel.ISupportInitialize)(this.productsDataSet1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.productsDataSet2)).EndInit();
             this.ResumeLayout(false);
 
         }
+
+        
 
         #endregion
 
