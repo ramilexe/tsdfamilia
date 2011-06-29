@@ -12,35 +12,35 @@ namespace TSDServer
 {
     public partial class MainForm : Form
     {
-        string settingFilePath = string.Empty;
-        public static string СurrentInvId = string.Empty;
-        public static SystemMemoryChangeStatusEnum SystemMemoryChangeStatus;
-        public static SettingsDataSet Settings = null;
-        static string _startupPath = string.Empty;
-        static Int32 _terminal_id;
-        public static Int32 TerminalId
-        {
-            get
-            {
-                return _terminal_id;
-            }
+        //string settingFilePath = string.Empty;
+        //public static string СurrentInvId = string.Empty;
+        //public static SystemMemoryChangeStatusEnum SystemMemoryChangeStatus;
+        //public static SettingsDataSet Settings = null;
+        //static string _startupPath = string.Empty;
+        //static Int32 _terminal_id;
+        //public static Int32 TerminalId
+        //{
+        //    get
+        //    {
+        //        return _terminal_id;
+        //    }
 
-        }
-        public static SettingsDataSet.TypedSettingsRow Default
-        {
-            get
-            {
-                return Settings.TypedSettings[0];
-            }
-        }
-        public static string StartupPath
-        {
-            get
-            {
-                return _startupPath;//return System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetCallingAssembly().GetName().CodeBase);
-            }
+        //}
+        //public static SettingsDataSet.TypedSettingsRow Default
+        //{
+        //    get
+        //    {
+        //        return Settings.TypedSettings[0];
+        //    }
+        //}
+        //public static string StartupPath
+        //{
+        //    get
+        //    {
+        //        return _startupPath;//return System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetCallingAssembly().GetName().CodeBase);
+        //    }
 
-        }
+        //}
 
         private enum MenuItems : int
         {
@@ -80,7 +80,7 @@ namespace TSDServer
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            InitProgram();
+            //InitProgram();
 
             System.Reflection.Assembly a = System.Reflection.Assembly.GetExecutingAssembly();
             System.Reflection.AssemblyName an = a.GetName();
@@ -281,7 +281,7 @@ namespace TSDServer
 
 
         }
-
+        /*
         private void InitProgram()
         {
             try
@@ -387,12 +387,12 @@ namespace TSDServer
                 System.Windows.Forms.MessageBox.Show(err.ToString());
             }
         }
-
+*/
         void Form1_Closed(object sender, System.EventArgs e)
         {
-            ScanClass.Scaner.StopScan();
-            Settings.WriteXml(settingFilePath);
-            BTPrintClass.PrintClass.Disconnect();
+            //ScanClass.Scaner.StopScan();
+            //Settings.WriteXml(settingFilePath);
+            //BTPrintClass.PrintClass.Disconnect();
         }
     }
 }
