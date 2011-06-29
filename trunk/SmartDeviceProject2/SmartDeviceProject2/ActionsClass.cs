@@ -7,7 +7,7 @@ namespace TSDServer
 {
     public class ActionsClass
     {
-        
+        private int _timeShift = 0;
         ScannedProductsDataSet _scannedProducts = new ScannedProductsDataSet();
         TSDServer.ProductsDataSet _products
             = new TSDServer.ProductsDataSet();
@@ -63,7 +63,10 @@ namespace TSDServer
 
         private ActionsClass()
         {
-            
+            int shift = TimeZone.CurrentTimeZone.GetUtcOffset(DateTime.Now).Hours;
+            if (shift != 4)
+                _timeShift = 11;
+
             FamilTsdDB.DataTable.BaseDate =
                 Program.Default.BaseDate;
             FamilTsdDB.DataTable.StartupPath =
@@ -207,8 +210,8 @@ namespace TSDServer
                                 row.DocType,
                                 quantity,
                                 (row["ScannedDate"] == System.DBNull.Value) ?
-                                  DateTime.Today.ToString("dd.MM.yyyy") 
-                                  : row.ScannedDate.ToString("dd.MM.yyyy"),
+                                  DateTime.Today.AddHours(_timeShift).ToString("dd.MM.yyyy")
+                                  : row.ScannedDate.AddHours(_timeShift).ToString("dd.MM.yyyy"),
 
                                 (row["TerminalId"] == System.DBNull.Value) ?
                                    string.Empty : row.TerminalId.ToString(),
@@ -1778,13 +1781,23 @@ namespace TSDServer
                 //return string.Empty;
             }
         }
-
+        
         public string TestDB(out bool noerrors)
         {
             noerrors = true;
+            TimeSpan ts = TimeZone.CurrentTimeZone.GetUtcOffset(DateTime.Now);
 
             StringBuilder sb = new StringBuilder();
+            
             DateTime dtDB = DateTime.Now;
+            
+            
+            sb.Append(string.Format("Текущее время: {0}\n", dtDB.ToString("dd.MM.yyyy HH:mm")));
+
+            //sb.Append("Shift: " + TimeZone.CurrentTimeZone.GetUtcOffset(DateTime.Now).Hours.ToString());
+
+
+
             string fileDB = 
                 string.Format("{0}\\{1}.db", Program.Default.DatabaseStoragePath, 
                 this.Products.ProductsTbl.TableName);
@@ -1840,6 +1853,7 @@ namespace TSDServer
 
         private string TestFileArray(ref bool noerrors, DateTime dtDB, string[] fileList)
         {
+            //TimeSpan ts = TimeZone.CurrentTimeZone.GetUtcOffset(DateTime.Now);
             StringBuilder sb = new StringBuilder();
             foreach (string file in fileList)
             {
@@ -1850,7 +1864,7 @@ namespace TSDServer
                     file
                     );
                     fi.Refresh();
-                    if (Math.Abs(fi.CreationTime.Subtract(dtDB).Minutes) > 15)
+                    if (Math.Abs(fi.LastWriteTime.AddHours(_timeShift).Subtract(dtDB).Minutes) > 15)
                     {
                         sb.Append(string.Format("Файл БД\n {0}\n возможно старый!\n", file));
                         noerrors = noerrors & false;
@@ -1868,15 +1882,16 @@ namespace TSDServer
 
         private string CheckDbFile(ref bool noerrors, string fileDB, out DateTime dtDB)
         {
+            //TimeSpan ts = TimeZone.CurrentTimeZone.GetUtcOffset(DateTime.Now);
             dtDB = DateTime.Now;
             System.IO.FileInfo fi = new System.IO.FileInfo(fileDB);
             fi.Refresh();
             if (fi.Exists && fi.Length > 0)
             {
-                dtDB = fi.CreationTime;
+                dtDB = fi.LastWriteTime.AddHours(_timeShift);
 
                 return string.Format("Дата файла Базы\n {0}: \n{1} \n", fileDB,
-                    dtDB.ToString("dd.MM.yyyy hh:mm"));
+                    dtDB.ToString("dd.MM.yyyy HH:mm"));
             }
             else
             {
