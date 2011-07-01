@@ -328,6 +328,9 @@ namespace TSDServer
                     this.uploadBtn.Enabled = false;
                     this.settingsBtn.Enabled = false;
                     richTextBox1.Text = "";
+                    
+                   
+                    
 
                     foreach (string fileName in loader.ProductsFileList)
                     {
@@ -340,7 +343,9 @@ namespace TSDServer
                     {
                         if (terminalRapi.DeviceFileExists(Path.Combine(Properties.Settings.Default.TSDDBPAth, System.IO.Path.GetFileName(fileName))))
                         {
-                            terminalRapi.DeleteDeviceFile(Path.Combine(Properties.Settings.Default.TSDDBPAth, System.IO.Path.GetFileName(fileName)));
+                            terminalRapi.DeleteDeviceFile(Path.Combine(
+                                Properties.Settings.Default.TSDDBPAth, 
+                                System.IO.Path.GetFileName(fileName)));
                         }
                     }
                     OpenNETCF.Desktop.Communication.RAPICopingHandler onCopyDelegate = 
@@ -384,6 +389,39 @@ namespace TSDServer
                             }
                         }
                     }
+
+                    string programFileName = Properties.Settings.Default.ProgramFileName;
+                   
+
+                    if (System.IO.File.Exists(programFileName))
+                    {
+                       if (terminalRapi.DeviceFileExists(
+                       Path.Combine(
+                       Properties.Settings.Default.TSDProgramPath,
+                       System.IO.Path.GetFileName(programFileName))))
+                        {
+                            terminalRapi.DeleteDeviceFile(
+                                Path.Combine(
+                                Properties.Settings.Default.TSDProgramPath,
+                                System.IO.Path.GetFileName(programFileName)));
+                        }
+
+                        IAsyncResult ar =
+                            terminalRapi.BeginCopyFileToDevice(programFileName,
+                                Path.Combine(Properties.Settings.Default.TSDProgramPath,
+                                System.IO.Path.GetFileName(programFileName)), true,
+                                new AsyncCallback(OnEndCopyFile), null);
+
+
+                        if (frm.ShowDialog() == DialogResult.Abort)
+                        {
+                            richTextBox1.AppendText("Отмена копирования...\n");
+                            richTextBox1.AppendText("Дождитесь завершения... \n");
+                            terminalRapi.RAPIFileCoping -= onCopyDelegate;
+                            terminalRapi.CancelCopyFileToDevice();
+                        }
+                    }
+
                     if (copyStatesb.Length ==0)
                         MessageBox.Show("Копирование завершено успешно", 
                             "Статус загрузки на терминал", 
