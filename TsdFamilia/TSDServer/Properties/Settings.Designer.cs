@@ -250,5 +250,29 @@ namespace TSDServer.Properties {
                 this["EraseTerminalDB"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("\\Storage Card\\tsdfamilia\\")]
+        public string TSDProgramPath {
+            get {
+                return ((string)(this["TSDProgramPath"]));
+            }
+            set {
+                this["TSDProgramPath"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("TSDClient.ex_")]
+        public string ProgramFileName {
+            get {
+                return ((string)(this["ProgramFileName"]));
+            }
+            set {
+                this["ProgramFileName"] = value;
+            }
+        }
     }
 }
