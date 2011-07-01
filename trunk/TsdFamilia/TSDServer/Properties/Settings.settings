@@ -59,5 +59,11 @@
     <Setting Name="EraseTerminalDB" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
+    <Setting Name="TSDProgramPath" Type="System.String" Scope="User">
+      <Value Profile="(Default)">\Storage Card\tsdfamilia\</Value>
+    </Setting>
+    <Setting Name="ProgramFileName" Type="System.String" Scope="User">
+      <Value Profile="(Default)">TSDClient.ex_</Value>
+    </Setting>
   </Settings>
 </SettingsFile>
