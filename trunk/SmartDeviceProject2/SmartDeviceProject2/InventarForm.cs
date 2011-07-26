@@ -82,7 +82,7 @@ namespace TSDServer
                 this.label2.Visible = false;
                 this.textBox1.Text = barcode;
                 this.textBox1.SelectAll();
-                if (barcode.StartsWith("3") && barcode.Length == 13)
+                if (barcode.StartsWith("660") && barcode.Length == 13)
                 {
                     lastBk = barcode;
 
