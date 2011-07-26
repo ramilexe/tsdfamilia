@@ -1595,42 +1595,49 @@ namespace TSDServer
                      while ((s = wr.ReadLine()) != null)
                      {
                          string[] strAr = s.Split('|');
-                         if (strAr.Length > 0)
+                         try
                          {
-                             if (strAr[2] == ((byte)_docType).ToString() &&
-                                 strAr[1] == _docId)
+                             if (strAr.Length > 0)
                              {
-                                 ScannedProductsDataSet.ScannedBarcodesRow row =
-                                         ScannedProducts.ScannedBarcodes.NewScannedBarcodesRow();
-                                 row.Barcode = long.Parse(strAr[0]);
-                                 row.DocId = strAr[1];
-                                 row.DocType = byte.Parse(strAr[2]);
-                                 row.FactQuantity = int.Parse(strAr[3]);
-                                 row.ScannedDate = DateTime.Parse(strAr[4]);
-                                 row.TerminalId = int.Parse(strAr[5]);
-                                 row.Priority = byte.Parse(strAr[6]);
+                                 if (strAr[2] == ((byte)_docType).ToString() &&
+                                     strAr[1] == _docId)
+                                 {
+                                     ScannedProductsDataSet.ScannedBarcodesRow row =
+                                             ScannedProducts.ScannedBarcodes.NewScannedBarcodesRow();
+                                     row.Barcode = long.Parse(strAr[0]);
+                                     row.DocId = strAr[1];
+                                     row.DocType = byte.Parse(strAr[2]);
+                                     row.FactQuantity = int.Parse(strAr[3]);
+                                     row.ScannedDate = DateTime.Parse(strAr[4],dateFormat);
+                                     row.TerminalId = int.Parse(strAr[5]);
+                                     row.Priority = byte.Parse(strAr[6]);
 
-                                 rows.Add(row);
-                             }
+                                     rows.Add(row);
+                                 }
 
-                              /*   string s =
-                            string.Format("{0}|{1}|{2}|{3}|{4}|{5}|{6}",
-                                row.Barcode,
-                                row.DocId,
-                                row.DocType,
-                                quantity,
-                                (row["ScannedDate"] == System.DBNull.Value) ?
-                                  DateTime.Today.ToString("dd.MM.yyyy")
-                                  : row.ScannedDate.ToString("dd.MM.yyyy"),
+                                 /*   string s =
+                               string.Format("{0}|{1}|{2}|{3}|{4}|{5}|{6}",
+                                   row.Barcode,
+                                   row.DocId,
+                                   row.DocType,
+                                   quantity,
+                                   (row["ScannedDate"] == System.DBNull.Value) ?
+                                     DateTime.Today.ToString("dd.MM.yyyy")
+                                     : row.ScannedDate.ToString("dd.MM.yyyy"),
 
-                                (row["TerminalId"] == System.DBNull.Value) ?
-                                   string.Empty : row.TerminalId.ToString(),
-                                row.Priority
-                                );
+                                   (row["TerminalId"] == System.DBNull.Value) ?
+                                      string.Empty : row.TerminalId.ToString(),
+                                   row.Priority
+                                   );
                                  
-                             }*/
+                                }*/
 
 
+                             }
+                         }
+                         catch (FormatException fexc)
+                         {
+                             BTPrintClass.PrintClass.SetErrorEvent(fexc.ToString() + "\n" + s);
                          }
                      }
                  }
@@ -1672,7 +1679,7 @@ namespace TSDServer
                             row.DocId = strAr[1];
                             row.DocType = byte.Parse(strAr[2]);
                             row.FactQuantity = int.Parse(strAr[3]);
-                            row.ScannedDate = DateTime.Parse(strAr[4]);
+                            row.ScannedDate = DateTime.Parse(strAr[4],dateFormat);
                             row.TerminalId = int.Parse(strAr[5]);
                             row.Priority = byte.Parse(strAr[6]);
 
@@ -1723,25 +1730,32 @@ namespace TSDServer
                     string s = string.Empty;
                     while ((s = wr.ReadLine()) != null)
                     {
-                        string[] strAr = s.Split('|');
-                        //string openedDocId=string.Empty;
-                        if (strAr.Length > 0)
+                        try
                         {
-                            if (strAr[2] == ((byte)TSDUtils.ActionCode.CloseInventar).ToString() &&
-                                strAr[6] == "255")
+                            string[] strAr = s.Split('|');
+                            //string openedDocId=string.Empty;
+                            if (strAr.Length > 0)
                             {
-                                if (openedDocs.Contains(strAr[0]))
+                                if (strAr[2] == ((byte)TSDUtils.ActionCode.CloseInventar).ToString() &&
+                                    strAr[6] == "255")
                                 {
-                                    openedDocs.Remove(strAr[0]);
+                                    if (openedDocs.Contains(strAr[0]))
+                                    {
+                                        openedDocs.Remove(strAr[0]);
+                                    }
                                 }
-                            }
 
-                            if (strAr[2] == ((byte)TSDUtils.ActionCode.CloseInventar).ToString() &&
-                                strAr[6] == "0")
-                                openedDocs.Add(strAr[0]);
+                                if (strAr[2] == ((byte)TSDUtils.ActionCode.CloseInventar).ToString() &&
+                                    strAr[6] == "0")
+                                    openedDocs.Add(strAr[0]);
                                 //openedDocId = strAr[0];
 
                                 //return strAr[0];
+                            }
+                        }
+                        catch (FormatException fexc)
+                        {
+                            BTPrintClass.PrintClass.SetErrorEvent(fexc.ToString()+"\n"+s);
                         }
                     }
                     if (openedDocs.Count > 0)
