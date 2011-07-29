@@ -109,6 +109,8 @@ namespace TSDServer
         //    new System.Data.DataRowChangeEventHandler(ScannedBarcodes_RowChanged);
 
         System.Data.DataColumnChangeEventHandler onColChanged;
+
+        private bool DoScanEvents = true;
         //    new System.Data.DataColumnChangeEventHandler(ScannedBarcodes_ColumnChanged);
 
 
@@ -175,8 +177,9 @@ namespace TSDServer
                 _scannedProducts.ScannedBarcodes.FactQuantityColumn.ColumnName/* ||
                 e.Column.ColumnName == 
                 _scannedProducts.ScannedBarcodes.PriorityColumn.ColumnName*/ 
-                )
+                && DoScanEvents)
             {
+
                 WriteDbTxt((ScannedProductsDataSet.ScannedBarcodesRow)e.Row,1);
             }
         }
@@ -193,7 +196,8 @@ namespace TSDServer
             if (row.RowState == System.Data.DataRowState.Detached ||
                 row.RowState == System.Data.DataRowState.Deleted ||
                 row["FactQuantity"] == System.DBNull.Value ||
-                row.FactQuantity == 0)
+                row.FactQuantity <= 0 ||
+                DoScanEvents == false)
                 return;
 
             using (System.IO.StreamWriter wr =
@@ -1472,12 +1476,90 @@ namespace TSDServer
                 //}
 
             }
+            Program.СurrentInvId = docId;
 
 
 
 
         }
-       
+
+        /// <summary>
+        /// Уменьшить кол-во отсканированного на 1
+        /// </summary>
+        /// <param name="datarow"></param>
+        /// <param name="docsRow"></param>
+        public void UndoLastScannedPosition(ProductsDataSet.ProductsTblRow datarow,
+            ProductsDataSet.DocsTblRow docsRow)
+        {
+            //ScannedProductsDataSet.ScannedBarcodesRow[] r =
+            //_scannedProducts.ScannedBarcodes.FindByBarcodeAndDocType(datarow.Barcode, docsRow.DocType);
+
+            ScannedProductsDataSet.ScannedBarcodesRow scannedRow =
+                              ActionsClass.Action.AddScannedRow(
+                              datarow.Barcode,
+                              docsRow.DocType,
+                              docsRow.DocId,
+                              docsRow.Quantity,
+                              docsRow.Priority);
+
+            if (scannedRow != null && //existing row
+                scannedRow.Priority == 0 //not closed
+                && scannedRow["FactQuantity"] != System.DBNull.Value
+                && scannedRow.FactQuantity > 0 //scanned already
+                && Program.СurrentInvId != string.Empty
+                )
+            {
+                DoScanEvents = false;
+
+                try
+                {
+                    scannedRow.FactQuantity -= 1;
+
+
+                    using (System.IO.StreamWriter wr =
+                    new System.IO.StreamWriter(
+                        System.IO.Path.Combine(Program.Default.DatabaseStoragePath, "scannedbarcodes.txt"), true))
+                    {
+                        //if (row["FactQuantity"] != System.DBNull.Value
+                        //    && row.FactQuantity > 0)
+                        //{
+                        string s =
+                                string.Format("{0}|{1}|{2}|{3}|{4}|{5}|{6}",
+                                    scannedRow.Barcode,
+                                    scannedRow.DocId,
+                                    scannedRow.DocType,
+                                    -1,
+                                    (scannedRow["ScannedDate"] == System.DBNull.Value) ?
+                                      DateTime.Today.AddHours(_timeShift).ToString("dd.MM.yyyy")
+                                      : scannedRow.ScannedDate.AddHours(_timeShift).ToString("dd.MM.yyyy"),
+
+                                    (scannedRow["TerminalId"] == System.DBNull.Value) ?
+                                       string.Empty : scannedRow.TerminalId.ToString(),
+                                    scannedRow.Priority
+                                    );
+                        wr.WriteLine(s);
+                    }
+                    if (OnActionCompleted != null)
+                        OnActionCompleted(docsRow, scannedRow);
+                }
+
+                catch
+                {
+
+                }
+                finally
+                {
+                    DoScanEvents = true;
+
+                }
+                //}
+
+            }
+        }
+            
+    
+
+        
 
         public ProductsDataSet.ProductsTblRow GetProductRow(string barcode)
         {
@@ -1734,7 +1816,8 @@ namespace TSDServer
                         {
                             string[] strAr = s.Split('|');
                             //string openedDocId=string.Empty;
-                            if (strAr.Length > 0)
+                            if (strAr.Length > 0 
+                                && strAr[0].StartsWith("660"))
                             {
                                 if (strAr[2] == ((byte)TSDUtils.ActionCode.CloseInventar).ToString() &&
                                     strAr[6] == "255")
