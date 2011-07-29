@@ -82,6 +82,7 @@ namespace TSDServer
             currentdocRows[0] = inventRow;
             label14.Text="";
             label13.Text = "";
+            this.label13.Text = "Уменьш.КОЛВО";
 
 
         }
@@ -490,11 +491,13 @@ namespace TSDServer
             {
                 DoAction(ActionsClass.Action.GetProductRowByNavCode(navCodeTB.Text));
                 navCodeTB.SelectAll();
+                e.Handled = true;
                 return;
             }
             if (e.KeyCode == Keys.Escape)
             {
                 this.Close();
+                e.Handled = true;
                 return;
             }
             if (e.KeyCode == Keys.Tab)
@@ -548,6 +551,7 @@ namespace TSDServer
                     {
                         ScanClass.Scaner.ResumeScan();
                         this.Refresh();
+                        e.Handled = true;
                     }
                 }
                 return;
@@ -558,6 +562,28 @@ namespace TSDServer
                 {
                     ActionsClass.Action.PrintLabel(currentProductRow, currentDocRow, Program.Default.DefaultRepriceShablon);
                 }
+                if (currentProductRow != null && WorkMode.InventarScan == _mode)
+                {
+
+                    using (DialogForm dlgfrm =
+                            new DialogForm(
+                                string.Format("Уменьшить по коду {0} ",currentProductRow.Article),
+                                string.Format("название {0} ",currentProductRow.ProductName),
+                                "с количества Т до количества T-1 ?"
+                                , "Отмена последнего сканирования"))
+                    {
+                        if (dlgfrm.ShowDialog() == DialogResult.Yes)
+                        {
+                            inventRow.NavCode = currentProductRow.NavCode;
+                            ActionsClass.Action.UndoLastScannedPosition(
+                                currentProductRow,
+                                inventRow
+                                );
+                            
+                        }
+                    }
+                }
+                e.Handled = true;
                 return;
             }
             if (e.KeyValue == 16)//BluBtn
@@ -566,6 +592,7 @@ namespace TSDServer
                 {
                     ActionsClass.Action.PrintLabel(currentProductRow, currentDocRow, Program.Default.BlueButtonShablon);
                 }
+                e.Handled = true;
                 return;
             }
             if (e.KeyValue == 115)//YellowBtn
@@ -620,6 +647,7 @@ namespace TSDServer
                 {
                     ScanClass.Scaner.ResumeScan();
                     this.Refresh();
+                    e.Handled = true;
                 }
 
                         //this.BringToFront();
