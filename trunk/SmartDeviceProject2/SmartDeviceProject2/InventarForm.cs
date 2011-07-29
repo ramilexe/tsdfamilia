@@ -262,12 +262,12 @@ namespace TSDServer
             }
             if (e.KeyValue == (int)SpecialButton.RedBtn)
             {
-
+                e.Handled = true;
                 return;
             }
             if (e.KeyValue == (int)SpecialButton.BlueBtn)
             {
-
+                e.Handled = true;
                 return;
             }
             if (e.KeyValue == (int)SpecialButton.YellowBtn)
