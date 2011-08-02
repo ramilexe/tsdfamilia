@@ -289,10 +289,11 @@ namespace TSDServer
                             return;
                         }
                     }
-                    ActionsClass.Action.BeginScan();
+                    //ActionsClass.Action.BeginScan();
                     
 
                 }
+                ActionsClass.Action.BeginScan();
                 ScanClass.Scaner.InitScan();
 
                 /*
@@ -441,7 +442,7 @@ namespace TSDServer
            
             if (_mode != WorkMode.InventarScan)
             {
-                 ActionsClass.Action.EndScan();
+                 
                 try
                 {
 
@@ -453,11 +454,12 @@ namespace TSDServer
                 ScanClass.Scaner.OnScanned = null;
                 
             }
+            ActionsClass.Action.EndScan();
             ScanClass.Scaner.StopScan();
             
             ActionsClass.Action.OnActionCompleted -=Action_OnActionCompleted;
             BTPrintClass.PrintClass.SetStatusEvent("Close Products form");
-
+            ActionsClass.Action.ClearCache();
         }
 
         /*private ProductsDataSet.ProductsTblRow GetProductRow(string barcode)
@@ -564,24 +566,56 @@ namespace TSDServer
                 }
                 if (currentProductRow != null && WorkMode.InventarScan == _mode)
                 {
+                    ScannedProductsDataSet.ScannedBarcodesRow scannedRow =
+                             ActionsClass.Action.AddScannedRow(
+                             currentProductRow.Barcode,
+                             inventRow.DocType,
+                             inventRow.DocId,
+                             inventRow.Quantity,
+                             inventRow.Priority);
 
-                    using (DialogForm dlgfrm =
-                            new DialogForm(
-                                string.Format("Уменьшить по коду {0} ",currentProductRow.Article),
-                                string.Format("название {0} ",currentProductRow.ProductName),
-                                "с количества Т до количества T-1 ?"
-                                , "Отмена последнего сканирования"))
+                    if (scannedRow != null && //existing row
+                        scannedRow.Priority == 0 //not closed
+                        && scannedRow["FactQuantity"] != System.DBNull.Value
+                        && scannedRow.FactQuantity > 0 //scanned already
+                        && Program.СurrentInvId != string.Empty
+                    )
                     {
-                        if (dlgfrm.ShowDialog() == DialogResult.Yes)
+                        using (DialogForm dlgfrm =
+                                new DialogForm(
+                                    string.Format("Уменьшить по коду {0} ", currentProductRow.NavCode),
+                                    string.Format("название {0} ", currentProductRow.ProductName),
+                                     string.Format("с количества {0} до количества {1} ?",
+                                      scannedRow.FactQuantity,
+                                      scannedRow.FactQuantity - 1),
+                                     "Отмена последнего сканирования"))
                         {
-                            inventRow.NavCode = currentProductRow.NavCode;
-                            ActionsClass.Action.UndoLastScannedPosition(
-                                currentProductRow,
-                                inventRow
-                                );
-                            
+                            if (dlgfrm.ShowDialog() == DialogResult.Yes)
+                            {
+                                inventRow.NavCode = currentProductRow.NavCode;
+                                ActionsClass.Action.UndoLastScannedPosition(
+                                    currentProductRow,
+                                    inventRow,
+                                    scannedRow
+                                    );
+
+                            }
                         }
                     }
+                    else
+                    {
+                        using (DialogForm dlgfrm =
+                                new DialogForm(
+                                    "Дальше уменьшить нельзя!",
+                                    "",
+                                     "",
+                                     "Отмена последнего сканирования"))
+                        {
+                            dlgfrm.ShowDialog();
+                        }
+                    }
+                    
+
                 }
                 e.Handled = true;
                 return;
