@@ -34,7 +34,7 @@ namespace TSDServer
 
             //string invId = ActionsClass.Action.FindOpenInventar();
 
-            ActionsClass.Action.BeginScan();
+            //ActionsClass.Action.BeginScan();
             //ActionsClass.Action.OnActionCompleted += new ActionsClass.ActionCompleted(Action_OnActionCompleted);
             ScanClass.Scaner.InitScan();
             //ScanClass.Scaner.OnScanned += new Scanned(Scanned);
@@ -44,7 +44,7 @@ namespace TSDServer
 
             enableScan = true;
             if (
-                Program.СurrentInvId != string.Empty ||
+                //Program.СurrentInvId != string.Empty ||
                (Program.СurrentInvId = ActionsClass.Action.FindOpenInventar()) != string.Empty
                )
             {
