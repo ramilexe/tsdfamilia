@@ -226,8 +226,8 @@ namespace TSDServer
         public void BeginScan()
         {
            
-            OpenProducts();
-            OpenScanned();
+            //OpenProducts();
+            //OpenScanned();
 
             onRowChanged = new System.Data.DataRowChangeEventHandler(ScannedBarcodes_RowChanged);
             onColChanged = new System.Data.DataColumnChangeEventHandler(ScannedBarcodes_ColumnChanged);
@@ -334,8 +334,8 @@ namespace TSDServer
 
             //BTPrintClass.PrintClass.SetStatusEvent("Begin end scan");
             //tmr.Change(System.Threading.Timeout.Infinite, System.Threading.Timeout.Infinite);
-            CloseProducts();
-            ClosedScanned();
+            //CloseProducts();
+            //ClosedScanned();
             //BTPrintClass.PrintClass.SetStatusEvent("end scan");
         }
         public void PlaySoundAsync(byte soundCode)
@@ -1116,6 +1116,20 @@ namespace TSDServer
             total = 0;
             totalBk = 0;
 
+
+            foreach (ScannedProductsDataSet.ScannedBarcodesRow row in
+                ScannedProducts.ScannedBarcodes)
+            {
+                if (row.DocId == docId &&
+                    row.DocType == (byte)docType)
+                {
+                    total += row.FactQuantity;
+                    totalBk++;
+
+                }
+            }
+            return;
+
             if (!System.IO.File.Exists(System.IO.Path.Combine(
                         Program.Default.DatabaseStoragePath,
                         "scannedbarcodes.txt")))
@@ -1128,8 +1142,8 @@ namespace TSDServer
                         "scannedbarcodes.txt"), true))
             {
                 string s = string.Empty;
-                List<long> scannedList =
-                    new List<long>();
+                List<string> scannedList =
+                    new List<string>();
                 while ((s = wr.ReadLine()) != null)
                 {
                     string[] strAr = s.Split('|');
@@ -1140,10 +1154,10 @@ namespace TSDServer
                         {
                             //if (strAr[4] == date.ToString("dd.MM.yyyy"))
                             //{
-                                total += 1;
-                                if (!scannedList.Contains(long.Parse(strAr[0])))
+                                total += int.Parse(strAr[3]);
+                                if (!scannedList.Contains(strAr[0]))
                                 {
-                                    scannedList.Add(long.Parse(strAr[0]));
+                                    scannedList.Add(strAr[0]);
                                     totalBk += 1;
                                 }
                             //}
@@ -1203,8 +1217,10 @@ namespace TSDServer
                         "scannedbarcodes.txt"), true))
             {
                 string s = string.Empty;
-                List<long> scannedList =
-                    new List<long>();
+                //List<long> scannedList =
+                //    new List<long>();
+                List<string> scannedList =
+                    new List<string>();
                 while ((s = wr.ReadLine()) != null)
                 {
                     string[] strAr = s.Split('|');
@@ -1215,12 +1231,13 @@ namespace TSDServer
                         {
                             //if (strAr[4] == date.ToString("dd.MM.yyyy"))
                             //{
-                                total += 1;
-                                if (!scannedList.Contains(long.Parse(strAr[0])))
-                                {
-                                    scannedList.Add(long.Parse(strAr[0]));
-                                    totalBk += 1;
-                                }
+                                //total += 1;
+                            total += int.Parse(strAr[3]);
+                            if (!scannedList.Contains(strAr[0]))
+                            {
+                                scannedList.Add(strAr[0]);
+                                totalBk += 1;
+                            }
                             //}
                         }
 
@@ -1277,8 +1294,8 @@ namespace TSDServer
                         "scannedbarcodes.txt"), true))
             {
                 string s = string.Empty;
-                List<long> scannedList =
-                    new List<long>();
+                List<string> scannedList =
+                    new List<string>();
                 while ((s = wr.ReadLine()) != null)
                 {
                     string[] strAr = s.Split('|');
@@ -1289,9 +1306,9 @@ namespace TSDServer
                             //if (strAr[4] == date.ToString("dd.MM.yyyy"))
                             //{
                             total += 1;
-                            if (!scannedList.Contains(long.Parse(strAr[0])))
+                            if (!scannedList.Contains(strAr[0]))
                             {
-                                scannedList.Add(long.Parse(strAr[0]));
+                                scannedList.Add(strAr[0]);
                                 totalBk += 1;
                             }
                             //}
