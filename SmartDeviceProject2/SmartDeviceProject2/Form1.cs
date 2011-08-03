@@ -224,29 +224,44 @@ namespace TSDServer
                     case (int)MenuItems.ViewProductMenu:
                         {
                             BTPrintClass.PrintClass.CheckForClear();
+                            ActionsClass.Action.OpenProducts();
+                            ActionsClass.Action.OpenScanned();
                             using (ViewProductForm frm = new ViewProductForm())
                             {
                                 frm.ShowDialog();
                             }
+                            ActionsClass.Action.CloseProducts();
+                            ActionsClass.Action.ClosedScanned();
+                            ActionsClass.Action.ClearCache();
                             break;
                         }
                     case (int)MenuItems.InventarMenu:
                         {
                             BTPrintClass.PrintClass.CheckForClear();
+                            ActionsClass.Action.OpenProducts();
+                            ActionsClass.Action.OpenScanned();
                             using (InventarForm frm = new InventarForm())
                             {
                                 frm.ShowDialog();
                             }
+                            ActionsClass.Action.CloseProducts();
+                            ActionsClass.Action.ClosedScanned();
+                            ActionsClass.Action.ClearCache();
                             break;
                         }
                     case (int)MenuItems.IncomeMenu:
                         {
                             BTPrintClass.PrintClass.CheckForClear();
+                            ActionsClass.Action.OpenProducts();
+                            ActionsClass.Action.OpenScanned();
                             using (
                                 IncomeForm frm = new IncomeForm())
                             {
                                 frm.ShowDialog();
                             }
+                            ActionsClass.Action.CloseProducts();
+                            ActionsClass.Action.ClosedScanned();
+                            ActionsClass.Action.ClearCache();
                             //BTPrintClass.PrintClass.SetStatusEvent("Form Closed");
                             break;
                         }
