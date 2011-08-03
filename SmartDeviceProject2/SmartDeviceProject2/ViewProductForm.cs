@@ -97,7 +97,7 @@ namespace TSDServer
         private void closeFrmBtn_Click(object sender, EventArgs e)
         {
             this.DialogResult = DialogResult.OK;
-            ActionsClass.Action.ClearCache();
+            //ActionsClass.Action.ClearCache();
             this.Close();
         }
         void Scanned(string barcode)
@@ -459,7 +459,7 @@ namespace TSDServer
             
             ActionsClass.Action.OnActionCompleted -=Action_OnActionCompleted;
             BTPrintClass.PrintClass.SetStatusEvent("Close Products form");
-            ActionsClass.Action.ClearCache();
+            //ActionsClass.Action.ClearCache();
         }
 
         /*private ProductsDataSet.ProductsTblRow GetProductRow(string barcode)
@@ -521,8 +521,8 @@ namespace TSDServer
                         using (DialogForm dlgfrm =
                             new DialogForm(
                                 "Вы хотите закрыть просчет?"
-                                , string.Format("Посчитано: {0} кодов", totalBk)
-                                , string.Format("Посчитано: {0} всего штук",total)
+                                , ""//string.Format("Посчитано: {0} кодов", totalBk)
+                                , string.Format("Итого: {0} штук",total)
                                 , "Закрытие просчета"))
                         {
                             if (dlgfrm.ShowDialog() == DialogResult.Yes)
