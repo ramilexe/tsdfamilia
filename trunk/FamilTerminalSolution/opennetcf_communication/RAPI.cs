@@ -553,7 +553,7 @@ namespace OpenNETCF.Desktop.Communication
                 SetDeviceFileTime(RemoteFileName, RAPIFileTime.CreateTime, File.GetCreationTime(LocalFileName));
                 SetDeviceFileTime(RemoteFileName, RAPIFileTime.LastAccessTime, DateTime.Now);
                 SetDeviceFileTime(RemoteFileName, RAPIFileTime.LastModifiedTime, File.GetLastWriteTime(LocalFileName));
-                
+                /*
                 remoteFile = CeCreateFile(RemoteFileName, 
                     GENERIC_READ, 1, 0,
                     OPEN_EXISTING, (uint)(FILE_ATTRIBUTE_NORMAL | FILE_ATTRIBUTE_ARCHIVE), 
@@ -573,6 +573,7 @@ namespace OpenNETCF.Desktop.Communication
                 
                 if (RAPIFileCoping != null)
                     RAPIFileCoping(LocalFileName, totalFileSize, remoteFileSize, null);
+                */
             }
             catch (Exception err)
             {
