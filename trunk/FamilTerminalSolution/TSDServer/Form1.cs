@@ -13,18 +13,33 @@ namespace TSDServer
     public partial class Form1 : Form
     {
         //private delegate void AddDataString(string sourceString);
+        private List<string> copiedFileList =
+            new List<string>();
 
         public System.Threading.Mutex mutex;
+        //List<System.Threading.ManualResetEvent> mEvt =
+        //    new List<System.Threading.ManualResetEvent>();
+        
 
+        int fileCounter = 0;
+        int finishCount = 0;
         DataLoaderClass loader = new DataLoaderClass();
 
         OpenNETCF.Desktop.Communication.RAPI terminalRapi =
             new OpenNETCF.Desktop.Communication.RAPI();
 
+        OpenNETCF.Desktop.Communication.RAPICopingHandler onCopyDelegate = null;
+           
+
+
         string[] status =
             new string[] { "Подключен", "Не подключен" };
        
         FileCopyProgressForm frm = new FileCopyProgressForm();
+        Dictionary<string, FileCopyProgressForm> progressForms =
+            new Dictionary<string, FileCopyProgressForm>();
+
+
         
 
         public Form1()
@@ -314,9 +329,13 @@ namespace TSDServer
                 richTextBox1.AppendText(err.Message+"\n");
                 return;
             }
+            //mEvt.Reset();
 
-           
-            
+            //mEvt.Clear();
+            finishCount = 0;
+            fileCounter = 0;
+
+            copiedFileList.Clear();
             try
             {
                 copyStatesb.Length = 0;
@@ -328,12 +347,13 @@ namespace TSDServer
                     this.uploadBtn.Enabled = false;
                     this.settingsBtn.Enabled = false;
                     richTextBox1.Text = "";
-                    
-                   
+
+
                     
 
                     foreach (string fileName in loader.ProductsFileList)
                     {
+                        copiedFileList.Add(fileName);
                         if (terminalRapi.DeviceFileExists(Path.Combine(Properties.Settings.Default.TSDDBPAth ,System.IO.Path.GetFileName(fileName))))
                         {
                             terminalRapi.DeleteDeviceFile(Path.Combine(Properties.Settings.Default.TSDDBPAth ,System.IO.Path.GetFileName(fileName)));
@@ -341,6 +361,7 @@ namespace TSDServer
                     }
                     foreach (string fileName in loader.DocsFileList)
                     {
+                        copiedFileList.Add(fileName);
                         if (terminalRapi.DeviceFileExists(Path.Combine(Properties.Settings.Default.TSDDBPAth, System.IO.Path.GetFileName(fileName))))
                         {
                             terminalRapi.DeleteDeviceFile(Path.Combine(
@@ -348,36 +369,57 @@ namespace TSDServer
                                 System.IO.Path.GetFileName(fileName)));
                         }
                     }
-                    OpenNETCF.Desktop.Communication.RAPICopingHandler onCopyDelegate = 
-                        new OpenNETCF.Desktop.Communication.RAPICopingHandler(terminalRapi_RAPIFileCoping);
+
                     terminalRapi.RAPIFileCoping += onCopyDelegate;
-                    foreach (string fileName in loader.ProductsFileList)
+                    string[] filelist = copiedFileList.ToArray();
+                    
+                    foreach (string fileName in filelist)//loader.ProductsFileList)
                     {
                         if (System.IO.File.Exists(fileName))
                         {
+                            //fileCounter++;
+                           //mEvt.Add(new System.Threading.ManualResetEvent(false));
+                            //while (
+                            //    OpenNETCF.Desktop.Communication.RAPI.mEvt.WaitOne(500) == false)
+                            //{
+
+                            //    Application.DoEvents();
+                            //}
+                            System.Threading.Thread.Sleep(500);
+
+                            progressForms.Add(fileName,
+                                new FileCopyProgressForm());
                             IAsyncResult ar =
                                 terminalRapi.BeginCopyFileToDevice(fileName,
                                     Path.Combine(Properties.Settings.Default.TSDDBPAth ,System.IO.Path.GetFileName(fileName)), true,
-                                    new AsyncCallback(OnEndCopyFile), null);
+                                    new AsyncCallback(OnEndCopyFile), fileName);
 
-
-                            if (frm.ShowDialog() == DialogResult.Abort)
-                            {
-                                richTextBox1.AppendText("Отмена копирования...\n");
-                                richTextBox1.AppendText("Дождитесь завершения... \n");
-                                terminalRapi.RAPIFileCoping -= onCopyDelegate;
-                                terminalRapi.CancelCopyFileToDevice();
-                            }
+                            progressForms[fileName].ShowDialog();
+                            //if (frm.ShowDialog() == DialogResult.Abort)
+                            //{
+                            //    richTextBox1.AppendText("Отмена копирования...\n");
+                            //    richTextBox1.AppendText("Дождитесь завершения... \n");
+                            //    //terminalRapi.RAPIFileCoping -= onCopyDelegate;
+                            //    terminalRapi.CancelCopyFileToDevice();
+                            //}
                         }
+                        else
+                           copiedFileList.Remove(fileName);
                     }
-                    foreach (string fileName in loader.DocsFileList)
+                    /*foreach (string fileName in loader.DocsFileList)
                     {
                         if (System.IO.File.Exists(fileName))
                         {
+                            //fileCounter++;
+                            //mEvt.Add(new System.Threading.ManualResetEvent(false));
+                            System.Threading.Thread.Sleep(500);
+                            //terminalRapi.RAPIFileCoping += onCopyDelegate;
+                            //OpenNETCF.Desktop.Communication.RAPI.mEvt.WaitOne();
+                            //copiedFileList.Add(fileName);
                             IAsyncResult ar =
                                 terminalRapi.BeginCopyFileToDevice(fileName,
                                    Path.Combine(Properties.Settings.Default.TSDDBPAth , System.IO.Path.GetFileName(fileName)), true,
-                                    new AsyncCallback(OnEndCopyFile), null);
+                                    new AsyncCallback(OnEndCopyFile), fileName);
 
 
                             if (frm.ShowDialog() == DialogResult.Abort)
@@ -388,8 +430,10 @@ namespace TSDServer
                                 terminalRapi.CancelCopyFileToDevice();
                             }
                         }
-                    }
-
+                        else
+                            copiedFileList.Remove(fileName);
+                    }*/
+                    /*
                     string programFileName = Properties.Settings.Default.ProgramFileName;
                    
 
@@ -420,8 +464,20 @@ namespace TSDServer
                             terminalRapi.RAPIFileCoping -= onCopyDelegate;
                             terminalRapi.CancelCopyFileToDevice();
                         }
+                    }*/
+                    //mEvt.WaitOne();
+
+                    //foreach (System.Threading.ManualResetEvent m in mEvt)
+                    //{
+                    //    m.WaitOne();
+                    //}
+                    while (copiedFileList.Count > 0)
+                    {
+                        System.Threading.Thread.Sleep(100);
+                        Application.DoEvents();
                     }
 
+                    System.Threading.Thread.Sleep(1000);
                     if (copyStatesb.Length ==0)
                         MessageBox.Show("Копирование завершено успешно", 
                             "Статус загрузки на терминал", 
@@ -437,6 +493,9 @@ namespace TSDServer
                     this.uploadBtn.Enabled = true;
                     this.settingsBtn.Enabled = true & Properties.Settings.Default.SettingsEnabled;
                     richTextBox1.AppendText("Копирование завершено...\n");
+                    terminalRapi.RAPIFileCoping -= onCopyDelegate;
+
+                    progressForms.Clear();
                 }
                 else
                 {
@@ -462,10 +521,19 @@ namespace TSDServer
             }
             else
             {
+                progressForms[name].FormCaption = string.Format("Копирование {0}", System.IO.Path.GetFileName(name));
                 if (e == null)
                 {
-                    frm.SetProgress(totalSize, completed);
-                    frm.FormCaption = string.Format("Копирование {0}",System.IO.Path.GetFileName( name));
+                    progressForms[name].SetProgress(totalSize, completed);
+                    
+
+                    //if (totalSize == completed)
+                    //{
+                    //    copiedFileList.Remove(name);
+                    //    if (copiedFileList.Count == 0)
+                    //        mEvt.Set();
+                        
+                    //}
                 }
                 else
                 {
@@ -485,8 +553,17 @@ namespace TSDServer
             }
             else
             {
-                frm.Hide();
+                lock (this)
+                {
+                    copiedFileList.Remove(res.AsyncState.ToString());
+                    //terminalRapi.RAPIFileCoping -= onCopyDelegate;
+                //    mEvt[finishCount++].Set();
+                }
+                progressForms[res.AsyncState.ToString()].Close();
+                progressForms[res.AsyncState.ToString()].Dispose();
+                //frm.Hide();
                 
+                //copiedFileList.Add(fileName, false);
 
             }
         }
@@ -509,7 +586,7 @@ namespace TSDServer
             terminalRapi.ActiveSync.Disconnect += new OpenNETCF.Desktop.Communication.DisconnectHandler(ActiveSync_Disconnect);
             terminalRapi.ActiveSync.Inactive += new OpenNETCF.Desktop.Communication.InactiveHandler(ActiveSync_Inactive);
             terminalRapi.RAPIConnected += new OpenNETCF.Desktop.Communication.RAPIConnectedHandler(terminalRapi_RAPIConnected);
-
+            onCopyDelegate = new OpenNETCF.Desktop.Communication.RAPICopingHandler(terminalRapi_RAPIFileCoping);
 
             this.importDocBtn.Enabled = Properties.Settings.Default.ImportDocsEnabled;
             this.importGoodBtn.Enabled = Properties.Settings.Default.ImportProductsEnabled;
@@ -768,7 +845,7 @@ namespace TSDServer
                 //OpenNETCF.Desktop.Communication.FileList fl = terminalRapi.EnumFiles(Properties.Settings.Default.TSDDBPAth + "ScannedBarcodes.db");
                
                 terminalRapi.Connect(true, 5000);
-
+                /*
                 foreach (string s in loader.OldScannedFileList)
                 {
                     try
@@ -792,7 +869,7 @@ namespace TSDServer
                         success_upload = false;
                         //loadState = "Ошибка";
                     }
-                }
+                }*/
                 if (copyStatesb.Length > 0)
                 {//have error
                     copyStatesb.Length = 0;

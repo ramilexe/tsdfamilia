@@ -58,6 +58,7 @@ namespace OpenNETCF.Desktop.Communication
 
         public event RAPICopingHandler RAPIFileCoping;
 
+        //private System.Collections.Generic.Queue<
 		private Thread m_initThread;
 		private IntPtr m_hInitEvent = IntPtr.Zero;
 		private int m_InitResult = 0;
@@ -73,7 +74,8 @@ namespace OpenNETCF.Desktop.Communication
 		internal const int ERROR_NO_MORE_FILES = 18;
 		private const short INVALID_HANDLE_VALUE = -1;
 		private const short FILE_ATTRIBUTE_NORMAL = 0x80;
-        private const short FILE_ATTRIBUTE_ARCHIVE = 0x20;
+        private const uint FILE_ATTRIBUTE_ARCHIVE = 0x20;
+        private const uint FILE_FLAG_WRITE_THROUGH = 0x80000000;
 		/// <summary>
 		/// RAPI object constructor
 		/// </summary>
@@ -412,7 +414,7 @@ namespace OpenNETCF.Desktop.Communication
 			byte[] buffer = new byte[0x1000]; // 4k transfer buffer
 
 			// open the remote (device) file
-            remoteFile = CeCreateFile(RemoteFileName, GENERIC_READ, 1, 0, OPEN_EXISTING, /*FILE_ATTRIBUTE_NORMAL | */FILE_ATTRIBUTE_ARCHIVE, 0);
+            remoteFile = CeCreateFile(RemoteFileName, GENERIC_READ, 1, 0, OPEN_EXISTING, /*FILE_ATTRIBUTE_NORMAL | */(uint)FILE_ATTRIBUTE_ARCHIVE, 0);
             /*int result = CeGetLastError();
             result = CeRapiGetError();
             result = System.Runtime.InteropServices.Marshal.GetLastWin32Error();*/
@@ -468,10 +470,13 @@ namespace OpenNETCF.Desktop.Communication
 		/// <param name="Overwrite">Overwrites existing file on the device if <b>true</b>, fails if <b>false</b></param>
 		public void CopyFileToDevice(string LocalFileName, string RemoteFileName, bool Overwrite)
 		{
-            if (mEvt.WaitOne(10 * 60 * 1000, true) == false)
-                return;
+            lock (this)
+            {
+                if (mEvt.WaitOne(10 * 60 * 1000, true) == false)
+                    return;
 
-            mEvt.Reset();
+                mEvt.Reset();
+            }
 
             long totalFileSize = 0;
             FileStream localFile;
@@ -481,7 +486,7 @@ namespace OpenNETCF.Desktop.Communication
             int filepos = 0;
             int create = Overwrite ? CREATE_ALWAYS : CREATE_NEW;
             byte[] buffer = new byte[0x1000]; // 4k transfer buffer
-
+            
 
 
             try
@@ -497,7 +502,7 @@ namespace OpenNETCF.Desktop.Communication
                 catch { };
 
                 // create the remote file
-                remoteFile = CeCreateFile(RemoteFileName, GENERIC_WRITE, 0, 0, create, FILE_ATTRIBUTE_NORMAL, 0);
+                remoteFile = CeCreateFile(RemoteFileName, GENERIC_WRITE, 0, 0, create, (uint)FILE_ATTRIBUTE_NORMAL | FILE_FLAG_WRITE_THROUGH, 0);
 
                 // check for success
                 if ((int)remoteFile == INVALID_HANDLE_VALUE)
@@ -536,18 +541,38 @@ namespace OpenNETCF.Desktop.Communication
                         bytesread = 0;
                     }
                 }
-
+                localFile.Flush();
+                
                 // close the local file
                 localFile.Close();
-
+                
                 // close the remote file
                 CeCloseHandle(remoteFile);
-
+                //System.Threading.Thread.Sleep(1000);
                 // sync the date/times
                 SetDeviceFileTime(RemoteFileName, RAPIFileTime.CreateTime, File.GetCreationTime(LocalFileName));
                 SetDeviceFileTime(RemoteFileName, RAPIFileTime.LastAccessTime, DateTime.Now);
                 SetDeviceFileTime(RemoteFileName, RAPIFileTime.LastModifiedTime, File.GetLastWriteTime(LocalFileName));
                 
+                remoteFile = CeCreateFile(RemoteFileName, 
+                    GENERIC_READ, 1, 0,
+                    OPEN_EXISTING, (uint)(FILE_ATTRIBUTE_NORMAL | FILE_ATTRIBUTE_ARCHIVE), 
+                    0); 
+                uint lpFileSizeHigh = 0;
+                uint remoteFileSize = CeGetFileSize(remoteFile, ref lpFileSizeHigh);
+                int counter = 0;
+                while (remoteFileSize < totalFileSize)
+                {
+                    System.Threading.Thread.Sleep(1000);
+                    remoteFileSize = CeGetFileSize(remoteFile, ref lpFileSizeHigh);
+                    counter++;
+                    if (counter > 180)
+                        throw new ApplicationException("Превышено время ожидания");
+                }
+                CeCloseHandle(remoteFile);
+                
+                if (RAPIFileCoping != null)
+                    RAPIFileCoping(LocalFileName, totalFileSize, remoteFileSize, null);
             }
             catch (Exception err)
             {
@@ -556,12 +581,13 @@ namespace OpenNETCF.Desktop.Communication
             }
             finally
             {
+                //System.Threading.Thread.Sleep(1000);
                 Cancelled = false;
                 mEvt.Set();
             }
 		}
 
-        private static System.Threading.ManualResetEvent mEvt =
+        public static System.Threading.ManualResetEvent mEvt =
             new ManualResetEvent(false);
 
         /// <summary>
@@ -578,11 +604,12 @@ namespace OpenNETCF.Desktop.Communication
             AsyncCallback requestCallback,
             Object state)
         {
-            
+            //System.Threading.Thread.Sleep(1000);
             Cancelled = false;
             CopyFileToDeviceDelegate del = new CopyFileToDeviceDelegate(CopyFileToDevice);
 
             IAsyncResult res = del.BeginInvoke(LocalFileName, RemoteFileName, Overwrite, requestCallback, state);
+            
             return res;
            //System.Threading.ThreadPool.QueueUserWorkItem(
         }
@@ -1279,7 +1306,7 @@ namespace OpenNETCF.Desktop.Communication
 			int dwShareMode,
 			int lpSecurityAttributes,
 			int dwCreationDisposition,
-			int dwFlagsAndAttributes,
+			uint dwFlagsAndAttributes,
 			int hTemplateFile);
 
         //[DllImport("coredll.dll", CharSet = CharSet.Unicode)]
