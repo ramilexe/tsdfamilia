@@ -21,8 +21,8 @@ namespace TSDServer
         //    new List<System.Threading.ManualResetEvent>();
         
 
-        int fileCounter = 0;
-        int finishCount = 0;
+        //int fileCounter = 0;
+        //int finishCount = 0;
         DataLoaderClass loader = new DataLoaderClass();
 
         OpenNETCF.Desktop.Communication.RAPI terminalRapi =
@@ -332,8 +332,8 @@ namespace TSDServer
             //mEvt.Reset();
 
             //mEvt.Clear();
-            finishCount = 0;
-            fileCounter = 0;
+            //finishCount = 0;
+            //fileCounter = 0;
 
             copiedFileList.Clear();
             try

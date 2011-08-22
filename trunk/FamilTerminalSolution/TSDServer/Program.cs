@@ -5,6 +5,7 @@ using System.Runtime.Remoting.Channels.Ipc;
 using System.Security.Permissions;
 using log4net;
 using log4net.Config;
+using Microsoft.Win32;
 
 namespace TSDServer
 {
@@ -16,7 +17,8 @@ namespace TSDServer
             SomeException =1,
             TimeOut = 2,
             ServerAlreadeyStarted=3,
-            IncorrectParametrs =4
+            IncorrectParametrs =4,
+            NotInstalledActiveSync=5
         }
 #region old
         /*
@@ -149,6 +151,24 @@ namespace TSDServer
         [STAThread]
         static int Main(string[] args)
         {
+
+            using (RegistryKey reg =
+                Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows CE Services"))
+            {
+                if (reg == null)
+                {
+                    MessageBox.Show("Не установлен Active Sync или Windows Mobile Device Center (для Vista/Windows 7)",
+                        "Ошибка!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+                    return (int)ERRORLEVELS.NotInstalledActiveSync;
+                }
+                //int majorVersion = (int)reg.GetValue("MajorVersion", 0);
+                //int minorVersion = (int)reg.GetValue("MinorVersion", 0);
+                //int buildNumber = (int)reg.GetValue("BuildNumber", 0);
+                //syncVersion = new Version(majorVersion, minorVersion, buildNumber);
+            }
+            
+
             sendmail = new SendMailAttach.SendMailClass(Properties.Settings.Default.AddressFrom,
                 Properties.Settings.Default.UserNameFrom,
                 false,
