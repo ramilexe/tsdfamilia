@@ -91,6 +91,12 @@
     <Compile Include="AcceptClearDataForm.Designer.cs">
       <DependentUpon>AcceptClearDataForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="TtnForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="TtnForm.Designer.cs">
+      <DependentUpon>TtnForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="ProductsDataSet2.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -145,6 +151,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="AcceptClearDataForm.resx">
       <DependentUpon>AcceptClearDataForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="TtnForm.resx">
+      <DependentUpon>TtnForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="ViewInventarForm.resx">
       <DependentUpon>ViewInventarForm.cs</DependentUpon>
