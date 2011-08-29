@@ -302,8 +302,152 @@ namespace TSDServer
         //    row.Shablon = (int)sum;*/
         //}
         #endregion
+
+        private void LoadToDevice(string[] fileList)
+        {
+            copiedFileList.Clear();
+            try
+            {
+                copyStatesb.Length = 0;
+
+                terminalRapi.Connect(true, 5000);
+                if (terminalRapi.Connected)
+                {
+                    this.importGoodBtn.Enabled = false;
+                    this.uploadBtn.Enabled = false;
+                    this.settingsBtn.Enabled = false;
+                    richTextBox1.Text = "";
+
+
+                    foreach (string fileName in fileList)
+                    {
+                        //copiedFileList.Add(fileName);
+                        if (terminalRapi.DeviceFileExists(Path.Combine(Properties.Settings.Default.TSDDBPAth, System.IO.Path.GetFileName(fileName))))
+                        {
+                            terminalRapi.DeleteDeviceFile(Path.Combine(Properties.Settings.Default.TSDDBPAth, System.IO.Path.GetFileName(fileName)));
+                        }
+                    }
+
+                    terminalRapi.RAPIFileCoping += onCopyDelegate;
+
+
+                    foreach (string fileName in fileList)
+                    {
+                        if (System.IO.File.Exists(fileName))
+                        {
+                            System.Threading.Thread.Sleep(500);
+
+                            progressForms.Add(fileName,
+                                new FileCopyProgressForm());
+                            IAsyncResult ar =
+                                terminalRapi.BeginCopyFileToDevice(fileName,
+                                    Path.Combine(Properties.Settings.Default.TSDDBPAth, System.IO.Path.GetFileName(fileName)), true,
+                                    new AsyncCallback(OnEndCopyFile), fileName);
+
+                            progressForms[fileName].ShowDialog();
+                        }
+                        else
+                            copiedFileList.Remove(fileName);
+                    }
+                    while (copiedFileList.Count > 0)
+                    {
+                        System.Threading.Thread.Sleep(100);
+                        Application.DoEvents();
+                    }
+
+                    System.Threading.Thread.Sleep(1000);
+                    if (copyStatesb.Length == 0)
+                        MessageBox.Show("Копирование завершено успешно",
+                            "Статус загрузки на терминал",
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Information);
+                    else
+                        MessageBox.Show(string.Format("Копирование завершено с ошибкой: {0}", copyStatesb.ToString())
+                            , "Статус загрузки на терминал",
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Exclamation);
+
+                    this.importGoodBtn.Enabled = true & Properties.Settings.Default.ImportProductsEnabled;
+                    this.uploadBtn.Enabled = true;
+                    this.settingsBtn.Enabled = true & Properties.Settings.Default.SettingsEnabled;
+                    richTextBox1.AppendText("Копирование завершено...\n");
+                    terminalRapi.RAPIFileCoping -= onCopyDelegate;
+
+                    progressForms.Clear();
+                }
+                else
+                {
+                    MessageBox.Show("Терминал не подключен. Проверьте подключение.", "Статус загрузки на терминал", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+            catch (Exception err)
+            {
+                MessageBox.Show("Ошибка загрузки на терминал: " + err.Message, "Статус загрузки на терминал", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            copyStatesb.Length = 0;
+        }
+
+        private void LoadAll()
+        {
+            copiedFileList.Clear();
+            try
+            {
+                DateTime dt = loader.GetDBDate();
+                if (DateTime.Now.Subtract(dt) >= new TimeSpan(1, 0, 0, 0))
+                {
+                    DialogResult dr = MessageBox.Show(
+                        string.Format("Внимание, справочник который вы хотите загрузить на ТСД имеет дату {0}! \nВы уверены, что хотите загрузить старые данные?"
+                            , dt.ToString("dd.MM.yyyy"))
+                        , "Старые данные в справочнике!"
+                        , MessageBoxButtons.YesNo
+                        , MessageBoxIcon.Warning);
+
+                    if (dr != DialogResult.Yes)
+                    {
+                        richTextBox1.AppendText("Копирование отменено...\n");
+                        return;
+                    }
+                }
+
+            }
+            catch (Exception err)
+            {
+                richTextBox1.AppendText(err.Message + "\n");
+                return;
+            }
+
+            foreach (string fileName in loader.ProductsFileList)
+            {
+                copiedFileList.Add(fileName);
+            }
+            foreach (string fileName in loader.DocsFileList)
+            {
+                copiedFileList.Add(fileName);
+            }
+
+            LoadToDevice(copiedFileList.ToArray());
+
+        }
+        private void LoadDocs()
+        {
+            copiedFileList.Clear();
+
+            foreach (string fileName in loader.DocsFileList)
+            {
+                copiedFileList.Add(fileName);
+            }
+
+            LoadToDevice(copiedFileList.ToArray());
+        }
+
+
         private void button2_Click(object sender, EventArgs e)
         {
+
+            LoadAll();
+
+            #region oldVar
+            /*
             try
             {
                 DateTime dt = loader.GetDBDate();
@@ -329,11 +473,6 @@ namespace TSDServer
                 richTextBox1.AppendText(err.Message+"\n");
                 return;
             }
-            //mEvt.Reset();
-
-            //mEvt.Clear();
-            //finishCount = 0;
-            //fileCounter = 0;
 
             copiedFileList.Clear();
             try
@@ -377,14 +516,7 @@ namespace TSDServer
                     {
                         if (System.IO.File.Exists(fileName))
                         {
-                            //fileCounter++;
-                           //mEvt.Add(new System.Threading.ManualResetEvent(false));
-                            //while (
-                            //    OpenNETCF.Desktop.Communication.RAPI.mEvt.WaitOne(500) == false)
-                            //{
 
-                            //    Application.DoEvents();
-                            //}
                             System.Threading.Thread.Sleep(500);
 
                             progressForms.Add(fileName,
@@ -395,82 +527,11 @@ namespace TSDServer
                                     new AsyncCallback(OnEndCopyFile), fileName);
 
                             progressForms[fileName].ShowDialog();
-                            //if (frm.ShowDialog() == DialogResult.Abort)
-                            //{
-                            //    richTextBox1.AppendText("Отмена копирования...\n");
-                            //    richTextBox1.AppendText("Дождитесь завершения... \n");
-                            //    //terminalRapi.RAPIFileCoping -= onCopyDelegate;
-                            //    terminalRapi.CancelCopyFileToDevice();
-                            //}
+
                         }
                         else
                            copiedFileList.Remove(fileName);
                     }
-                    /*foreach (string fileName in loader.DocsFileList)
-                    {
-                        if (System.IO.File.Exists(fileName))
-                        {
-                            //fileCounter++;
-                            //mEvt.Add(new System.Threading.ManualResetEvent(false));
-                            System.Threading.Thread.Sleep(500);
-                            //terminalRapi.RAPIFileCoping += onCopyDelegate;
-                            //OpenNETCF.Desktop.Communication.RAPI.mEvt.WaitOne();
-                            //copiedFileList.Add(fileName);
-                            IAsyncResult ar =
-                                terminalRapi.BeginCopyFileToDevice(fileName,
-                                   Path.Combine(Properties.Settings.Default.TSDDBPAth , System.IO.Path.GetFileName(fileName)), true,
-                                    new AsyncCallback(OnEndCopyFile), fileName);
-
-
-                            if (frm.ShowDialog() == DialogResult.Abort)
-                            {
-                                richTextBox1.AppendText("Отмена копирования...\n");
-                                richTextBox1.AppendText("Дождитесь завершения... \n");
-                                terminalRapi.RAPIFileCoping -= onCopyDelegate;
-                                terminalRapi.CancelCopyFileToDevice();
-                            }
-                        }
-                        else
-                            copiedFileList.Remove(fileName);
-                    }*/
-                    /*
-                    string programFileName = Properties.Settings.Default.ProgramFileName;
-                   
-
-                    if (System.IO.File.Exists(programFileName))
-                    {
-                       if (terminalRapi.DeviceFileExists(
-                       Path.Combine(
-                       Properties.Settings.Default.TSDProgramPath,
-                       System.IO.Path.GetFileName(programFileName))))
-                        {
-                            terminalRapi.DeleteDeviceFile(
-                                Path.Combine(
-                                Properties.Settings.Default.TSDProgramPath,
-                                System.IO.Path.GetFileName(programFileName)));
-                        }
-
-                        IAsyncResult ar =
-                            terminalRapi.BeginCopyFileToDevice(programFileName,
-                                Path.Combine(Properties.Settings.Default.TSDProgramPath,
-                                System.IO.Path.GetFileName(programFileName)), true,
-                                new AsyncCallback(OnEndCopyFile), null);
-
-
-                        if (frm.ShowDialog() == DialogResult.Abort)
-                        {
-                            richTextBox1.AppendText("Отмена копирования...\n");
-                            richTextBox1.AppendText("Дождитесь завершения... \n");
-                            terminalRapi.RAPIFileCoping -= onCopyDelegate;
-                            terminalRapi.CancelCopyFileToDevice();
-                        }
-                    }*/
-                    //mEvt.WaitOne();
-
-                    //foreach (System.Threading.ManualResetEvent m in mEvt)
-                    //{
-                    //    m.WaitOne();
-                    //}
                     while (copiedFileList.Count > 0)
                     {
                         System.Threading.Thread.Sleep(100);
@@ -507,6 +568,9 @@ namespace TSDServer
                 MessageBox.Show("Ошибка загрузки на терминал: "+err.Message, "Статус загрузки на терминал", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             copyStatesb.Length = 0;
+
+            */
+#endregion
         }
 
         void terminalRapi_RAPIFileCoping(string name, long totalSize, long completed, Exception e)
@@ -878,10 +942,27 @@ namespace TSDServer
                     {
                         try
                         {
+                            if (!terminalRapi.DevicePresent)
+                            {
+                                copyStatesb.AppendFormat("Терминал не подключен.\n");
+                                copyStatesb.AppendFormat("Файл {0} не скопирован.\n", s);
+                                continue;
+                            }
+
+                            if (!terminalRapi.DeviceFileExists(
+                                Properties.Settings.Default.TSDDBPAth +
+                                Path.GetFileName(s)))
+                            {
+                                copyStatesb.AppendFormat("Файл {0} не скопирован - нет данных на терминале.\n", s);
+                                continue;
+                            }
+
                             if (System.IO.File.Exists(s))
                                 System.IO.File.Delete(s);
 
                             string ext = Path.GetExtension(s).ToUpper();
+                            
+
                             terminalRapi.CopyFileFromDevice(s,
                                 Properties.Settings.Default.TSDDBPAth +
                                 //"\\Program Files\\tsdfamilia\\" + 
@@ -984,6 +1065,11 @@ namespace TSDServer
                // richTextBox1.AppendText("Ошибка стирания сканированных результатов на терминале\n");
             }
                 
+        }
+
+        private void button1_Click_1(object sender, EventArgs e)
+        {
+            LoadDocs();
         }
     }
 }

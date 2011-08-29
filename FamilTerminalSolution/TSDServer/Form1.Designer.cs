@@ -44,7 +44,6 @@
             this.выходToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.notifyIcon1 = new System.Windows.Forms.NotifyIcon(this.components);
             this.richTextBox1 = new System.Windows.Forms.RichTextBox();
-            //this.productsDataSet1 = new TSDServer.ProductsDataSet();
             this.stopGoodBtn = new System.Windows.Forms.Button();
             this.importDocBtn = new System.Windows.Forms.Button();
             this.stopDocsBtn = new System.Windows.Forms.Button();
@@ -52,9 +51,9 @@
             this.uploadBtn = new System.Windows.Forms.Button();
             this.downloadBtn = new System.Windows.Forms.Button();
             this.splitter1 = new System.Windows.Forms.Splitter();
+            this.button1 = new System.Windows.Forms.Button();
             this.statusStrip1.SuspendLayout();
             this.contextMenuStrip1.SuspendLayout();
-           // ((System.ComponentModel.ISupportInitialize)(this.productsDataSet1)).BeginInit();
             this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -70,7 +69,7 @@
             // 
             // settingsBtn
             // 
-            this.settingsBtn.Location = new System.Drawing.Point(12, 128);
+            this.settingsBtn.Location = new System.Drawing.Point(12, 157);
             this.settingsBtn.Name = "settingsBtn";
             this.settingsBtn.Size = new System.Drawing.Size(174, 23);
             this.settingsBtn.TabIndex = 2;
@@ -93,7 +92,7 @@
             // 
             this.toolStripStatusLabel1.Image = global::TSDServer.Properties.Resources.CriticalError;
             this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
-            this.toolStripStatusLabel1.Size = new System.Drawing.Size(97, 17);
+            this.toolStripStatusLabel1.Size = new System.Drawing.Size(104, 17);
             this.toolStripStatusLabel1.Text = "Не подключен";
             // 
             // toolStripStatusLabel2
@@ -117,24 +116,24 @@
             this.toolStripMenuItem1,
             this.выходToolStripMenuItem});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(132, 54);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(122, 54);
             // 
             // открытьToolStripMenuItem
             // 
             this.открытьToolStripMenuItem.Name = "открытьToolStripMenuItem";
-            this.открытьToolStripMenuItem.Size = new System.Drawing.Size(131, 22);
+            this.открытьToolStripMenuItem.Size = new System.Drawing.Size(121, 22);
             this.открытьToolStripMenuItem.Text = "Открыть";
             this.открытьToolStripMenuItem.Click += new System.EventHandler(this.открытьToolStripMenuItem_Click);
             // 
             // toolStripMenuItem1
             // 
             this.toolStripMenuItem1.Name = "toolStripMenuItem1";
-            this.toolStripMenuItem1.Size = new System.Drawing.Size(128, 6);
+            this.toolStripMenuItem1.Size = new System.Drawing.Size(118, 6);
             // 
             // выходToolStripMenuItem
             // 
             this.выходToolStripMenuItem.Name = "выходToolStripMenuItem";
-            this.выходToolStripMenuItem.Size = new System.Drawing.Size(131, 22);
+            this.выходToolStripMenuItem.Size = new System.Drawing.Size(121, 22);
             this.выходToolStripMenuItem.Text = "Выход";
             this.выходToolStripMenuItem.Click += new System.EventHandler(this.выходToolStripMenuItem_Click);
             // 
@@ -145,23 +144,18 @@
             this.notifyIcon1.Text = "Сервер ТСД";
             this.notifyIcon1.Visible = true;
             this.notifyIcon1.MouseClick += new System.Windows.Forms.MouseEventHandler(this.notifyIcon1_MouseClick);
-            this.notifyIcon1.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(notifyIcon1_MouseDoubleClick);
+            this.notifyIcon1.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.notifyIcon1_MouseDoubleClick);
             // 
             // richTextBox1
             // 
             this.richTextBox1.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.richTextBox1.Location = new System.Drawing.Point(0, 180);
+            this.richTextBox1.Location = new System.Drawing.Point(0, 193);
             this.richTextBox1.Name = "richTextBox1";
-            this.richTextBox1.Size = new System.Drawing.Size(232, 191);
+            this.richTextBox1.Size = new System.Drawing.Size(232, 178);
             this.richTextBox1.TabIndex = 4;
             this.richTextBox1.Text = "";
             this.richTextBox1.TextChanged += new System.EventHandler(this.richTextBox1_TextChanged);
             // 
-            // productsDataSet1
-            // 
-            //this.productsDataSet1.DataSetName = "ProductsDataSet";
-            //this.productsDataSet1.SchemaSerializationMode = System.Data.SchemaSerializationMode.IncludeSchema;
-            //// 
             // stopGoodBtn
             // 
             this.stopGoodBtn.Image = global::TSDServer.Properties.Resources.StopHS;
@@ -194,6 +188,7 @@
             // 
             // panel1
             // 
+            this.panel1.Controls.Add(this.button1);
             this.panel1.Controls.Add(this.importGoodBtn);
             this.panel1.Controls.Add(this.stopGoodBtn);
             this.panel1.Controls.Add(this.importDocBtn);
@@ -204,7 +199,7 @@
             this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel1.Location = new System.Drawing.Point(0, 0);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(232, 180);
+            this.panel1.Size = new System.Drawing.Size(232, 193);
             this.panel1.TabIndex = 9;
             // 
             // uploadBtn
@@ -219,7 +214,7 @@
             // 
             // downloadBtn
             // 
-            this.downloadBtn.Location = new System.Drawing.Point(12, 99);
+            this.downloadBtn.Location = new System.Drawing.Point(12, 128);
             this.downloadBtn.Name = "downloadBtn";
             this.downloadBtn.Size = new System.Drawing.Size(174, 23);
             this.downloadBtn.TabIndex = 9;
@@ -231,11 +226,21 @@
             // 
             this.splitter1.BackColor = System.Drawing.SystemColors.ControlDark;
             this.splitter1.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.splitter1.Location = new System.Drawing.Point(0, 170);
+            this.splitter1.Location = new System.Drawing.Point(0, 183);
             this.splitter1.Name = "splitter1";
             this.splitter1.Size = new System.Drawing.Size(232, 10);
             this.splitter1.TabIndex = 10;
             this.splitter1.TabStop = false;
+            // 
+            // button1
+            // 
+            this.button1.Location = new System.Drawing.Point(12, 99);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(174, 23);
+            this.button1.TabIndex = 10;
+            this.button1.Text = "Выгрузить документы";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click_1);
             // 
             // Form1
             // 
@@ -254,7 +259,6 @@
             this.statusStrip1.ResumeLayout(false);
             this.statusStrip1.PerformLayout();
             this.contextMenuStrip1.ResumeLayout(false);
-            //((System.ComponentModel.ISupportInitialize)(this.productsDataSet1)).EndInit();
             this.panel1.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -286,6 +290,7 @@
         private System.Windows.Forms.Button uploadBtn;
         private System.Windows.Forms.Button downloadBtn;
         private System.Windows.Forms.Splitter splitter1;
+        private System.Windows.Forms.Button button1;
     }
 }
 
