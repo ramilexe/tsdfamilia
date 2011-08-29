@@ -12,38 +12,38 @@ namespace TSDUtils
     {
         //[Description("Нет действия")]
         /// <summary>
-        /// Нет действия
+        /// Нет действия = 0
         /// </summary>
         NoAction = 0,
 
         //[Description("Возврат")]
         /// <summary>
-        /// Возврат
+        /// Возврат = 1
         /// </summary>
         Returns = 1,
 
         //[Description("Переоценка")]
 
         /// <summary>
-        /// Переоценка
+        /// Переоценка = 2
         /// </summary>
         Reprice = 2,
 
         //[Description("Переброска")]
         /// <summary>
-        /// Переброска
+        /// Переброска = 3
         /// </summary>
         Remove = 3,
 
         //[Description("Скорая помощь")]
         /// <summary>
-        /// Скорая помощь
+        /// Скорая помощь =4
         /// </summary>
         QuickHelp = 4,
 
         //[Description("")]
         /// <summary>
-        /// Инвентаризация
+        /// Инвентаризация =5
         /// </summary>
         InventoryGlobal = 5,
 
@@ -55,13 +55,13 @@ namespace TSDUtils
 
         //[Description("Действие7")]
         /// <summary>
-        /// Прием по коробам
+        /// Прием по коробам =7
         /// </summary>
         IncomeBox = 7,
 
         //[Description("Действие8")]
         /// <summary>
-        /// Закрытие глобальной инвентаризации
+        /// Закрытие глобальной инвентаризации = 8
         /// </summary>
         CloseInventar = 8,
 
@@ -90,15 +90,15 @@ namespace TSDUtils
         /// </summary>
         CarsBoxes = 12,
         /// <summary>
-        /// Чужой короб
+        /// Чужой короб = 251
         /// </summary>
         StrangeBox = 251,
         /// <summary>
-        /// Документ не найден
+        /// Документ не найден = 254
         /// </summary>
         DocNotFound = 254,
         /// <summary>
-        /// Товар не найден
+        /// Товар не найден = 255
         /// </summary>
         NotFound = 255
     }

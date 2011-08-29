@@ -39,6 +39,7 @@
             this.panel2 = new System.Windows.Forms.Panel();
             this.label3 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
+            this.label4 = new System.Windows.Forms.Label();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
             this.SuspendLayout();
@@ -133,17 +134,18 @@
             // panel2
             // 
             this.panel2.BackColor = System.Drawing.Color.PaleGreen;
+            this.panel2.Controls.Add(this.label4);
             this.panel2.Controls.Add(this.label3);
             this.panel2.Controls.Add(this.label2);
             this.panel2.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.panel2.Location = new System.Drawing.Point(0, 403);
+            this.panel2.Location = new System.Drawing.Point(0, 218);
             this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(640, 77);
+            this.panel2.Size = new System.Drawing.Size(235, 77);
             // 
             // label3
             // 
             this.label3.BackColor = System.Drawing.Color.Gold;
-            this.label3.Location = new System.Drawing.Point(3, 28);
+            this.label3.Location = new System.Drawing.Point(0, 44);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(229, 20);
             this.label3.Text = "F4 - Показать результат";
@@ -154,8 +156,16 @@
             this.label2.Location = new System.Drawing.Point(3, 0);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(229, 20);
-            this.label2.Text = "Fn-Clr - выход";
+            this.label2.Text = "Enter - подсчет коробов";
             this.label2.TextAlign = System.Drawing.ContentAlignment.TopCenter;
+            // 
+            // label4
+            // 
+            this.label4.Location = new System.Drawing.Point(3, 24);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(229, 20);
+            this.label4.Text = "Fn-Clr - выход";
+            this.label4.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             // 
             // TtnForm
             // 
@@ -163,7 +173,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.AutoScroll = true;
             this.BackColor = System.Drawing.Color.White;
-            this.ClientSize = new System.Drawing.Size(640, 480);
+            this.ClientSize = new System.Drawing.Size(235, 295);
             this.ControlBox = false;
             this.Controls.Add(this.panel2);
             this.Controls.Add(this.panel1);
@@ -194,5 +204,6 @@
         private System.Windows.Forms.Panel panel2;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Label label4;
     }
 }
