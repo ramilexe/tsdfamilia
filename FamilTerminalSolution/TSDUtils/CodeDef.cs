@@ -41,6 +41,35 @@ namespace TSDUtils
         /// </summary>
         CloseInventar = 8,
 
+        [Description("Машины")]
+        /// <summary>
+        /// Машины 
+        /// Все машины: тип = 9, NavCode= 6-ти значный код Машины (Номер авто в верхнем регистре), DocId = ШтрихКод ТТН).
+        /// </summary>
+        Cars = 9,
+
+        [Description("Короба и товары")]
+        /// <summary>
+        /// Короба и товары
+        /// Короба с товарами: тип 10, NavCode= NavCode товара, DocId = ШК короба
+        /// </summary>
+        BoxWProducts = 10,
+
+        [Description("Накладные и короба")]
+        /// <summary>
+        /// Накладные и короба
+        /// Накладные - короба: NavCode = 6ти зн. Код короба, DocId = номер накладной, 
+        /// тип документа = 11 – накладные с коробами.
+        /// </summary>
+        BoxIncomes = 11,
+
+        [Description("Машины и короба")]
+        /// <summary>
+        /// Машины и короба
+        /// NavCode =  6-ти зн. Код короба, DocId = Штрихкод машины, тип документа = 12 – машины и короба.
+        /// </summary>
+        CarsBoxes = 12,
+
         [Description("Чужой короб")]
         /// <summary>
         /// Чужой короб
