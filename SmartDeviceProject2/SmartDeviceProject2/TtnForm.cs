@@ -13,6 +13,26 @@ namespace TSDServer
     {
         //private bool enableInvent = false;
         Scanned scannedDelegate = null;
+        /// <summary>
+        /// загрузить список всех накладных машин
+        /// </summary>
+        System.Collections.Generic.List<ProductsDataSet.DocsTblRow> IncomerowsList =
+                            new List<ProductsDataSet.DocsTblRow>();
+        /// <summary>
+        /// Загрузить список всех коробов машины
+        /// </summary>
+        System.Collections.Generic.List<ProductsDataSet.DocsTblRow> Boxrows =
+            new List<ProductsDataSet.DocsTblRow>();
+
+        //структура машины
+        public System.Collections.Generic.Dictionary<string,//car
+            System.Collections.Generic.Dictionary<string, //TORG12
+                System.Collections.Generic.Dictionary<string,//Box navcode
+                    Boxes>>> TtnStruct =
+                    new Dictionary<string, Dictionary<string, Dictionary<string, Boxes>>>();
+
+        string currentTtnBarcode = string.Empty;
+
         public TtnForm()
         {
             InitializeComponent();
@@ -72,14 +92,23 @@ namespace TSDServer
 
                 if (barcode.StartsWith("3") && barcode.Length == 13)
                 {
+                    //загрузить список машин - должна быть 1 запись т.к. машины уникальны.
+
                     ProductsDataSet.DocsTblRow[] rows =
                             ActionsClass.Action.GetDataByDocIdAndType(barcode,
                             (byte)TSDUtils.ActionCode.Cars);
 
+                   
+
+                    
 
                     if (rows != null && rows.Length > 0)
                     {
+                        //записи машины найдены
                         ProductsDataSet.DocsTblRow row = rows[0];
+
+                        Boxrows.Clear();
+                        IncomerowsList.Clear();
 
                         this.bkLabel.Visible = true;
                         this.bkLabel.Text = string.Format("ШК: {0}", barcode);
@@ -105,6 +134,31 @@ namespace TSDServer
 
                         ActionsClass.Action.PlaySoundAsync((byte)TSDUtils.ActionCode.Cars);
                         ActionsClass.Action.PlayVibroAsync((byte)TSDUtils.ActionCode.Cars);
+
+
+                        //Загрузить список всех коробов машины
+                        Boxrows.AddRange( ActionsClass.Action.GetDataByDocIdAndType(barcode,
+                                (byte)TSDUtils.ActionCode.CarsBoxes));
+
+
+                        if (Boxrows != null && Boxrows.Count>0)
+                        {
+
+                            //загрузить список всех накладных машин
+                            foreach (ProductsDataSet.DocsTblRow docsRow in Boxrows)
+                            {
+
+                                //ProductsDataSet.DocsTblRow[] Incomerows =
+                                        //ActionsClass.Action.GetDataByNavCodeAndType(docsRow.NavCode,
+                                        //(byte)TSDUtils.ActionCode.BoxIncomes);
+
+                                IncomerowsList.AddRange(ActionsClass.Action.GetDataByNavCodeAndType(docsRow.NavCode,
+                                (byte)TSDUtils.ActionCode.BoxIncomes));
+                            }
+                        }
+
+                        currentTtnBarcode = barcode;
+                        FillCar(IncomerowsList, Boxrows);
 
                     }
                     else
@@ -133,6 +187,73 @@ namespace TSDServer
             
             
         }
+
+        private void FillCar(System.Collections.Generic.List<ProductsDataSet.DocsTblRow> _IncomerowsList,
+            System.Collections.Generic.List<ProductsDataSet.DocsTblRow> _Boxrows)
+        {
+            TtnStruct =
+                   new Dictionary<string, Dictionary<string, Dictionary<string, Boxes>>>();
+
+            //System.Collections.Generic.
+            TtnStruct.Add(_Boxrows[0].DocId,
+                new Dictionary<string, Dictionary<string, Boxes>>());
+
+            //кикл по машинам и коробам
+            foreach (ProductsDataSet.DocsTblRow boxRow in _Boxrows)
+            {
+                //цикл по коробам и накладным
+                foreach (ProductsDataSet.DocsTblRow incRow in _IncomerowsList)
+                {
+                    //если есть накладная
+                    if (TtnStruct[boxRow.DocId].ContainsKey(incRow.DocId))
+                    {
+                        //проверить короб
+                        if (TtnStruct[boxRow.DocId][incRow.DocId].ContainsKey(incRow.NavCode))
+                            continue;//короб есть - продолжим
+                        else
+                        {
+                            //короба нет - добавить
+
+                            ProductsDataSet.DocsTblRow[] d =
+                            ActionsClass.Action.GetDataByNavCodeAndType(
+                                incRow.NavCode,
+                                (byte)TSDUtils.ActionCode.IncomeBox);
+
+                            if (d != null && d.Length > 0)
+                            {
+                                TtnStruct[boxRow.DocId][incRow.DocId].Add(incRow.NavCode,
+                                    new Boxes(d[0].DocId, incRow.NavCode));
+                            }
+                        }
+
+
+                    }
+                    else
+                    {
+                        //нкладной нет - добавить
+                        TtnStruct[boxRow.DocId].Add(incRow.DocId, new Dictionary<string, Boxes>());
+                        //добавить текущий короб
+                        ProductsDataSet.DocsTblRow[] d =
+                           ActionsClass.Action.GetDataByNavCodeAndType(
+                               incRow.NavCode,
+                               (byte)TSDUtils.ActionCode.IncomeBox);
+
+                        if (d != null && d.Length > 0)
+                        {
+                            TtnStruct[boxRow.DocId][incRow.DocId].Add(
+                                incRow.NavCode,
+                                new Boxes(d[0].DocId, incRow.NavCode));
+                        }
+
+
+                    }
+
+
+                }
+
+            }
+        }
+
 
        
 
@@ -165,6 +286,18 @@ namespace TSDServer
             }
             if (e.KeyValue == (int)SpecialButton.YellowBtn)
             {
+                if (currentTtnBarcode != string.Empty &&
+                    Boxrows != null &&
+                    Boxrows.Count > 0)
+                {
+
+                    using (ViewTtnForm vFrm = new ViewTtnForm(TtnStruct))
+                    {
+                        vFrm.ShowDialog();
+                    }
+                }
+
+                     
                 /*int totals=0;
                 int totalBk=0;
                 ActionsClass.Action.CalculateTotalsWOPriority(
@@ -204,6 +337,58 @@ namespace TSDServer
              
         }
             
+
+    }
+
+
+
+    public class Boxes
+    {
+
+        bool _accepted = false;
+
+        public bool Accepted
+        {
+            get { return _accepted; }
+            set { _accepted = value; }
+        }
+
+
+        string _barcode;
+
+        public string Barcode
+        {
+            get { return _barcode; }
+            set { _barcode = value; }
+        }
+        string _navCode;
+
+        public string NavCode
+        {
+            get { return _navCode; }
+            set { _navCode = value; }
+        }
+        List<string> _productsList;
+
+        public List<string> ProductsList
+        {
+            get { return _productsList; }
+            set { _productsList = value; }
+        }
+
+        public Boxes()
+        {
+
+
+        }
+
+        public Boxes(string barcode, string navCode)
+        {
+            _barcode = barcode;
+            _navCode = navCode;
+
+        }
+
 
     }
 }

@@ -196,6 +196,9 @@
     <EmbeddedResource Include="ViewProductForm.resx">
       <DependentUpon>ViewProductForm.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="ViewTtnForm.resx">
+      <DependentUpon>ViewTtnForm.cs</DependentUpon>
+    </EmbeddedResource>
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
@@ -253,6 +256,12 @@
     </Compile>
     <Compile Include="ViewProductForm.Designer.cs">
       <DependentUpon>ViewProductForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ViewTtnForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ViewTtnForm.Designer.cs">
+      <DependentUpon>ViewTtnForm.cs</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>

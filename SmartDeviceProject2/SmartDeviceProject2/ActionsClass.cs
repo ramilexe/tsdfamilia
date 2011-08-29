@@ -1696,6 +1696,18 @@ namespace TSDServer
             }
         }
 
+        public ProductsDataSet.DocsTblRow[] GetDataByNavCodeAndType(string navCode, byte type)
+        {
+            try
+            {
+                return docsTa.GetDataByNavCodeAndType(navCode,type);
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
         public ProductsDataSet.DocsTblRow[] GetDataByDocIdAndType(string DocId, byte docType)
         {
             //try
