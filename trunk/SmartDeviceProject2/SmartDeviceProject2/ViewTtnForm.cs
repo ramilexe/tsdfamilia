@@ -60,6 +60,7 @@ namespace TSDServer
             if (TtnStruct == null ||
                 TtnStruct.Count == 0)
             {
+                /*
                 Label lbl = new Label();
                 lbl.Text = "Нет данных по ТТН!";
                 lbl.Size = new System.Drawing.Size(229, 20);
@@ -68,6 +69,11 @@ namespace TSDServer
                 lbl.ForeColor = System.Drawing.Color.Black;
                 lbl.Location = new System.Drawing.Point(3, 131);
                 this.panel1.Controls.Add(lbl);
+                this.treeView1.Visible = false;
+                 */
+                TreeNode zeroNode = this.treeView1.Nodes.Add("Нет данных по ТТН!");
+                zeroNode.BackColor = System.Drawing.Color.Plum;
+
 
             }
             else
@@ -124,6 +130,16 @@ namespace TSDServer
            
 
 
+        }
+
+        private void treeView1_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Escape ||
+                e.KeyValue == (int)SpecialButton.YellowBtn)
+            {
+                this.Close();
+                return;
+            }
         }
     }
 
