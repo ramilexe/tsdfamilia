@@ -934,7 +934,7 @@ namespace TSDServer
                         //loadState = "Ошибка";
                     }
                 }*/
-                if (copyStatesb.Length > 0)
+                //if (copyStatesb.Length > 0)
                 {//have error
                     copyStatesb.Length = 0;
                     //loadState = string.Empty;
