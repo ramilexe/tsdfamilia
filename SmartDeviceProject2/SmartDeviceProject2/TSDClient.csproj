@@ -77,6 +77,7 @@
   <ItemGroup>
     <Compile Include="ActionsClass.cs" />
     <Compile Include="BaseTableAdapter.cs" />
+    <Compile Include="Boxes.cs" />
     <Compile Include="BTConnectionErrorForm.cs">
       <SubType>Form</SubType>
     </Compile>

@@ -1019,6 +1019,90 @@ namespace TSDServer
             PlaySoundAsync((byte)TSDUtils.ActionCode.DocNotFound);
         }
 
+        public void IncomeCarBoxAction(string TTNBarcode, Boxes b)
+        {
+            //ProductsDataSet.DocsTblRow[] rows =
+            //                ActionsClass.Action.GetDataByDocIdAndType(barcode,
+            //                (byte)TSDUtils.ActionCode.IncomeBox);
+
+            //if (rows != null && rows.Length > 0)
+            //{
+                //ProductsDataSet.DocsTblRow row = rows[0];
+                ScannedProductsDataSet.ScannedBarcodesRow scannedRow =
+                                  ActionsClass.Action.AddScannedRow(
+                                  long.Parse(b.Barcode),
+                                  (byte)TSDUtils.ActionCode.IncomeBox,
+                                  TTNBarcode,
+                                  1,
+                                  0);
+                scannedRow.FactQuantity += 1;
+
+                using (System.IO.StreamWriter wr =
+               new System.IO.StreamWriter(
+                   System.IO.Path.Combine(Program.Default.DatabaseStoragePath, "scannedbarcodes.txt"), true))
+                {
+                    //if (row["FactQuantity"] != System.DBNull.Value
+                    //    && row.FactQuantity > 0)
+                    //{
+                    string s =
+                            string.Format("{0}|{1}|{2}|{3}|{4}|{5}|{6}",
+                                b.Barcode,
+                                TTNBarcode,//docId,
+                                ((byte)TSDUtils.ActionCode.CarsBoxes),
+                                1,
+                                DateTime.Today.ToString("dd.MM.yyyy"),
+                                Program.Default.TerminalID,
+                                0
+                                );
+                    wr.WriteLine(s);
+                    //}
+
+                }
+                ActionsClass.Action.PlaySoundAsync((byte)TSDUtils.ActionCode.IncomeBox);
+                ActionsClass.Action.PlayVibroAsync((byte)TSDUtils.ActionCode.IncomeBox);
+                //return true;
+            //}
+            //else
+            //{
+            //    ActionsClass.Action.PlaySoundAsync((byte)TSDUtils.ActionCode.StrangeBox);
+            //    ActionsClass.Action.PlayVibroAsync((byte)TSDUtils.ActionCode.StrangeBox);
+                
+            //    return false;
+            //}
+
+        }
+        
+        /// <summary>
+        /// Добавление записи о сканированном коробе, при режиме проверки коробов свой - чужой
+        ///ScannedProductsDataSet.ScannedBarcodesRow
+        ///long.Parse(barcode),
+        ///(byte)TSDUtils.ActionCode.IncomeBox,
+        ///row.DocId,
+        ///row.Quantity,
+        ///row.Priority);
+        ///scannedRow.FactQuantity += 1;
+        /// </summary>
+        /// <param name="row"> ScannedProductsDataSet.ScannedBarcodesRow</param>
+        public void IncomeBoxAction(ScannedProductsDataSet.ScannedBarcodesRow scannedRow)
+        {
+            using (System.IO.StreamWriter wr =
+           new System.IO.StreamWriter(
+               System.IO.Path.Combine(Program.Default.DatabaseStoragePath, "scannedbarcodes.txt"), true))
+            {
+                string s =
+                        string.Format("{0}|{1}|{2}|{3}|{4}|{5}|{6}",
+                            scannedRow.Barcode,
+                            scannedRow.DocId,
+                            scannedRow.DocType,
+                            1,
+                            DateTime.Today.ToString("dd.MM.yyyy"),
+                            Program.Default.TerminalID,
+                            0
+                            );
+                wr.WriteLine(s);
+            }
+        }
+
         public void ClearScannedData()
         {
             scannedTA = new TSDServer.ScannedProductsDataSetTableAdapters.ScannedBarcodesTableAdapter(

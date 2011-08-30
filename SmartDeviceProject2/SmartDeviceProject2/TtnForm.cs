@@ -123,6 +123,8 @@ namespace TSDServer
                         //string.Format(
                         //"Дата: {0}", DateTime.Today.ToString("dd.MM.yyyy"));
 
+                        
+                        
                         ScannedProductsDataSet.ScannedBarcodesRow scannedRow =
                                ActionsClass.Action.AddScannedRow(
                                long.Parse(barcode),
@@ -134,8 +136,8 @@ namespace TSDServer
 
                         ActionsClass.Action.PlaySoundAsync((byte)TSDUtils.ActionCode.Cars);
                         ActionsClass.Action.PlayVibroAsync((byte)TSDUtils.ActionCode.Cars);
-
-
+                        
+                        
                         //Загрузить список всех коробов машины
                         Boxrows.AddRange( ActionsClass.Action.GetDataByDocIdAndType(barcode,
                                 (byte)TSDUtils.ActionCode.CarsBoxes));
@@ -222,7 +224,7 @@ namespace TSDServer
                             if (d != null && d.Length > 0)
                             {
                                 TtnStruct[boxRow.DocId][incRow.DocId].Add(incRow.NavCode,
-                                    new Boxes(d[0].DocId, incRow.NavCode));
+                                    new Boxes(d[0].DocId, incRow.NavCode, d[0].Text3, d[0].Text2));
                             }
                         }
 
@@ -242,7 +244,7 @@ namespace TSDServer
                         {
                             TtnStruct[boxRow.DocId][incRow.DocId].Add(
                                 incRow.NavCode,
-                                new Boxes(d[0].DocId, incRow.NavCode));
+                                new Boxes(d[0].DocId, incRow.NavCode,d[0].Text3,d[0].Text2));
                         }
 
 
@@ -276,7 +278,12 @@ namespace TSDServer
             }
             if (e.KeyValue == (int)SpecialButton.RedBtn)
             {
+                using (IncomeForm income =
+                    new IncomeForm(TtnStruct, currentTtnBarcode))
+                {
 
+                    income.ShowDialog();
+                }
                 return;
             }
             if (e.KeyValue == (int)SpecialButton.BlueBtn)
@@ -341,54 +348,7 @@ namespace TSDServer
     }
 
 
-
-    public class Boxes
-    {
-
-        bool _accepted = false;
-
-        public bool Accepted
-        {
-            get { return _accepted; }
-            set { _accepted = value; }
-        }
-
-
-        string _barcode;
-
-        public string Barcode
-        {
-            get { return _barcode; }
-            set { _barcode = value; }
-        }
-        string _navCode;
-
-        public string NavCode
-        {
-            get { return _navCode; }
-            set { _navCode = value; }
-        }
-        List<string> _productsList;
-
-        public List<string> ProductsList
-        {
-            get { return _productsList; }
-            set { _productsList = value; }
-        }
-
-        public Boxes()
-        {
-
-
-        }
-
-        public Boxes(string barcode, string navCode)
-        {
-            _barcode = barcode;
-            _navCode = navCode;
-
-        }
-
-
-    }
+    
+   
+   
 }

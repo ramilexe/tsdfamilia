@@ -98,23 +98,31 @@ namespace TSDServer
 ШК = код короба, DocId  = номер ТТН, кол – во факт =  план = 1, тип 12, Priority = 0. 
                              */
 
-                            ScannedProductsDataSet.ScannedBarcodesRow r = 
-                            ActionsClass.Action.FindByBarcodeDocTypeDocId(
-                                long.Parse(TtnStruct[car][incomes][box].Barcode),
-                                (byte)TSDUtils.ActionCode.CarsBoxes,
-                                car);
-
-
-                            if (r == null)
+                            if (!TtnStruct[car][incomes][box].Accepted)
                             {
-                                boxNode.BackColor = System.Drawing.Color.Plum;
-                                boxNode.Parent.BackColor = System.Drawing.Color.Plum;
+                                ScannedProductsDataSet.ScannedBarcodesRow r =
+                                ActionsClass.Action.FindByBarcodeDocTypeDocId(
+                                    long.Parse(TtnStruct[car][incomes][box].Barcode),
+                                    (byte)TSDUtils.ActionCode.CarsBoxes,
+                                    car);
+
+
+                                if (r == null)
+                                {
+                                    boxNode.BackColor = System.Drawing.Color.White;
+                                    boxNode.Parent.BackColor = System.Drawing.Color.White;
+                                }
+                                else
+                                {
+                                    boxNode.BackColor = System.Drawing.Color.PaleGreen;
+                                    TtnStruct[car][incomes][box].Accepted = true;
+                                }
                             }
                             else
                             {
                                 boxNode.BackColor = System.Drawing.Color.PaleGreen;
-                                TtnStruct[car][incomes][box].Accepted = true;
                             }
+                            
 
 
 
