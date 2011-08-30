@@ -47,6 +47,7 @@
             // panel1
             // 
             this.panel1.BackColor = System.Drawing.Color.PaleGreen;
+            this.panel1.Controls.Add(this.label4);
             this.panel1.Controls.Add(this.txtLabel);
             this.panel1.Controls.Add(this.dateLabel);
             this.panel1.Controls.Add(this.docLabel);
@@ -56,7 +57,7 @@
             this.panel1.Controls.Add(this.label1);
             this.panel1.Location = new System.Drawing.Point(0, 0);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(235, 215);
+            this.panel1.Size = new System.Drawing.Size(235, 256);
             // 
             // txtLabel
             // 
@@ -134,34 +135,35 @@
             // panel2
             // 
             this.panel2.BackColor = System.Drawing.Color.PaleGreen;
-            this.panel2.Controls.Add(this.label4);
             this.panel2.Controls.Add(this.label3);
             this.panel2.Controls.Add(this.label2);
             this.panel2.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.panel2.Location = new System.Drawing.Point(0, 218);
+            this.panel2.Location = new System.Drawing.Point(0, 259);
             this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(235, 77);
+            this.panel2.Size = new System.Drawing.Size(240, 36);
             // 
             // label3
             // 
             this.label3.BackColor = System.Drawing.Color.Gold;
-            this.label3.Location = new System.Drawing.Point(0, 44);
+            this.label3.Location = new System.Drawing.Point(145, 0);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(229, 20);
+            this.label3.Size = new System.Drawing.Size(95, 33);
             this.label3.Text = "F4 - Показать результат";
             this.label3.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             // 
             // label2
             // 
-            this.label2.Location = new System.Drawing.Point(3, 0);
+            this.label2.BackColor = System.Drawing.Color.Red;
+            this.label2.Location = new System.Drawing.Point(0, 0);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(229, 20);
-            this.label2.Text = "Enter - подсчет коробов";
+            this.label2.Size = new System.Drawing.Size(86, 33);
+            this.label2.Text = "F1 - подсчет коробов";
             this.label2.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             // 
             // label4
             // 
-            this.label4.Location = new System.Drawing.Point(3, 24);
+            this.label4.Font = new System.Drawing.Font("Tahoma", 10F, System.Drawing.FontStyle.Bold);
+            this.label4.Location = new System.Drawing.Point(0, 236);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(229, 20);
             this.label4.Text = "Fn-Clr - выход";
@@ -173,7 +175,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.AutoScroll = true;
             this.BackColor = System.Drawing.Color.White;
-            this.ClientSize = new System.Drawing.Size(235, 295);
+            this.ClientSize = new System.Drawing.Size(240, 295);
             this.ControlBox = false;
             this.Controls.Add(this.panel2);
             this.Controls.Add(this.panel1);
