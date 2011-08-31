@@ -62,21 +62,52 @@ namespace TSDServer
         {
             _mode = mode;
             _documentId = docId;
-            Program.СurrentInvId = docId;
-  
-            inventRow = ActionsClass.Action.Products.DocsTbl.NewDocsTblRow();
-            inventRow.DocId = _documentId;
-            inventRow.DocType = (byte)(TSDUtils.ActionCode.InventoryGlobal);
-            inventRow.DocumentDate = DateTime.Today;
-            inventRow.LabelCode = (byte)TSDUtils.ShablonCode.NoShablon;
-            inventRow.MusicCode = 5;
-//            docRows.NavCode = row.NavCode;
-            inventRow.Priority = 0;
-            inventRow.Quantity = 0;
-            inventRow.VibroCode = 5;
-            inventRow.Text1 = "";
-            inventRow.Text2 = "";
-            inventRow.Text3 = "";
+            switch (_mode)
+            {
+                case WorkMode.InventarScan:
+                    {
+                        Program.СurrentInvId = docId;
+
+                        inventRow = ActionsClass.Action.Products.DocsTbl.NewDocsTblRow();
+                        inventRow.DocId = _documentId;
+                        inventRow.DocType = (byte)(TSDUtils.ActionCode.InventoryGlobal);
+                        inventRow.DocumentDate = DateTime.Today;
+                        inventRow.LabelCode = (byte)TSDUtils.ShablonCode.NoShablon;
+                        inventRow.MusicCode = 5;
+                        //            docRows.NavCode = row.NavCode;
+                        inventRow.Priority = 0;
+                        inventRow.Quantity = 0;
+                        inventRow.VibroCode = 5;
+                        inventRow.Text1 = "";
+                        inventRow.Text2 = "";
+                        inventRow.Text3 = "";
+                        break;
+                    }
+                case WorkMode.BoxScan:
+                    {
+                        inventRow = ActionsClass.Action.Products.DocsTbl.NewDocsTblRow();
+                        inventRow.DocId = _documentId;
+                        inventRow.DocType = (byte)(TSDUtils.ActionCode.BoxWProducts);
+                        inventRow.DocumentDate = DateTime.Today;
+                        inventRow.LabelCode = (byte)TSDUtils.ShablonCode.NoShablon;
+                        inventRow.MusicCode = 5;
+                        //            docRows.NavCode = row.NavCode;
+                        inventRow.Priority = 0;
+                        inventRow.Quantity = 0;
+                        inventRow.VibroCode = 5;
+                        inventRow.Text1 = "";
+                        inventRow.Text2 = "";
+                        inventRow.Text3 = "";
+                        break;
+
+                    }
+                default:
+                    {
+                        break;
+                    }
+            }
+
+
 
             currentdocRows = new ProductsDataSet.DocsTblRow[1];
             currentdocRows[0] = inventRow;
@@ -223,21 +254,35 @@ namespace TSDServer
                     }
                 }
                 else
-                {
-                   
-                    inventRow.NavCode = row.NavCode;
-                    ActionsClass.Action.InvokeAction(TSDUtils.ActionCode.InventoryGlobal, 
-                        row,
-                        inventRow
-                        );
+                    if (_mode == WorkMode.InventarScan)
+                    {
 
-                    this.Refresh();
-                    //ActionsClass.Action.InventoryGlobalActionProc(
-                    //    row,
-                    //    inventRow);
+                        inventRow.NavCode = row.NavCode;
+                        ActionsClass.Action.InvokeAction(TSDUtils.ActionCode.InventoryGlobal,
+                            row,
+                            inventRow
+                            );
+
+                        this.Refresh();
+                        //ActionsClass.Action.InventoryGlobalActionProc(
+                        //    row,
+                        //    inventRow);
 
 
-                }
+                    }
+                    else 
+                    {//BoxScan
+                        //_mode == WorkMode.BoxScan
+
+                        inventRow.NavCode = row.NavCode;
+                        ActionsClass.Action.InvokeAction(TSDUtils.ActionCode.BoxWProducts,
+                            row,
+                            inventRow
+                            );
+
+                        this.Refresh();
+
+                    }
                     
                 
                 
@@ -636,39 +681,27 @@ namespace TSDServer
                     ScanClass.Scaner.PauseScan();
                     if (currentProductRow != null && WorkMode.ProductsScan == _mode)
                     {
-
-
-                        
-                        //if (currentdocRows != null && currentdocRows.Length > 0)
-                        //{
                         using (
                             ViewDocsForm docsForm =
                                 new ViewDocsForm(currentProductRow, currentdocRows, ActionsClass.Action.ScannedProducts))
                         {
                             docsForm.ShowDialog();
                         }
-                        //}
-                        //else
-                        //{
-                        //    using (
-                        //        ViewDocsForm docsForm =
-                        //            new ViewDocsForm(currentProductRow))
-                        //    {
-                        //        docsForm.ShowDialog();
-                        //    }
-                        //}
 
                     }
                     else
                     {
-                        if (!String.IsNullOrEmpty(_documentId))
+                        if (currentProductRow != null && WorkMode.InventarScan == _mode)
                         {
-                            using (ViewInventarForm prod =
-                                new ViewInventarForm(_documentId,
-                                    (byte)TSDUtils.ActionCode.InventoryGlobal))
+                            if (!String.IsNullOrEmpty(_documentId))
                             {
-                                prod.ShowDialog();
+                                using (ViewInventarForm prod =
+                                    new ViewInventarForm(_documentId,
+                                        (byte)TSDUtils.ActionCode.InventoryGlobal))
+                                {
+                                    prod.ShowDialog();
 
+                                }
                             }
                         }
                     }
@@ -777,6 +810,7 @@ namespace TSDServer
     public enum WorkMode
     {
         ProductsScan,
-        InventarScan
+        InventarScan,
+        BoxScan
     }
 }

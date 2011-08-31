@@ -48,17 +48,22 @@ namespace TSDServer
         private void InventarForm_Load(object sender, EventArgs e)
         {
             if (_mode == CarScanMode.CarsScan)
+            {
                 label4.Text = "F3-Завершить";
+            }
             else
+            {
+                ActionsClass.Action.BeginScan();
                 label4.Text = "F3-Прием Товаров";
+            }
 
             this.Width = 235;
             this.Height = 295;
             textBox1.Focus();
 
            // string invId = ActionsClass.Action.FindOpenInventar();
-
-            ActionsClass.Action.BeginScan();
+            
+            
             //ActionsClass.Action.OnActionCompleted += new ActionsClass.ActionCompleted(Action_OnActionCompleted);
             ScanClass.Scaner.InitScan();
             ScanClass.Scaner.OnScanned += scannedDelegate;
@@ -77,7 +82,16 @@ namespace TSDServer
         {
             //BTPrintClass.PrintClass.SetStatusEvent("Begin closing");
             ScanClass.Scaner.OnScanned -= scannedDelegate;
-            ActionsClass.Action.EndScan();
+            if (_mode == CarScanMode.CarsScan)
+            {
+                
+            }
+            else
+            {
+                ActionsClass.Action.EndScan();
+                
+            }
+            //ActionsClass.Action.EndScan();
             ScanClass.Scaner.StopScan();
             //BTPrintClass.PrintClass.SetStatusEvent("End closing");
         }
@@ -117,7 +131,7 @@ namespace TSDServer
                 this.textBox1.Text = barcode;
                 this.textBox1.SelectAll();
 
-                if (barcode.StartsWith("3") && barcode.Length == 13)
+                if (barcode.StartsWith("300") && barcode.Length == 13)
                 {
 
                     bool found = false;
@@ -142,7 +156,7 @@ namespace TSDServer
                                 TtnStruct[_currentTTNBarcode][incomeDoc][navCodeBox].Accepted = true;
 
                                 //записываем в БД
-                                ActionsClass.Action.IncomeCarBoxAction(barcode, TtnStruct[_currentTTNBarcode][incomeDoc][navCodeBox]);
+                                ActionsClass.Action.IncomeCarBoxAction(_currentTTNBarcode, TtnStruct[_currentTTNBarcode][incomeDoc][navCodeBox]);
                                 found = true;
 
                             }
@@ -331,7 +345,7 @@ namespace TSDServer
                 this.textBox1.Text = barcode;
                 this.textBox1.SelectAll();
 
-                if (barcode.StartsWith("3") && barcode.Length == 13)
+                if (barcode.StartsWith("300") && barcode.Length == 13)
                 {
                     ProductsDataSet.DocsTblRow[] rows =
                             ActionsClass.Action.GetDataByDocIdAndType(barcode,
@@ -402,10 +416,10 @@ namespace TSDServer
             //this.textBox1.Text = e.KeyCode.ToString();
             if (e.KeyCode == Keys.Enter)
             {
-                /*
+                
                 if (textBox1.Text != string.Empty)
                     OnScanned(textBox1.Text);
-                */
+                
   
                 return;
             }

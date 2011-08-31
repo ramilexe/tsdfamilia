@@ -48,7 +48,9 @@ namespace TSDServer
             ViewProductMenu = 49,
             InventarMenu = 50,
             IncomeMenu = 51,
+            TTNForm = 52,
             ViewSettingMenu = 53
+            
         }
 
         public static event DatabaseChanged OnDatabaseChaned;
@@ -265,6 +267,21 @@ namespace TSDServer
                             //BTPrintClass.PrintClass.SetStatusEvent("Form Closed");
                             break;
                         }
+                    case (int)MenuItems.TTNForm:
+                        {
+                            BTPrintClass.PrintClass.CheckForClear();
+                            ActionsClass.Action.OpenProducts();
+                            ActionsClass.Action.OpenScanned();
+                            using (TtnForm frm = new TtnForm())
+                            {
+                                frm.ShowDialog();
+                            }
+                            ActionsClass.Action.CloseProducts();
+                            ActionsClass.Action.ClosedScanned();
+                            ActionsClass.Action.ClearCache();
+                            break;
+
+                        }
                     case (int)MenuItems.ViewSettingMenu:
                         {
                             BTPrintClass.PrintClass.CheckForClear();
@@ -274,6 +291,7 @@ namespace TSDServer
                             }
                             break;
                         }
+
 
                     default:
                         {

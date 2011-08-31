@@ -86,8 +86,8 @@
             this.button4.Name = "button4";
             this.button4.Size = new System.Drawing.Size(238, 46);
             this.button4.TabIndex = 3;
-            this.button4.Text = "";// "4 - Синхронизация";
-            this.button4.Enabled = false;
+            this.button4.Text = "4 - Прием машины";// "4 - Синхронизация";
+            this.button4.Enabled = true;
             // 
             // button5
             // 

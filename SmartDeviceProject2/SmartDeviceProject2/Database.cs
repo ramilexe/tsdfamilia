@@ -2227,6 +2227,65 @@ namespace FamilTsdDB
 
         }
 
+        public System.Data.DataRow[]
+            FindAllByPartIndexes(int indexId, int[] columnId, Object[] pkValues, System.Data.DataTable data)
+        {
+            //if (pkValues.Length != indexes[indexId].IndexColumns.Count)
+            //    throw new System.Data.DataException();
+
+            List<System.Data.DataRow> Rows =
+                new List<System.Data.DataRow>();
+
+            //bool founded = false;
+            //indexes[indexId].OpenIndex();
+            try
+            {
+                using (System.IO.FileStream fs =
+                               new System.IO.FileStream(string.Format("{0}\\{1}.db", DataTable.StartupPath, this.TableName), System.IO.FileMode.Open))
+                {
+                    //go over all indexes
+                    foreach (int Offset in indexes[indexId].FindIndexesData(columnId, pkValues))
+                    {
+
+                        //founded = true;
+                        System.Data.DataRow out_row = _data.NewRow();
+                        fs.Seek(Offset, System.IO.SeekOrigin.Begin);
+
+                        //int readed = 0;
+
+                        byte[] bLength = new byte[2];
+                        fs.Read(bLength, 0, 2);
+                        UInt16 length = BitConverter.ToUInt16(bLength, 0);
+                        byte[] rawData = new byte[length];
+                        fs.Seek(-2, System.IO.SeekOrigin.Current);
+                        fs.Read(rawData, 0, rawData.Length);
+
+                        DataRow r = DataRow.GetRow(this, rawData);
+
+                        for (int j = 0; j < _data.Columns.Count; j++)
+                        {
+                            if (r[j].Data != null)
+                                out_row[j] = r[j].Data;
+                            else
+                                out_row[j] = System.DBNull.Value;
+                        }
+                        Rows.Add(out_row);
+                        //break;
+                    }
+                    //}
+                    //catch { }
+                }
+            }
+            finally
+            {
+                indexes[indexId].CloseIndex();
+            }
+            return Rows.ToArray();
+
+
+        }
+
+
         public void Fill(System.Data.DataTable data)
         {
             ReadTableDef();
