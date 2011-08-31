@@ -328,10 +328,11 @@ namespace TSDServer.ProductsDataSetTableAdapters
                     if (docRow.DocType == type)
                         r1.Add(docRow);
                 }
-                r1.ToArray();
+                if (r1.Count>0)
+                    return r1.ToArray();
             }
              
-            else
+            
             {
                 System.Data.DataRow[] rows = table.FindByIndexes(1, new object[] { NavCode });
                 if (rows != null && rows.Length > 0)
@@ -361,6 +362,39 @@ namespace TSDServer.ProductsDataSetTableAdapters
             return r1.ToArray();
         }
 
+        public ProductsDataSet.DocsTblRow[] GetAllDataByDocIdAndType(string DocId, byte docType)
+        {
+            ProductsDataSet.DocsTblRow[] r = _productsDataset.DocsTbl.FindByDocIdAndType(DocId, docType);
+            if (r != null &&
+                r.Length > 0)
+                return r;
+            else
+            {
+                System.Data.DataRow[] rows = table.FindAllByPartIndexes(0, //0 индекс - первичный ключ
+                    new int[] { 1, 2 }, //индекс состоит из 3х колонок: NavCode|6, DocId|20, DocType|1
+                    //ищем по DocId|20, DocType|1
+                    new object[] { DocId, docType }, //значения которые ищем
+                    _productsDataset.DocsTbl); //таблица куда записывать
+                if (rows != null && rows.Length > 0)
+                {
+                    r = new ProductsDataSet.DocsTblRow[rows.Length];
+                    for (int i = 0; i < r.Length; i++)
+                    {
+                        r[i] = (ProductsDataSet.DocsTblRow)rows[i];
+                        try
+                        {
+                            _productsDataset.DocsTbl.AddDocsTblRow(r[i]);
+                        }
+                        catch (System.Data.ConstraintException)
+                        {
+                        }
+                    }
+                    return r;
+                }
+                else
+                    return null;
+            }
+        }
         public ProductsDataSet.DocsTblRow[] GetDataByDocIdAndType(string DocId, byte docType)
         {
             ProductsDataSet.DocsTblRow[] r = _productsDataset.DocsTbl.FindByDocIdAndType(DocId, docType);

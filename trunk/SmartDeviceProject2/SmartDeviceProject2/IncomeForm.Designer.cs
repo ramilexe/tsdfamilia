@@ -154,16 +154,16 @@
             // label4
             // 
             this.label4.BackColor = System.Drawing.Color.LimeGreen;
-            this.label4.Location = new System.Drawing.Point(87, 0);
+            this.label4.Location = new System.Drawing.Point(97, 0);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(74, 38);
+            this.label4.Size = new System.Drawing.Size(73, 38);
             this.label4.Text = "F3-Завершить";
             this.label4.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             // 
             // label3
             // 
             this.label3.BackColor = System.Drawing.Color.Gold;
-            this.label3.Location = new System.Drawing.Point(167, 0);
+            this.label3.Location = new System.Drawing.Point(164, 0);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(71, 38);
             this.label3.Text = "F4 - результат";

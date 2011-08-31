@@ -87,6 +87,7 @@ namespace TSDServer
             actionsDict.Add(TSDUtils.ActionCode.InventoryLocal, new ActOnProduct(InventoryLocalActionProc));
             actionsDict.Add(TSDUtils.ActionCode.NotFound, new ActOnProduct(NotFoundActionProc));
             actionsDict.Add(TSDUtils.ActionCode.DocNotFound, new ActOnProduct(DocNotFoundActionProc));
+            actionsDict.Add(TSDUtils.ActionCode.BoxWProducts, new ActOnProduct(BoxWProductsActionProc));
             
             /*
             tmr = new System.Threading.Timer(
@@ -961,6 +962,41 @@ namespace TSDServer
             //}
         }
 
+        public void BoxWProductsActionProc(ProductsDataSet.ProductsTblRow datarow, ProductsDataSet.DocsTblRow docsRow)
+        {
+            //ScannedProductsDataSet.ScannedBarcodesRow[] r =
+            //    _scannedProducts.ScannedBarcodes.FindByBarcodeAndDocType(datarow.Barcode, docsRow.DocType);
+            ScannedProductsDataSet.ScannedBarcodesRow scannedRow =
+                               ActionsClass.Action.AddScannedRow(
+                               datarow.Barcode,
+                               docsRow.DocType,
+                               docsRow.DocId,
+                               docsRow.Quantity,
+                               docsRow.Priority);
+
+            //if (scannedRow == null)
+            //{
+            //    return 
+            //    //r = new ScannedProductsDataSet.ScannedBarcodesRow[1];
+            //    //r[0] = scannedRow;
+            //}
+
+            //for (int i = 0; i < r.Length; i++)
+            //{
+
+
+            PlayVibroAsyncAction(docsRow);
+            PlaySoundAsyncAction(docsRow);
+            scannedRow.FactQuantity += 1;
+            //PrintLabelAsync(datarow, docsRow);
+            if (OnActionCompleted != null)
+                OnActionCompleted(docsRow, scannedRow);
+            //break;
+
+
+            //}
+        }
+
         public void InventoryLocalActionProc(ProductsDataSet.ProductsTblRow datarow, ProductsDataSet.DocsTblRow docsRow)
         {
             ScannedProductsDataSet.ScannedBarcodesRow[] r =
@@ -1031,12 +1067,12 @@ namespace TSDServer
                 ScannedProductsDataSet.ScannedBarcodesRow scannedRow =
                                   ActionsClass.Action.AddScannedRow(
                                   long.Parse(b.Barcode),
-                                  (byte)TSDUtils.ActionCode.IncomeBox,
+                                  (byte)TSDUtils.ActionCode.CarsBoxes,
                                   TTNBarcode,
-                                  1,
+                                  0,
                                   0);
                 scannedRow.FactQuantity += 1;
-
+            /*
                 using (System.IO.StreamWriter wr =
                new System.IO.StreamWriter(
                    System.IO.Path.Combine(Program.Default.DatabaseStoragePath, "scannedbarcodes.txt"), true))
@@ -1057,7 +1093,7 @@ namespace TSDServer
                     wr.WriteLine(s);
                     //}
 
-                }
+                }*/
                 ActionsClass.Action.PlaySoundAsync((byte)TSDUtils.ActionCode.IncomeBox);
                 ActionsClass.Action.PlayVibroAsync((byte)TSDUtils.ActionCode.IncomeBox);
                 //return true;
@@ -1103,6 +1139,52 @@ namespace TSDServer
             }
         }
 
+        public void CloseCarAction(string ttnBarcode)
+        {
+            ScannedProductsDataSet.ScannedBarcodesRow[] scannedrow =
+           _scannedProducts.ScannedBarcodes.FindByDocIdAndDocType(ttnBarcode,
+               (byte)TSDUtils.ActionCode.Cars);
+
+            if (scannedrow == null ||
+                scannedrow.Length == 0)
+            {
+                /*throw new ApplicationException(string.Format("Документ {0} с типом {1} не найден!",
+                    docId,
+                    docType.ToString())
+                    );*/
+            }
+            else
+            {
+                for (int i = 0; i < scannedrow.Length; i++)
+                {
+                    scannedrow[i].Priority = byte.MaxValue;
+                    //WriteDbTxt(scannedrow[i]);
+                }
+
+            }
+
+            using (System.IO.StreamWriter wr =
+                new System.IO.StreamWriter(
+                    System.IO.Path.Combine(Program.Default.DatabaseStoragePath, "scannedbarcodes.txt"), true))
+            {
+                //if (row["FactQuantity"] != System.DBNull.Value
+                //    && row.FactQuantity > 0)
+                //{
+                string s =
+                        string.Format("{0}|{1}|{2}|{3}|{4}|{5}|{6}",
+                            ttnBarcode,
+                            ttnBarcode,
+                            ((byte)TSDUtils.ActionCode.Cars),
+                            0,
+                            DateTime.Today.ToString("dd.MM.yyyy"),
+                            Program.Default.TerminalID,
+                            byte.MaxValue
+                            );
+                wr.WriteLine(s);
+                //}
+
+            }
+        }
         public void ClearScannedData()
         {
             scannedTA = new TSDServer.ScannedProductsDataSetTableAdapters.ScannedBarcodesTableAdapter(
@@ -1798,7 +1880,7 @@ namespace TSDServer
             //{
                 //return this._products.DocsTbl.FindByDocIdAndType(DocId, docType);
 
-                    return docsTa.GetDataByDocIdAndType(DocId, docType);
+                    return docsTa.GetAllDataByDocIdAndType(DocId, docType);
             //}
             //catch
             //{

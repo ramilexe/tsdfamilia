@@ -90,13 +90,16 @@ namespace TSDServer
                 this.textBox1.Text = barcode;
                 this.textBox1.SelectAll();
 
-                if (barcode.StartsWith("3") && barcode.Length == 13)
+                Boxrows.Clear();
+                IncomerowsList.Clear();
+
+                if (barcode.StartsWith("320") && barcode.Length == 13)
                 {
                     //загрузить список машин - должна быть 1 запись т.к. машины уникальны.
 
                     ProductsDataSet.DocsTblRow[] rows =
                             ActionsClass.Action.GetDataByDocIdAndType(barcode,
-                            (byte)TSDUtils.ActionCode.Cars);
+                            (byte)TSDUtils.ActionCode.CarsBoxes);
 
                    
 
@@ -104,11 +107,10 @@ namespace TSDServer
 
                     if (rows != null && rows.Length > 0)
                     {
+                        Boxrows.AddRange(rows);
                         //записи машины найдены
                         ProductsDataSet.DocsTblRow row = rows[0];
 
-                        Boxrows.Clear();
-                        IncomerowsList.Clear();
 
                         this.bkLabel.Visible = true;
                         this.bkLabel.Text = string.Format("ШК: {0}", barcode);
@@ -139,8 +141,7 @@ namespace TSDServer
                         
                         
                         //Загрузить список всех коробов машины
-                        Boxrows.AddRange( ActionsClass.Action.GetDataByDocIdAndType(barcode,
-                                (byte)TSDUtils.ActionCode.CarsBoxes));
+                        
 
 
                         if (Boxrows != null && Boxrows.Count>0)

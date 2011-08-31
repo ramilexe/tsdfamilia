@@ -85,11 +85,16 @@ namespace TSDServer
 
                     foreach (string incomes in TtnStruct[car].Keys)
                     {
+                        bool fullAccepted = true;
+
                         TreeNode incomeNode = carNode.Nodes.Add(incomes);
+                        
+                        
 
                         foreach (string box in TtnStruct[car][incomes].Keys)
                         {
                             TreeNode boxNode = incomeNode.Nodes.Add(box);
+                            
                             /*
                              Сканируем короб, проверяем свой-чужой.
 По таблице документов ищем тип= 7, DocId = ШК короба.
@@ -110,23 +115,46 @@ namespace TSDServer
                                 if (r == null)
                                 {
                                     boxNode.BackColor = System.Drawing.Color.White;
-                                    boxNode.Parent.BackColor = System.Drawing.Color.White;
+                                    //boxNode.Parent.BackColor = System.Drawing.Color.White;
+                                    fullAccepted = fullAccepted & false;
                                 }
                                 else
                                 {
                                     boxNode.BackColor = System.Drawing.Color.PaleGreen;
+                                    //incomeNode.ForeColor = System.Drawing.Color.Black;
                                     TtnStruct[car][incomes][box].Accepted = true;
+                                    fullAccepted = fullAccepted & true;
                                 }
                             }
                             else
                             {
                                 boxNode.BackColor = System.Drawing.Color.PaleGreen;
+                                fullAccepted = fullAccepted & true;
                             }
                             
 
 
 
 
+                        }
+                        if (fullAccepted)
+                        {
+                            incomeNode.BackColor = System.Drawing.Color.PaleGreen;
+                            incomeNode.ForeColor = System.Drawing.Color.Black;
+
+                        }
+                        else
+                        {
+                            if (TtnStruct[car][incomes].Keys.Count > 0)
+                            {
+                                incomeNode.BackColor = System.Drawing.Color.White;
+                                incomeNode.ForeColor = System.Drawing.Color.Red;
+                            }
+                            else
+                            {
+                                incomeNode.BackColor = System.Drawing.Color.White;
+                                incomeNode.ForeColor = System.Drawing.Color.Black;
+                            }
                         }
 
 
