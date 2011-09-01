@@ -86,7 +86,7 @@ namespace TSDServer
                     foreach (string incomes in TtnStruct[car].Keys)
                     {
                         bool fullAccepted = true;
-
+                        int acceptedCount = 0;
                         TreeNode incomeNode = carNode.Nodes.Add(incomes);
                         
                         
@@ -124,10 +124,12 @@ namespace TSDServer
                                     //incomeNode.ForeColor = System.Drawing.Color.Black;
                                     TtnStruct[car][incomes][box].Accepted = true;
                                     fullAccepted = fullAccepted & true;
+                                    acceptedCount++;
                                 }
                             }
                             else
                             {
+                                acceptedCount++;
                                 boxNode.BackColor = System.Drawing.Color.PaleGreen;
                                 fullAccepted = fullAccepted & true;
                             }
@@ -145,7 +147,7 @@ namespace TSDServer
                         }
                         else
                         {
-                            if (TtnStruct[car][incomes].Keys.Count > 0)
+                            if (acceptedCount > 0)
                             {
                                 incomeNode.BackColor = System.Drawing.Color.White;
                                 incomeNode.ForeColor = System.Drawing.Color.Red;

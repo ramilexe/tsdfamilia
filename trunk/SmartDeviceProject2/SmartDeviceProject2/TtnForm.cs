@@ -11,6 +11,7 @@ namespace TSDServer
 {
     public partial class TtnForm : Form
     {
+        private bool closedCar = false;
         //private bool enableInvent = false;
         Scanned scannedDelegate = null;
         /// <summary>
@@ -82,6 +83,7 @@ namespace TSDServer
             }
             else
             {
+                
                 this.bkLabel.Visible = false;
                 this.docLabel.Visible = false;
                 this.errLabel.Visible = false;
@@ -95,6 +97,7 @@ namespace TSDServer
 
                 if (barcode.StartsWith("320") && barcode.Length == 13)
                 {
+                    currentTtnBarcode = barcode;
                     //загрузить список машин - должна быть 1 запись т.к. машины уникальны.
 
                     ProductsDataSet.DocsTblRow[] rows =
@@ -125,26 +128,10 @@ namespace TSDServer
                         //string.Format(
                         //"Дата: {0}", DateTime.Today.ToString("dd.MM.yyyy"));
 
-                        
-                        
-                        ScannedProductsDataSet.ScannedBarcodesRow scannedRow =
-                               ActionsClass.Action.AddScannedRow(
-                               long.Parse(barcode),
-                               (byte)TSDUtils.ActionCode.Cars,
-                               row.DocId,
-                               row.Quantity,
-                               row.Priority);
-                        scannedRow.FactQuantity += 1;
 
-                        ActionsClass.Action.PlaySoundAsync((byte)TSDUtils.ActionCode.Cars);
-                        ActionsClass.Action.PlayVibroAsync((byte)TSDUtils.ActionCode.Cars);
-                        
-                        
-                        //Загрузить список всех коробов машины
-                        
+                        CheckStatus(barcode);
 
-
-                        if (Boxrows != null && Boxrows.Count>0)
+                        if (Boxrows != null && Boxrows.Count > 0)
                         {
 
                             //загрузить список всех накладных машин
@@ -152,8 +139,8 @@ namespace TSDServer
                             {
 
                                 //ProductsDataSet.DocsTblRow[] Incomerows =
-                                        //ActionsClass.Action.GetDataByNavCodeAndType(docsRow.NavCode,
-                                        //(byte)TSDUtils.ActionCode.BoxIncomes);
+                                //ActionsClass.Action.GetDataByNavCodeAndType(docsRow.NavCode,
+                                //(byte)TSDUtils.ActionCode.BoxIncomes);
 
                                 IncomerowsList.AddRange(ActionsClass.Action.GetDataByNavCodeAndType(docsRow.NavCode,
                                 (byte)TSDUtils.ActionCode.BoxIncomes));
@@ -162,6 +149,14 @@ namespace TSDServer
 
                         currentTtnBarcode = barcode;
                         FillCar(IncomerowsList, Boxrows);
+
+                        
+                        
+                        //Загрузить список всех коробов машины
+                        
+
+
+                        
 
                     }
                     else
@@ -177,6 +172,7 @@ namespace TSDServer
                 }
                 else
                 {
+                    currentTtnBarcode = string.Empty;
                     ActionsClass.Action.PlaySoundAsync((byte)TSDUtils.ActionCode.StrangeBox);
                     ActionsClass.Action.PlayVibroAsync((byte)TSDUtils.ActionCode.StrangeBox);
                      this.errLabel.Text = string.Format("Это не ШК ТТН!",
@@ -189,6 +185,65 @@ namespace TSDServer
             }
             
             
+        }
+
+        private void CheckStatus(string barcode)
+        {
+            ScannedProductsDataSet.ScannedBarcodesRow scannedRow =
+                        ActionsClass.Action.FindByBarcodeDocTypeDocId(
+                            long.Parse(barcode),
+                            (byte)TSDUtils.ActionCode.Cars,
+                            barcode);
+            this.label2.Visible = true;
+            this.errLabel.Visible = false;
+            this.txtLabel.Text = "ТТН ПРИНЯТЬ";
+
+            if (scannedRow == null)
+            {
+                scannedRow =
+                   ActionsClass.Action.AddScannedRow(
+                   long.Parse(barcode),
+                   (byte)TSDUtils.ActionCode.Cars,
+                   barcode,
+                   0,
+                   0);
+                scannedRow.FactQuantity += 1;
+
+                ActionsClass.Action.PlaySoundAsync((byte)TSDUtils.ActionCode.Cars);
+                ActionsClass.Action.PlayVibroAsync((byte)TSDUtils.ActionCode.Cars);
+            }
+            else
+            {
+                switch (scannedRow.Priority)
+                {
+                    case 0:
+                        {
+                            this.txtLabel.Text = "ТТН В ПРИЕМКЕ";
+                            //ok scanning
+                            break;
+                        }
+                    case byte.MaxValue:
+                        {
+                            //closed
+                            closedCar = true;
+                            this.label2.Visible = false;
+                            this.txtLabel.Text = "ТТН ПРИНЯТО";
+                            ActionsClass.Action.PlaySoundAsync((byte)TSDUtils.ActionCode.StrangeBox);
+                            ActionsClass.Action.PlayVibroAsync((byte)TSDUtils.ActionCode.StrangeBox);
+                            this.errLabel.Text = string.Format("ТТН уже закрыто!",
+                                barcode);
+
+                            this.errLabel.Visible = true;
+
+                            break;
+                        }
+                    default:
+                        {
+                            break;
+                        }
+                }
+
+            }
         }
 
         private void FillCar(System.Collections.Generic.List<ProductsDataSet.DocsTblRow> _IncomerowsList,
@@ -258,92 +313,105 @@ namespace TSDServer
         }
 
 
-       
+
 
         private void textBox1_KeyDown(object sender, KeyEventArgs e)
         {
-            //BTPrintClass.PrintClass.SetStatusEvent("KeyDown pressed");
-            //this.textBox1.Text = e.KeyValue.ToString();
-            //this.textBox1.Text = e.KeyCode.ToString();
-            if (e.KeyCode == Keys.Enter)
+            try
             {
-                if (textBox1.Text != string.Empty)
-                    OnScanned(textBox1.Text);
-  
-                return;
-            }
-            if (e.KeyCode == Keys.Escape)
-            {
-                this.Close();
-                return;
-            }
-            if (e.KeyValue == (int)SpecialButton.RedBtn)
-            {
-                using (IncomeForm income =
-                    new IncomeForm(TtnStruct, currentTtnBarcode))
+                //BTPrintClass.PrintClass.SetStatusEvent("KeyDown pressed");
+                //this.textBox1.Text = e.KeyValue.ToString();
+                //this.textBox1.Text = e.KeyCode.ToString();
+                if (e.KeyCode == Keys.Enter)
                 {
+                    if (textBox1.Text != string.Empty)
+                        OnScanned(textBox1.Text);
 
-                    income.ShowDialog();
+                    return;
                 }
-                return;
-            }
-            if (e.KeyValue == (int)SpecialButton.BlueBtn)
-            {
-
-                return;
-            }
-            if (e.KeyValue == (int)SpecialButton.YellowBtn)
-            {
-                if (currentTtnBarcode != string.Empty &&
-                    Boxrows != null &&
-                    Boxrows.Count > 0)
+                if (e.KeyCode == Keys.Escape)
                 {
-
-                    using (ViewTtnForm vFrm = new ViewTtnForm(TtnStruct))
+                    this.Close();
+                    return;
+                }
+                if (e.KeyValue == (int)SpecialButton.RedBtn)
+                {
+                    if (!closedCar && currentTtnBarcode != string.Empty)
                     {
-                        vFrm.ShowDialog();
-                    }
-                }
 
-                     
-                /*int totals=0;
-                int totalBk=0;
-                ActionsClass.Action.CalculateTotalsWOPriority(
-                    TSDUtils.ActionCode.IncomeBox,
-                    DateTime.Today,
-                    out totalBk,
-                    out totals);
-                try
+                        using (IncomeForm income =
+                            new IncomeForm(TtnStruct, currentTtnBarcode))
+                        {
+
+                            income.ShowDialog();
+                        }
+                        CheckStatus(currentTtnBarcode);
+                    }
+                    return;
+                }
+                if (e.KeyValue == (int)SpecialButton.BlueBtn)
                 {
-                    ScanClass.Scaner.OnScanned -= scannedDelegate;
-                    using (DialogForm dlgfrm =
-                                new DialogForm(
-                                    string.Format("За {0} отсканировано",
-                                    DateTime.Today.ToString("dd.MM.yyyy"))
-                                    , string.Format(" {0} правильных коробов", totalBk)
-                                    , ""
-                                    , "Подсчет коробов"))
+
+                    return;
+                }
+                if (e.KeyValue == (int)SpecialButton.YellowBtn)
+                {
+                    if (currentTtnBarcode != string.Empty &&
+                        Boxrows != null &&
+                        Boxrows.Count > 0)
                     {
-                        dlgfrm.ShowDialog();
-                    }
-                }
-                finally
-                {
-                    ScanClass.Scaner.OnScanned += scannedDelegate;
 
+                        using (ViewTtnForm vFrm = new ViewTtnForm(TtnStruct))
+                        {
+                            vFrm.ShowDialog();
+                        }
+                    }
+
+
+                    /*int totals=0;
+                    int totalBk=0;
+                    ActionsClass.Action.CalculateTotalsWOPriority(
+                        TSDUtils.ActionCode.IncomeBox,
+                        DateTime.Today,
+                        out totalBk,
+                        out totals);
+                    try
+                    {
+                        ScanClass.Scaner.OnScanned -= scannedDelegate;
+                        using (DialogForm dlgfrm =
+                                    new DialogForm(
+                                        string.Format("За {0} отсканировано",
+                                        DateTime.Today.ToString("dd.MM.yyyy"))
+                                        , string.Format(" {0} правильных коробов", totalBk)
+                                        , ""
+                                        , "Подсчет коробов"))
+                        {
+                            dlgfrm.ShowDialog();
+                        }
+                    }
+                    finally
+                    {
+                        ScanClass.Scaner.OnScanned += scannedDelegate;
+
+                    }
+                     * */
+
+                    return;
                 }
-                 * */
+                if (e.KeyValue == (int)SpecialButton.GreenBtn) //GreenBtn
+                {
+
+                    return;
+                }
+
+            }
+            finally
+            {
                 this.Refresh();
-
-                return;
             }
-            if (e.KeyValue == (int)SpecialButton.GreenBtn) //GreenBtn
-            {
-                
-                return;
-            }
-             
         }
+        
+
             
 
     }

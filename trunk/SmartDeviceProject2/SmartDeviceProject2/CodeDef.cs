@@ -148,6 +148,10 @@ namespace TSDUtils
             dict.Add(ActionCode.InventoryLocal, "Инвент-ция Точечная");
             dict.Add(ActionCode.IncomeBox, "Прием коробов");
             dict.Add(ActionCode.CloseInventar, "Закрытие глобальной инвентаризации");
+            dict.Add(ActionCode.Cars, "Поставки (ТТН)");
+            dict.Add(ActionCode.BoxWProducts, "Прием товаров");
+            dict.Add(ActionCode.BoxIncomes, "Накладные и короба");
+            dict.Add(ActionCode.CarsBoxes, "Машины и короба");
             dict.Add(ActionCode.NotFound, "Товар не найден");
             dict.Add(ActionCode.DocNotFound, "Документ не найден");
             
@@ -168,7 +172,11 @@ namespace TSDUtils
         {
             get
             {
-                return dict[i];
+                if (dict.ContainsKey(i))
+                    return dict[i];
+                else
+                    return dict[ActionCode.DocNotFound];
+                
             }
         }
         public string this[byte i]
