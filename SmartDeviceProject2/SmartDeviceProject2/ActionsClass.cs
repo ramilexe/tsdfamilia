@@ -997,6 +997,72 @@ namespace TSDServer
             //}
         }
 
+        public void AcceptFullBoxWProductsActionProc(string docId)
+        {
+            //ScannedProductsDataSet.ScannedBarcodesRow[] r =
+            //    _scannedProducts.ScannedBarcodes.FindByBarcodeAndDocType(datarow.Barcode, docsRow.DocType);
+
+            BeginScan();
+            try
+            {
+                ScannedProductsDataSet.ScannedBarcodesRow scannedRow = null;
+
+                ProductsDataSet.DocsTblRow[] docs =
+                    docsTa.GetAllDataByDocIdAndType(docId, (byte)TSDUtils.ActionCode.BoxWProducts);
+
+                foreach (ProductsDataSet.DocsTblRow docrow in docs)
+                {
+                    ProductsDataSet.ProductsTblRow productRow =
+                        GetProductRowByNavCode(docrow.NavCode);
+
+                    scannedRow = ActionsClass.Action.AddScannedRow(
+                                       productRow.Barcode,
+                                       docrow.DocType,
+                                       docrow.DocId,
+                                       docrow.Quantity,
+                                       Byte.MaxValue);
+                    if (docrow.Quantity > 0)
+                    {
+                        for (int i = 0; i < docrow.Quantity; i++)
+                        {
+                            scannedRow.FactQuantity += 1;
+                        }
+                    }
+                    else
+                        scannedRow.FactQuantity += 1;
+
+
+
+                }
+            }
+            finally
+            {
+                EndScan();
+            }
+
+            //if (scannedRow == null)
+            //{
+            //    return 
+            //    //r = new ScannedProductsDataSet.ScannedBarcodesRow[1];
+            //    //r[0] = scannedRow;
+            //}
+
+            //for (int i = 0; i < r.Length; i++)
+            //{
+
+
+            //PlayVibroAsyncAction(docsRow);
+            //PlaySoundAsyncAction(docsRow);
+            
+            //PrintLabelAsync(datarow, docsRow);
+            //if (OnActionCompleted != null)
+            //    OnActionCompleted(docsRow, scannedRow);
+            //break;
+
+
+            //}
+        }
+
         public void InventoryLocalActionProc(ProductsDataSet.ProductsTblRow datarow, ProductsDataSet.DocsTblRow docsRow)
         {
             ScannedProductsDataSet.ScannedBarcodesRow[] r =
@@ -1604,6 +1670,7 @@ namespace TSDServer
         /// </summary>
         /// <param name="docId">Номер док-та = адрес просчета</param>
         /// <param name="docType">Тип документа</param>
+        
         public void CloseInv(string docId, TSDUtils.ActionCode docType)
         {
 
@@ -1657,6 +1724,61 @@ namespace TSDServer
 
 
         }
+
+        public void CloseDoc(string docId, TSDUtils.ActionCode docType)
+        {
+
+
+            ScannedProductsDataSet.ScannedBarcodesRow[] scannedrow =
+            _scannedProducts.ScannedBarcodes.FindByDocIdAndDocType(docId,
+                (byte)docType);
+            if (scannedrow == null ||
+                scannedrow.Length == 0)
+            {
+                /*throw new ApplicationException(string.Format("Документ {0} с типом {1} не найден!",
+                    docId,
+                    docType.ToString())
+                    );*/
+            }
+            else
+            {
+                for (int i = 0; i < scannedrow.Length; i++)
+                {
+                    scannedrow[i].Priority = byte.MaxValue;
+                    //WriteDbTxt(scannedrow[i]);
+                }
+
+            }
+            using (System.IO.StreamWriter wr =
+                new System.IO.StreamWriter(
+                    System.IO.Path.Combine(Program.Default.DatabaseStoragePath, "scannedbarcodes.txt"), true))
+            {
+                //if (row["FactQuantity"] != System.DBNull.Value
+                //    && row.FactQuantity > 0)
+                //{
+                string s =
+                        string.Format("{0}|{1}|{2}|{3}|{4}|{5}|{6}",
+                            docId,
+                            docId,
+                            ((byte)docType),
+                            0,
+                            DateTime.Today.ToString("dd.MM.yyyy"),
+                            Program.Default.TerminalID,
+                            255
+                            );
+                wr.WriteLine(s);
+                //}
+
+            }
+            //текущий открытый просчет теперь пуст
+            //Program.СurrentInvId = string.Empty;
+
+
+
+
+
+        }
+        
         public bool CheckInv(string docId)
         {
                 if (!System.IO.File.Exists(System.IO.Path.Combine(
@@ -1887,6 +2009,31 @@ namespace TSDServer
             //    return null;
             //}
         }
+
+        public ProductsDataSet.DocsTblRow GetDataByNavcodeDocIdAndType(string Navcode, string DocId, byte docType)
+        {
+            //try
+            //{
+            //return this._products.DocsTbl.FindByDocIdAndType(DocId, docType);
+
+            return docsTa.GetDataByDocIdNavcodeAndType(Navcode, DocId, docType);
+            //}
+            //catch
+            //{
+            //    return null;
+            //}
+        }
+
+
+        /// <summary>
+        /// Добавить строку в сканированные документы. Кол-во Факт = 0
+        /// </summary>
+        /// <param name="barcode">штрихкод</param>
+        /// <param name="docType">тип документа</param>
+        /// <param name="docId">№документа</param>
+        /// <param name="quantity">Кол-во План </param>
+        /// <param name="priority">Приоритет</param>
+        /// <returns>Сформированная строка</returns>
         public ScannedProductsDataSet.ScannedBarcodesRow AddScannedRow(
             long barcode,
             byte docType,
@@ -2008,9 +2155,18 @@ namespace TSDServer
              }
 
         public ScannedProductsDataSet.ScannedBarcodesRow
-              FindByBarcodeDocTypeDocId(long Barcode,
+              FindByBarcodeDocTypeDocId(string Barcode,
                                         byte DocType,
                                         string DocId)
+        {
+
+            return FindByBarcodeDocTypeDocId(long.Parse(Barcode), DocType, DocId);
+        }
+
+        public ScannedProductsDataSet.ScannedBarcodesRow
+            FindByBarcodeDocTypeDocId(long Barcode,
+                                      byte DocType,
+                                      string DocId)
         {
             //if (!System.IO.File.Exists(System.IO.Path.Combine(
             //     Program.Default.DatabaseStoragePath,
@@ -2025,7 +2181,7 @@ namespace TSDServer
                     return row;
             }
             return null;
-           
+
 
             using (System.IO.StreamReader wr =
                  new System.IO.StreamReader(
@@ -2051,9 +2207,10 @@ namespace TSDServer
                             row.DocId = strAr[1];
                             row.DocType = byte.Parse(strAr[2]);
                             row.FactQuantity = int.Parse(strAr[3]);
-                            row.ScannedDate = DateTime.Parse(strAr[4],dateFormat);
+                            row.ScannedDate = DateTime.Parse(strAr[4], dateFormat);
                             row.TerminalId = int.Parse(strAr[5]);
                             row.Priority = byte.Parse(strAr[6]);
+                            ScannedProducts.ScannedBarcodes.AddScannedBarcodesRow(row);
 
                             return row;
                         }
@@ -2063,7 +2220,6 @@ namespace TSDServer
             return null;
 
         }
-
         public void ClearCache()
         {
             this.Products.ProductsTbl.Clear();

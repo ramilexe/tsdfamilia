@@ -11,11 +11,15 @@ namespace TSDServer
 {
     public partial class IncomeForm : Form
     {
-        //private bool enableInvent = false;
+        private bool enableScan = false;
+        private bool fullAcceptEnabled = false;
+        private bool fullAccepted = false;
+
         Scanned scannedDelegate = null;
         CarScanMode _mode;
 
         string _currentTTNBarcode;
+        string _currentBoxBarcode;
         System.Collections.Generic.Dictionary<string,//car
             System.Collections.Generic.Dictionary<string, //TORG12
                 System.Collections.Generic.Dictionary<string,//Box navcode
@@ -49,12 +53,29 @@ namespace TSDServer
         {
             if (_mode == CarScanMode.CarsScan)
             {
-                label4.Text = "F3-Завершить";
+                lblF3.Text = "F3-Завершить";
+                lblF1.Visible = false;
+                lblQtySku.Visible = false;
+                lblQtyTotal.Visible = false;
+                lblQtySkuScanned.Visible = false;
+                lblQtyTotalScanned.Visible = false;
             }
             else
             {
-                ActionsClass.Action.BeginScan();
-                label4.Text = "F3-Прием Товаров";
+                //ActionsClass.Action.BeginScan();
+                lblF3.Text = "F3-Прием Товаров";
+                lblQtySku.Visible = true;
+                lblQtyTotal.Visible = true;
+                lblQtySkuScanned.Visible = true;
+                lblQtyTotalScanned.Visible = true;
+
+                lblQtySku.Text = string.Format("Всего товаров: {0}",
+                   0);
+                lblQtyTotal.Text = string.Format("Общее кол-во: {0}", 0);
+                lblQtySkuScanned.Text = string.Format("Всего принято товаров: {0}",
+                   0);
+                lblQtyTotalScanned.Text = string.Format("Общее кол-во принятно: {0}",
+                    0);
             }
 
             this.Width = 235;
@@ -67,13 +88,14 @@ namespace TSDServer
             //ActionsClass.Action.OnActionCompleted += new ActionsClass.ActionCompleted(Action_OnActionCompleted);
             ScanClass.Scaner.InitScan();
             ScanClass.Scaner.OnScanned += scannedDelegate;
+            enableScan = true;
 
             //READ FIRST ANY VALUE - CASHE INDEX
             ActionsClass.Action.GetDataByDocIdAndType("3000000000000",
                             (byte)TSDUtils.ActionCode.IncomeBox);
 
             this.Refresh();
-
+            
 
             
             
@@ -88,7 +110,7 @@ namespace TSDServer
             }
             else
             {
-                ActionsClass.Action.EndScan();
+               // ActionsClass.Action.EndScan();
                 
             }
             //ActionsClass.Action.EndScan();
@@ -98,18 +120,25 @@ namespace TSDServer
 
         void OnScanned(string barcode)
         {
-            switch (_mode)
+            if (enableScan)
             {
-                case CarScanMode.CarsScan: {            
-                        CarScanModeScaneed(barcode);
-                        break;
+                _currentBoxBarcode = barcode;
+                switch (_mode)
+                {
+                    case CarScanMode.CarsScan:
+                        {
+                            CarScanModeScaneed(barcode);
+                            break;
+                        }
+                    case CarScanMode.BoxScan:
+                        {
+                            BoxScanModeScanned(barcode);
+                            break;
+                        }
+                    default:
+                        return;
                 }
-                case CarScanMode.BoxScan: {
-                    BoxScanModeScanned(barcode);
-                    break;
-                }
-                default:
-                    return;
+                
             }
             
         }
@@ -123,6 +152,7 @@ namespace TSDServer
             }
             else
             {
+                
                 this.bkLabel.Visible = false;
                 this.docLabel.Visible = false;
                 this.errLabel.Visible = false;
@@ -155,8 +185,26 @@ namespace TSDServer
                                 this.dateLabel.Text = TtnStruct[_currentTTNBarcode][incomeDoc][navCodeBox].DateLabel;
                                 TtnStruct[_currentTTNBarcode][incomeDoc][navCodeBox].Accepted = true;
 
-                                //записываем в БД
-                                ActionsClass.Action.IncomeCarBoxAction(_currentTTNBarcode, TtnStruct[_currentTTNBarcode][incomeDoc][navCodeBox]);
+                                ScannedProductsDataSet.ScannedBarcodesRow scannedRow = 
+                                    ActionsClass.Action.FindByBarcodeDocTypeDocId(
+                                     TtnStruct[_currentTTNBarcode][incomeDoc][navCodeBox].Barcode,
+                                     (byte)TSDUtils.ActionCode.CarsBoxes,
+                                     _currentTTNBarcode);
+                                if (scannedRow == null)
+                                {
+
+                                    //записываем в БД
+                                    ActionsClass.Action.IncomeCarBoxAction(_currentTTNBarcode,
+                                    TtnStruct[_currentTTNBarcode][incomeDoc][navCodeBox]);
+                                    
+                                }
+                                else
+                                {
+                                    this.errLabel.Text = 
+                                        string.Format("Короб уже принят!");
+
+                                    this.errLabel.Visible = true;
+                                }
                                 found = true;
 
                             }
@@ -164,13 +212,13 @@ namespace TSDServer
                     }
                     if (!found)
                     {
-                        this.errLabel.Text = string.Format("Короб {0} не относится к данной ТТН!",
-                                barcode);
+                        this.errLabel.Text = string.Format("Короб не относится к данной ТТН!");
 
                         this.errLabel.Visible = true;
                     }
 
-                        /*try
+                    #region oldcode
+                    /*try
                         {
                             //сравнение ШК данного и штрихкода поставки 
                             //накладная и коробка должны соответствовать
@@ -311,14 +359,15 @@ namespace TSDServer
 
                         this.errLabel.Visible = true;
                     }*/
+                    #endregion
                     this.Refresh();
                 }
                 else
                 {
+                    _currentBoxBarcode = string.Empty;
                     ActionsClass.Action.PlaySoundAsync((byte)TSDUtils.ActionCode.StrangeBox);
                     ActionsClass.Action.PlayVibroAsync((byte)TSDUtils.ActionCode.StrangeBox);
-                    this.errLabel.Text = string.Format("Это не ШК короба!",
-                           barcode);
+                    this.errLabel.Text = string.Format("Это не ШК короба!");
 
                     this.errLabel.Visible = true;
 
@@ -366,30 +415,34 @@ namespace TSDServer
 
                         this.dateLabel.Visible = true;
                         this.dateLabel.Text = row.Text3;
+
+                        RefreshData(barcode);
                         //string.Format(
                         //"Дата: {0}", DateTime.Today.ToString("dd.MM.yyyy"));
+                        
+                        
 
+                        /*
                         ScannedProductsDataSet.ScannedBarcodesRow scannedRow =
                                ActionsClass.Action.AddScannedRow(
                                long.Parse(barcode),
                                (byte)TSDUtils.ActionCode.IncomeBox,
-                               row.DocId,
-                               row.Quantity,
-                               row.Priority);
+                               barcode,
+                               0,
+                               0);
                         scannedRow.FactQuantity += 1;
+                        */
+                        //ActionsClass.Action.IncomeBoxAction(scannedRow);
 
-                        ActionsClass.Action.IncomeBoxAction(scannedRow);
-
-                        ActionsClass.Action.PlaySoundAsync((byte)TSDUtils.ActionCode.IncomeBox);
-                        ActionsClass.Action.PlayVibroAsync((byte)TSDUtils.ActionCode.IncomeBox);
+                        ActionsClass.Action.PlaySoundAsync(row.MusicCode);
+                        ActionsClass.Action.PlayVibroAsync(row.VibroCode);
 
                     }
                     else
                     {
                         ActionsClass.Action.PlaySoundAsync((byte)TSDUtils.ActionCode.StrangeBox);
                         ActionsClass.Action.PlayVibroAsync((byte)TSDUtils.ActionCode.StrangeBox);
-                        this.errLabel.Text = string.Format("ШК {0} чужой короб!",
-                            barcode);
+                        this.errLabel.Text = string.Format("Это чужой короб!");
 
                         this.errLabel.Visible = true;
                     }
@@ -397,6 +450,7 @@ namespace TSDServer
                 }
                 else
                 {
+                    _currentBoxBarcode = string.Empty;
                     ActionsClass.Action.PlaySoundAsync((byte)TSDUtils.ActionCode.StrangeBox);
                     ActionsClass.Action.PlayVibroAsync((byte)TSDUtils.ActionCode.StrangeBox);
                     this.errLabel.Text = string.Format("Это не ШК короба!",
@@ -409,114 +463,313 @@ namespace TSDServer
             }
         }
 
-        private void textBox1_KeyDown(object sender, KeyEventArgs e)
+        private void RefreshData(string barcode)
         {
-            //BTPrintClass.PrintClass.SetStatusEvent("KeyDown pressed");
-            //this.textBox1.Text = e.KeyValue.ToString();
-            //this.textBox1.Text = e.KeyCode.ToString();
-            if (e.KeyCode == Keys.Enter)
+            this.errLabel.Visible = false;
+            ProductsDataSet.DocsTblRow[] product_rows =
+                             ActionsClass.Action.GetDataByDocIdAndType(barcode,
+                            (byte)TSDUtils.ActionCode.BoxWProducts);
+
+            if (product_rows != null &&
+                product_rows.Length > 0)
             {
                 
-                if (textBox1.Text != string.Empty)
-                    OnScanned(textBox1.Text);
+                List<string> uniqCodes = new List<string>();
+
                 
-  
-                return;
-            }
-            if (e.KeyCode == Keys.Escape)
-            {
-                this.Close();
-                return;
-            }
-            if (e.KeyValue == (int)SpecialButton.RedBtn)
-            {
-
-                return;
-            }
-            if (e.KeyValue == (int)SpecialButton.BlueBtn)
-            {
-
-                return;
-            }
-            if (e.KeyValue == (int)SpecialButton.YellowBtn)
-            {
-                if (_mode == CarScanMode.BoxScan)
+                int totalQty = 0;
+                int totalSku = 0;
+                foreach (ProductsDataSet.DocsTblRow r in product_rows)
                 {
-                    int totals = 0;
-                    int totalBk = 0;
-                    ActionsClass.Action.CalculateTotalsWOPriority(
-                        TSDUtils.ActionCode.IncomeBox,
-                        DateTime.Today,
-                        out totalBk,
-                        out totals);
-                    try
-                    {
-                        ScanClass.Scaner.OnScanned -= scannedDelegate;
-                        using (DialogForm dlgfrm =
-                                    new DialogForm(
-                                        string.Format("За {0} отсканировано",
-                                        DateTime.Today.ToString("dd.MM.yyyy"))
-                                        , string.Format(" {0} правильных коробов", totalBk)
-                                        , ""
-                                        , "Подсчет коробов"))
-                        {
-                            dlgfrm.ShowDialog();
-                        }
-                    }
-                    finally
-                    {
-                        ScanClass.Scaner.OnScanned += scannedDelegate;
+                    totalQty += r.Quantity;
 
+                    if (!uniqCodes.Contains(r.NavCode))
+                    {
+                        uniqCodes.Add(r.NavCode);
+                        totalSku++;
                     }
+                }
+                lblQtySku.Text = string.Format("Всего товаров: {0}",
+                   totalSku);
+                lblQtyTotal.Text = string.Format("Общее кол-во: {0}", totalQty);
+
+                ScannedProductsDataSet.ScannedBarcodesRow[] scannedProdRow =
+                    ActionsClass.Action.FindByDocIdAndDocType(
+                        barcode,
+                        (byte)TSDUtils.ActionCode.BoxWProducts);
+
+                totalQty = 0;
+                totalSku = 0;
+                uniqCodes.Clear();
+                fullAccepted = false;
+
+                if (scannedProdRow != null &&
+                    scannedProdRow.Length > 0)
+                {
+                    foreach (ScannedProductsDataSet.ScannedBarcodesRow r in scannedProdRow)
+                    {
+                        if (r.Priority == Byte.MaxValue)
+                            fullAccepted = true;
+
+                        if (!uniqCodes.Contains(r.Barcode.ToString()))
+                        {
+                            uniqCodes.Add(r.Barcode.ToString());
+                            totalSku++;
+                        }
+
+                        totalQty += r.FactQuantity;
+                    }
+                    
+                }
+                
+                lblQtySkuScanned.Text = string.Format("Всего принято товаров: {0}",
+                        totalSku);
+                lblQtyTotalScanned.Text = string.Format("Общее кол-во принятно: {0}",
+                    totalQty);
+
+
+                if (totalQty > 0)
+                {
+                    lblF1.Visible = false;
+                    fullAcceptEnabled = false;
+
                 }
                 else
                 {
-                    using (ViewTtnForm vFrm = new ViewTtnForm(TtnStruct))
-                    {
-                        vFrm.ShowDialog();
-                    }
+                    fullAcceptEnabled = true;
+                    lblF1.Visible = true;
                 }
-                this.Refresh();
 
-                return;
-            }
-            if (e.KeyValue == (int)SpecialButton.GreenBtn) //GreenBtn
-            {
-                if (_mode == CarScanMode.CarsScan)
+                if (fullAccepted)
                 {
-                    int total = 0;
-                    
-                    foreach (string incomeDoc in TtnStruct[_currentTTNBarcode].Keys)
-                    {//цикл по всем накладным
-                        foreach (string navCodeBox in TtnStruct[_currentTTNBarcode][incomeDoc].Keys)
-                        {
-                            if (TtnStruct[_currentTTNBarcode][incomeDoc][navCodeBox].Accepted)
-                                total++;
-                        }
-                    }
-
-
-                    using (DialogForm dlgfrm =
-                            new DialogForm(
-                                "Вы хотите закончить просчет ТТН?"
-                                , ""//string.Format("Посчитано: {0} кодов", totalBk)
-                                , string.Format("Итого: {0} коробов", total)
-                                , "Закрытие ТТН"))
-                    {
-                        if (dlgfrm.ShowDialog() == DialogResult.Yes)
-                        {
-                            /*ActionsClass.Action.CloseInv(
-                                _documentId,
-                                TSDUtils.ActionCode.InventoryGlobal);
-                            */
-                            this.Close();
-                        }
-                    }
-
+                    txtLabel.Text = "КОРОБ ПРИНЯТ ПОЛНОСТЬЮ";
+                    lblF3.Visible = false;
+                    lblF1.Visible = false;
                 }
-                return;
+                else
+                {
+                    txtLabel.Text = "Короб ПРИНЯТЬ";
+                    lblF3.Visible = true;
+                    lblF1.Visible = true;
+                }
+
+            }
+            else
+            {
+                
+                ActionsClass.Action.PlaySoundAsync((byte)TSDUtils.ActionCode.StrangeBox);
+                ActionsClass.Action.PlayVibroAsync((byte)TSDUtils.ActionCode.StrangeBox);
+                this.errLabel.Text = string.Format("Товаров не найдено!");
+
+                this.errLabel.Visible = true;
+
+                lblQtySku.Text = string.Format("Всего товаров: {0}",
+                   0);
+                lblQtyTotal.Text = string.Format("Общее кол-во: {0}", 0);
+                lblQtySku.Text = string.Format("Всего принято товаров: {0}",
+                   0);
+                lblQtyTotal.Text = string.Format("Общее кол-во принятно: {0}",
+                    0);
+
+            }
+        }
+
+        private void textBox1_KeyDown(object sender, KeyEventArgs e)
+        {
+            try
+            {
+                //BTPrintClass.PrintClass.SetStatusEvent("KeyDown pressed");
+                //this.textBox1.Text = e.KeyValue.ToString();
+                //this.textBox1.Text = e.KeyCode.ToString();
+                if (e.KeyCode == Keys.Enter)
+                {
+
+                    if (textBox1.Text != string.Empty)
+                        OnScanned(textBox1.Text);
+
+
+                    return;
+                }
+                if (e.KeyCode == Keys.Escape)
+                {
+                    this.Close();
+                    return;
+                }
+                if (e.KeyValue == (int)SpecialButton.RedBtn)
+                {
+
+                    if (_mode == CarScanMode.BoxScan && fullAcceptEnabled && !fullAccepted)
+                    {
+                        
+                        using (DialogForm dlgfrm =
+                                new DialogForm(
+                                   lblQtySku.Text,
+                                    lblQtyTotal.Text,
+                                     "Вы уверены?",
+                                     "Принять полностью"))
+                        {
+                            if (dlgfrm.ShowDialog() == DialogResult.Yes)
+                            {
+                                ActionsClass.Action.AcceptFullBoxWProductsActionProc(_currentBoxBarcode);
+                                RefreshData(_currentBoxBarcode);
+    
+                            }
+                        }
+
+                    }
+
+                    return;
+                }
+                if (e.KeyValue == (int)SpecialButton.BlueBtn)
+                {
+
+                    return;
+                }
+                if (e.KeyValue == (int)SpecialButton.YellowBtn)
+                {
+                    if (_mode == CarScanMode.BoxScan)
+                    {
+                        /*int totals = 0;
+                        int totalBk = 0;
+                        ActionsClass.Action.CalculateTotalsWOPriority(
+                            TSDUtils.ActionCode.IncomeBox,
+                            DateTime.Today,
+                            out totalBk,
+                            out totals);*/
+                        try
+                        {
+                            /*ScanClass.Scaner.OnScanned -= scannedDelegate;
+                            using (DialogForm dlgfrm =
+                                        new DialogForm(
+                                            string.Format("За {0} отсканировано",
+                                            DateTime.Today.ToString("dd.MM.yyyy"))
+                                            , string.Format(" {0} правильных коробов", totalBk)
+                                            , ""
+                                            , "Подсчет коробов"))
+                            {
+                                dlgfrm.ShowDialog();
+                            }
+                            */
+                            using (ViewBoxForm boxFrm =
+                                new ViewBoxForm(_currentBoxBarcode, (byte)TSDUtils.ActionCode.BoxWProducts))
+                            {
+                                boxFrm.ShowDialog();
+                            }
+
+                        }
+                        finally
+                        {
+                            //ScanClass.Scaner.OnScanned += scannedDelegate;
+
+                        }
+                    }
+                    else
+                    {
+                        using (ViewTtnForm vFrm = new ViewTtnForm(TtnStruct))
+                        {
+                            vFrm.ShowDialog();
+                        }
+                    }
+                    
+
+                    return;
+                }
+                if (e.KeyValue == (int)SpecialButton.GreenBtn) //GreenBtn
+                {
+                    if (_mode == CarScanMode.CarsScan)
+                    {
+                        int total = 0;
+
+                        foreach (string incomeDoc in TtnStruct[_currentTTNBarcode].Keys)
+                        {//цикл по всем накладным
+                            foreach (string navCodeBox in TtnStruct[_currentTTNBarcode][incomeDoc].Keys)
+                            {
+                                if (TtnStruct[_currentTTNBarcode][incomeDoc][navCodeBox].Accepted)
+                                    total++;
+                            }
+                        }
+
+
+                        using (DialogForm dlgfrm =
+                                new DialogForm(
+                                    "Вы хотите закончить просчет ТТН?"
+                                    , ""//string.Format("Посчитано: {0} кодов", totalBk)
+                                    , string.Format("Итого: {0} коробов", total)
+                                    , "Закрытие ТТН"))
+                        {
+                            if (dlgfrm.ShowDialog() == DialogResult.Yes)
+                            {
+
+                                ActionsClass.Action.CloseDoc(
+                                    _currentTTNBarcode,
+                                    TSDUtils.ActionCode.Cars);
+
+                                this.Close();
+                            }
+                        }
+
+                    }
+                    else
+                    {
+                        if (!fullAccepted)
+                        {
+                            try
+                            {
+
+
+                                enableScan = false;
+                                ScanClass.Scaner.StopScan();
+                                ScanClass.Scaner.OnScanned -= scannedDelegate;
+                                //ScanClass.Scaner.OnScanned =null;
+                                //this.Visible = false;
+                                //this.Enabled = false;
+                                ScanClass.Scaner.StopScan();
+                                using (ViewProductForm prodfrm =
+                                    new ViewProductForm(
+                                        WorkMode.BoxScan,
+                                        _currentBoxBarcode))
+                                {
+                                    prodfrm.ShowDialog();
+                                }
+
+                            }
+                            catch (Exception err)
+                            {
+                                //using (DialogForm frmErr =
+                                //    new DialogForm("Ошибка инв-ции",
+                                //        err.Message,
+                                //        "ДА – продолжить. Нет – выйти",
+                                //         "Ошибка"))
+                                //{
+                                //    if (frmErr.ShowDialog() == DialogResult.No)
+                                //        return;
+                                //}
+                            }
+                            finally
+                            {
+                                ScanClass.Scaner.OnScanned += scannedDelegate;
+                                ScanClass.Scaner.InitScan();
+                                enableScan = true;
+                                //this.Visible = true;
+                                //this.Enabled = true;
+                                //ScanClass.Scaner.InitScan();
+                                //ScanClass.Scaner.OnScanned += new Scanned(OnScanned);
+                            }
+                        }
+                    }
+                    return;
+                }
+            }
+            finally
+            {
+                this.Refresh();
             }
              
+        }
+
+        private void docLabel_ParentChanged(object sender, EventArgs e)
+        {
+
         }
             
 

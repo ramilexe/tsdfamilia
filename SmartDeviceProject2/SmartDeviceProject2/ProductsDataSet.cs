@@ -428,6 +428,34 @@ namespace TSDServer.ProductsDataSetTableAdapters
                     return null;
             }
         }
+
+        public ProductsDataSet.DocsTblRow GetDataByDocIdNavcodeAndType(string Navcode, string DocId, byte docType)
+        {
+            ProductsDataSet.DocsTblRow r = _productsDataset.DocsTbl.FindByNavCodeDocIdDocType(Navcode, DocId, docType);
+            if (r != null)
+                return r;
+            else
+            {
+                System.Data.DataRow rows = table.FindByIndex(0, //0 индекс - первичный ключ
+                    //new int[] { 1, 2 }, //индекс состоит из 3х колонок: NavCode|6, DocId|20, DocType|1
+                    //ищем по DocId|20, DocType|1
+                    new object[] {Navcode, DocId, docType }); //таблица куда записывать
+                if (rows != null )
+                {
+                    try
+                    {
+                        _productsDataset.DocsTbl.AddDocsTblRow((ProductsDataSet.DocsTblRow)rows);
+                        
+                    }
+                    catch (System.Data.ConstraintException)
+                    {
+                    }
+                    return (ProductsDataSet.DocsTblRow)rows;
+                }
+                else
+                    return null;
+            }
+        }
     }
 
     public class ProductsTblTableAdapter : BaseTableAdapter
