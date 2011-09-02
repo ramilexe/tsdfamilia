@@ -148,15 +148,8 @@ namespace TSDServer
                         }
 
                         currentTtnBarcode = barcode;
-                        FillCar(IncomerowsList, Boxrows);
-
-                        
-                        
                         //Загрузить список всех коробов машины
-                        
-
-
-                        
+                        FillCar(IncomerowsList, Boxrows);
 
                     }
                     else
