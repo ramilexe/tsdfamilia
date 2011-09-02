@@ -12,6 +12,10 @@ namespace TSDServer
 {
     public partial class MainForm : Form
     {
+        System.Threading.Thread thread = null;
+        private WaitForm waitfrm =null;// new WaitForm();
+
+        
         //string settingFilePath = string.Empty;
         //public static string СurrentInvId = string.Empty;
         //public static SystemMemoryChangeStatusEnum SystemMemoryChangeStatus;
@@ -112,6 +116,16 @@ namespace TSDServer
                 button0.Enabled = true;
 
             ActionsClass.Action.LoadScannedData();
+
+            //onEndLoad += new EndLoadDelegate(MainForm_onEndLoad);
+        }
+
+        void MainForm_onEndLoad()
+        {
+                //EndLoadDelegate del = new EndLoadDelegate(MainForm_onEndLoad);
+                //if (waitfrm != null)
+                //    waitfrm.Invoke(del);
+            
         }
 
         void b_KeyPress(object sender, KeyPressEventArgs e)
@@ -269,12 +283,27 @@ namespace TSDServer
                         }
                     case (int)MenuItems.TTNForm:
                         {
-                            BTPrintClass.PrintClass.CheckForClear();
-                            ActionsClass.Action.OpenProducts();
-                            ActionsClass.Action.OpenScanned();
+
+                            //this.Visible = false;
+
+
+                            //thread = new System.Threading.Thread(
+                            //    new System.Threading.ThreadStart(
+                            //        frm_onBeginLoad));
+                            //thread.IsBackground = false;
+
+
+                            //thread.Start();
+
                             using (TtnForm frm = new TtnForm())
                             {
+                                frm.onEndLoad += new EndLoadDelegate(frm_onEndLoad);
+                                BTPrintClass.PrintClass.CheckForClear();
+                                ActionsClass.Action.OpenProducts();
+                                ActionsClass.Action.OpenScanned();
+
                                 frm.ShowDialog();
+                               //this.Visible = true;
                             }
                             ActionsClass.Action.CloseProducts();
                             ActionsClass.Action.ClosedScanned();
@@ -307,6 +336,58 @@ namespace TSDServer
             }
             this.Refresh();
             BTPrintClass.PrintClass.SetStatusEvent("Main Form Refreshed");
+        }
+        System.Threading.Timer refreshTimer = null;
+
+        void frm_onBeginLoad()
+        {
+
+            
+            waitfrm = new WaitForm();
+
+            refreshTimer = new System.Threading.Timer(
+                new System.Threading.TimerCallback(onRefreshWaitForm),
+                waitfrm,
+                0,
+                100);
+
+            waitfrm.Show();
+
+            waitfrm.Refresh();
+
+
+        }
+
+        void onRefreshWaitForm(object target)
+        {
+            //if (this.InvokeRequired)
+            //{
+            //    System.Threading.TimerCallback del =
+            //        new System.Threading.TimerCallback(onRefreshWaitForm);
+            //    this.Invoke(del, target);
+            //}
+            //else
+            //{
+            //if (((WaitForm)target).OutRefresh != null)
+             ((WaitForm)target).WaitForm_OutRefresh();
+
+            //}
+        }
+        void frm_onEndLoad()
+        {
+            try
+            {
+                refreshTimer.Change(System.Threading.Timeout.Infinite,
+                    System.Threading.Timeout.Infinite);
+
+                //waitfrm.Close();
+                //waitfrm.Dispose();
+                //waitfrm = null;
+                thread.Abort();
+
+            }
+            catch { }
+            
         }
 
         private void FillData()
@@ -428,4 +509,6 @@ namespace TSDServer
             //BTPrintClass.PrintClass.Disconnect();
         }
     }
+
+    public delegate void EndLoadDelegate();
 }
