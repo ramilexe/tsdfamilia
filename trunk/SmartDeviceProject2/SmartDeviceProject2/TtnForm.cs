@@ -11,6 +11,8 @@ namespace TSDServer
 {
     public partial class TtnForm : Form
     {
+        public event EndLoadDelegate onEndLoad;
+
         private bool closedCar = false;
         //private bool enableInvent = false;
         Scanned scannedDelegate = null;
@@ -60,6 +62,9 @@ namespace TSDServer
                             (byte)TSDUtils.ActionCode.Cars);
 
             this.Refresh();
+
+            if (onEndLoad != null)
+                onEndLoad();
 
 
             
