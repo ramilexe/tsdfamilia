@@ -54,27 +54,20 @@ namespace TSDServer
 
         private void ViewTtnForm_Load(object sender, EventArgs e)
         {
+            this.lblAcceptedBox.Text = "Принято коробов:";
+            this.lblTotalBox.Text = "Всего коробов:";
+
+            int totalBox = 0;
+            int totalAccepted = 0;
+
             this.Width = 240;
             this.Height = 295;
 
             if (TtnStruct == null ||
                 TtnStruct.Count == 0)
             {
-                /*
-                Label lbl = new Label();
-                lbl.Text = "Нет данных по ТТН!";
-                lbl.Size = new System.Drawing.Size(229, 20);
-                lbl.TextAlign = System.Drawing.ContentAlignment.TopCenter;
-                lbl.BackColor = System.Drawing.Color.Red;
-                lbl.ForeColor = System.Drawing.Color.Black;
-                lbl.Location = new System.Drawing.Point(3, 131);
-                this.panel1.Controls.Add(lbl);
-                this.treeView1.Visible = false;
-                 */
                 TreeNode zeroNode = this.treeView1.Nodes.Add("Нет данных по ТТН!");
                 zeroNode.BackColor = System.Drawing.Color.Plum;
-
-
             }
             else
             {
@@ -94,7 +87,8 @@ namespace TSDServer
                         foreach (string box in TtnStruct[car][incomes].Keys)
                         {
                             TreeNode boxNode = incomeNode.Nodes.Add(box);
-                            
+                            totalBox++;
+
                             /*
                              Сканируем короб, проверяем свой-чужой.
 По таблице документов ищем тип= 7, DocId = ШК короба.
@@ -115,13 +109,12 @@ namespace TSDServer
                                 if (r == null)
                                 {
                                     boxNode.BackColor = System.Drawing.Color.White;
-                                    //boxNode.Parent.BackColor = System.Drawing.Color.White;
                                     fullAccepted = fullAccepted & false;
                                 }
                                 else
                                 {
+                                    totalAccepted++;
                                     boxNode.BackColor = System.Drawing.Color.PaleGreen;
-                                    //incomeNode.ForeColor = System.Drawing.Color.Black;
                                     TtnStruct[car][incomes][box].Accepted = true;
                                     fullAccepted = fullAccepted & true;
                                     acceptedCount++;
@@ -129,16 +122,13 @@ namespace TSDServer
                             }
                             else
                             {
+                                totalAccepted++;
                                 acceptedCount++;
                                 boxNode.BackColor = System.Drawing.Color.PaleGreen;
                                 fullAccepted = fullAccepted & true;
                             }
-                            
-
-
-
-
                         }
+
                         if (fullAccepted)
                         {
                             incomeNode.BackColor = System.Drawing.Color.PaleGreen;
@@ -165,8 +155,9 @@ namespace TSDServer
                     
                 }
             }
-           
 
+            this.lblAcceptedBox.Text = string.Format("Принято коробов: {0}",totalBox);
+            this.lblTotalBox.Text = string.Format("Всего коробов: {0}",totalAccepted);
 
         }
 
