@@ -169,6 +169,7 @@ namespace TSDServer
                                      row.ScannedDate = DateTime.Parse(strAr[4], dateFormat);
                                      row.TerminalId = int.Parse(strAr[5]);
                                      row.Priority = byte.Parse(strAr[6]);
+                                     row.PlanQuanity = int.Parse(strAr[7]);
 
                                      ScannedProductsDataSet.ScannedBarcodesRow row1 =
                                         ScannedProducts.ScannedBarcodes.FindByBarcodeDocTypeDocId(
@@ -280,7 +281,7 @@ namespace TSDServer
                 //    && row.FactQuantity > 0)
                 //{
                     string s =
-                            string.Format("{0}|{1}|{2}|{3}|{4}|{5}|{6}",
+                            string.Format("{0}|{1}|{2}|{3}|{4}|{5}|{6}|{7}",
                                 row.Barcode,
                                 row.DocId,
                                 row.DocType,
@@ -291,7 +292,8 @@ namespace TSDServer
 
                                 (row["TerminalId"] == System.DBNull.Value) ?
                                    string.Empty : row.TerminalId.ToString(),
-                                row.Priority
+                                row.Priority,
+                                row.PlanQuanity
                                 );
                     wr.WriteLine(s);
                 //}
@@ -972,7 +974,7 @@ namespace TSDServer
                                docsRow.DocType,
                                docsRow.DocId,
                                docsRow.Quantity,
-                               docsRow.Priority);
+                               0);
 
             //if (scannedRow == null)
             //{
@@ -1237,14 +1239,15 @@ namespace TSDServer
                 //    && row.FactQuantity > 0)
                 //{
                 string s =
-                        string.Format("{0}|{1}|{2}|{3}|{4}|{5}|{6}",
+                        string.Format("{0}|{1}|{2}|{3}|{4}|{5}|{6}|{7}",
                             ttnBarcode,
                             ttnBarcode,
                             ((byte)TSDUtils.ActionCode.Cars),
                             0,
                             DateTime.Today.ToString("dd.MM.yyyy"),
                             Program.Default.TerminalID,
-                            byte.MaxValue
+                            byte.MaxValue,
+                            0
                             );
                 wr.WriteLine(s);
                 //}
@@ -1703,14 +1706,15 @@ namespace TSDServer
                 //    && row.FactQuantity > 0)
                 //{
                 string s =
-                        string.Format("{0}|{1}|{2}|{3}|{4}|{5}|{6}",
+                        string.Format("{0}|{1}|{2}|{3}|{4}|{5}|{6}|{7}",
                             docId,
                             docId,
                             ((byte)TSDUtils.ActionCode.CloseInventar),
                             0,
                             DateTime.Today.ToString("dd.MM.yyyy"),
                             Program.Default.TerminalID,
-                            255
+                            255,
+                            0
                             );
                 wr.WriteLine(s);
                 //}
@@ -1757,14 +1761,15 @@ namespace TSDServer
                 //    && row.FactQuantity > 0)
                 //{
                 string s =
-                        string.Format("{0}|{1}|{2}|{3}|{4}|{5}|{6}",
+                        string.Format("{0}|{1}|{2}|{3}|{4}|{5}|{6}|{7}",
                             docId,
                             docId,
                             ((byte)docType),
                             0,
                             DateTime.Today.ToString("dd.MM.yyyy"),
                             Program.Default.TerminalID,
-                            255
+                            255,
+                            0
                             );
                 wr.WriteLine(s);
                 //}
@@ -1844,13 +1849,14 @@ namespace TSDServer
                 //    && row.FactQuantity > 0)
                 //{
                 string s =
-                        string.Format("{0}|{1}|{2}|{3}|{4}|{5}|{6}",
+                        string.Format("{0}|{1}|{2}|{3}|{4}|{5}|{6}|{7}",
                             docId,
                             docId,
                             ((byte)TSDUtils.ActionCode.CloseInventar),
                             0,
                             DateTime.Today.ToString("dd.MM.yyyy"),
                             Program.Default.TerminalID,
+                            0,
                             0
                             );
                 wr.WriteLine(s);
@@ -1900,7 +1906,7 @@ namespace TSDServer
                         //    && row.FactQuantity > 0)
                         //{
                         string s =
-                                string.Format("{0}|{1}|{2}|{3}|{4}|{5}|{6}",
+                                string.Format("{0}|{1}|{2}|{3}|{4}|{5}|{6}|{7}",
                                     scannedRow.Barcode,
                                     scannedRow.DocId,
                                     scannedRow.DocType,
@@ -1911,7 +1917,8 @@ namespace TSDServer
 
                                     (scannedRow["TerminalId"] == System.DBNull.Value) ?
                                        string.Empty : scannedRow.TerminalId.ToString(),
-                                    scannedRow.Priority
+                                    scannedRow.Priority,
+                                    scannedRow.PlanQuanity
                                     );
                         wr.WriteLine(s);
                     }
@@ -2115,7 +2122,7 @@ namespace TSDServer
                                          row.ScannedDate = DateTime.Parse(strAr[4], dateFormat);
                                          row.TerminalId = int.Parse(strAr[5]);
                                          row.Priority = byte.Parse(strAr[6]);
-
+                                         row.PlanQuanity = int.Parse(strAr[7]);
                                          rows.Add(row);
                                      }
 
@@ -2210,6 +2217,7 @@ namespace TSDServer
                             row.ScannedDate = DateTime.Parse(strAr[4], dateFormat);
                             row.TerminalId = int.Parse(strAr[5]);
                             row.Priority = byte.Parse(strAr[6]);
+                            row.PlanQuanity = int.Parse(strAr[7]);
                             ScannedProducts.ScannedBarcodes.AddScannedBarcodesRow(row);
 
                             return row;

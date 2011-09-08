@@ -550,7 +550,7 @@ namespace TSDServer
                 {
                     txtLabel.Text = "Короб ПРИНЯТЬ";
                     lblF3.Visible = true;
-                    lblF1.Visible = true;
+                    //lblF1.Visible = true;
                 }
 
             }
@@ -731,6 +731,7 @@ namespace TSDServer
                                 {
                                     prodfrm.ShowDialog();
                                 }
+                                RefreshData(_currentBoxBarcode);
 
                             }
                             catch (Exception err)
