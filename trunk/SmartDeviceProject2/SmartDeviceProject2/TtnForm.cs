@@ -58,7 +58,7 @@ namespace TSDServer
             ScanClass.Scaner.OnScanned += scannedDelegate;
 
             //READ FIRST ANY VALUE - CASHE INDEX
-            ActionsClass.Action.GetDataByDocIdAndType("3000000000000",
+            ActionsClass.Action.GetDataByDocIdAndType("4000000000000",
                             (byte)TSDUtils.ActionCode.Cars);
 
             this.Refresh();
@@ -100,7 +100,7 @@ namespace TSDServer
                 Boxrows.Clear();
                 IncomerowsList.Clear();
 
-                if (barcode.StartsWith("320") && barcode.Length == 13)
+                if (barcode.StartsWith("400") && barcode.Length == 13)
                 {
                     currentTtnBarcode = barcode;
                     //загрузить список машин - должна быть 1 запись т.к. машины уникальны.
