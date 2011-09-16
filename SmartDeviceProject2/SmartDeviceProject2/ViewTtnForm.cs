@@ -54,8 +54,9 @@ namespace TSDServer
 
         private void ViewTtnForm_Load(object sender, EventArgs e)
         {
-            this.lblAcceptedBox.Text = "Принято коробов:";
-            this.lblTotalBox.Text = "Всего коробов:";
+            //this.treeView1.AfterSelect += new TreeViewEventHandler(treeView1_AfterSelect);
+            this.lblAcceptedBox.Text = "Принято коробов: 0";
+            this.lblTotalBox.Text = "Всего коробов: 0";
 
             int totalBox = 0;
             int totalAccepted = 0;
@@ -75,7 +76,8 @@ namespace TSDServer
                 {
                     TreeNode carNode = this.treeView1.Nodes.Add(car);
                     carNode.Text = car;
-                    this.treeView1.ExpandAll();
+                    
+                    
                     
 
                     foreach (string incomes in TtnStruct[car].Keys)
@@ -88,7 +90,8 @@ namespace TSDServer
 
                         foreach (string box in TtnStruct[car][incomes].Keys)
                         {
-                            TreeNode boxNode = incomeNode.Nodes.Add(box);
+
+                            TreeNode boxNode = incomeNode.Nodes.Add(TtnStruct[car][incomes][box].Barcode);
                             totalBox++;
 
                             /*
@@ -153,15 +156,26 @@ namespace TSDServer
 
 
                     }
+                    carNode.Expand();
+
 
                     
                 }
             }
 
-            this.lblAcceptedBox.Text = string.Format("Принято коробов: {0}",totalBox);
-            this.lblTotalBox.Text = string.Format("Всего коробов: {0}",totalAccepted);
-
+            this.lblAcceptedBox.Text = string.Format("Принято коробов: {0}", totalAccepted);
+            this.lblTotalBox.Text = string.Format("Всего коробов: {0}",totalBox);
+            this.Refresh();
         }
+
+        /*
+        void treeView1_AfterSelect(object sender, TreeViewEventArgs e)
+        {
+            if (e.Node.BackColor == System.Drawing.Color.PaleGreen)
+                e.Node.BackColor = System.Drawing.Color.PaleGreen;
+            
+
+        }*/
 
         private void treeView1_KeyDown(object sender, KeyEventArgs e)
         {

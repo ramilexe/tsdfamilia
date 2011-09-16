@@ -57,14 +57,14 @@
             // 
             this.lblTotalBox.Location = new System.Drawing.Point(3, 221);
             this.lblTotalBox.Name = "lblTotalBox";
-            this.lblTotalBox.Size = new System.Drawing.Size(100, 20);
+            this.lblTotalBox.Size = new System.Drawing.Size(232, 20);
             this.lblTotalBox.Text = "Всего коробов:";
             // 
             // lblAcceptedBox
             // 
             this.lblAcceptedBox.Location = new System.Drawing.Point(3, 235);
             this.lblAcceptedBox.Name = "lblAcceptedBox";
-            this.lblAcceptedBox.Size = new System.Drawing.Size(121, 20);
+            this.lblAcceptedBox.Size = new System.Drawing.Size(232, 20);
             this.lblAcceptedBox.Text = "Принято коробов:";
             // 
             // label1

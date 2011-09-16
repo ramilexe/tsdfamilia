@@ -407,13 +407,49 @@ namespace TSDServer
 
                     if (rows != null && rows.Length > 0)
                     {
+                        //919051|002352151|11|1|76|2011-09-07|7|7|7|002352151||07.09.2011
+                        //919051|3001012060898|7|1|76|2011-09-07|7|7|7|919051|002352151|07.09.2011
+
+                        try
+                        {
+                            ProductsDataSet.DocsTblRow[] boxrows =
+                                ActionsClass.Action.GetDataByDocIdAndType(barcode,
+                                    (byte)TSDUtils.ActionCode.IncomeBox);
+
+                            if (boxrows.Length > 0)
+                            {
+
+                                ProductsDataSet.DocsTblRow[] naklrows =
+                                    ActionsClass.Action.GetDataByNavCodeAndType(boxrows[0].NavCode,
+                                        (byte)TSDUtils.ActionCode.BoxIncomes);
+
+                                ProductsDataSet.DocsTblRow[] naklrows1 =
+                                    ActionsClass.Action.GetDataByDocIdAndType(naklrows[0].DocId,
+                                        (byte)TSDUtils.ActionCode.BoxIncomes);
+
+                                if (naklrows.Length > 0)
+                                {
+                                    this.docLabel.Text =
+                                        string.Format("По накладной №{0} {1} коробов", naklrows[0].DocId,
+                                        naklrows1.Length);
+
+                                }
+                                else
+                                    throw new ApplicationException("Накладных не найдено!");
+                            }
+                            else
+                                throw new ApplicationException("Номер короба не определен!");
+                        }
+                        catch (Exception err)
+                        {
+                            this.docLabel.Text = err.Message;
+                        }
+
                         ProductsDataSet.DocsTblRow row = rows[0];
 
                         this.bkLabel.Visible = true;
                         this.bkLabel.Text = string.Format("ШК: {0}", barcode);
                         this.docLabel.Visible = true;
-                        this.docLabel.Text = 
-                            string.Format("Накладная № {0}", row.Text2);
 
                         this.txtLabel.Visible = true;
 
