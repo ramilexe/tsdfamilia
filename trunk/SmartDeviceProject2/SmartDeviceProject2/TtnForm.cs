@@ -217,6 +217,7 @@ namespace TSDServer
                     case 0:
                         {
                             this.txtLabel.Text = "ТТН В ПРИЕМКЕ";
+                            closedCar = false;
                             //ok scanning
                             break;
                         }

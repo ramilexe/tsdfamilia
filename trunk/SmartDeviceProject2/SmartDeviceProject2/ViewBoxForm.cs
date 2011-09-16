@@ -53,8 +53,8 @@ namespace TSDServer
 
             items.Add(-1, new FirstListBoxItem());
 
-            if (rows != null &&
-                rows.Length > 0)
+            if (docsRows != null &&
+                docsRows.Length > 0)
             {
 
 
@@ -66,7 +66,7 @@ namespace TSDServer
                         //rows[i].Barcode.ToString());
 
 
-                    ScannedProductsDataSet.ScannedBarcodesRow scanRow = null;
+                    //ScannedProductsDataSet.ScannedBarcodesRow scanRow = null;
 
                     
 
@@ -85,10 +85,22 @@ namespace TSDServer
                         {
 
                             if (rows[j].Barcode == r.Barcode)
-                                scanRow = rows[j];
+                            {
+                                //scanRow = rows[j];
+                                
+                                if (items.ContainsKey(r.Barcode))
+                                    items[r.Barcode].FactQuantity += rows[j].FactQuantity;
+                                else
+                                    items.Add(r.Barcode,
+                                        new ListBoxItem(
+                                            r.Barcode,
+                                            r.ProductName,
+                                            rows[j].FactQuantity,
+                                            docsRows[i].Quantity));
+                            }
                         }
 
-                        if (scanRow != null)
+                        /*if (scanRow != null)
                         {//есть отсканированые, товар найден
                             if (items.ContainsKey(r.Barcode))
                                 items[r.Barcode].FactQuantity += scanRow.FactQuantity;
@@ -101,7 +113,7 @@ namespace TSDServer
                                         docsRows[i].Quantity));
                         }
                         else
-                        {
+                        {*/
                             //нет отсканированных, товар найден
                             if (!items.ContainsKey(r.Barcode))
                                 //items[r.Barcode].FactQuantity += scanRow.FactQuantity;
@@ -112,7 +124,7 @@ namespace TSDServer
                                         r.ProductName,
                                         0,
                                         docsRows[i].Quantity));
-                        }
+                        //}
                     }
                     /*else
                      * //отсканированный товар не найден в табл.продуктов - мало вероятно. не должно быть
