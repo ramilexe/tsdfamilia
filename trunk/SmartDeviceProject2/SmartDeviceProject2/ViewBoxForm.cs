@@ -21,7 +21,11 @@ namespace TSDServer
         {
             InitializeComponent();
         }
-
+        /// <summary>
+        /// Конструктор для формы просмотра ттн
+        /// </summary>
+        /// <param name="docId">штрихкод короба</param>
+        /// <param name="docType">тип документа BoxWProducts=10</param>
         public ViewBoxForm(
             string docId,
             byte docType)
@@ -38,23 +42,34 @@ namespace TSDServer
 
         private void ViewInventarForm_Load(object sender, EventArgs e)
         {
+            
             ScannedProductsDataSet.ScannedBarcodesRow [] rows
              = ActionsClass.Action.FindByDocIdAndDocType
                 (_docId,
                 _docType);
+
+            ProductsDataSet.DocsTblRow[] docsRows =
+                ActionsClass.Action.GetDataByDocIdAndType(_docId, _docType);
+
             items.Add(-1, new FirstListBoxItem());
 
             if (rows != null &&
                 rows.Length > 0)
             {
-                
-                for (int i = 0; i < rows.Length; i++)
+
+
+                for (int i = 0; i < docsRows.Length; i++)
                 {
                     ProductsDataSet.ProductsTblRow r = 
-                        ActionsClass.Action.GetProductRow(
-                        rows[i].Barcode.ToString());
+                        ActionsClass.Action.GetProductRowByNavCode(
+                            docsRows[i].NavCode);
+                        //rows[i].Barcode.ToString());
+
+
+                    ScannedProductsDataSet.ScannedBarcodesRow scanRow = null;
 
                     
+
                     
                     if (r != null)
                     /*listBox1.Items.Add(
@@ -66,17 +81,41 @@ namespace TSDServer
                         rows[i].FactQuantity.ToString()));
                      */
                     {
-                        if (items.ContainsKey(rows[i].Barcode))
-                            items[rows[i].Barcode].FactQuantity += rows[i].FactQuantity;
+                        for (int j = 0; j < rows.Length; j++)
+                        {
+
+                            if (rows[j].Barcode == r.Barcode)
+                                scanRow = rows[j];
+                        }
+
+                        if (scanRow != null)
+                        {//есть отсканированые, товар найден
+                            if (items.ContainsKey(r.Barcode))
+                                items[r.Barcode].FactQuantity += scanRow.FactQuantity;
+                            else
+                                items.Add(r.Barcode,
+                                    new ListBoxItem(
+                                        r.Barcode,
+                                        r.ProductName,
+                                        scanRow.FactQuantity,
+                                        docsRows[i].Quantity));
+                        }
                         else
-                            items.Add(rows[i].Barcode,
-                                new ListBoxItem(
-                                    rows[i].Barcode,
-                                    r.ProductName,
-                                    rows[i].FactQuantity,
-                                    rows[i].PlanQuanity));
+                        {
+                            //нет отсканированных, товар найден
+                            if (!items.ContainsKey(r.Barcode))
+                                //items[r.Barcode].FactQuantity += scanRow.FactQuantity;
+                            //else
+                                items.Add(r.Barcode,
+                                    new ListBoxItem(
+                                        r.Barcode,
+                                        r.ProductName,
+                                        0,
+                                        docsRows[i].Quantity));
+                        }
                     }
-                    else
+                    /*else
+                     * //отсканированный товар не найден в табл.продуктов - мало вероятно. не должно быть
                         if (items.ContainsKey(rows[i].Barcode))
                             items[rows[i].Barcode].FactQuantity += rows[i].FactQuantity;
                         else
@@ -85,7 +124,7 @@ namespace TSDServer
                                     rows[i].Barcode,
                                     "Товар не найден",
                                     rows[i].FactQuantity,
-                                    rows[i].PlanQuanity));
+                                    rows[i].PlanQuanity));*/
 
                         /*
                         listBox1.Items.Add(
@@ -145,7 +184,7 @@ namespace TSDServer
             public override string ToString()
             {
                 return string.Format(
-                        "{0:D13}|{1,10}|{2,2}|{3,2}",
+                        "{0:D13}|{1,10}|{2,4}|{3,2}",
                         Barcode,
                         (ProductName.Length > 10) ? ProductName.Substring(0, 10) :
                             ProductName,

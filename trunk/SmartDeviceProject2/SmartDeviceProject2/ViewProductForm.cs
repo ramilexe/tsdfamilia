@@ -290,11 +290,23 @@ namespace TSDServer
                         }
                         else
                         {
-                            inventRow.NavCode = row.NavCode;
-                            ActionsClass.Action.InvokeAction(TSDUtils.ActionCode.BoxWProducts,
-                                row,
-                                inventRow
-                                );
+                            using (DialogForm dlgfrm =
+                            new DialogForm(
+                                "Товар не входит в короб!"
+                                , "Вы хотите принять этот товар"//string.Format("Посчитано: {0} кодов", totalBk)
+                                , row.ProductName
+                                , "Прием товара"))
+                            {
+                                if (dlgfrm.ShowDialog() == DialogResult.Yes)
+                                {
+                                    inventRow.NavCode = row.NavCode;
+                                    ActionsClass.Action.InvokeAction(TSDUtils.ActionCode.BoxWProducts,
+                                        row,
+                                        inventRow
+                                        );
+                                }
+                            }
+                            
                         }
 
                         //this.Refresh();

@@ -69,13 +69,17 @@ namespace TSDServer
                 lblQtySkuScanned.Visible = true;
                 lblQtyTotalScanned.Visible = true;
 
-                lblQtySku.Text = string.Format("Всего товаров: {0}",
+                lblQtySku.Text = string.Format("Всего артикулов: {0}",
                    0);
-                lblQtyTotal.Text = string.Format("Общее кол-во: {0}", 0);
-                lblQtySkuScanned.Text = string.Format("Всего принято товаров: {0}",
+                lblQtyTotal.Text = string.Format("Всего штук: {0}", 0);
+                lblQtySkuScanned.Text = string.Format("Всего принято артикулов: {0}",
                    0);
-                lblQtyTotalScanned.Text = string.Format("Общее кол-во принятно: {0}",
+                lblQtyTotalScanned.Text = string.Format("Всего штук принятно: {0}",
                     0);
+
+                lblQtyTotal.Font = new Font(FontFamily.GenericSansSerif,
+                    lblQtyTotal.Font.Size,
+                    FontStyle.Bold);
             }
 
             this.Width = 235;
@@ -212,7 +216,7 @@ namespace TSDServer
                     }
                     if (!found)
                     {
-                        this.errLabel.Text = string.Format("Короб не относится к данной ТТН!");
+                        this.errLabel.Text = string.Format("Короб не в данной ТТН!");
 
                         this.errLabel.Visible = true;
                     }
@@ -489,9 +493,10 @@ namespace TSDServer
                         totalSku++;
                     }
                 }
-                lblQtySku.Text = string.Format("Всего товаров: {0}",
+                lblQtySku.Text = string.Format("Всего артикулов: {0}",
                    totalSku);
-                lblQtyTotal.Text = string.Format("Общее кол-во: {0}", totalQty);
+                lblQtyTotal.Text = string.Format("Всего штук: {0}", totalQty);
+                
 
                 ScannedProductsDataSet.ScannedBarcodesRow[] scannedProdRow =
                     ActionsClass.Action.FindByDocIdAndDocType(
@@ -521,10 +526,10 @@ namespace TSDServer
                     }
                     
                 }
-                
-                lblQtySkuScanned.Text = string.Format("Всего принято товаров: {0}",
+
+                lblQtySkuScanned.Text = string.Format("Всего принято артикулов: {0}",
                         totalSku);
-                lblQtyTotalScanned.Text = string.Format("Общее кол-во принятно: {0}",
+                lblQtyTotalScanned.Text = string.Format("Всего штук принятно: {0}",
                     totalQty);
 
 
@@ -563,12 +568,12 @@ namespace TSDServer
 
                 this.errLabel.Visible = true;
 
-                lblQtySku.Text = string.Format("Всего товаров: {0}",
+                lblQtySku.Text = string.Format("Всего артикулов: {0}",
                    0);
-                lblQtyTotal.Text = string.Format("Общее кол-во: {0}", 0);
-                lblQtySku.Text = string.Format("Всего принято товаров: {0}",
+                lblQtyTotal.Text = string.Format("Всего штук: {0}", 0);
+                lblQtySku.Text = string.Format("Всего принято артикулов: {0}",
                    0);
-                lblQtyTotal.Text = string.Format("Общее кол-во принятно: {0}",
+                lblQtyTotal.Text = string.Format("Всего штук принятно: {0}",
                     0);
 
             }
