@@ -75,6 +75,8 @@ namespace TSDServer
                 {
                     TreeNode carNode = this.treeView1.Nodes.Add(car);
                     carNode.Text = car;
+                    this.treeView1.ExpandAll();
+                    
 
                     foreach (string incomes in TtnStruct[car].Keys)
                     {
