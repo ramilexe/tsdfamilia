@@ -13,6 +13,7 @@ namespace TSDServer
     {
         public event EndLoadDelegate onEndLoad;
 
+        private bool enableScan = false;
         private bool closedCar = false;
         //private bool enableInvent = false;
         Scanned scannedDelegate = null;
@@ -56,6 +57,7 @@ namespace TSDServer
             //ActionsClass.Action.OnActionCompleted += new ActionsClass.ActionCompleted(Action_OnActionCompleted);
             ScanClass.Scaner.InitScan();
             ScanClass.Scaner.OnScanned += scannedDelegate;
+            enableScan = true;
 
             //READ FIRST ANY VALUE - CASHE INDEX
             ActionsClass.Action.GetDataByDocIdAndType("4000000000000",
@@ -76,6 +78,7 @@ namespace TSDServer
             ScanClass.Scaner.OnScanned -= scannedDelegate;
             ActionsClass.Action.EndScan();
             ScanClass.Scaner.StopScan();
+            enableScan = false;
             //BTPrintClass.PrintClass.SetStatusEvent("End closing");
         }
 
@@ -88,6 +91,9 @@ namespace TSDServer
             }
             else
             {
+                if (!enableScan)
+                    return;
+
                 
                 this.bkLabel.Visible = false;
                 this.docLabel.Visible = false;
@@ -337,12 +343,19 @@ namespace TSDServer
                 {
                     if (!closedCar && currentTtnBarcode != string.Empty)
                     {
-
-                        using (IncomeForm income =
-                            new IncomeForm(TtnStruct, currentTtnBarcode))
+                        enableScan = false;
+                        try
                         {
+                            using (IncomeForm income =
+                                new IncomeForm(TtnStruct, currentTtnBarcode))
+                            {
 
-                            income.ShowDialog();
+                                income.ShowDialog();
+                            }
+                        }
+                        finally
+                        {
+                            enableScan = true;
                         }
                         CheckStatus(currentTtnBarcode);
                     }
@@ -355,17 +368,25 @@ namespace TSDServer
                 }
                 if (e.KeyValue == (int)SpecialButton.YellowBtn)
                 {
-                    if (currentTtnBarcode != string.Empty &&
-                        Boxrows != null &&
-                        Boxrows.Count > 0)
+                    enableScan = false;
+                    try
                     {
-
-                        using (ViewTtnForm vFrm = new ViewTtnForm(TtnStruct))
+                        if (currentTtnBarcode != string.Empty &&
+                            Boxrows != null &&
+                            Boxrows.Count > 0)
                         {
-                            vFrm.ShowDialog();
-                        }
-                    }
 
+                            using (ViewTtnForm vFrm = new ViewTtnForm(TtnStruct))
+                            {
+                                vFrm.ShowDialog();
+                            }
+                        }
+
+                    }
+                    finally
+                    {
+                        enableScan = true;
+                    }
 
                     /*int totals=0;
                     int totalBk=0;
