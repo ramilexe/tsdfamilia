@@ -164,170 +164,220 @@ namespace TSDServer
             {
                 this.Close();
             }
-
-            //tmr.Change(System.Threading.Timeout.Infinite, System.Threading.Timeout.Infinite);
-
-            label5.Text = "";
-            label6.Text = "";
-            label7.Text = "";
-            label8.Text = "";
-            label9.Text = "";
-            label20.Text = "";
-            label21.Text = "";
-            //label17.Text = "";
-            actionLabel.Text = "";
-            navCodeTB.Text = "";
-            currentProductRow = row;
-
-            if (row != null)
+            try
             {
-                label17.Text = row.Barcode.ToString("0000000000000");
-                if (row.ProductName.Length > 15)
-                {
-                    label5.Text = row.ProductName.Substring(0, 15);
-                    label6.Text = row.ProductName.Substring(15);
-                }
-                else
-                    label5.Text = row.ProductName;
-                navCodeTB.Text = row.NavCode;
-                
-                label7.Text = (row["NewPrice"] == System.DBNull.Value ||
-                    row["NewPrice"] == null) ? string.Empty : row.NewPrice.ToString("######.00");
-                label8.Text = (row["OldPrice"] == System.DBNull.Value ||
-                    row["OldPrice"] == null) ? string.Empty : row.OldPrice.ToString("######.00");
-                if (label8.Text != label7.Text)
-                    label7.Font = boldFont;
-                else
-                    label7.Font = normalFont;
-                
-                
-                label9.Text = (row["Article"] == System.DBNull.Value ||
-                    row["Article"] == null)?string.Empty:row.Article;
 
-                if (_mode == WorkMode.ProductsScan)
-                {
-                    ProductsDataSet.DocsTblRow[] docRows =
-                        ActionsClass.Action.GetDataByNavCode(row.NavCode);
-                    actionDict.Clear();
-                    currentdocRows = docRows;
+                //tmr.Change(System.Threading.Timeout.Infinite, System.Threading.Timeout.Infinite);
 
-                    if (docRows != null)
+                label5.Text = "";
+                label6.Text = "";
+                label7.Text = "";
+                label8.Text = "";
+                label9.Text = "";
+                label20.Text = "";
+                label21.Text = "";
+                //label17.Text = "";
+                actionLabel.Text = "";
+                navCodeTB.Text = "";
+                currentProductRow = row;
+
+                if (row != null)
+                {
+                    label17.Text = row.Barcode.ToString("0000000000000");
+                    if (row.ProductName.Length > 15)
                     {
-
-                        foreach (ProductsDataSet.DocsTblRow docRow in docRows)
-                        {
-                            ScannedProductsDataSet.ScannedBarcodesRow scannedRow =
-                                ActionsClass.Action.AddScannedRow(
-                                row.Barcode,
-                                docRow.DocType,
-                                docRow.DocId,
-                                docRow.Quantity,
-                                docRow.Priority);
-                            /*_scannedProducts.ScannedBarcodes.FindByBarcodeDocTypeDocId(
-                            row.Barcode,
-                            docRow.DocType,
-                            docRow.DocId);
-                        if (scannedRow == null)
-                        {
-                            scannedRow =
-                                _scannedProducts.ScannedBarcodes.NewScannedBarcodesRow();
-                            scannedRow.Barcode = row.Barcode;
-                            scannedRow.DocId = docRow.DocId;
-                            scannedRow.DocType = docRow.DocType;
-                            scannedRow.PlanQuanity = docRow.Quantity;
-                            scannedRow.Priority = docRow.Priority;
-                            scannedRow.ScannedDate = DateTime.Today;
-                            scannedRow.TerminalId = Program.TerminalId;
-                            _scannedProducts.ScannedBarcodes.AddScannedBarcodesRow(scannedRow);
-                        }*/
-                            byte actionCodes = docRow.DocType;
-                            if (!actionDict.ContainsKey(actionCodes))
-                                actionDict.Add(actionCodes, docRow);
-                        }
-                        foreach (byte acode in actionDict.Keys)
-                        {
-                            ActionsClass.Action.InvokeAction((TSDUtils.ActionCode)acode, row, actionDict[acode]);
-                            //this.Refresh();
-                        }
+                        label5.Text = row.ProductName.Substring(0, 15);
+                        label6.Text = row.ProductName.Substring(15);
                     }
                     else
+                        label5.Text = row.ProductName;
+                    navCodeTB.Text = row.NavCode;
+
+                    label7.Text = (row["NewPrice"] == System.DBNull.Value ||
+                        row["NewPrice"] == null) ? string.Empty : row.NewPrice.ToString("######.00");
+                    label8.Text = (row["OldPrice"] == System.DBNull.Value ||
+                        row["OldPrice"] == null) ? string.Empty : row.OldPrice.ToString("######.00");
+                    if (label8.Text != label7.Text)
+                        label7.Font = boldFont;
+                    else
+                        label7.Font = normalFont;
+
+
+                    label9.Text = (row["Article"] == System.DBNull.Value ||
+                        row["Article"] == null) ? string.Empty : row.Article;
+
+                    if (_mode == WorkMode.ProductsScan)
                     {
-                        ActionsClass.Action.InvokeAction(TSDUtils.ActionCode.DocNotFound, row, null);
-                    }
-                }
-                else
-                    if (_mode == WorkMode.InventarScan)
-                    {
+                        ProductsDataSet.DocsTblRow[] docRows =
+                            ActionsClass.Action.GetDataByNavCode(row.NavCode);
+                        actionDict.Clear();
+                        currentdocRows = docRows;
 
-                        inventRow.NavCode = row.NavCode;
-                        ActionsClass.Action.InvokeAction(TSDUtils.ActionCode.InventoryGlobal,
-                            row,
-                            inventRow
-                            );
-
-                        //this.Refresh();
-                        //ActionsClass.Action.InventoryGlobalActionProc(
-                        //    row,
-                        //    inventRow);
-
-
-                    }
-                    else 
-                    {//BoxScan
-                        //_mode == WorkMode.BoxScan
-                        
-                        ProductsDataSet.DocsTblRow docRow = 
-                            ActionsClass.Action.GetDataByNavcodeDocIdAndType(row.NavCode,
-                                inventRow.DocId,
-                                (byte)TSDUtils.ActionCode.BoxWProducts
-                            );
-                        if (docRow != null)
+                        if (docRows != null)
                         {
-                            ActionsClass.Action.InvokeAction(TSDUtils.ActionCode.BoxWProducts,
-                                row,
-                                docRow
-                                );
+
+                            foreach (ProductsDataSet.DocsTblRow docRow in docRows)
+                            {
+                                ScannedProductsDataSet.ScannedBarcodesRow scannedRow =
+                                    ActionsClass.Action.AddScannedRow(
+                                    row.Barcode,
+                                    docRow.DocType,
+                                    docRow.DocId,
+                                    docRow.Quantity,
+                                    docRow.Priority);
+                                /*_scannedProducts.ScannedBarcodes.FindByBarcodeDocTypeDocId(
+                                row.Barcode,
+                                docRow.DocType,
+                                docRow.DocId);
+                            if (scannedRow == null)
+                            {
+                                scannedRow =
+                                    _scannedProducts.ScannedBarcodes.NewScannedBarcodesRow();
+                                scannedRow.Barcode = row.Barcode;
+                                scannedRow.DocId = docRow.DocId;
+                                scannedRow.DocType = docRow.DocType;
+                                scannedRow.PlanQuanity = docRow.Quantity;
+                                scannedRow.Priority = docRow.Priority;
+                                scannedRow.ScannedDate = DateTime.Today;
+                                scannedRow.TerminalId = Program.TerminalId;
+                                _scannedProducts.ScannedBarcodes.AddScannedBarcodesRow(scannedRow);
+                            }*/
+                                byte actionCodes = docRow.DocType;
+                                if (!actionDict.ContainsKey(actionCodes))
+                                    actionDict.Add(actionCodes, docRow);
+                            }
+                            foreach (byte acode in actionDict.Keys)
+                            {
+                                ActionsClass.Action.InvokeAction((TSDUtils.ActionCode)acode, row, actionDict[acode]);
+                                //this.Refresh();
+                            }
                         }
                         else
                         {
-                            using (DialogForm dlgfrm =
-                            new DialogForm(
-                                "Товар не входит в короб!"
-                                , "Вы хотите принять этот товар"//string.Format("Посчитано: {0} кодов", totalBk)
-                                , row.ProductName
-                                , "Прием товара"))
+                            ActionsClass.Action.InvokeAction(TSDUtils.ActionCode.DocNotFound, row, null);
+                        }
+                    }
+                    else
+                        if (_mode == WorkMode.InventarScan)
+                        {
+
+                            inventRow.NavCode = row.NavCode;
+                            ActionsClass.Action.InvokeAction(TSDUtils.ActionCode.InventoryGlobal,
+                                row,
+                                inventRow
+                                );
+
+                            //this.Refresh();
+                            //ActionsClass.Action.InventoryGlobalActionProc(
+                            //    row,
+                            //    inventRow);
+
+
+                        }
+                        else
+                        {//BoxScan
+                            //_mode == WorkMode.BoxScan
+
+                            ProductsDataSet.DocsTblRow docRow =
+                                ActionsClass.Action.GetDataByNavcodeDocIdAndType(row.NavCode,
+                                    inventRow.DocId,
+                                    (byte)TSDUtils.ActionCode.BoxWProducts
+                                );
+                            if (docRow != null)
                             {
-                                if (dlgfrm.ShowDialog() == DialogResult.Yes)
+                                ScannedProductsDataSet.ScannedBarcodesRow srows
+                                    = ActionsClass.Action.FindByBarcodeDocTypeDocId(row.Barcode.ToString(),
+                                    (byte)TSDUtils.ActionCode.BoxWProducts,
+                                    inventRow.DocId
+                                    );
+
+                                if (srows != null)
                                 {
-                                    inventRow.NavCode = row.NavCode;
-                                    ActionsClass.Action.InvokeAction(TSDUtils.ActionCode.BoxWProducts,
-                                        row,
-                                        inventRow
-                                        );
+                                    if (srows.PlanQuanity == srows.FactQuantity)
+                                    {
+                                        using (DialogForm dlgfrm =
+                                new DialogForm(
+                                    string.Format("Товар уже принят {0} из {1}",
+                                    srows.FactQuantity,
+                                    srows.PlanQuanity)
+                                    , string.Format("Принять этот товар {0}", row.Barcode)//string.Format("Посчитано: {0} кодов", totalBk)
+                                    , row.ProductName
+                                    , "Прием товара"))
+                                        {
+                                            if (dlgfrm.ShowDialog() == DialogResult.Yes)
+                                            {
+                                                //inventRow.NavCode = row.NavCode;
+                                                ActionsClass.Action.InvokeAction(TSDUtils.ActionCode.BoxWProducts,
+                                                    row,
+                                                    docRow
+                                                    );
+                                                return;//приняли
+                                            }
+                                            else //не хотим принимать
+                                                return;
+                                        }
+                                    }
                                 }
+                                //если не сработали условия - то принимаем
+                                //inventRow.NavCode = row.NavCode;
+                                ActionsClass.Action.InvokeAction(TSDUtils.ActionCode.BoxWProducts,
+                                    row,
+                                    docRow
+                                    );
+
+                                /*ActionsClass.Action.InvokeAction(TSDUtils.ActionCode.BoxWProducts,
+                                    row,
+                                    docRow
+                                    );*/
+
+
                             }
-                            
+                            else
+                            {
+                                using (DialogForm dlgfrm =
+                                new DialogForm(
+                                    "Товар не входит в короб!"
+                                    , string.Format("Принять этот товар {0}", row.Barcode)//string.Format("Посчитано: {0} кодов", totalBk)
+                                    , row.ProductName
+                                    , "Прием товара"))
+                                {
+                                    if (dlgfrm.ShowDialog() == DialogResult.Yes)
+                                    {
+                                        inventRow.NavCode = row.NavCode;
+                                        ActionsClass.Action.InvokeAction(TSDUtils.ActionCode.BoxWProducts,
+                                            row,
+                                            inventRow
+                                            );
+                                        
+                                        return;
+                                    }
+                                }
+
+                            }
+
+                            //this.Refresh();
+
                         }
 
-                        //this.Refresh();
 
-                    }
-                    
-                
-                
+
+                }
+                else
+                {
+                    currentdocRows = null;
+                    currentProductRow = null;
+                    ActionsClass.Action.InvokeAction(TSDUtils.ActionCode.NotFound, null, null);
+                    label5.Text = "...Товар не ";
+                    label6.Text = "   найден...";
+                    label17.Text = "";
+                    //NativeClass.Play("ding.wav");
+                }
             }
-            else
+            finally
             {
-                currentdocRows = null;
-                currentProductRow = null;
-                ActionsClass.Action.InvokeAction(TSDUtils.ActionCode.NotFound,null,null );
-                label5.Text = "...Товар не ";
-                label6.Text = "   найден...";
-                label17.Text = "";
-                //NativeClass.Play("ding.wav");
+                navCodeTB.SelectAll();
+                this.Refresh();
             }
-            navCodeTB.SelectAll();
-            this.Refresh();
         }
         private void ViewProductForm_Load(object sender, EventArgs e)
         {
@@ -854,6 +904,53 @@ namespace TSDServer
                                 scannedRow["FactQuantity"] == null) ? string.Empty : scannedRow.FactQuantity.ToString();
 
                 this.Refresh();
+
+                if (docsRow.DocType == (byte)TSDUtils.ActionCode.BoxWProducts)
+                {
+                    if (scannedRow.FactQuantity == scannedRow.PlanQuanity)
+                    {
+                        ScannedProductsDataSet.ScannedBarcodesRow[] rowsS
+                            = ActionsClass.Action.FindByDocIdAndDocType(scannedRow.DocId,
+                            scannedRow.DocType);
+
+                        ProductsDataSet.DocsTblRow[] docsRows =
+                            ActionsClass.Action.GetDataByDocIdAndType(scannedRow.DocId,
+                            scannedRow.DocType);
+
+                        int pQuantity = 0;
+                        int fQuantity = 0;
+                        for (int i = 0; i < docsRows.Length; i++)
+                            pQuantity += docsRows[i].Quantity;
+
+                        for (int i = 0; i < rowsS.Length; i++)
+                            fQuantity += rowsS[i].FactQuantity;
+                        if (pQuantity == fQuantity)
+                        {
+                            //907218|3001011908672|7|1|8|2011-09-03|7|7|7|907218|002355438|03.09.2011
+                            ProductsDataSet.DocsTblRow[] docsNaklRows =
+                                ActionsClass.Action.GetDataByDocIdAndType(scannedRow.DocId,
+                                (byte)TSDUtils.ActionCode.IncomeBox);
+
+
+                            using (DialogForm dlgfrm =
+                                new DialogForm(
+                                    "Короб по накладной"
+                                    , docsNaklRows[0].Text2
+                                    , "принят полностью!"
+                                    , "Прием товара"))
+                            {
+                                if (dlgfrm.ShowDialog() == DialogResult.Yes)
+                                {
+                                    //inventRow.NavCode = row.NavCode;
+                                    //ActionsClass.Action.InvokeAction(TSDUtils.ActionCode.BoxWProducts,
+                                    //    row,
+                                    //    inventRow
+                                    //    );
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
 

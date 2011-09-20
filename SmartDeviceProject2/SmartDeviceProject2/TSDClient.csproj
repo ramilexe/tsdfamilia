@@ -64,10 +64,23 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\..\..\..\Program Files (x86)\CASIO\MBSys\WindowsCE\OBReadLibNet.dll</HintPath>
     </Reference>
+    <Reference Include="OpenNETCF, Version=1.3.50123.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>.\OpenNETCF.dll</HintPath>
+    </Reference>
+    <Reference Include="OpenNETCF.Drawing, Version=1.3.50123.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>.\OpenNETCF.Drawing.dll</HintPath>
+    </Reference>
+    <Reference Include="OpenNETCF.Windows.Forms, Version=1.3.50123.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>.\OpenNETCF.Windows.Forms.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Windows.Forms.DataGrid" />
     <Reference Include="System.Xml" />
     <Reference Include="SystemLibnet, Version=2.0.6.6336, Culture=neutral, PublicKeyToken=4079e79a5891f674">
       <SpecificVersion>False</SpecificVersion>
