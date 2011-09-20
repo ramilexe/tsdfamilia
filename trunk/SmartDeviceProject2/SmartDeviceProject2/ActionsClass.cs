@@ -123,6 +123,8 @@ namespace TSDServer
             {
                 docsTa.Open();
             }
+            //docsTa.InitPkIndex();
+
             //docsTa.Fill(this._products);
         }
         public void OpenScanned()
@@ -1164,6 +1166,7 @@ namespace TSDServer
                 }*/
                 ActionsClass.Action.PlaySoundAsync((byte)TSDUtils.ActionCode.IncomeBox);
                 ActionsClass.Action.PlayVibroAsync((byte)TSDUtils.ActionCode.IncomeBox);
+
                 //return true;
             //}
             //else

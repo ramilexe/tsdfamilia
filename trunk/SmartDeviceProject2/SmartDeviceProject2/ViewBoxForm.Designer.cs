@@ -29,9 +29,10 @@
         private void InitializeComponent()
         {
             this.panel1 = new System.Windows.Forms.Panel();
-            this.listBox1 = new System.Windows.Forms.ListBox();
+            this.listBox1 = new OpenNETCF.Windows.Forms.ListBoxEx();
             this.panel2 = new System.Windows.Forms.Panel();
             this.label1 = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
             this.SuspendLayout();
@@ -42,7 +43,7 @@
             this.panel1.Controls.Add(this.listBox1);
             this.panel1.Location = new System.Drawing.Point(0, 0);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(235, 247);
+            this.panel1.Size = new System.Drawing.Size(235, 249);
             // 
             // listBox1
             // 
@@ -54,24 +55,37 @@
             this.listBox1.Name = "listBox1";
             this.listBox1.Size = new System.Drawing.Size(235, 242);
             this.listBox1.TabIndex = 0;
+            this.listBox1.EvenItemColor = System.Drawing.Color.White;
+            this.listBox1.BackColor = System.Drawing.Color.White;
             this.listBox1.KeyDown += new System.Windows.Forms.KeyEventHandler(this.listBox1_KeyDown);
             // 
             // panel2
             // 
             this.panel2.BackColor = System.Drawing.Color.PaleGreen;
             this.panel2.Controls.Add(this.label1);
+            this.panel2.Controls.Add(this.label2);
             this.panel2.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.panel2.Location = new System.Drawing.Point(0, 438);
+            this.panel2.Location = new System.Drawing.Point(0, 253);
             this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(640, 42);
+            this.panel2.Size = new System.Drawing.Size(238, 42);
             // 
             // label1
             // 
+            this.label1.Dock = System.Windows.Forms.DockStyle.Top;
             this.label1.Location = new System.Drawing.Point(0, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(235, 20);
+            this.label1.Size = new System.Drawing.Size(235, 15);
             this.label1.Text = "Выход: Fn-Clr или F4 Желтая кнопка";
             this.label1.TextAlign = System.Drawing.ContentAlignment.TopCenter;
+            this.label1.BackColor = System.Drawing.Color.Yellow;
+
+            this.label2.Dock = System.Windows.Forms.DockStyle.Top;
+            this.label2.Location = new System.Drawing.Point(0, 0);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(235, 15);
+            this.label2.Text = "Text";
+            this.label2.TextAlign = System.Drawing.ContentAlignment.TopCenter;
+
             // 
             // ViewBoxForm
             // 
@@ -79,7 +93,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.AutoScroll = true;
             this.BackColor = System.Drawing.Color.White;
-            this.ClientSize = new System.Drawing.Size(640, 480);
+            this.ClientSize = new System.Drawing.Size(238, 295);
             this.ControlBox = false;
             this.Controls.Add(this.panel2);
             this.Controls.Add(this.panel1);
@@ -101,7 +115,9 @@
 
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.Panel panel2;
-        private System.Windows.Forms.ListBox listBox1;
+        //private System.Windows.Forms.ListBox listBox1;
+        private OpenNETCF.Windows.Forms.ListBoxEx listBox1;
         private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label label2;
     }
 }

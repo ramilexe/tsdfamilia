@@ -456,6 +456,12 @@ namespace TSDServer.ProductsDataSetTableAdapters
                     return null;
             }
         }
+
+        /*
+        public void InitPkIndex()
+        {
+            this.table.ReadAllPKIndex();
+        }*/
     }
 
     public class ProductsTblTableAdapter : BaseTableAdapter

@@ -1427,6 +1427,7 @@ namespace FamilTsdDB
             indexPosition = (int)fsPk.Seek(0, System.IO.SeekOrigin.Begin);
 
             indexCounter = indexPosition / IndexLength;
+            List<IndexItem> li = new List<IndexItem>();
 
             while (indexPosition <= fsPk.Length)
             {
@@ -1441,12 +1442,14 @@ namespace FamilTsdDB
                 if (readed >= IndexLength)
                 {
                     IndexItem itemI = new IndexItem(IndexColumns.ToArray(), srchtemplate);
-                    yield return itemI;
+                    li.Add(itemI);
+                    //yield return itemI;
                 }
                 else
                     break;
 
             }
+            return li;
 
         }
 
@@ -1559,6 +1562,7 @@ namespace FamilTsdDB
         }
 
 
+
         public void Clear()
         {
             keyItems1.Clear();
@@ -1623,6 +1627,8 @@ namespace FamilTsdDB
 
     public class DataTable : System.IDisposable
     {
+        //List<IndexItem> iItem = new List<IndexItem>();
+
         public static DateTime BaseDate;
         public static string StartupPath;
         public DataColumnCollection Columns =
@@ -2356,6 +2362,18 @@ namespace FamilTsdDB
             }
         }
 
+        /*public void ReadAllPKIndex()
+        {
+            indexes[0].OpenIndex();
+
+            iItem.AddRange(indexes[0].FindIndexesData());
+            //foreach (IndexItem i in )
+            //{
+            //    iItem.Add(i);
+            //}
+            
+            //Int32 offset = indexes[indexId].FindIndex(new IndexItem(item));
+        }*/
         #endregion
 
     }

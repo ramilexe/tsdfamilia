@@ -37,6 +37,9 @@ namespace TSDServer
             this.listBox1.Font = new Font(FontFamily.GenericMonospace, 8f, FontStyle.Regular);
             this.listBox1.Items.Clear();
 
+            //this.treeView1.Font = new Font(FontFamily.GenericMonospace, 8f, FontStyle.Regular);
+            //this.treeView1.Nodes.Clear();
+
         }
 
 
@@ -51,7 +54,11 @@ namespace TSDServer
             ProductsDataSet.DocsTblRow[] docsRows =
                 ActionsClass.Action.GetDataByDocIdAndType(_docId, _docType);
 
-            items.Add(-1, new FirstListBoxItem());
+            //items.Add(-1, new FirstListBoxItem());
+
+            OpenNETCF.Windows.Forms.ListItem li0 = listBox1.Items.Add(new FirstListBoxItem().ToString());
+            li0.Font = new Font(FontFamily.GenericMonospace, 8f, FontStyle.Regular);
+            label2.Font = new Font(FontFamily.GenericMonospace, 8f, FontStyle.Regular);
 
             if (docsRows != null &&
                 docsRows.Length > 0)
@@ -81,23 +88,53 @@ namespace TSDServer
                         rows[i].FactQuantity.ToString()));
                      */
                     {
-                        for (int j = 0; j < rows.Length; j++)
+                        if (rows != null)
                         {
-
-                            if (rows[j].Barcode == r.Barcode)
+                            for (int j = 0; j < rows.Length; j++)
                             {
-                                //scanRow = rows[j];
-                                
-                                if (items.ContainsKey(r.Barcode))
-                                    items[r.Barcode].FactQuantity += rows[j].FactQuantity;
-                                else
-                                    items.Add(r.Barcode,
-                                        new ListBoxItem(
-                                            r.Barcode,
-                                            r.ProductName,
-                                            rows[j].FactQuantity,
-                                            docsRows[i].Quantity));
+
+                                if (rows[j].Barcode == r.Barcode)
+                                {
+                                    //scanRow = rows[j];
+
+                                    if (items.ContainsKey(r.Barcode))
+                                    {
+                                        items[r.Barcode].FactQuantity += rows[j].FactQuantity;
+                                        if (items[r.Barcode].FactQuantity == rows[j].PlanQuanity)
+                                            items[r.Barcode].ForeColor = Color.Green;
+                                        else
+                                            if (items[r.Barcode].FactQuantity > rows[j].PlanQuanity)
+                                                items[r.Barcode].ForeColor = Color.Red;
+
+                                    }
+                                    else
+                                    {
+                                        items.Add(r.Barcode,
+                                            new ListBoxItem(
+                                                r.Barcode,
+                                                r.ProductName,
+                                                rows[j].FactQuantity,
+                                                docsRows[i].Quantity));
+
+                                        /*
+                                        if (items[r.Barcode].FactQuantity == rows[j].PlanQuanity)
+                                            items[r.Barcode].ForeColor = Color.Green;
+                                        else
+                                            if (items[r.Barcode].FactQuantity > rows[j].PlanQuanity)
+                                                items[r.Barcode].ForeColor = Color.Red;*/
+
+                                    }
+                                }
                             }
+                        }
+                        else
+                        {
+                                items.Add(r.Barcode,
+                                    new ListBoxItem(
+                                        r.Barcode,
+                                        r.ProductName,
+                                        0,
+                                        docsRows[i].Quantity));
                         }
 
                         /*if (scanRow != null)
@@ -148,10 +185,94 @@ namespace TSDServer
                         
                 }
             }
+
+            Dictionary<long, ListBoxItem> itemsNew =
+                new Dictionary<long, ListBoxItem>();
+
+            if (rows != null)
+            {
+                for (int i = 0; i < rows.Length; i++)
+                {
+                    if (itemsNew.ContainsKey(rows[i].Barcode))
+                    {
+                        itemsNew[rows[i].Barcode].FactQuantity += rows[i].FactQuantity;
+                        /*
+                        if (itemsNew[rows[i].Barcode].FactQuantity == rows[i].PlanQuanity)
+                            itemsNew[rows[i].Barcode].ForeColor = Color.Green;
+                        else
+                            if (itemsNew[rows[i].Barcode].FactQuantity > rows[i].PlanQuanity)
+                                itemsNew[rows[i].Barcode].ForeColor = Color.Red;
+                        */
+
+                    }
+                    else
+                    {
+                        ProductsDataSet.ProductsTblRow r =
+                            ActionsClass.Action.GetProductRow(rows[i].Barcode.ToString());
+
+                        itemsNew.Add(r.Barcode,
+                            new ListBoxItem(
+                                r.Barcode,
+                                r.ProductName,
+                                rows[i].FactQuantity,
+                                0));
+
+                        //itemsNew[r.Barcode].ForeColor = Color.Red;
+                    }
+                }
+            }
+
+            int planQ = 0;
+            int factQ = 0;
             foreach (long bk in items.Keys)
             {
-                listBox1.Items.Add(items[bk]);
+                OpenNETCF.Windows.Forms.ListItem li = listBox1.Items.Add(items[bk].ToString());
+
+                li.ForeColor = items[bk].ForeColor;
+
+                //TreeNode tn = treeView1.Nodes.Add(items[bk].ToString());
+                if (items[bk].PlanQuantity == items[bk].FactQuantity)
+                    li.ForeColor = Color.Green;
+
+                if (items[bk].FactQuantity > items[bk].PlanQuantity)
+                    li.ForeColor = Color.Red;
+
+                
+                planQ += items[bk].PlanQuantity;
+                factQ += items[bk].FactQuantity;
             }
+
+            foreach (long bk in itemsNew.Keys)
+            {
+                if (!items.ContainsKey(bk))
+                {
+                    OpenNETCF.Windows.Forms.ListItem li = listBox1.Items.Add(itemsNew[bk].ToString());
+                    //TreeNode tn = treeView1.Nodes.Add(itemsNew[bk].ToString());
+                    li.ForeColor = itemsNew[bk].ForeColor;
+
+                    if (itemsNew[bk].PlanQuantity == itemsNew[bk].FactQuantity)
+                        li.ForeColor = Color.Green;
+
+                    if (itemsNew[bk].FactQuantity > itemsNew[bk].PlanQuantity)
+                        li.ForeColor = Color.Red;
+
+                    planQ += itemsNew[bk].PlanQuantity;
+                    factQ += itemsNew[bk].FactQuantity;
+
+                }
+            }
+            this.label2.Text =
+                string.Format(
+                        "{0,13}|{1,10}|{2,2}|{3,2}",
+                        " ",
+                        "Итого:",
+                        factQ.ToString(),
+                        planQ.ToString());
+
+            //listBox1.Items.Add(new EndListBoxItem(factQ, planQ).ToString());
+
+            //treeView1.Nodes.Add(new EndListBoxItem(factQ, planQ).ToString());
+            
 
             this.Width = 238;
             this.Height = 295;
@@ -185,6 +306,7 @@ namespace TSDServer
             public string ProductName;
             public int FactQuantity;
             public int PlanQuantity;
+            public Color ForeColor = Color.Black;
 
             public ListBoxItem(long _Barcode, string _ProductName, int _FactQuantity, int _planQuantity)
             {
@@ -196,7 +318,7 @@ namespace TSDServer
             public override string ToString()
             {
                 return string.Format(
-                        "{0:D13}|{1,10}|{2,4}|{3,2}",
+                        "{0:D13}|{1,10}|{2,2}|{3,2}",
                         Barcode,
                         (ProductName.Length > 10) ? ProductName.Substring(0, 10) :
                             ProductName,
@@ -205,7 +327,7 @@ namespace TSDServer
             }
         }
 
-         public class FirstListBoxItem:ListBoxItem
+        public class FirstListBoxItem:ListBoxItem
         {
 
             public FirstListBoxItem():
@@ -221,9 +343,20 @@ namespace TSDServer
                         "{0,13}|{1,10}|{2}|{3}",
                         "Штрихкод",
                         "Код тов",
-                        "Факт",
-                        "План");
+                        "Фт",
+                        "Пн");
             }
+        }
+
+        public class EndListBoxItem : ListBoxItem
+        {
+
+            public EndListBoxItem(int factQ, int planQ) :
+                base(0, "Итого:", factQ, planQ)
+            {
+
+            }
+
         }
     
     }

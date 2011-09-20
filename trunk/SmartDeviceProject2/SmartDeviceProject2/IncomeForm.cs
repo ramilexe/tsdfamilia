@@ -14,7 +14,9 @@ namespace TSDServer
         private bool enableScan = false;
         private bool fullAcceptEnabled = false;
         private bool fullAccepted = false;
-
+        private int totalIncomeCar = 0;
+        private int totalQtyCar = 0;
+ 
         Scanned scannedDelegate = null;
         CarScanMode _mode;
 
@@ -47,6 +49,14 @@ namespace TSDServer
             TtnStruct = ttnStruct;
             _currentTTNBarcode = barCode;
             _mode = CarScanMode.CarsScan;
+            foreach (string incomeDoc in TtnStruct[_currentTTNBarcode].Keys)
+            {//цикл по всем накладным
+                foreach (string navCodeBox in TtnStruct[_currentTTNBarcode][incomeDoc].Keys)
+                {//цикл по всем коробам этой накладной
+                    totalQtyCar += 1;
+                }
+            }
+            
         }
 
         private void InventarForm_Load(object sender, EventArgs e)
@@ -59,6 +69,14 @@ namespace TSDServer
                 lblQtyTotal.Visible = false;
                 lblQtySkuScanned.Visible = false;
                 lblQtyTotalScanned.Visible = false;
+                ScannedProductsDataSet.ScannedBarcodesRow [] scannedRows = 
+                    ActionsClass.Action.FindByDocIdAndDocType(_currentTTNBarcode,
+                        (byte)TSDUtils.ActionCode.CarsBoxes);
+                totalIncomeCar = scannedRows.Length;
+             
+                lblQtySku.Font = new Font(FontFamily.GenericSansSerif,
+                    lblQtyTotal.Font.Size,
+                    FontStyle.Bold);
             }
             else
             {
@@ -80,6 +98,9 @@ namespace TSDServer
                 lblQtyTotal.Font = new Font(FontFamily.GenericSansSerif,
                     lblQtyTotal.Font.Size,
                     FontStyle.Bold);
+
+                ActionsClass.Action.GetDataByDocIdAndType("3000000000000",
+                (byte)TSDUtils.ActionCode.IncomeBox);
             }
 
             this.Width = 235;
@@ -95,8 +116,7 @@ namespace TSDServer
             enableScan = true;
 
             //READ FIRST ANY VALUE - CASHE INDEX
-            ActionsClass.Action.GetDataByDocIdAndType("3000000000000",
-                            (byte)TSDUtils.ActionCode.IncomeBox);
+
 
             this.Refresh();
             
@@ -167,6 +187,9 @@ namespace TSDServer
 
                 if (barcode.StartsWith("300") && barcode.Length == 13)
                 {
+                    lblQtySku.Visible = true;
+
+                    //int totalQty = TtnStruct[_currentTTNBarcode].Keys.Count;
 
                     bool found = false;
                     foreach (string incomeDoc in TtnStruct[_currentTTNBarcode].Keys)
@@ -196,6 +219,7 @@ namespace TSDServer
                                      _currentTTNBarcode);
                                 if (scannedRow == null)
                                 {
+                                    totalIncomeCar++;
 
                                     //записываем в БД
                                     ActionsClass.Action.IncomeCarBoxAction(_currentTTNBarcode,
@@ -214,6 +238,9 @@ namespace TSDServer
                             }
                         }
                     }
+                    lblQtySku.Text = string.Format("Принято {0} из {1} коробов",
+                        totalIncomeCar, totalQtyCar);
+
                     if (!found)
                     {
                         this.errLabel.Text = string.Format("Короб не в данной ТТН!");
