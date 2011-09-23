@@ -295,6 +295,9 @@ namespace TSDServer
                                 {
                                     if (srows.PlanQuanity == srows.FactQuantity)
                                     {
+                                        ActionsClass.Action.PlaySoundAsync((byte)TSDUtils.ActionCode.AlreadyAccepted);
+                                        ActionsClass.Action.PlayVibroAsync((byte)TSDUtils.ActionCode.AlreadyAccepted);
+
                                         using (DialogForm dlgfrm =
                                 new DialogForm(
                                     string.Format("Товар уже принят {0} из {1}",
@@ -334,6 +337,9 @@ namespace TSDServer
                             }
                             else
                             {
+                                ActionsClass.Action.PlaySoundAsync((byte)TSDUtils.ActionCode.StrangeBox);
+                                ActionsClass.Action.PlayVibroAsync((byte)TSDUtils.ActionCode.StrangeBox);
+
                                 using (DialogForm dlgfrm =
                                 new DialogForm(
                                     "Товар не входит в короб!"

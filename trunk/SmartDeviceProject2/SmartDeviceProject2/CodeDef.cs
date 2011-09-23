@@ -89,6 +89,11 @@ namespace TSDUtils
         /// NavCode =  6-ти зн. Код короба, DocId = Штрихкод машины, тип документа = 12 – машины и короба.
         /// </summary>
         CarsBoxes = 12,
+
+        /// <summary>
+        /// Документ уже принят
+        /// </summary>
+        AlreadyAccepted = 250,
         /// <summary>
         /// Чужой короб = 251
         /// </summary>
