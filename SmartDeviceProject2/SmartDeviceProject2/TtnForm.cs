@@ -121,6 +121,9 @@ namespace TSDServer
 
                     if (rows != null && rows.Length > 0)
                     {
+                        ActionsClass.Action.PlaySoundAsync((byte)TSDUtils.ActionCode.CarsBoxes);
+                        ActionsClass.Action.PlayVibroAsync((byte)TSDUtils.ActionCode.CarsBoxes);
+
                         Boxrows.AddRange(rows);
                         //записи машины найдены
                         ProductsDataSet.DocsTblRow row = rows[0];
@@ -177,8 +180,8 @@ namespace TSDServer
                 else
                 {
                     currentTtnBarcode = string.Empty;
-                    ActionsClass.Action.PlaySoundAsync((byte)TSDUtils.ActionCode.StrangeBox);
-                    ActionsClass.Action.PlayVibroAsync((byte)TSDUtils.ActionCode.StrangeBox);
+                    ActionsClass.Action.PlaySoundAsync((byte)TSDUtils.ActionCode.DocNotFound);
+                    ActionsClass.Action.PlayVibroAsync((byte)TSDUtils.ActionCode.DocNotFound);
                      this.errLabel.Text = string.Format("Это не ШК ТТН!",
                             barcode);
 

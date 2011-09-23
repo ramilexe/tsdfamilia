@@ -232,6 +232,9 @@ namespace TSDServer
                                         string.Format("Короб уже принят!");
 
                                     this.errLabel.Visible = true;
+
+                                    ActionsClass.Action.PlaySoundAsync((byte)TSDUtils.ActionCode.AlreadyAccepted);
+                                    ActionsClass.Action.PlayVibroAsync((byte)TSDUtils.ActionCode.AlreadyAccepted);
                                 }
                                 found = true;
 
@@ -246,6 +249,9 @@ namespace TSDServer
                         this.errLabel.Text = string.Format("Короб не в данной ТТН!");
 
                         this.errLabel.Visible = true;
+
+                        ActionsClass.Action.PlaySoundAsync((byte)TSDUtils.ActionCode.StrangeBox);
+                        ActionsClass.Action.PlayVibroAsync((byte)TSDUtils.ActionCode.StrangeBox);
                     }
 
                     #region oldcode
@@ -396,8 +402,8 @@ namespace TSDServer
                 else
                 {
                     _currentBoxBarcode = string.Empty;
-                    ActionsClass.Action.PlaySoundAsync((byte)TSDUtils.ActionCode.StrangeBox);
-                    ActionsClass.Action.PlayVibroAsync((byte)TSDUtils.ActionCode.StrangeBox);
+                    ActionsClass.Action.PlaySoundAsync((byte)TSDUtils.ActionCode.DocNotFound);
+                    ActionsClass.Action.PlayVibroAsync((byte)TSDUtils.ActionCode.DocNotFound);
                     this.errLabel.Text = string.Format("Это не ШК короба!");
 
                     this.errLabel.Visible = true;
@@ -439,15 +445,16 @@ namespace TSDServer
 
                         try
                         {
+                            /*
                             ProductsDataSet.DocsTblRow[] boxrows =
                                 ActionsClass.Action.GetDataByDocIdAndType(barcode,
-                                    (byte)TSDUtils.ActionCode.IncomeBox);
+                                    (byte)TSDUtils.ActionCode.IncomeBox);*/
 
-                            if (boxrows.Length > 0)
+                            if (rows.Length > 0)
                             {
 
                                 ProductsDataSet.DocsTblRow[] naklrows =
-                                    ActionsClass.Action.GetDataByNavCodeAndType(boxrows[0].NavCode,
+                                    ActionsClass.Action.GetDataByNavCodeAndType(rows[0].NavCode,
                                         (byte)TSDUtils.ActionCode.BoxIncomes);
 
                                 ProductsDataSet.DocsTblRow[] naklrows1 =
@@ -460,6 +467,9 @@ namespace TSDServer
                                         string.Format("По накладной №{0} {1} коробов", naklrows[0].DocId,
                                         naklrows1.Length);
 
+                                    ActionsClass.Action.PlaySoundAsync((byte)TSDUtils.ActionCode.IncomeBox);
+                                    ActionsClass.Action.PlayVibroAsync((byte)TSDUtils.ActionCode.IncomeBox);
+
                                 }
                                 else
                                     throw new ApplicationException("Накладных не найдено!");
@@ -470,6 +480,8 @@ namespace TSDServer
                         catch (Exception err)
                         {
                             this.docLabel.Text = err.Message;
+                            ActionsClass.Action.PlaySoundAsync((byte)TSDUtils.ActionCode.DocNotFound);
+                            ActionsClass.Action.PlayVibroAsync((byte)TSDUtils.ActionCode.DocNotFound);
                         }
 
                         ProductsDataSet.DocsTblRow row = rows[0];
@@ -501,29 +513,29 @@ namespace TSDServer
                         */
                         //ActionsClass.Action.IncomeBoxAction(scannedRow);
 
-                        ActionsClass.Action.PlaySoundAsync(row.MusicCode);
-                        ActionsClass.Action.PlayVibroAsync(row.VibroCode);
+
 
                     }
                     else
                     {
+                        this.errLabel.Text = string.Format("Это чужой короб!");
+                        this.errLabel.Visible = true;
+
                         ActionsClass.Action.PlaySoundAsync((byte)TSDUtils.ActionCode.StrangeBox);
                         ActionsClass.Action.PlayVibroAsync((byte)TSDUtils.ActionCode.StrangeBox);
-                        this.errLabel.Text = string.Format("Это чужой короб!");
-
-                        this.errLabel.Visible = true;
                     }
                     this.Refresh();
                 }
                 else
                 {
                     _currentBoxBarcode = string.Empty;
-                    ActionsClass.Action.PlaySoundAsync((byte)TSDUtils.ActionCode.StrangeBox);
-                    ActionsClass.Action.PlayVibroAsync((byte)TSDUtils.ActionCode.StrangeBox);
                     this.errLabel.Text = string.Format("Это не ШК короба!",
                            barcode);
 
                     this.errLabel.Visible = true;
+
+                    ActionsClass.Action.PlaySoundAsync((byte)TSDUtils.ActionCode.DocNotFound);
+                    ActionsClass.Action.PlayVibroAsync((byte)TSDUtils.ActionCode.DocNotFound);
 
                 }
                 // this.textBox1.SelectAll();

@@ -988,7 +988,6 @@ namespace TSDServer
             //for (int i = 0; i < r.Length; i++)
             //{
 
-
             PlayVibroAsyncAction(docsRow);
             PlaySoundAsyncAction(docsRow);
             scannedRow.FactQuantity += 1;
