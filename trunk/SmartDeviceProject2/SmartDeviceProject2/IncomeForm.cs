@@ -442,7 +442,9 @@ namespace TSDServer
                     {
                         //919051|002352151|11|1|76|2011-09-07|7|7|7|002352151||07.09.2011
                         //919051|3001012060898|7|1|76|2011-09-07|7|7|7|919051|002352151|07.09.2011
-
+                        //916941|002352272|11|1|11|2011-09-07|7|7|7|002352272||07.09.2011
+                        //916941|3001012040609|7|1|11|2011-09-07|7|7|7|916941|002352272|07.09.2011
+                        //002352272 = text2
                         try
                         {
                             /*
@@ -452,19 +454,20 @@ namespace TSDServer
 
                             if (rows.Length > 0)
                             {
-
+                                string naklNum = rows[0].Text2;
+                                /*
                                 ProductsDataSet.DocsTblRow[] naklrows =
                                     ActionsClass.Action.GetDataByNavCodeAndType(rows[0].NavCode,
-                                        (byte)TSDUtils.ActionCode.BoxIncomes);
+                                        (byte)TSDUtils.ActionCode.BoxIncomes);*/
 
                                 ProductsDataSet.DocsTblRow[] naklrows1 =
-                                    ActionsClass.Action.GetDataByDocIdAndType(naklrows[0].DocId,
+                                    ActionsClass.Action.GetDataByDocIdAndType(naklNum,
                                         (byte)TSDUtils.ActionCode.BoxIncomes);
 
-                                if (naklrows.Length > 0)
+                                if (naklrows1.Length > 0)
                                 {
                                     this.docLabel.Text =
-                                        string.Format("По накладной №{0} {1} коробов", naklrows[0].DocId,
+                                        string.Format("По накладной №{0} {1} коробов", naklNum,
                                         naklrows1.Length);
 
                                     ActionsClass.Action.PlaySoundAsync((byte)TSDUtils.ActionCode.IncomeBox);
