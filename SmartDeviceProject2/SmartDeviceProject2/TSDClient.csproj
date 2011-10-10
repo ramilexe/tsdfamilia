@@ -55,6 +55,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\..\..\..\Program Files (x86)\CASIO\MBSys\WindowsCE\ImagerLibNet.dll</HintPath>
     </Reference>
+    <Reference Include="MCSSLibNet, Version=1.1.60228.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>.\MCSSLibNet.dll</HintPath>
+    </Reference>
     <Reference Include="MoFlinkLibNet, Version=3.0.7.6336, Culture=neutral, PublicKeyToken=4079e79a5891f674">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\..\..\..\Program Files (x86)\CASIO\MBSys\WindowsCE\MoFlinkLibNet.dll</HintPath>
@@ -105,6 +109,8 @@
     <Compile Include="AcceptClearDataForm.Designer.cs">
       <DependentUpon>AcceptClearDataForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="IScanClass.cs" />
+    <Compile Include="M3GreenScanClass.cs" />
     <Compile Include="ViewBoxForm.cs">
       <SubType>Form</SubType>
     </Compile>

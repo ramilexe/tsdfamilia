@@ -52,7 +52,7 @@ namespace TSDServer
         [MTAThread]
         public static void Main()
         {
-            
+           
             //mEvt.Reset();
 
             //bool result = mEvt.WaitOne((int)(WaitPrintTimeDefault + WaitPrintTimeDefault / 2), false);
@@ -141,7 +141,8 @@ namespace TSDServer
                     //}
                     //catch { }
 
-
+                    //string oemInfo = NativeClass.GetOemInfo();
+                    //BTPrintClass.PrintClass.SetStatusEvent(oemInfo);
                     Application.Run(new MainForm());
                 }
                 catch (Exception err)

@@ -239,34 +239,43 @@ namespace TSDServer
                         }
                     case (int)MenuItems.ViewProductMenu:
                         {
+                            
                             BTPrintClass.PrintClass.CheckForClear();
                             ActionsClass.Action.OpenProducts();
                             ActionsClass.Action.OpenScanned();
                             using (ViewProductForm frm = new ViewProductForm())
                             {
+                                //this.Visible = false;
                                 frm.ShowDialog();
                             }
                             ActionsClass.Action.CloseProducts();
                             ActionsClass.Action.ClosedScanned();
                             ActionsClass.Action.ClearCache();
+                           // this.Visible = true;
+                            //this.Activate();
                             break;
                         }
                     case (int)MenuItems.InventarMenu:
                         {
+                            
                             BTPrintClass.PrintClass.CheckForClear();
                             ActionsClass.Action.OpenProducts();
                             ActionsClass.Action.OpenScanned();
                             using (InventarForm frm = new InventarForm())
                             {
+                                //this.Visible = false;
                                 frm.ShowDialog();
                             }
                             ActionsClass.Action.CloseProducts();
                             ActionsClass.Action.ClosedScanned();
                             ActionsClass.Action.ClearCache();
+                            //this.Visible = true;
+                            //this.Activate();
                             break;
                         }
                     case (int)MenuItems.IncomeMenu:
                         {
+                            //this.Visible = false;
                             BTPrintClass.PrintClass.CheckForClear();
                             ActionsClass.Action.OpenProducts();
                             ActionsClass.Action.OpenScanned();
@@ -278,6 +287,8 @@ namespace TSDServer
                             ActionsClass.Action.CloseProducts();
                             ActionsClass.Action.ClosedScanned();
                             ActionsClass.Action.ClearCache();
+                            //this.Visible = true;
+                            //this.Activate();
                             //BTPrintClass.PrintClass.SetStatusEvent("Form Closed");
                             break;
                         }
@@ -301,13 +312,15 @@ namespace TSDServer
                                 BTPrintClass.PrintClass.CheckForClear();
                                 ActionsClass.Action.OpenProducts();
                                 ActionsClass.Action.OpenScanned();
-
+                                //this.Visible = false;
                                 frm.ShowDialog();
                                //this.Visible = true;
                             }
                             ActionsClass.Action.CloseProducts();
                             ActionsClass.Action.ClosedScanned();
                             ActionsClass.Action.ClearCache();
+                            //this.Visible = true;
+                            //this.Activate();
                             break;
 
                         }
@@ -316,8 +329,11 @@ namespace TSDServer
                             BTPrintClass.PrintClass.CheckForClear();
                             using (SettingsForm frm = new SettingsForm())
                             {
+                                //this.Visible = false;
                                 frm.ShowDialog();
                             }
+                           // this.Visible = true;
+                            //this.Activate();
                             break;
                         }
 

@@ -108,7 +108,7 @@ namespace TSDServer
 
                 if (barcode.StartsWith("400") && barcode.Length == 13)
                 {
-                    currentTtnBarcode = barcode;
+                    //currentTtnBarcode = barcode;
                     //загрузить список машин - должна быть 1 запись т.к. машины уникальны.
 
                     ProductsDataSet.DocsTblRow[] rows =
@@ -168,9 +168,10 @@ namespace TSDServer
                     }
                     else
                     {
+                        currentTtnBarcode = string.Empty;
                         ActionsClass.Action.PlaySoundAsync((byte)TSDUtils.ActionCode.StrangeBox);
                         ActionsClass.Action.PlayVibroAsync((byte)TSDUtils.ActionCode.StrangeBox);
-                        this.errLabel.Text = string.Format("ТТН {0} не для этого магазина!",
+                        this.errLabel.Text = string.Format("ТТН не этого магазина!",
                             barcode);
 
                         this.errLabel.Visible = true;
