@@ -12,10 +12,59 @@ namespace TSDServer
     public delegate void Scanned(string scannedBarcode);
     public delegate void ScanError(string error);
 
-    public class ScanClass
+    public class ScanClass 
     {
-        private static ScanClass _scaner = new ScanClass();
-        public static ScanClass Scaner
+        //private static CasioScanClass _casioscaner = null;
+        //private static M3GreenScanClass _m3scaner = null;
+        private static IScanClass _scaner = null;
+        
+        private ScanClass()
+        {
+            //if (
+           
+//            _scaner = CasioScanClass.Scaner;
+        }
+        private static object obj = new object();
+        public static IScanClass Scaner
+        {
+            get
+            {
+                if (_scaner == null)
+                {
+                    lock (obj)
+                    {
+                        if (_scaner == null)
+                        {
+                            OperatingSystem os = System.Environment.OSVersion;
+                            string oemInfo = NativeClass.GetOemInfo();
+                            BTPrintClass.PrintClass.SetStatusEvent(oemInfo);
+                            if (oemInfo.ToUpper().IndexOf("PY055") >= 0 ||
+                                oemInfo.ToUpper().IndexOf("EMULATOR")>=0 )
+                            {
+                                BTPrintClass.PrintClass.SetStatusEvent("Это ТСД КАСИО");
+                                _scaner = CasioScanClass.Scaner;
+                            }
+                            else
+                            {
+                                BTPrintClass.PrintClass.SetStatusEvent("Это ТСД M3Green");
+                                _scaner = M3GreenScanClass.Scaner;
+                            }
+                        }
+                    }
+                    //string devId = os.Version.ToString();
+                    //BTPrintClass.PrintClass.SetStatusEvent(devId);
+
+                }
+                
+                return _scaner;
+            }
+        }
+
+    }
+    public class CasioScanClass : IScanClass
+    {
+        private static CasioScanClass _scaner = new CasioScanClass();
+        public static CasioScanClass Scaner
         {
             get
             {
@@ -23,13 +72,37 @@ namespace TSDServer
             }
         }
 
-        private ScanClass()
+        private CasioScanClass()
         {
 
         }
+        public Scanned OnScanned
+        {
+            get
+            {
+                return _OnScanned;
+            }
+            set
+            {
+                _OnScanned = value;
+            }
+        }
+        private Scanned _OnScanned;
+        
+        private ScanError _OnScanError;
+        public ScanError OnScanError
+        {
+            get
+            {
+                return _OnScanError;
+            }
+            set
+            {
+                _OnScanError = value;
 
-        public Scanned OnScanned;
-        public ScanError OnScanError;
+
+            }
+        }
         bool aborted = false;
         bool paused = true;
         ManualResetEvent mevt = new ManualResetEvent(false);

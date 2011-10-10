@@ -33,7 +33,7 @@ namespace TSDServer
             {
                 bt_di[iCnt] = new Calib.BluetoothLibNet.BTST_DEVICEINFO();
             }
-            BTPrinterInit();
+            //BTPrinterInit();
             
         }
 
@@ -406,7 +406,7 @@ namespace TSDServer
         }
         #endregion
 
-        private int BTPrinterInit()
+        public int BTPrinterInit()
         {
             int status = 0;
             BtRet = BluetoothLibNet.Api.BTGetLibraryStatus(ref status);
