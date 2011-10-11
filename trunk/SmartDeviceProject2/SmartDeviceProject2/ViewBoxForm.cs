@@ -312,7 +312,7 @@ namespace TSDServer
                 this.Close();
                 return;
             }
-            if (e.KeyValue == 18)//RedBtn
+            if (e.KeyValue == 18 && Program.Default.EnableChgQty == 1)//RedBtn
             {
                 if (rows != null && 
                     listBox1.SelectedIndex > 0 &&

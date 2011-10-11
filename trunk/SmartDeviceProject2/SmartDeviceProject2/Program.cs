@@ -112,6 +112,8 @@ namespace TSDServer
                         r.EnableExit = 1;
                         r.EnableWorkWOPrinter = 1;
                         r.WaitPrintTimeDefault = 1000;
+                        r.EnableChgMlt = 0;
+                        r.EnableChgQty = 0;
                         Settings.TypedSettings.AddTypedSettingsRow(r);
                         Settings.TypedSettings.AcceptChanges();
 
