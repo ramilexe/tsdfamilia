@@ -15,6 +15,7 @@ namespace TSDServer
         string _documentId;
         string[] waitStr = new string[] { "\\", "|", "/", "-" };
         int currentItem = 0;
+        int quantityKoeff;
         ProductsDataSet.DocsTblRow inventRow;
 
         public static System.Threading.ManualResetEvent _mEvt =
@@ -47,9 +48,14 @@ namespace TSDServer
 
         public ViewProductForm()
         {
+            quantityKoeff =1;
+            
             _mode = WorkMode.ProductsScan;
             BTPrintClass.PrintClass.SetStatusEvent("Open Products form");
             InitializeComponent();
+
+            quantityLabel.Visible = false;
+            quantityLabel.Text = string.Empty;
 
             //tmr = new System.Threading.Timer(
             // new System.Threading.TimerCallback(OnTimer)
@@ -82,11 +88,13 @@ namespace TSDServer
                         inventRow.Text1 = "";
                         inventRow.Text2 = "";
                         inventRow.Text3 = "";
+                        label14.Text = "";
                         break;
                     }
                 case WorkMode.BoxScan:
                     {
                         this.label15.Text = "";
+                        this.label14.Text = "F2-Колво";
                         inventRow = ActionsClass.Action.Products.DocsTbl.NewDocsTblRow();
                         inventRow.DocId = _documentId;
                         inventRow.DocType = (byte)(TSDUtils.ActionCode.BoxWProducts);
@@ -113,7 +121,7 @@ namespace TSDServer
 
             currentdocRows = new ProductsDataSet.DocsTblRow[1];
             currentdocRows[0] = inventRow;
-            label14.Text="";
+            
             label13.Text = "";
             this.label13.Text = "Уменьш.КОЛВО";
 
@@ -310,9 +318,10 @@ namespace TSDServer
                                             if (dlgfrm.ShowDialog() == DialogResult.Yes)
                                             {
                                                 //inventRow.NavCode = row.NavCode;
-                                                ActionsClass.Action.InvokeAction(TSDUtils.ActionCode.BoxWProducts,
+                                                ActionsClass.Action.BoxWProductsActionProc(
                                                     row,
-                                                    docRow
+                                                    docRow,
+                                                    quantityKoeff
                                                     );
                                                 return;//приняли
                                             }
@@ -323,11 +332,11 @@ namespace TSDServer
                                 }
                                 //если не сработали условия - то принимаем
                                 //inventRow.NavCode = row.NavCode;
-                                ActionsClass.Action.InvokeAction(TSDUtils.ActionCode.BoxWProducts,
-                                    row,
-                                    docRow
-                                    );
-
+                                ActionsClass.Action.BoxWProductsActionProc(
+                                                     row,
+                                                     docRow,
+                                                     quantityKoeff
+                                                     );
                                 /*ActionsClass.Action.InvokeAction(TSDUtils.ActionCode.BoxWProducts,
                                     row,
                                     docRow
@@ -350,17 +359,18 @@ namespace TSDServer
                                     if (dlgfrm.ShowDialog() == DialogResult.Yes)
                                     {
                                         inventRow.NavCode = row.NavCode;
-                                        ActionsClass.Action.InvokeAction(TSDUtils.ActionCode.BoxWProducts,
-                                            row,
-                                            inventRow
-                                            );
-                                        
+                                        ActionsClass.Action.BoxWProductsActionProc(
+                                                    row,
+                                                    inventRow,
+                                                    quantityKoeff
+                                                    );
                                         return;
                                     }
                                 }
 
                             }
-
+                            quantityLabel.Visible = false;
+                            quantityKoeff = 1;
                             //this.Refresh();
 
                         }
@@ -626,6 +636,7 @@ namespace TSDServer
                 e.Handled = true;
                 return;
             }
+            
             if (e.KeyCode == Keys.Escape)
             {
                 this.Close();
@@ -690,6 +701,7 @@ namespace TSDServer
             }
             if (e.KeyValue == 18)//RedBtn
             {
+                #region redbutton
                 if (currentProductRow != null && WorkMode.ProductsScan == _mode)
                 {
                     ActionsClass.Action.PrintLabel(currentProductRow, currentDocRow, Program.Default.DefaultRepriceShablon);
@@ -756,13 +768,37 @@ namespace TSDServer
                 }
                 e.Handled = true;
                 return;
+                #endregion
             }
             if (e.KeyValue == 16)//BluBtn
             {
+                #region ProductsScan
                 if (currentProductRow != null && WorkMode.ProductsScan == _mode)
                 {
                     ActionsClass.Action.PrintLabel(currentProductRow, currentDocRow, Program.Default.BlueButtonShablon);
                 }
+                #endregion
+                #region BoxScan
+                
+                //multyply
+                //if (currentProductRow != null && 
+                 if (_mode == WorkMode.BoxScan)
+                {
+
+                        DialogResult dr = FMultiplyForm.MForm.ShowDialog();
+
+                        if (dr == DialogResult.OK)
+                        {
+                            quantityKoeff = FMultiplyForm.MForm.Quantity;
+                            quantityLabel.Text = string.Format("Добавляется {0} шт", quantityKoeff);
+                            quantityLabel.Visible = true;
+                            this.navCodeTB.SelectAll();
+                            this.navCodeTB.Focus();
+                            this.Refresh();
+                            
+                        }
+                }
+                #endregion
                 e.Handled = true;
                 return;
             }
@@ -909,15 +945,28 @@ namespace TSDServer
                 label21.Text = (scannedRow["FactQuantity"] == System.DBNull.Value ||
                                 scannedRow["FactQuantity"] == null) ? string.Empty : scannedRow.FactQuantity.ToString();
 
-                this.Refresh();
+                
 
                 if (docsRow.DocType == (byte)TSDUtils.ActionCode.BoxWProducts)
                 {
-                    if (scannedRow.FactQuantity == scannedRow.PlanQuanity)
+                    //label21.Text = (scannedRow["FactQuantity"] == System.DBNull.Value ||
+                    //            scannedRow["FactQuantity"] == null) ? string.Empty : scannedRow.FactQuantity.ToString();
+
+                    ScannedProductsDataSet.ScannedBarcodesRow[] rowsS
+                           = ActionsClass.Action.FindByDocIdAndDocType(scannedRow.DocId,
+                           scannedRow.DocType);
+                    int fQty = 0;
+                    for (int i = 0; i < rowsS.Length; i++)
                     {
-                        ScannedProductsDataSet.ScannedBarcodesRow[] rowsS
-                            = ActionsClass.Action.FindByDocIdAndDocType(scannedRow.DocId,
-                            scannedRow.DocType);
+                        if (rowsS[i].Barcode == currentProductRow.Barcode)
+                            fQty += rowsS[i].FactQuantity;
+                    }
+
+                    label21.Text = fQty.ToString();
+
+                    if (fQty == scannedRow.PlanQuanity)
+                    {
+                       
 
                         ProductsDataSet.DocsTblRow[] docsRows =
                             ActionsClass.Action.GetDataByDocIdAndType(scannedRow.DocId,
@@ -957,6 +1006,8 @@ namespace TSDServer
                         }
                     }
                 }
+
+                this.Refresh();
             }
         }
 

@@ -56,6 +56,7 @@
             this.label3 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
+            this.quantityLabel = new System.Windows.Forms.Label();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
             this.SuspendLayout();
@@ -63,6 +64,7 @@
             // panel1
             // 
             this.panel1.BackColor = System.Drawing.Color.White;
+            this.panel1.Controls.Add(this.quantityLabel);
             this.panel1.Controls.Add(this.label21);
             this.panel1.Controls.Add(this.label22);
             this.panel1.Controls.Add(this.label20);
@@ -299,6 +301,13 @@
             this.label1.Size = new System.Drawing.Size(67, 20);
             this.label1.Text = "Название:";
             // 
+            // quantityLabel
+            // 
+            this.quantityLabel.Location = new System.Drawing.Point(4, 212);
+            this.quantityLabel.Name = "quantityLabel";
+            this.quantityLabel.Size = new System.Drawing.Size(231, 20);
+            this.quantityLabel.Text = "label23";
+            // 
             // ViewProductForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
@@ -347,5 +356,6 @@
         private System.Windows.Forms.Label label19;
         private System.Windows.Forms.Label label21;
         private System.Windows.Forms.Label label22;
+        private System.Windows.Forms.Label quantityLabel;
     }
 }
