@@ -94,7 +94,11 @@ namespace TSDServer
                 case WorkMode.BoxScan:
                     {
                         this.label15.Text = "";
-                        this.label14.Text = "F2-Колво";
+                        if (Program.Default.EnableChgMlt == 1)
+                            this.label14.Text = "F2-Колво";
+                        else
+                            this.label14.Text = "";
+
                         inventRow = ActionsClass.Action.Products.DocsTbl.NewDocsTblRow();
                         inventRow.DocId = _documentId;
                         inventRow.DocType = (byte)(TSDUtils.ActionCode.BoxWProducts);
@@ -719,10 +723,19 @@ namespace TSDServer
                              inventRow.Quantity,
                              inventRow.Priority);
 
+                    int total = 0;
+                    int totalBk = 0;
+                    ActionsClass.Action.CalculateTotalsWOPriority(
+                        (TSDUtils.ActionCode)scannedRow.DocType,
+                        scannedRow.DocId,
+                        scannedRow.Barcode.ToString(),
+                        out totalBk,
+                        out total);
+
                     if (scannedRow != null && //existing row
                         scannedRow.Priority == 0 //not closed
                         && scannedRow["FactQuantity"] != System.DBNull.Value
-                        && scannedRow.FactQuantity > 0 //scanned already
+                        && total > 0 //scanned already
                         && 
                         (
                            (Program.СurrentInvId != string.Empty && _mode == WorkMode.InventarScan) ||
@@ -730,13 +743,16 @@ namespace TSDServer
                         )
                     )
                     {
+                        
+
+
                         using (DialogForm dlgfrm =
                                 new DialogForm(
                                     string.Format("Уменьшить по коду {0} ", currentProductRow.NavCode),
                                     string.Format("название {0} ", currentProductRow.ProductName),
                                      string.Format("с количества {0} до количества {1} ?",
-                                      scannedRow.FactQuantity,
-                                      scannedRow.FactQuantity - 1),
+                                      total,
+                                      total - 1),
                                      "Отмена последнего сканирования"))
                         {
                             if (dlgfrm.ShowDialog() == DialogResult.Yes)
@@ -782,7 +798,7 @@ namespace TSDServer
                 
                 //multyply
                 //if (currentProductRow != null && 
-                 if (_mode == WorkMode.BoxScan)
+                 if (_mode == WorkMode.BoxScan && Program.Default.EnableChgMlt ==1)
                 {
 
                         DialogResult dr = FMultiplyForm.MForm.ShowDialog();

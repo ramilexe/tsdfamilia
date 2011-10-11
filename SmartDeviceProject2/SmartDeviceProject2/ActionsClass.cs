@@ -1590,6 +1590,60 @@ namespace TSDServer
         /// <param name="totalBk">Возврат всего уникальных ШК</param>
         /// <param name="total">Возврат всего записей</param>
         public void CalculateTotalsWOPriority(TSDUtils.ActionCode docType,
+            string docId,
+            string barcode,
+            out int totalBk,
+            out int total)
+        {
+
+            total = 0;
+            totalBk = 0;
+            if (!System.IO.File.Exists(System.IO.Path.Combine(
+            Program.Default.DatabaseStoragePath,
+            "scannedbarcodes.txt")))
+                return;
+            using (System.IO.StreamReader wr =
+                new System.IO.StreamReader(
+                    System.IO.Path.Combine(
+                        Program.Default.DatabaseStoragePath,
+                        "scannedbarcodes.txt"), true))
+            {
+                string s = string.Empty;
+                List<string> scannedList =
+                    new List<string>();
+                while ((s = wr.ReadLine()) != null)
+                {
+                    string[] strAr = s.Split('|');
+                    if (strAr.Length > 0)
+                    {
+                        if (strAr[2] == ((byte)docType).ToString() &&
+                            strAr[0] == barcode &&
+                            strAr[1] == docId)
+                        {
+                            //if (strAr[4] == date.ToString("dd.MM.yyyy"))
+                            //{
+                            total += int.Parse(strAr[3]);
+                            if (!scannedList.Contains(strAr[0]))
+                            {
+                                scannedList.Add(strAr[0]);
+                                totalBk += 1;
+                            }
+                            //}
+                        }
+
+
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Подсчет ШК в документах с указанным типом
+        /// </summary>
+        /// <param name="docType">Тип документа</param>
+        /// <param name="totalBk">Возврат всего уникальных ШК</param>
+        /// <param name="total">Возврат всего записей</param>
+        public void CalculateTotalsWOPriority(TSDUtils.ActionCode docType,
             DateTime date,
             out int totalBk,
             out int total)
