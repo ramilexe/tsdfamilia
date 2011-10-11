@@ -738,6 +738,7 @@ namespace TSDServer
                             {
                                 boxFrm.ShowDialog();
                             }
+                            RefreshData(_currentBoxBarcode);
 
                         }
                         finally

@@ -87,7 +87,7 @@ namespace TSDServer
             actionsDict.Add(TSDUtils.ActionCode.InventoryLocal, new ActOnProduct(InventoryLocalActionProc));
             actionsDict.Add(TSDUtils.ActionCode.NotFound, new ActOnProduct(NotFoundActionProc));
             actionsDict.Add(TSDUtils.ActionCode.DocNotFound, new ActOnProduct(DocNotFoundActionProc));
-            actionsDict.Add(TSDUtils.ActionCode.BoxWProducts, new ActOnProduct(BoxWProductsActionProc));
+            //actionsDict.Add(TSDUtils.ActionCode.BoxWProducts, new ActOnProduct(BoxWProductsActionProc));
             
             /*
             tmr = new System.Threading.Timer(
@@ -966,31 +966,34 @@ namespace TSDServer
             //}
         }
 
-        public void BoxWProductsActionProc(ProductsDataSet.ProductsTblRow datarow, ProductsDataSet.DocsTblRow docsRow)
+        public void BoxWProductsActionProc(ProductsDataSet.ProductsTblRow datarow, ProductsDataSet.DocsTblRow docsRow, int quantityFoef)
         {
             //ScannedProductsDataSet.ScannedBarcodesRow[] r =
             //    _scannedProducts.ScannedBarcodes.FindByBarcodeAndDocType(datarow.Barcode, docsRow.DocType);
-            ScannedProductsDataSet.ScannedBarcodesRow scannedRow =
-                               ActionsClass.Action.AddScannedRow(
-                               datarow.Barcode,
-                               docsRow.DocType,
-                               docsRow.DocId,
-                               docsRow.Quantity,
-                               0);
+            ScannedProductsDataSet.ScannedBarcodesRow scannedRow = null;
+            for (int i = 0; i < quantityFoef; i++)
+            {
+                scannedRow = ActionsClass.Action.AddScannedRow(
+                                   datarow.Barcode,
+                                   docsRow.DocType,
+                                   docsRow.DocId,
+                                   docsRow.Quantity,
+                                   0);
 
-            //if (scannedRow == null)
-            //{
-            //    return 
-            //    //r = new ScannedProductsDataSet.ScannedBarcodesRow[1];
-            //    //r[0] = scannedRow;
-            //}
+                //if (scannedRow == null)
+                //{
+                //    return 
+                //    //r = new ScannedProductsDataSet.ScannedBarcodesRow[1];
+                //    //r[0] = scannedRow;
+                //}
 
-            //for (int i = 0; i < r.Length; i++)
-            //{
+                //for (int i = 0; i < r.Length; i++)
+                //{
 
+                scannedRow.FactQuantity += 1;
+            }
             PlayVibroAsyncAction(docsRow);
             PlaySoundAsyncAction(docsRow);
-            scannedRow.FactQuantity += 1;
             //PrintLabelAsync(datarow, docsRow);
             if (OnActionCompleted != null)
                 OnActionCompleted(docsRow, scannedRow);
@@ -1938,6 +1941,102 @@ namespace TSDServer
 
                 }
                 //}
+
+            //}
+        }
+
+        public void ChangeQtyPosition(
+            ProductsDataSet.DocsTblRow docsRow,
+            ScannedProductsDataSet.ScannedBarcodesRow scannedRow,
+            int diffQty)
+        {
+            //ScannedProductsDataSet.ScannedBarcodesRow[] r =
+            //_scannedProducts.ScannedBarcodes.FindByBarcodeAndDocType(datarow.Barcode, docsRow.DocType);
+
+
+
+            //if (scannedRow != null && //existing row
+            //    scannedRow.Priority == 0 //not closed
+            //    && scannedRow["FactQuantity"] != System.DBNull.Value
+            //    && scannedRow.FactQuantity > 0 //scanned already
+            //    && Program.СurrentInvId != string.Empty
+            //    )
+            //{
+            DoScanEvents = false;
+
+            if (diffQty < 0)
+            {
+                for (int i = diffQty; i < 0; i++)
+                {
+                    
+                    scannedRow.FactQuantity -= 1;
+                    using (System.IO.StreamWriter wr =
+                    new System.IO.StreamWriter(
+                        System.IO.Path.Combine(Program.Default.DatabaseStoragePath, "scannedbarcodes.txt"), true))
+                    {
+                        //if (row["FactQuantity"] != System.DBNull.Value
+                        //    && row.FactQuantity > 0)
+                        //{
+                        string s =
+                                string.Format("{0}|{1}|{2}|{3}|{4}|{5}|{6}|{7}",
+                                    scannedRow.Barcode,
+                                    scannedRow.DocId,
+                                    scannedRow.DocType,
+                                    -1,
+                                    (scannedRow["ScannedDate"] == System.DBNull.Value) ?
+                                      DateTime.Today.AddHours(_timeShift).ToString("dd.MM.yyyy")
+                                      : scannedRow.ScannedDate.AddHours(_timeShift).ToString("dd.MM.yyyy"),
+
+                                    (scannedRow["TerminalId"] == System.DBNull.Value) ?
+                                       string.Empty : scannedRow.TerminalId.ToString(),
+                                    scannedRow.Priority,
+                                    scannedRow.PlanQuanity
+                                    );
+                        wr.WriteLine(s);
+                    }
+
+                }
+            }
+            else
+            {
+                if (diffQty > 0)
+                {
+                    for (int i = 0; i < diffQty; i++)
+                    {
+                        scannedRow.FactQuantity += 1;
+                        using (System.IO.StreamWriter wr =
+                        new System.IO.StreamWriter(
+                            System.IO.Path.Combine(Program.Default.DatabaseStoragePath, "scannedbarcodes.txt"), true))
+                        {
+                            //if (row["FactQuantity"] != System.DBNull.Value
+                            //    && row.FactQuantity > 0)
+                            //{
+                            string s =
+                                    string.Format("{0}|{1}|{2}|{3}|{4}|{5}|{6}|{7}",
+                                        scannedRow.Barcode,
+                                        scannedRow.DocId,
+                                        scannedRow.DocType,
+                                        1,
+                                        (scannedRow["ScannedDate"] == System.DBNull.Value) ?
+                                          DateTime.Today.AddHours(_timeShift).ToString("dd.MM.yyyy")
+                                          : scannedRow.ScannedDate.AddHours(_timeShift).ToString("dd.MM.yyyy"),
+
+                                        (scannedRow["TerminalId"] == System.DBNull.Value) ?
+                                           string.Empty : scannedRow.TerminalId.ToString(),
+                                        scannedRow.Priority,
+                                        scannedRow.PlanQuanity
+                                        );
+                            wr.WriteLine(s);
+                        }
+                    }
+                }
+            }
+            if (OnActionCompleted != null && docsRow != null)
+                OnActionCompleted(docsRow, scannedRow);
+            DoScanEvents = true;
+
+            
+            //}
 
             //}
         }

@@ -13,9 +13,16 @@ namespace TSDServer
     {
         Dictionary<long,ListBoxItem> items =
             new Dictionary<long,ListBoxItem>();
+        
+        Dictionary<long,
+            ProductsDataSet.ProductsTblRow> products =
+            new Dictionary<long, ProductsDataSet.ProductsTblRow>();
 
         string _docId;
         byte _docType;
+
+        ProductsDataSet.DocsTblRow[] docsRows = null;
+        ScannedProductsDataSet.ScannedBarcodesRow[] rows = null;
 
         public ViewBoxForm()
         {
@@ -45,14 +52,22 @@ namespace TSDServer
 
         private void ViewInventarForm_Load(object sender, EventArgs e)
         {
-            
-            ScannedProductsDataSet.ScannedBarcodesRow [] rows
-             = ActionsClass.Action.FindByDocIdAndDocType
-                (_docId,
-                _docType);
+            RefreshData();
+        }
 
-            ProductsDataSet.DocsTblRow[] docsRows =
-                ActionsClass.Action.GetDataByDocIdAndType(_docId, _docType);
+        void InventarForm_Closed(object sender, System.EventArgs e)
+        {
+        }
+
+        private void RefreshData()
+        {
+            products.Clear();
+            items.Clear();
+            listBox1.Items.Clear();
+
+            rows = ActionsClass.Action.FindByDocIdAndDocType(_docId,_docType);
+
+            docsRows = ActionsClass.Action.GetDataByDocIdAndType(_docId, _docType);
 
             //items.Add(-1, new FirstListBoxItem());
 
@@ -67,17 +82,21 @@ namespace TSDServer
 
                 for (int i = 0; i < docsRows.Length; i++)
                 {
-                    ProductsDataSet.ProductsTblRow r = 
+                    
+                    ProductsDataSet.ProductsTblRow r =
                         ActionsClass.Action.GetProductRowByNavCode(
                             docsRows[i].NavCode);
-                        //rows[i].Barcode.ToString());
+
+                    if (!products.ContainsKey(r.Barcode))
+                        products.Add(r.Barcode,r);
+                    //rows[i].Barcode.ToString());
 
 
                     //ScannedProductsDataSet.ScannedBarcodesRow scanRow = null;
 
-                    
 
-                    
+
+
                     if (r != null)
                     /*listBox1.Items.Add(
                         string.Format(
@@ -129,12 +148,12 @@ namespace TSDServer
                         }
                         else
                         {
-                                items.Add(r.Barcode,
-                                    new ListBoxItem(
-                                        r.Barcode,
-                                        r.ProductName,
-                                        0,
-                                        docsRows[i].Quantity));
+                            items.Add(r.Barcode,
+                                new ListBoxItem(
+                                    r.Barcode,
+                                    r.ProductName,
+                                    0,
+                                    docsRows[i].Quantity));
                         }
 
                         /*if (scanRow != null)
@@ -151,16 +170,16 @@ namespace TSDServer
                         }
                         else
                         {*/
-                            //нет отсканированных, товар найден
-                            if (!items.ContainsKey(r.Barcode))
-                                //items[r.Barcode].FactQuantity += scanRow.FactQuantity;
+                        //нет отсканированных, товар найден
+                        if (!items.ContainsKey(r.Barcode))
+                            //items[r.Barcode].FactQuantity += scanRow.FactQuantity;
                             //else
-                                items.Add(r.Barcode,
-                                    new ListBoxItem(
-                                        r.Barcode,
-                                        r.ProductName,
-                                        0,
-                                        docsRows[i].Quantity));
+                            items.Add(r.Barcode,
+                                new ListBoxItem(
+                                    r.Barcode,
+                                    r.ProductName,
+                                    0,
+                                    docsRows[i].Quantity));
                         //}
                     }
                     /*else
@@ -175,14 +194,14 @@ namespace TSDServer
                                     rows[i].FactQuantity,
                                     rows[i].PlanQuanity));*/
 
-                        /*
-                        listBox1.Items.Add(
-                        string.Format(
-                        "{0:D13}|{1,12}|{2}",
-                        rows[i].Barcode,
-                        "Товар не найден",
-                        rows[i].FactQuantity.ToString()));*/
-                        
+                    /*
+                    listBox1.Items.Add(
+                    string.Format(
+                    "{0:D13}|{1,12}|{2}",
+                    rows[i].Barcode,
+                    "Товар не найден",
+                    rows[i].FactQuantity.ToString()));*/
+
                 }
             }
 
@@ -209,6 +228,9 @@ namespace TSDServer
                     {
                         ProductsDataSet.ProductsTblRow r =
                             ActionsClass.Action.GetProductRow(rows[i].Barcode.ToString());
+
+                        if (!products.ContainsKey(r.Barcode))
+                            products.Add(r.Barcode,r);
 
                         itemsNew.Add(r.Barcode,
                             new ListBoxItem(
@@ -237,7 +259,7 @@ namespace TSDServer
                 if (items[bk].FactQuantity > items[bk].PlanQuantity)
                     li.ForeColor = Color.Red;
 
-                
+
                 planQ += items[bk].PlanQuantity;
                 factQ += items[bk].FactQuantity;
             }
@@ -272,7 +294,7 @@ namespace TSDServer
             //listBox1.Items.Add(new EndListBoxItem(factQ, planQ).ToString());
 
             //treeView1.Nodes.Add(new EndListBoxItem(factQ, planQ).ToString());
-            
+
 
             this.Width = 238;
             this.Height = 295;
@@ -280,21 +302,111 @@ namespace TSDServer
 
             this.Refresh();
 
-
-            
-            
         }
-        void InventarForm_Closed(object sender, System.EventArgs e)
-        {
-        }
-
-
         private void listBox1_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Escape ||
              e.KeyValue == 115)//YellowBtn
             {
+                e.Handled = true;
                 this.Close();
+                return;
+            }
+            if (e.KeyValue == 18)//RedBtn
+            {
+                if (rows != null && 
+                    listBox1.SelectedIndex > 0 &&
+                    listBox1.SelectedIndex < listBox1.Items.Count)
+                {
+                     OpenNETCF.Windows.Forms.ListItem li = 
+                        listBox1.Items[listBox1.SelectedIndex];
+
+                     ListBoxItem lbi = new ListBoxItem(li.Text);
+
+                     FChangeQtyForm.MForm.Barcode = lbi.Barcode.ToString();
+                     FChangeQtyForm.MForm.ProductName = lbi.ProductName.ToString();
+                     FChangeQtyForm.MForm.FactQuantity = lbi.FactQuantity;
+                     FChangeQtyForm.MForm.PlanQuantity = lbi.PlanQuantity;
+                     DialogResult dr = FChangeQtyForm.MForm.ShowDialog();
+
+                    if (dr == DialogResult.OK)
+                    {
+                        int diff = FChangeQtyForm.MForm.NewQuantity -
+                            FChangeQtyForm.MForm.FactQuantity;
+
+                        //ScannedProductsDataSet.ScannedBarcodesRow scannedRow = null;
+                        List<ScannedProductsDataSet.ScannedBarcodesRow > scannedList = 
+                            new List<ScannedProductsDataSet.ScannedBarcodesRow>();
+                        for (int i=0;i<rows.Length;i++)
+                        {
+                            if (rows[i].Barcode == lbi.Barcode)
+                                scannedList.Add(rows[i]);
+                            //break;
+                        }
+                        
+                        
+
+                        if (FChangeQtyForm.MForm.NewQuantity >= 0)
+                        {
+                            ProductsDataSet.ProductsTblRow r = products[lbi.Barcode];
+                            ProductsDataSet.DocsTblRow docRow = null;
+                            foreach (ProductsDataSet.DocsTblRow d in docsRows)
+                            {
+                                if (d.NavCode == r.NavCode)
+                                {
+                                    docRow = d;
+                                    break;
+                                }
+                            }
+                            if (diff < 0)
+                            {
+                                foreach (ScannedProductsDataSet.ScannedBarcodesRow s in scannedList)
+                                {
+                                    if (s.FactQuantity >= Math.Abs(diff))
+                                    {
+                                        ActionsClass.Action.ChangeQtyPosition(docRow, s, diff);
+                                        //s.FactQuantity += diff;
+                                        break;
+                                    }
+                                    else
+                                    {
+                                        int sgn = Math.Sign(diff);
+                                        diff = (Math.Abs(diff) - s.FactQuantity) * sgn;
+                                        ActionsClass.Action.ChangeQtyPosition(docRow, s, sgn * s.FactQuantity);
+
+                                    }
+                                }
+                            }
+                            else //diff >0
+                            {
+                                ScannedProductsDataSet.ScannedBarcodesRow s = null;
+                                if (scannedList.Count > 0)
+                                    s = scannedList[0];
+                                else
+                                    s = ActionsClass.Action.AddScannedRow(
+                                            lbi.Barcode,
+                                            _docType,
+                                            _docId,
+                                            diff,
+                                            0);
+
+                                ActionsClass.Action.ChangeQtyPosition(docRow, s, diff);
+
+
+                                
+                            }
+                            //ActionsClass.Action.ChangeQtyPosition(scannedList, diff);
+                            RefreshData();
+                        }
+
+
+
+                    }
+
+                }
+
+                
+                e.Handled = true;
                 return;
             }
         }
@@ -308,6 +420,17 @@ namespace TSDServer
             public int PlanQuantity;
             public Color ForeColor = Color.Black;
 
+            public ListBoxItem(string listBoxItemString)
+            {
+                string[] lbi = listBoxItemString.Split('|');
+                if (lbi.Length == 4)
+                {
+                    Barcode = long.Parse(lbi[0].Trim());
+                    ProductName = lbi[1].Trim();
+                    FactQuantity = int.Parse(lbi[2].Trim());
+                    PlanQuantity = int.Parse(lbi[3].Trim());
+                }
+            }
             public ListBoxItem(long _Barcode, string _ProductName, int _FactQuantity, int _planQuantity)
             {
                 Barcode = _Barcode;

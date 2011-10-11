@@ -35,20 +35,27 @@ namespace TSDServer
                     {
                         if (_scaner == null)
                         {
-                            OperatingSystem os = System.Environment.OSVersion;
+                            _scaner = CasioScanClass.Scaner;
+
+                            /*OperatingSystem os = System.Environment.OSVersion;
                             string oemInfo = NativeClass.GetOemInfo();
                             BTPrintClass.PrintClass.SetStatusEvent(oemInfo);
                             if (oemInfo.ToUpper().IndexOf("PY055") >= 0 ||
-                                oemInfo.ToUpper().IndexOf("EMULATOR")>=0 )
+                             * oemInfo.ToUpper().IndexOf("HP101") >= 0 ||
+                                oemInfo.ToUpper().IndexOf("EMULATOR")>=0 
+                              )
                             {
                                 BTPrintClass.PrintClass.SetStatusEvent("Это ТСД КАСИО");
                                 _scaner = CasioScanClass.Scaner;
                             }
                             else
                             {
-                                BTPrintClass.PrintClass.SetStatusEvent("Это ТСД M3Green");
-                                _scaner = M3GreenScanClass.Scaner;
-                            }
+                                if (oemInfo.ToUpper().IndexOf("M3MOBILE") >= 0)
+                                {
+                                    BTPrintClass.PrintClass.SetStatusEvent("Это ТСД M3Green");
+                                    _scaner = M3GreenScanClass.Scaner;
+                                }
+                            }*/
                         }
                     }
                     //string devId = os.Version.ToString();

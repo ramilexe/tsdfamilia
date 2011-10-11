@@ -74,7 +74,7 @@
             this.button3.Name = "button3";
             this.button3.Size = new System.Drawing.Size(238, 46);
             this.button3.TabIndex = 2;
-            this.button3.Text = "3 - Прием по коробам";// "3 - Прих. накладные";
+            this.button3.Text = "3 - Прием короба внутрит.";// "3 - Прих. накладные";
             this.button3.Enabled = true;
             // 
             // button4
