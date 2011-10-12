@@ -33,6 +33,7 @@
             this.panel2 = new System.Windows.Forms.Panel();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
+            this.label3 = new System.Windows.Forms.Label();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
             this.SuspendLayout();
@@ -47,16 +48,14 @@
             // 
             // listBox1
             // 
+            this.listBox1.BackColor = System.Drawing.Color.White;
+            this.listBox1.BackgroundImage = null;
             this.listBox1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.listBox1.Items.Add("123456789123|Дисконтная карта|  5");
-            this.listBox1.Items.Add("123456789123|Еще какой то про|   5");
-            this.listBox1.Items.Add("123456789123|ТАМП. PLAYTEX 16| 10");
+            this.listBox1.EvenItemColor = System.Drawing.Color.White;
             this.listBox1.Location = new System.Drawing.Point(0, 0);
             this.listBox1.Name = "listBox1";
-            this.listBox1.Size = new System.Drawing.Size(235, 242);
+            this.listBox1.Size = new System.Drawing.Size(235, 249);
             this.listBox1.TabIndex = 0;
-            this.listBox1.EvenItemColor = System.Drawing.Color.White;
-            this.listBox1.BackColor = System.Drawing.Color.White;
             this.listBox1.KeyDown += new System.Windows.Forms.KeyEventHandler(this.listBox1_KeyDown);
             // 
             // panel2
@@ -64,28 +63,41 @@
             this.panel2.BackColor = System.Drawing.Color.PaleGreen;
             this.panel2.Controls.Add(this.label1);
             this.panel2.Controls.Add(this.label2);
+            this.panel2.Controls.Add(this.label3);
             this.panel2.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.panel2.Location = new System.Drawing.Point(0, 253);
+            this.panel2.Location = new System.Drawing.Point(0, 438);
             this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(238, 42);
+            this.panel2.Size = new System.Drawing.Size(640, 42);
             // 
             // label1
             // 
+            this.label1.BackColor = System.Drawing.Color.Yellow;
             this.label1.Dock = System.Windows.Forms.DockStyle.Top;
-            this.label1.Location = new System.Drawing.Point(0, 0);
+            this.label1.Location = new System.Drawing.Point(0, 30);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(235, 15);
+            this.label1.Size = new System.Drawing.Size(640, 15);
             this.label1.Text = "Выход: Fn-Clr или F4 Желтая кнопка";
             this.label1.TextAlign = System.Drawing.ContentAlignment.TopCenter;
-            this.label1.BackColor = System.Drawing.Color.Yellow;
-
+            // 
+            // label2
+            // 
             this.label2.Dock = System.Windows.Forms.DockStyle.Top;
-            this.label2.Location = new System.Drawing.Point(0, 0);
+            this.label2.Location = new System.Drawing.Point(0, 15);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(235, 15);
+            this.label2.Size = new System.Drawing.Size(640, 15);
             this.label2.Text = "Text";
             this.label2.TextAlign = System.Drawing.ContentAlignment.TopCenter;
-
+            // 
+            // label3
+            // 
+            this.label3.BackColor = System.Drawing.Color.Red;
+            this.label3.Dock = System.Windows.Forms.DockStyle.Top;
+            this.label3.Location = new System.Drawing.Point(0, 0);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(640, 15);
+            this.label3.Text = "F1 - изменить количество";
+            this.label3.TextAlign = System.Drawing.ContentAlignment.TopCenter;
+            this.label3.Visible = false;
             // 
             // ViewBoxForm
             // 
@@ -93,7 +105,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.AutoScroll = true;
             this.BackColor = System.Drawing.Color.White;
-            this.ClientSize = new System.Drawing.Size(238, 295);
+            this.ClientSize = new System.Drawing.Size(640, 480);
             this.ControlBox = false;
             this.Controls.Add(this.panel2);
             this.Controls.Add(this.panel1);
@@ -119,5 +131,6 @@
         private OpenNETCF.Windows.Forms.ListBoxEx listBox1;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Label label3;
     }
 }

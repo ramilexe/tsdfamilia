@@ -52,6 +52,9 @@ namespace TSDServer
 
         private void ViewInventarForm_Load(object sender, EventArgs e)
         {
+            if (Program.Default.EnableChgQty == 1)
+                this.label3.Visible = true;
+
             RefreshData();
         }
 

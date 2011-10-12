@@ -289,92 +289,109 @@ namespace TSDServer
                         else
                         {//BoxScan
                             //_mode == WorkMode.BoxScan
-
-                            ProductsDataSet.DocsTblRow docRow =
-                                ActionsClass.Action.GetDataByNavcodeDocIdAndType(row.NavCode,
-                                    inventRow.DocId,
-                                    (byte)TSDUtils.ActionCode.BoxWProducts
-                                );
-                            if (docRow != null)
+                            try
                             {
-                                ScannedProductsDataSet.ScannedBarcodesRow srows
-                                    = ActionsClass.Action.FindByBarcodeDocTypeDocId(row.Barcode.ToString(),
-                                    (byte)TSDUtils.ActionCode.BoxWProducts,
-                                    inventRow.DocId
+                                ProductsDataSet.DocsTblRow docRow =
+                                    ActionsClass.Action.GetDataByNavcodeDocIdAndType(row.NavCode,
+                                        inventRow.DocId,
+                                        (byte)TSDUtils.ActionCode.BoxWProducts
                                     );
-
-                                if (srows != null)
+                                if (docRow != null)
                                 {
-                                    if (srows.PlanQuanity == srows.FactQuantity)
-                                    {
-                                        ActionsClass.Action.PlaySoundAsync((byte)TSDUtils.ActionCode.AlreadyAccepted);
-                                        ActionsClass.Action.PlayVibroAsync((byte)TSDUtils.ActionCode.AlreadyAccepted);
+                                    /*
+                                     * ScannedProductsDataSet.ScannedBarcodesRow srows
+                                        = ActionsClass.Action.FindByBarcodeDocTypeDocId(row.Barcode.ToString(),
+                                        (byte)TSDUtils.ActionCode.BoxWProducts,
+                                        inventRow.DocId
+                                        );*/
 
-                                        using (DialogForm dlgfrm =
-                                new DialogForm(
-                                    string.Format("Товар уже принят {0} из {1}",
-                                    srows.FactQuantity,
-                                    srows.PlanQuanity)
-                                    , string.Format("Принять этот товар {0}", row.Barcode)//string.Format("Посчитано: {0} кодов", totalBk)
-                                    , row.ProductName
-                                    , "Прием товара"))
+                                    ScannedProductsDataSet.ScannedBarcodesRow[] rowsS
+                                        = ActionsClass.Action.FindByDocIdAndDocType(inventRow.DocId,
+                                        (byte)TSDUtils.ActionCode.BoxWProducts);
+
+                                    int fQty = 0;
+                                    for (int i = 0; i < rowsS.Length; i++)
+                                    {
+                                        if (rowsS[i].Barcode == currentProductRow.Barcode)
+                                            fQty += rowsS[i].FactQuantity;
+                                    }
+
+                                    if (rowsS.Length > 0)
+                                    {
+                                        if (docRow.Quantity < (fQty + quantityKoeff))
                                         {
-                                            if (dlgfrm.ShowDialog() == DialogResult.Yes)
+                                            ActionsClass.Action.PlaySoundAsync((byte)TSDUtils.ActionCode.AlreadyAccepted);
+                                            ActionsClass.Action.PlayVibroAsync((byte)TSDUtils.ActionCode.AlreadyAccepted);
+
+                                            using (DialogForm dlgfrm =
+                                    new DialogForm(
+                                        string.Format("Товар уже принят {0} из {1}",
+                                        fQty,
+                                        docRow.Quantity)
+                                        , string.Format("Принять еще {0} шт", quantityKoeff)//string.Format("Посчитано: {0} кодов", totalBk)
+                                        , row.ProductName
+                                        , "Прием товара"))
                                             {
-                                                //inventRow.NavCode = row.NavCode;
-                                                ActionsClass.Action.BoxWProductsActionProc(
-                                                    row,
-                                                    docRow,
-                                                    quantityKoeff
-                                                    );
-                                                return;//приняли
+                                                if (dlgfrm.ShowDialog() == DialogResult.Yes)
+                                                {
+                                                    //inventRow.NavCode = row.NavCode;
+                                                    ActionsClass.Action.BoxWProductsActionProc(
+                                                        row,
+                                                        docRow,
+                                                        quantityKoeff
+                                                        );
+                                                    return;//приняли
+                                                }
+                                                else //не хотим принимать
+                                                    return;
                                             }
-                                            else //не хотим принимать
-                                                return;
                                         }
                                     }
+                                    //если не сработали условия - то принимаем
+                                    //inventRow.NavCode = row.NavCode;
+                                    ActionsClass.Action.BoxWProductsActionProc(
+                                                         row,
+                                                         docRow,
+                                                         quantityKoeff
+                                                         );
+                                    /*ActionsClass.Action.InvokeAction(TSDUtils.ActionCode.BoxWProducts,
+                                        row,
+                                        docRow
+                                        );*/
+
+
                                 }
-                                //если не сработали условия - то принимаем
-                                //inventRow.NavCode = row.NavCode;
-                                ActionsClass.Action.BoxWProductsActionProc(
-                                                     row,
-                                                     docRow,
-                                                     quantityKoeff
-                                                     );
-                                /*ActionsClass.Action.InvokeAction(TSDUtils.ActionCode.BoxWProducts,
-                                    row,
-                                    docRow
-                                    );*/
-
-
-                            }
-                            else
-                            {
-                                ActionsClass.Action.PlaySoundAsync((byte)TSDUtils.ActionCode.StrangeBox);
-                                ActionsClass.Action.PlayVibroAsync((byte)TSDUtils.ActionCode.StrangeBox);
-
-                                using (DialogForm dlgfrm =
-                                new DialogForm(
-                                    "Товар не входит в короб!"
-                                    , string.Format("Принять этот товар {0}", row.Barcode)//string.Format("Посчитано: {0} кодов", totalBk)
-                                    , row.ProductName
-                                    , "Прием товара"))
+                                else
                                 {
-                                    if (dlgfrm.ShowDialog() == DialogResult.Yes)
-                                    {
-                                        inventRow.NavCode = row.NavCode;
-                                        ActionsClass.Action.BoxWProductsActionProc(
-                                                    row,
-                                                    inventRow,
-                                                    quantityKoeff
-                                                    );
-                                        return;
-                                    }
-                                }
+                                    ActionsClass.Action.PlaySoundAsync((byte)TSDUtils.ActionCode.StrangeBox);
+                                    ActionsClass.Action.PlayVibroAsync((byte)TSDUtils.ActionCode.StrangeBox);
 
+                                    using (DialogForm dlgfrm =
+                                    new DialogForm(
+                                        "Товар не входит в короб!"
+                                        , string.Format("Принять этот товар {0}", row.Barcode)//string.Format("Посчитано: {0} кодов", totalBk)
+                                        , row.ProductName
+                                        , "Прием товара"))
+                                    {
+                                        if (dlgfrm.ShowDialog() == DialogResult.Yes)
+                                        {
+                                            inventRow.NavCode = row.NavCode;
+                                            ActionsClass.Action.BoxWProductsActionProc(
+                                                        row,
+                                                        inventRow,
+                                                        quantityKoeff
+                                                        );
+                                            return;
+                                        }
+                                    }
+
+                                }
                             }
-                            quantityLabel.Visible = false;
-                            quantityKoeff = 1;
+                            finally
+                            {
+                                quantityLabel.Visible = false;
+                                quantityKoeff = 1;
+                            }
                             //this.Refresh();
 
                         }
