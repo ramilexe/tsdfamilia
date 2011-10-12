@@ -307,6 +307,10 @@
             this.quantityLabel.Name = "quantityLabel";
             this.quantityLabel.Size = new System.Drawing.Size(231, 20);
             this.quantityLabel.Text = "label23";
+            this.quantityLabel.Font = 
+                new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Bold);
+            this.quantityLabel.ForeColor = System.Drawing.Color.Red;
+
             // 
             // ViewProductForm
             // 
