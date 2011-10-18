@@ -93,7 +93,7 @@ namespace TSDServer
                     }
                 case WorkMode.BoxScan:
                     {
-                        this.label15.Text = "";
+                        this.label15.Text = "F3-Выход";
                         if (Program.Default.EnableChgMlt == 1)
                             this.label14.Text = "F2-Колво";
                         else
@@ -126,7 +126,7 @@ namespace TSDServer
             currentdocRows = new ProductsDataSet.DocsTblRow[1];
             currentdocRows[0] = inventRow;
             
-            label13.Text = "";
+            //label13.Text = "";
             this.label13.Text = "Уменьш.КОЛВО";
 
 
@@ -660,14 +660,24 @@ namespace TSDServer
             
             if (e.KeyCode == Keys.Escape)
             {
-                this.Close();
-                e.Handled = true;
-                return;
+                if (_mode != WorkMode.BoxScan)
+                {
+                    this.Close();
+                    e.Handled = true;
+                    return;
+                }
+                else
+                {
+                    this.navCodeTB.Text = "";
+                    return;
+                }
             }
             if (e.KeyCode == Keys.Tab)
             {
+                #region GreenBtn
                 if (_mode == WorkMode.InventarScan)
                 {
+                    #region Inventar
                     ScanClass.Scaner.PauseScan();
                     try
                     {
@@ -717,8 +727,19 @@ namespace TSDServer
                         this.Refresh();
                         e.Handled = true;
                     }
+                    #endregion
+                    return;
                 }
-                return;
+                if (_mode == WorkMode.BoxScan)
+                {
+                #region boxScan & green Btn = Exit
+                    this.Close();
+                    e.Handled = true;
+                    return;
+                #endregion
+                }
+                
+                #endregion
             }
             if (e.KeyValue == 18)//RedBtn
             {
@@ -837,50 +858,68 @@ namespace TSDServer
             }
             if (e.KeyValue == 115)//YellowBtn
             {
+                #region YellowBtn
                 try
                 {
                     ScanClass.Scaner.PauseScan();
-                    if (currentProductRow != null )
+                    if (WorkMode.BoxScan != _mode)
                     {
-                        if (WorkMode.ProductsScan == _mode)
+                        if (currentProductRow != null)
                         {
-                            using (
-                                ViewDocsForm docsForm =
-                                    new ViewDocsForm(currentProductRow, currentdocRows, ActionsClass.Action.ScannedProducts))
+                            if (WorkMode.ProductsScan == _mode)
                             {
-                                docsForm.ShowDialog();
-                            }
-
-                        }
-                        else
-                        {
-                            if (WorkMode.InventarScan == _mode)
-                            {
-                                if (!String.IsNullOrEmpty(_documentId))
+                                using (
+                                    ViewDocsForm docsForm =
+                                        new ViewDocsForm(currentProductRow, currentdocRows, ActionsClass.Action.ScannedProducts))
                                 {
-                                    using (ViewInventarForm prod =
-                                        new ViewInventarForm(_documentId,
-                                            (byte)TSDUtils.ActionCode.InventoryGlobal))
-                                    {
-                                        prod.ShowDialog();
-
-                                    }
+                                    docsForm.ShowDialog();
                                 }
+
                             }
                             else
-                                if (WorkMode.BoxScan == _mode)
+                            {
+                                if (WorkMode.InventarScan == _mode)
                                 {
                                     if (!String.IsNullOrEmpty(_documentId))
                                     {
-                                        using (ViewBoxForm prod =
-                                            new ViewBoxForm(_documentId,
-                                                (byte)TSDUtils.ActionCode.BoxWProducts))
+                                        using (ViewInventarForm prod =
+                                            new ViewInventarForm(_documentId,
+                                                (byte)TSDUtils.ActionCode.InventoryGlobal))
                                         {
                                             prod.ShowDialog();
 
                                         }
                                     }
                                 }
+                                /*else
+                                    if (WorkMode.BoxScan == _mode)
+                                    {
+                                        if (!String.IsNullOrEmpty(_documentId))
+                                        {
+                                            using (ViewBoxForm prod =
+                                                new ViewBoxForm(_documentId,
+                                                    (byte)TSDUtils.ActionCode.BoxWProducts))
+                                            {
+                                                prod.ShowDialog();
+
+                                            }
+                                        }
+                                    }*/
+                            }
+                        }
+                    }
+                    else
+                    {
+                        //BoxScan
+                        if (!String.IsNullOrEmpty(_documentId))
+                        {
+                            using (ViewBoxForm prod =
+                                new ViewBoxForm(_documentId,
+                                    (byte)TSDUtils.ActionCode.BoxWProducts))
+                            {
+                                prod.ShowDialog();
+                                this.navCodeTB.Text = "";
+                            }
                         }
                     }
                 }
@@ -899,6 +938,9 @@ namespace TSDServer
                         //this.Focus();
                     
                 return;
+                #endregion
+
+
             }
             //if (e.KeyValue == 9)
             //{
@@ -1035,6 +1077,7 @@ namespace TSDServer
                                     //    inventRow
                                     //    );
                                 }
+                                this.navCodeTB.Text = "";
                             }
                         }
                     }
