@@ -323,16 +323,18 @@ namespace TSDServer
                                             ActionsClass.Action.PlaySoundAsync((byte)TSDUtils.ActionCode.AlreadyAccepted);
                                             ActionsClass.Action.PlayVibroAsync((byte)TSDUtils.ActionCode.AlreadyAccepted);
 
-                                            using (DialogForm dlgfrm =
-                                    new DialogForm(
+                                            
+                                            //using (DialogForm dlgfrm =
+                                    //new DialogForm(
+                                            DialogResult dr = DialogFrm.ShowMessage(
                                         string.Format("Товар уже принят {0} из {1}",
                                         fQty,
                                         docRow.Quantity)
                                         , string.Format("Принять еще {0} шт", quantityKoeff)//string.Format("Посчитано: {0} кодов", totalBk)
                                         , row.ProductName
-                                        , "Прием товара"))
-                                            {
-                                                if (dlgfrm.ShowDialog() == DialogResult.Yes)
+                                        , "Прием товара");//)
+                                           // {
+                                                if (dr == DialogResult.Yes)
                                                 {
                                                     //inventRow.NavCode = row.NavCode;
                                                     ActionsClass.Action.BoxWProductsActionProc(
@@ -344,7 +346,7 @@ namespace TSDServer
                                                 }
                                                 else //не хотим принимать
                                                     return;
-                                            }
+                                            //}
                                         }
                                     }
                                     //если не сработали условия - то принимаем
@@ -366,14 +368,15 @@ namespace TSDServer
                                     ActionsClass.Action.PlaySoundAsync((byte)TSDUtils.ActionCode.StrangeBox);
                                     ActionsClass.Action.PlayVibroAsync((byte)TSDUtils.ActionCode.StrangeBox);
 
-                                    using (DialogForm dlgfrm =
-                                    new DialogForm(
+                                    //using (DialogForm dlgfrm =
+                                    //new DialogForm(
+                                    DialogResult dr = DialogFrm.ShowMessage(
                                         "Товар не входит в короб!"
                                         , string.Format("Принять этот товар {0}", row.Barcode)//string.Format("Посчитано: {0} кодов", totalBk)
                                         , row.ProductName
-                                        , "Прием товара"))
-                                    {
-                                        if (dlgfrm.ShowDialog() == DialogResult.Yes)
+                                        , "Прием товара");//)
+                                    //{
+                                        if (dr == DialogResult.Yes)
                                         {
                                             inventRow.NavCode = row.NavCode;
                                             ActionsClass.Action.BoxWProductsActionProc(
@@ -383,7 +386,7 @@ namespace TSDServer
                                                         );
                                             return;
                                         }
-                                    }
+                                    //}
 
                                 }
                             }
@@ -690,14 +693,15 @@ namespace TSDServer
                             out totalBk,
                             out total);
 
-                        using (DialogForm dlgfrm =
-                            new DialogForm(
+                        //using (DialogForm dlgfrm =
+                        //    new DialogForm(
+                        DialogResult dr = DialogFrm.ShowMessage(
                                 "Вы хотите закрыть просчет?"
                                 , ""//string.Format("Посчитано: {0} кодов", totalBk)
                                 , string.Format("Итого: {0} штук",total)
-                                , "Закрытие просчета"))
-                        {
-                            if (dlgfrm.ShowDialog() == DialogResult.Yes)
+                                , "Закрытие просчета");//)
+                        //{
+                            if (dr == DialogResult.Yes)
                             {
                                 ActionsClass.Action.CloseInv(
                                     _documentId,
@@ -705,21 +709,22 @@ namespace TSDServer
 
                                 this.Close();
                             }
-                        }
+                        //}
 
                     }
                     catch (Exception err)
                     {
                         BTPrintClass.PrintClass.SetErrorEvent(err.ToString());
-                        using (DialogForm dlgfrm =
-                            new DialogForm(
+                        //using (DialogForm dlgfrm =
+                        //    new DialogForm(
+                        DialogResult dr = DialogFrm.ShowMessage(
                                 err.Message
                                 , err.StackTrace
                                 , ""
-                                , "Ошибка"))
-                        {
+                                , "Ошибка");//)
+                        /*{
                             dlgfrm.ShowDialog();
-                        }
+                        }*/
                     }
                     finally
                     {
@@ -784,16 +789,17 @@ namespace TSDServer
                         
 
 
-                        using (DialogForm dlgfrm =
-                                new DialogForm(
+                        //using (DialogForm dlgfrm =
+                        //        new DialogForm(
+                        DialogResult dr = DialogFrm.ShowMessage(
                                     string.Format("Уменьшить по коду {0} ", currentProductRow.NavCode),
                                     string.Format("название {0} ", currentProductRow.ProductName),
                                      string.Format("с количества {0} до количества {1} ?",
                                       total,
                                       total - 1),
-                                     "Отмена последнего сканирования"))
-                        {
-                            if (dlgfrm.ShowDialog() == DialogResult.Yes)
+                                     "Отмена последнего сканирования");//)
+                        //{
+                            if (dr == DialogResult.Yes)
                             {
                                 inventRow.NavCode = currentProductRow.NavCode;
                                 ActionsClass.Action.UndoLastScannedPosition(
@@ -803,19 +809,20 @@ namespace TSDServer
                                     );
 
                             }
-                        }
+                        //}
                     }
                     else
                     {
-                        using (DialogForm dlgfrm =
-                                new DialogForm(
+                        //using (DialogForm dlgfrm =
+                        //        new DialogForm(
+                        DialogResult dr = DialogFrm.ShowMessage(
                                     "Дальше уменьшить нельзя!",
                                     "",
                                      "",
-                                     "Отмена последнего сканирования"))
-                        {
-                            dlgfrm.ShowDialog();
-                        }
+                                     "Отмена последнего сканирования");//)
+                        //{
+                        //    dlgfrm.ShowDialog();
+                        //}
                     }
                     
 
@@ -1062,14 +1069,15 @@ namespace TSDServer
                                 (byte)TSDUtils.ActionCode.IncomeBox);
 
 
-                            using (DialogForm dlgfrm =
-                                new DialogForm(
+                            //using (DialogForm dlgfrm =
+                            //    new DialogForm(
+                            DialogResult dr = DialogFrm.ShowMessage(
                                     "Короб по накладной"
                                     , docsNaklRows[0].Text2
                                     , "принят полностью!"
-                                    , "Прием товара"))
-                            {
-                                if (dlgfrm.ShowDialog() == DialogResult.Yes)
+                                    , "Прием товара");//)
+                            //{
+                                if (dr == DialogResult.Yes)
                                 {
                                     //inventRow.NavCode = row.NavCode;
                                     //ActionsClass.Action.InvokeAction(TSDUtils.ActionCode.BoxWProducts,
@@ -1078,7 +1086,7 @@ namespace TSDServer
                                     //    );
                                 }
                                 this.navCodeTB.Text = "";
-                            }
+                            //}
                         }
                     }
                 }

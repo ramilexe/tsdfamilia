@@ -100,13 +100,14 @@ namespace TSDServer
                             barcode);
                         this.label4.Visible = true;
                         //lastBk = barcode;
-                        using (DialogForm frm =
-                              new DialogForm("Вы хотите начать просчет?",
+                        //using (DialogForm frm =
+                        //      new DialogForm(
+                        DialogResult dr = DialogFrm.ShowMessage("Вы хотите начать просчет?",
                                   string.Format(" № {0}", barcode),
                                    "ДА – продолжить. Нет – выйти",
-                                   "Новый просчет"))
+                                   "Новый просчет");//)
                         {
-                            if (frm.ShowDialog() == DialogResult.Yes)
+                            if (dr == DialogResult.Yes)
                             {
                                 try
                                 {
@@ -132,13 +133,14 @@ namespace TSDServer
                                 }
                                 catch (Exception err)
                                 {
-                                    using (DialogForm frmErr =
-                                        new DialogForm("Ошибка инв-ции",
+                                    //using (DialogForm frmErr =
+                                    //    new DialogForm(
+                                    DialogResult dr1 = DialogFrm.ShowMessage("Ошибка инв-ции",
                                             err.Message,
                                             "ДА – продолжить. Нет – выйти",
-                                             "Ошибка"))
+                                             "Ошибка");//)
                                     {
-                                        if (frmErr.ShowDialog() == DialogResult.No)
+                                        if (dr1 == DialogResult.No)
                                             return;
                                     }
                                 }
@@ -170,15 +172,16 @@ namespace TSDServer
                     {
                         if (ActionsClass.Action.CheckInv(barcode))
                         {
-                            using (DialogForm frm =
-                                new DialogForm(
+                            //using (DialogForm frm =
+                                //new DialogForm(
+                            DialogResult dr = DialogFrm.ShowMessage(
                                     string.Format("Идет просчет № {0}", barcode),
                                     "Продолжить просчет?",
                                      "ДА – продолжить. Нет – выйти",
-                                     "Просчет уже существует!"))
+                                     "Просчет уже существует!");//)
                             {
                                 
-                                if (frm.ShowDialog() == DialogResult.Yes)
+                                if (dr == DialogResult.Yes)
                                 {
                                     enableScan = false;
                                     enableInvent = true;

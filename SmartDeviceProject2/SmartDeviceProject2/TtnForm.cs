@@ -348,6 +348,7 @@ namespace TSDServer
                     if (!closedCar && currentTtnBarcode != string.Empty)
                     {
                         enableScan = false;
+                        ScanClass.Scaner.OnScanned -= scannedDelegate;
                         try
                         {
                             using (IncomeForm income =
@@ -360,6 +361,8 @@ namespace TSDServer
                         finally
                         {
                             enableScan = true;
+                            ScanClass.Scaner.InitScan();
+                            ScanClass.Scaner.OnScanned += scannedDelegate;
                         }
                         CheckStatus(currentTtnBarcode);
                     }

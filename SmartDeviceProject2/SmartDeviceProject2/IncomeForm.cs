@@ -16,6 +16,7 @@ namespace TSDServer
         private bool fullAccepted = false;
         private int totalIncomeCar = 0;
         private int totalQtyCar = 0;
+        ProductsDataSet.DocsTblRow[] currentdoc_rows = null;
  
         Scanned scannedDelegate = null;
         CarScanMode _mode;
@@ -127,6 +128,7 @@ namespace TSDServer
         void InventarForm_Closed(object sender, System.EventArgs e)
         {
             //BTPrintClass.PrintClass.SetStatusEvent("Begin closing");
+            currentdoc_rows = null;
             ScanClass.Scaner.OnScanned -= scannedDelegate;
             if (_mode == CarScanMode.CarsScan)
             {
@@ -498,6 +500,9 @@ namespace TSDServer
                         this.dateLabel.Visible = true;
                         this.dateLabel.Text = row.Text3;
 
+                        currentdoc_rows = ActionsClass.Action.GetDataByDocIdAndType(barcode,
+                            (byte)TSDUtils.ActionCode.BoxWProducts);
+
                         RefreshData(barcode);
                         //string.Format(
                         //"Дата: {0}", DateTime.Today.ToString("dd.MM.yyyy"));
@@ -548,12 +553,9 @@ namespace TSDServer
         private void RefreshData(string barcode)
         {
             this.errLabel.Visible = false;
-            ProductsDataSet.DocsTblRow[] product_rows =
-                             ActionsClass.Action.GetDataByDocIdAndType(barcode,
-                            (byte)TSDUtils.ActionCode.BoxWProducts);
 
-            if (product_rows != null &&
-                product_rows.Length > 0)
+            if (currentdoc_rows != null &&
+                currentdoc_rows.Length > 0)
             {
                 
                 List<string> uniqCodes = new List<string>();
@@ -561,7 +563,7 @@ namespace TSDServer
                 
                 int totalQty = 0;
                 int totalSku = 0;
-                foreach (ProductsDataSet.DocsTblRow r in product_rows)
+                foreach (ProductsDataSet.DocsTblRow r in currentdoc_rows)
                 {
                     totalQty += r.Quantity;
 
@@ -684,20 +686,21 @@ namespace TSDServer
                     if (_mode == CarScanMode.BoxScan && fullAcceptEnabled && !fullAccepted)
                     {
                         
-                        using (DialogForm dlgfrm =
-                                new DialogForm(
+                        //using (DialogForm dlgfrm =
+                                //new DialogForm(
+                        DialogResult dr = DialogFrm.ShowMessage(
                                    lblQtySku.Text,
                                     lblQtyTotal.Text,
                                      "Вы уверены?",
-                                     "Принять полностью"))
-                        {
-                            if (dlgfrm.ShowDialog() == DialogResult.Yes)
+                                     "Принять полностью");//)
+                        //{
+                            if (dr == DialogResult.Yes)
                             {
                                 ActionsClass.Action.AcceptFullBoxWProductsActionProc(_currentBoxBarcode);
                                 RefreshData(_currentBoxBarcode);
     
                             }
-                        }
+                        //}
 
                     }
 
@@ -774,23 +777,25 @@ namespace TSDServer
                         }
 
 
-                        using (DialogForm dlgfrm =
-                                new DialogForm(
+                        //using (DialogForm dlgfrm =
+                        //        new DialogForm(
+                        DialogResult dr = DialogFrm.ShowMessage(
                                     "Вы хотите закончить просчет ТТН?"
                                     , ""//string.Format("Посчитано: {0} кодов", totalBk)
                                     , string.Format("Итого: {0} коробов", total)
-                                    , "Закрытие ТТН"))
-                        {
-                            if (dlgfrm.ShowDialog() == DialogResult.Yes)
+                                    , "Закрытие ТТН");//)
+                        //{
+                            if (dr == DialogResult.Yes)
                             {
 
                                 ActionsClass.Action.CloseDoc(
                                     _currentTTNBarcode,
-                                    TSDUtils.ActionCode.Cars);
+                                    TSDUtils.ActionCode.Cars,
+                                    total);
 
                                 this.Close();
                             }
-                        }
+                        //}
 
                     }
                     else
