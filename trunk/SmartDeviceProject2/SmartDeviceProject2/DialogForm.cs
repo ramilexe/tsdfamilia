@@ -11,6 +11,35 @@ namespace TSDServer
 {
     public partial class DialogForm : Form
     {
+        //string _line1;
+
+        public string Line1
+        {
+            get { return label1.Text; }
+            set { label1.Text = value; }
+        }
+        //string _line2;
+
+        public string Line2
+        {
+            get { return label2.Text; }
+            set { label2.Text = value; }
+        }
+       // string _line3;
+
+        public string Line3
+        {
+            get { return label3.Text; }
+            set { label3.Text = value; }
+        }
+        //string _caption;
+
+        public string Caption
+        {
+            get { return this.Text; }
+            set { this.Text = value; }
+        }
+
         public DialogForm()
         {
             BTPrintClass.PrintClass.SetStatusEvent("Open DialogForm form");
@@ -49,7 +78,42 @@ namespace TSDServer
 
         private void BTConnectionErrorForm_Load(object sender, EventArgs e)
         {
+            this.Refresh();
             button1.Focus();
         }
     }
+
+    public class DialogFrm
+    {
+        private static DialogForm frm = null;
+
+        public static DialogForm Dialog
+        {
+
+            get
+            {
+                if (frm == null)
+                {
+                    frm = new DialogForm();
+                }
+                return frm;
+
+            }
+        }
+
+        public static System.Windows.Forms.DialogResult
+            ShowMessage(string line1,
+            string line2,
+            string line3,
+            string caption)
+        {
+            Dialog.Line1 = line1;
+            Dialog.Line2 = line2;
+            Dialog.Line3 = line3;
+            Dialog.Caption = caption;
+            Dialog.Refresh();
+            return frm.ShowDialog();
+        }
+    }
+
 }
