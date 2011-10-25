@@ -110,7 +110,9 @@ namespace TSDServer
                 System.IO.Path.Combine(
                          Program.Default.DatabaseStoragePath,
                          "scannedbarcodes.txt");
-                
+
+            onRowChanged = new System.Data.DataRowChangeEventHandler(ScannedBarcodes_RowChanged);
+            onColChanged = new System.Data.DataColumnChangeEventHandler(ScannedBarcodes_ColumnChanged);
         }
         System.Data.DataRowChangeEventHandler onRowChanged;
         //    new System.Data.DataRowChangeEventHandler(ScannedBarcodes_RowChanged);
@@ -319,8 +321,6 @@ namespace TSDServer
             //OpenScanned();
 
             
-            onRowChanged = new System.Data.DataRowChangeEventHandler(ScannedBarcodes_RowChanged);
-            onColChanged = new System.Data.DataColumnChangeEventHandler(ScannedBarcodes_ColumnChanged);
             _scannedProducts.ScannedBarcodes.RowChanged += onRowChanged;
             //                new System.Data.DataRowChangeEventHandler(ScannedBarcodes_RowChanged); 
 
@@ -356,6 +356,7 @@ namespace TSDServer
                 else
                     WriteDbTxt((ScannedProductsDataSet.ScannedBarcodesRow)e.Row, 1);
                 
+                
             }
         }
         
@@ -373,7 +374,7 @@ namespace TSDServer
                 row.RowState == System.Data.DataRowState.Deleted ||
                 row["FactQuantity"] == System.DBNull.Value ||
                 //row.FactQuantity <= 0 ||
-                quantity <=0 ||
+                //quantity <=0 ||
                 DoScanEvents == false)
                 return;
             
@@ -1116,7 +1117,7 @@ namespace TSDServer
             //ScannedProductsDataSet.ScannedBarcodesRow[] r =
             //    _scannedProducts.ScannedBarcodes.FindByBarcodeAndDocType(datarow.Barcode, docsRow.DocType);
 
-            BeginScan();
+            //BeginScan();
             try
             {
                 ScannedProductsDataSet.ScannedBarcodesRow scannedRow = null;
@@ -1135,6 +1136,8 @@ namespace TSDServer
                                        docrow.DocId,
                                        docrow.Quantity,
                                        Byte.MaxValue);
+                    scannedRow.FactQuantity += docrow.Quantity;
+                    /*
                     if (docrow.Quantity > 0)
                     {
                         for (int i = 0; i < docrow.Quantity; i++)
@@ -1144,14 +1147,14 @@ namespace TSDServer
                     }
                     else
                         scannedRow.FactQuantity += 1;
-
+                    */
 
 
                 }
             }
             finally
             {
-                EndScan();
+                //EndScan();
             }
 
             //if (scannedRow == null)
@@ -2153,21 +2156,27 @@ namespace TSDServer
                 _scannedProducts.ScannedBarcodes)
             {
                 if (r.DocId == docId &&
-                    r.DocType == ((byte)TSDUtils.ActionCode.CloseInventar) &&
-                    r.Priority == 255
+                    r.DocType == ((byte)TSDUtils.ActionCode.CloseInventar) //&&r.Priority == 255
                     //r.Barcode == long.Parse(barcode)
                     //r.ScannedDate == date
                     )
                 {
-                    if (openedDocs.Contains(r.Barcode))
+                    if (r.Priority == 255)
                     {
-                        openedDocs.Remove(r.Barcode);
-                        return false;
+                        if (openedDocs.Contains(r.Barcode))
+                        {
+                            openedDocs.Remove(r.Barcode);
+                            return false;
+                        }
                     }
+                    else
+                        openedDocs.Add(r.Barcode);
+                        /*
                     if (r.DocType == ((byte)TSDUtils.ActionCode.CloseInventar) &&
                         r.Priority == 0 &&
                         r.DocId == docId)
                         openedDocs.Add(r.Barcode);
+                         * */
                 }
 
             }
@@ -2810,14 +2819,53 @@ namespace TSDServer
             else
             {*/
             //DoScanEvents = false;
-            try
-            {
-                if (!System.IO.File.Exists(DatabaseFile))
+            //try
+            //{
+              //  if (!System.IO.File.Exists(DatabaseFile))
                     //System.IO.Path.Combine(Program.Default.DatabaseStoragePath,"scannedbarcodes.txt")))
-                    return string.Empty;
+              //      return string.Empty;
+            if (_scannedProducts.ScannedBarcodes.Rows.Count == 0)
+                OpenScanned();
 
-                List<String> openedDocs = new List<string>();
 
+                List<long> openedDocs = new List<long>();
+
+            foreach (ScannedProductsDataSet.ScannedBarcodesRow r in
+                _scannedProducts.ScannedBarcodes)
+            {
+                if (//r.DocId == docId &&
+                    r.DocType == ((byte)TSDUtils.ActionCode.CloseInventar) //&&r.Priority == 255
+                    //r.Barcode == long.Parse(barcode)
+                    //r.ScannedDate == date
+                    )
+                {
+                    if (r.Priority == 255)
+                    {
+                        if (openedDocs.Contains(r.Barcode))
+                        {
+                            openedDocs.Remove(r.Barcode);
+                            //return false;
+                        }
+                    }
+                    else
+                        openedDocs.Add(r.Barcode);
+                        /*
+                    if (r.DocType == ((byte)TSDUtils.ActionCode.CloseInventar) &&
+                        r.Priority == 0 &&
+                        r.DocId == docId)
+                        openedDocs.Add(r.Barcode);
+                         * */
+                }
+
+
+            }
+
+            if (openedDocs.Count > 0)
+                return openedDocs[0].ToString();
+            else
+                return string.Empty;
+
+                /*
                 using (System.IO.FileStream fs =
     new System.IO.FileStream(DatabaseFile,
         System.IO.FileMode.Open,
@@ -2869,86 +2917,82 @@ namespace TSDServer
                             BTPrintClass.PrintClass.SetErrorEvent(fexc.ToString() + "\n" + s);
                         }
                     }
-
-                    if (openedDocs.Count > 0)
-                        return openedDocs[0];
-                    else
-                        return string.Empty;
-                }
+                */
+                //}
 
                 #region old action
 
                 //найти все открытые и закрытые инв-ции
-                using (System.IO.StreamReader wr =
-                new System.IO.StreamReader(
-                    System.IO.Path.Combine(
-                        Program.Default.DatabaseStoragePath,
-                        "scannedbarcodes.txt"), true))
-                {
-                    string s = string.Empty;
-                    while ((s = wr.ReadLine()) != null)
-                    {
-                        try
-                        {
-                            string[] strAr = s.Split('|');
+                //using (System.IO.StreamReader wr =
+                //new System.IO.StreamReader(
+                //    System.IO.Path.Combine(
+                //        Program.Default.DatabaseStoragePath,
+                //        "scannedbarcodes.txt"), true))
+                //{
+                //    string s = string.Empty;
+                //    while ((s = wr.ReadLine()) != null)
+                //    {
+                //        try
+                //        {
+                //            string[] strAr = s.Split('|');
 
-                            if (strAr.Length > 0)
-                            {
-                                /*
-                                ScannedProductsDataSet.ScannedBarcodesRow scannedRow =
-                                ActionsClass.Action.AddScannedRow(
-                                long.Parse(strAr[0]),
-                                byte.Parse(strAr[2]),
-                                strAr[1],
-                                int.Parse(strAr[3]),
-                                byte.Parse(strAr[6]));
+                //            if (strAr.Length > 0)
+                //            {
+                //                /*
+                //                ScannedProductsDataSet.ScannedBarcodesRow scannedRow =
+                //                ActionsClass.Action.AddScannedRow(
+                //                long.Parse(strAr[0]),
+                //                byte.Parse(strAr[2]),
+                //                strAr[1],
+                //                int.Parse(strAr[3]),
+                //                byte.Parse(strAr[6]));
 
-                                scannedRow.FactQuantity += int.Parse(strAr[3]);
-                                */
-                                //string openedDocId=string.Empty;
+                //                scannedRow.FactQuantity += int.Parse(strAr[3]);
+                //                */
+                //                //string openedDocId=string.Empty;
 
-                                if (strAr[0].StartsWith("660"))
-                                {
+                //                if (strAr[0].StartsWith("660"))
+                //                {
 
 
-                                    //if (scannedRow == null)
-                                    //{
-                                    //    return 
-                                    //    //r = new ScannedProductsDataSet.ScannedBarcodesRow[1];
-                                    //    //r[0] = scannedRow;
-                                    //}
+                //                    //if (scannedRow == null)
+                //                    //{
+                //                    //    return 
+                //                    //    //r = new ScannedProductsDataSet.ScannedBarcodesRow[1];
+                //                    //    //r[0] = scannedRow;
+                //                    //}
 
-                                    //for (int i = 0; i < r.Length; i++)
-                                    //{
+                //                    //for (int i = 0; i < r.Length; i++)
+                //                    //{
 
-                                    if (strAr[2] == ((byte)TSDUtils.ActionCode.CloseInventar).ToString() &&
-                                        strAr[6] == "255")
-                                    {
-                                        if (openedDocs.Contains(strAr[0]))
-                                        {
-                                            openedDocs.Remove(strAr[0]);
-                                        }
-                                    }
+                //                    if (strAr[2] == ((byte)TSDUtils.ActionCode.CloseInventar).ToString() &&
+                //                        strAr[6] == "255")
+                //                    {
+                //                        if (openedDocs.Contains(strAr[0]))
+                //                        {
+                //                            openedDocs.Remove(strAr[0]);
+                //                        }
+                //                    }
 
-                                    if (strAr[2] == ((byte)TSDUtils.ActionCode.CloseInventar).ToString() &&
-                                        strAr[6] == "0")
-                                        openedDocs.Add(strAr[0]);
-                                    //openedDocId = strAr[0];
+                //                    if (strAr[2] == ((byte)TSDUtils.ActionCode.CloseInventar).ToString() &&
+                //                        strAr[6] == "0")
+                //                        openedDocs.Add(strAr[0]);
+                //                    //openedDocId = strAr[0];
 
-                                    //return strAr[0];
-                                }
-                            }
-                        }
-                        catch (FormatException fexc)
-                        {
-                            BTPrintClass.PrintClass.SetErrorEvent(fexc.ToString() + "\n" + s);
-                        }
-                    }
-                    if (openedDocs.Count > 0)
-                        return openedDocs[0];
-                    else
-                        return string.Empty;
-
+                //                    //return strAr[0];
+                //                }
+                //            }
+                //        }
+                //        catch (FormatException fexc)
+                //        {
+                //            BTPrintClass.PrintClass.SetErrorEvent(fexc.ToString() + "\n" + s);
+                //        }
+                //    }
+                //    if (openedDocs.Count > 0)
+                //        return openedDocs[0];
+                //    else
+                //        return string.Empty;
+                    
                     //if (row["FactQuantity"] != System.DBNull.Value
                     //    && row.FactQuantity > 0)
                     //{
@@ -2980,13 +3024,13 @@ namespace TSDServer
 
                     //}
                     //return string.Empty;
-                }
+                //}
 #endregion
-            }
-            finally
-            {
+            //}
+            //finally
+            //{
                 //DoScanEvents = true;
-            }
+            //}
         }
         
         public string TestDB(out bool noerrors)
