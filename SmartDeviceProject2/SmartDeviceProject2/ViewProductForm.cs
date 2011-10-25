@@ -56,6 +56,7 @@ namespace TSDServer
 
             quantityLabel.Visible = false;
             quantityLabel.Text = string.Empty;
+            this.label15.Text = "";
 
             //tmr = new System.Threading.Timer(
             // new System.Threading.TimerCallback(OnTimer)
@@ -457,7 +458,7 @@ namespace TSDServer
                     
 
                 }
-                ActionsClass.Action.BeginScan();
+                //ActionsClass.Action.BeginScan();
                 ScanClass.Scaner.InitScan();
 
                 /*
@@ -618,7 +619,7 @@ namespace TSDServer
                 ScanClass.Scaner.OnScanned = null;
                 
             }
-            ActionsClass.Action.EndScan();
+            //ActionsClass.Action.EndScan();
             ScanClass.Scaner.StopScan();
             
             ActionsClass.Action.OnActionCompleted -=Action_OnActionCompleted;
@@ -992,7 +993,7 @@ namespace TSDServer
                 //BTPrintClass.PrintClass.SearchDevices();
 
                 
-                ActionsClass.Action.BeginScan();
+                //ActionsClass.Action.BeginScan();
                 
             }
             catch (Exception err)

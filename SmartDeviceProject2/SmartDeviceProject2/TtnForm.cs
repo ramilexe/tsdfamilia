@@ -53,7 +53,7 @@ namespace TSDServer
 
            // string invId = ActionsClass.Action.FindOpenInventar();
 
-            ActionsClass.Action.BeginScan();
+            //ActionsClass.Action.BeginScan();
             //ActionsClass.Action.OnActionCompleted += new ActionsClass.ActionCompleted(Action_OnActionCompleted);
             ScanClass.Scaner.InitScan();
             ScanClass.Scaner.OnScanned += scannedDelegate;
@@ -76,7 +76,7 @@ namespace TSDServer
         {
             //BTPrintClass.PrintClass.SetStatusEvent("Begin closing");
             ScanClass.Scaner.OnScanned -= scannedDelegate;
-            ActionsClass.Action.EndScan();
+            //ActionsClass.Action.EndScan();
             ScanClass.Scaner.StopScan();
             enableScan = false;
             //BTPrintClass.PrintClass.SetStatusEvent("End closing");

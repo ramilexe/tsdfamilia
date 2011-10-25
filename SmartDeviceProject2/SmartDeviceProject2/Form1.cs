@@ -116,6 +116,7 @@ namespace TSDServer
                 button0.Enabled = true;
 
             ActionsClass.Action.LoadScannedData();
+            ActionsClass.Action.BeginScan();
 
             //onEndLoad += new EndLoadDelegate(MainForm_onEndLoad);
         }
