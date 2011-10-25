@@ -1080,8 +1080,8 @@ namespace TSDServer
             //ScannedProductsDataSet.ScannedBarcodesRow[] r =
             //    _scannedProducts.ScannedBarcodes.FindByBarcodeAndDocType(datarow.Barcode, docsRow.DocType);
             ScannedProductsDataSet.ScannedBarcodesRow scannedRow = null;
-            for (int i = 0; i < quantityFoef; i++)
-            {
+            //for (int i = 0; i < quantityFoef; i++)
+            //{
                 scannedRow = ActionsClass.Action.AddScannedRow(
                                    datarow.Barcode,
                                    docsRow.DocType,
@@ -1099,8 +1099,8 @@ namespace TSDServer
                 //for (int i = 0; i < r.Length; i++)
                 //{
 
-                scannedRow.FactQuantity += 1;
-            }
+                scannedRow.FactQuantity += quantityFoef;
+            //}
             PlayVibroAsyncAction(docsRow);
             PlaySoundAsyncAction(docsRow);
             //PrintLabelAsync(datarow, docsRow);
