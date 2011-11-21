@@ -1076,7 +1076,8 @@ namespace TSDServer
                                     "Короб по накладной"
                                     , docsNaklRows[0].Text2
                                     , "принят полностью!"
-                                    , "Прием товара");//)
+                                    , "Прием товара/nПо нажатию ЭНТЕР ВЫЙТИ в меню");//)
+                            ActionsClass.Action.PlaySound(250);
                             //{
                                 if (dr == DialogResult.Yes)
                                 {
