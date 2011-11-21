@@ -159,17 +159,19 @@ namespace TSDServer
                          System.IO.FileAccess.ReadWrite,
                          System.IO.FileShare.ReadWrite))
                  {
-                     byte[] arrayOfBytes =
-                         new byte[fs.Length];
+                   
                      if (fs.Length == 0)
                          return;
+
+                     byte[] arrayOfBytes =
+                       new byte[fs.Length];
 
                      fs.Read(arrayOfBytes, 0, arrayOfBytes.Length);
                      string allFile = System.Text.Encoding.UTF8.GetString(arrayOfBytes, 0, arrayOfBytes.Length);
 
                      string[] allLinesOfFile = allFile.Split('\n');
 
-
+                     
 
                      foreach (string s in allLinesOfFile)
                      {
@@ -178,35 +180,45 @@ namespace TSDServer
 
                          string[] strAr = s.Split('|');
 
-
-                         if (strAr.Length > 0)
+                         try
                          {
-                             //if (strAr[2] == ((byte)_docType).ToString() &&
-                             //    strAr[1] == _docId)
+
+
+                             //if (strAr.Length > 0 && strAr.Length == 8)
+                             if (strAr.Length == 8)
                              {
-                                 ScannedProductsDataSet.ScannedBarcodesRow row =
-                                         ScannedProducts.ScannedBarcodes.NewScannedBarcodesRow();
-                                 row.Barcode = long.Parse(strAr[0]);
-                                 row.DocId = strAr[1];
-                                 row.DocType = byte.Parse(strAr[2]);
-                                 row.FactQuantity = int.Parse(strAr[3]);
-                                 row.ScannedDate = DateTime.Parse(strAr[4], dateFormat);
-                                 row.TerminalId = int.Parse(strAr[5]);
-                                 row.Priority = byte.Parse(strAr[6]);
-                                 row.PlanQuanity = int.Parse(strAr[7]);
-
-                                 ScannedProductsDataSet.ScannedBarcodesRow row1 =
-                                    ScannedProducts.ScannedBarcodes.FindByBarcodeDocTypeDocId(
-                                        row.Barcode, row.DocType, row.DocId);
-                                 if (row1 != null)
+                                 //if (strAr[2] == ((byte)_docType).ToString() &&
+                                 //    strAr[1] == _docId)
                                  {
-                                     row1.FactQuantity += row.FactQuantity;
-                                     row1.Priority = row.Priority;
-                                 }
-                                 else
-                                     ScannedProducts.ScannedBarcodes.AddScannedBarcodesRow(row);
+                                     ScannedProductsDataSet.ScannedBarcodesRow row =
+                                             ScannedProducts.ScannedBarcodes.NewScannedBarcodesRow();
+                                     row.Barcode = long.Parse(strAr[0]);
+                                     row.DocId = strAr[1];
+                                     row.DocType = byte.Parse(strAr[2]);
+                                     row.FactQuantity = int.Parse(strAr[3]);
+                                     row.ScannedDate = DateTime.Parse(strAr[4], dateFormat);
+                                     row.TerminalId = int.Parse(strAr[5]);
+                                     row.Priority = byte.Parse(strAr[6]);
+                                     row.PlanQuanity = int.Parse(strAr[7]);
 
+                                     ScannedProductsDataSet.ScannedBarcodesRow row1 =
+                                        ScannedProducts.ScannedBarcodes.FindByBarcodeDocTypeDocId(
+                                            row.Barcode, row.DocType, row.DocId);
+                                     if (row1 != null)
+                                     {
+                                         row1.FactQuantity += row.FactQuantity;
+                                         row1.Priority = row.Priority;
+                                     }
+                                     else
+                                         ScannedProducts.ScannedBarcodes.AddScannedBarcodesRow(row);
+
+                                 }
                              }
+                         }
+                         catch (Exception err)
+                         {
+                             BTPrintClass.PrintClass.SetErrorEvent(s + "\r\n" + err.ToString());
+
                          }
                      }
                      fs.Close();
