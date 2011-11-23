@@ -217,7 +217,7 @@ namespace TSDServer
                          }
                          catch (Exception err)
                          {
-                             BTPrintClass.PrintClass.SetErrorEvent(s + "\r\n" + err.ToString());
+                             BTPrintClass.PrintClass.SetErrorEvent(s + '\n' + err.ToString());
 
                          }
                      }
@@ -1390,17 +1390,28 @@ namespace TSDServer
         }
         public void ClearScannedData()
         {
-            scannedTA = new TSDServer.ScannedProductsDataSetTableAdapters.ScannedBarcodesTableAdapter(
-                this.ScannedProducts);
-            
-            scannedTA.Clean();
+            //scannedTA = new TSDServer.ScannedProductsDataSetTableAdapters.ScannedBarcodesTableAdapter(
+             //   this.ScannedProducts);
+            //if (scannedTA != null)
+            //    scannedTA.Clean();
 
-            string [] str= new string[scannedTA.FileList.Length];
-            Array.Copy(scannedTA.FileList,str,str.Length);
+            //string [] str= new string[scannedTA.FileList.Length];
+            //Array.Copy(scannedTA.FileList,str,str.Length);
 
             
-            scannedTA.Close();
-            scannedTA.Dispose();
+            //scannedTA.Close();
+            //scannedTA.Dispose();
+            if (writer != null)
+            {
+                try
+                {
+                    //writer.Flush()
+                    writer.Close();
+                    writer = null;
+                    System.Threading.Thread.Sleep(500);
+                }
+                catch { }
+            }
 
             this.ScannedProducts.Clear();
 
@@ -1412,11 +1423,11 @@ namespace TSDServer
                 System.IO.Path.Combine(Program.Default.DatabaseStoragePath, "register.txt")))
                 System.IO.File.Delete(System.IO.Path.Combine(Program.Default.DatabaseStoragePath, "register.txt"));
 
-            foreach (string s in str)
+            /*foreach (string s in str)
             {
                 if (System.IO.File.Exists(s))
                     System.IO.File.Delete(s);
-            }
+            }*/
         }
 
         public void LoadScannedData()
@@ -2010,20 +2021,38 @@ namespace TSDServer
                 //if (row["FactQuantity"] != System.DBNull.Value
                 //    && row.FactQuantity > 0)
                 //{
-                string s =
-                        string.Format("{0}|{1}|{2}|{3}|{4}|{5}|{6}|{7}",
-                            docId,
-                            docId,
-                            ((byte)TSDUtils.ActionCode.CloseInventar),
-                            0,
-                            DateTime.Today.ToString("dd.MM.yyyy"),
-                            Program.Default.TerminalID,
-                            255,
-                            0
-                            );
-                byte[] buff = System.Text.Encoding.UTF8.GetBytes(string.Concat(s, '\n'));
-                writer.Write(buff, 0, buff.Length);
-                writer.Flush();
+
+                DoScanEvents = false;
+                try
+                {
+                    ScannedProductsDataSet.ScannedBarcodesRow r1 =
+                        _scannedProducts.ScannedBarcodes.FindByBarcodeDocTypeDocId(
+                        long.Parse(docId), ((byte)TSDUtils.ActionCode.CloseInventar), docId);
+                    if (r1 != null)
+                        r1.Priority = 255;
+                    else
+                        r1 = AddScannedRow(long.Parse(docId), ((byte)TSDUtils.ActionCode.CloseInventar),
+                            docId, 0, 255);
+
+                    string s =
+                            string.Format("{0}|{1}|{2}|{3}|{4}|{5}|{6}|{7}",
+                                docId,
+                                docId,
+                                ((byte)TSDUtils.ActionCode.CloseInventar),
+                                0,
+                                DateTime.Today.ToString("dd.MM.yyyy"),
+                                Program.Default.TerminalID,
+                                255,
+                                0
+                                );
+                    byte[] buff = System.Text.Encoding.UTF8.GetBytes(string.Concat(s, '\n'));
+                    writer.Write(buff, 0, buff.Length);
+                    writer.Flush();
+                }
+                finally
+                {
+                    DoScanEvents = true;
+                }
                 //writer.WriteLine(s);
                 //}
 
@@ -2262,20 +2291,34 @@ namespace TSDServer
                 //if (row["FactQuantity"] != System.DBNull.Value
                 //    && row.FactQuantity > 0)
                 //{
-                string s =
-                        string.Format("{0}|{1}|{2}|{3}|{4}|{5}|{6}|{7}",
-                            docId,
-                            docId,
-                            ((byte)TSDUtils.ActionCode.CloseInventar),
-                            0,
-                            DateTime.Today.ToString("dd.MM.yyyy"),
-                            Program.Default.TerminalID,
-                            0,
-                            0
-                            );
-                byte[] buff = System.Text.Encoding.UTF8.GetBytes(string.Concat(s, '\n'));
-                writer.Write(buff, 0, buff.Length);
-                writer.Flush();
+                DoScanEvents = false;
+                try
+                {
+                    ScannedProductsDataSet.ScannedBarcodesRow r1 =
+                        AddScannedRow(long.Parse(docId), ((byte)TSDUtils.ActionCode.CloseInventar), docId,
+                        0, 0);
+
+                    string s =
+                            string.Format("{0}|{1}|{2}|{3}|{4}|{5}|{6}|{7}",
+                                docId,
+                                docId,
+                                ((byte)TSDUtils.ActionCode.CloseInventar),
+                                0,
+                                DateTime.Today.ToString("dd.MM.yyyy"),
+                                Program.Default.TerminalID,
+                                0,
+                                0
+                                );
+
+
+                    byte[] buff = System.Text.Encoding.UTF8.GetBytes(string.Concat(s, '\n'));
+                    writer.Write(buff, 0, buff.Length);
+                    writer.Flush();
+                }
+                finally
+                {
+                    DoScanEvents = true;
+                }
                 //writer.WriteLine(s);
                 //}
 
