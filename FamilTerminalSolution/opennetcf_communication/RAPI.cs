@@ -413,8 +413,16 @@ namespace OpenNETCF.Desktop.Communication
 			int create = Overwrite ? CREATE_ALWAYS : CREATE_NEW;
 			byte[] buffer = new byte[0x1000]; // 4k transfer buffer
 
+            /*FileInfo fInfo = new FileInfo(RemoteFileName);
+            long fileLength = fInfo.Length;
+            buffer = new Byte[fileLength];
+            FileStream fs = fInfo.OpenRead();
+            fs.Read(buffer, 0, (int)fileLength);
+            fs.Close();
+            */
 			// open the remote (device) file
-            remoteFile = CeCreateFile(RemoteFileName, GENERIC_READ, 0, 0, OPEN_EXISTING, /*FILE_ATTRIBUTE_NORMAL | */(uint)FILE_ATTRIBUTE_ARCHIVE, 0);
+            remoteFile = CeCreateFile(RemoteFileName, GENERIC_READ|GENERIC_WRITE, 
+                FILE_SHARE_READ|FILE_SHARE_WRITE, IntPtr.Zero.ToInt32(), OPEN_EXISTING, (uint)(FILE_ATTRIBUTE_NORMAL | FILE_ATTRIBUTE_ARCHIVE), 0);
             /*int result = CeGetLastError();
             result = CeRapiGetError();
             result = System.Runtime.InteropServices.Marshal.GetLastWin32Error();*/
@@ -1263,6 +1271,7 @@ namespace OpenNETCF.Desktop.Communication
 		private uint WAIT_ABANDONED = 0x00000080;
 		private uint WAIT_FAILED = 0xffffffff;
 		private int FILE_SHARE_READ = 0x00000001;
+        private int FILE_SHARE_WRITE = 2;
 		private const short CREATE_NEW = 1;
 		private const short CREATE_ALWAYS = 2;
 		private const uint GENERIC_WRITE = 0x40000000;

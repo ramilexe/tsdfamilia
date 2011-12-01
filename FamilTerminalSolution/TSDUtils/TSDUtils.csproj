@@ -44,7 +44,20 @@
   <ItemGroup>
     <Compile Include="CodeDef.cs" />
     <Compile Include="CustomEncodingClass.cs" />
+    <Compile Include="FilterByExtension.cs" />
+    <Compile Include="IFolderFilter.cs" />
+    <Compile Include="IFolderFilterSite.cs" />
+    <Compile Include="IMalloc.cs" />
+    <Compile Include="IShellFolder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ShellAddRecent.cs" />
+    <Compile Include="ShellApi.cs" />
+    <Compile Include="ShellBrowseForFolderDialog.cs" />
+    <Compile Include="ShellExecute.cs" />
+    <Compile Include="ShellFileOperation.cs" />
+    <Compile Include="ShellFunctions.cs" />
+    <Compile Include="ShellGUIDs.cs" />
+    <Compile Include="ShellNameMapping.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

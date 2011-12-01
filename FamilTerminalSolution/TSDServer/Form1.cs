@@ -6,7 +6,7 @@ using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
 using System.IO;
-
+using System.Runtime.InteropServices;
 
 namespace TSDServer
 {
@@ -966,13 +966,47 @@ namespace TSDServer
                             terminalRapi.CopyFileFromDevice(s,
                                 Properties.Settings.Default.TSDDBPAth +
                                 //"\\Program Files\\tsdfamilia\\" + 
+                                //@"Computer\WindowsCE\Storage Card\tsdfamilia\"+
                                 Path.GetFileName(s));
+                            
+
+                            /*ShellLib.ShellFileOperation fo = new ShellLib.ShellFileOperation();
+
+                            String[] source = new String[1];
+                            String[] dest = new String[1];
+
+                            source[0] = Properties.Settings.Default.TSDDBPAth +
+                                //"\\Program Files\\tsdfamilia\\" + 
+                                Path.GetFileName(s);
+
+                                //Environment.SystemDirectory + @"\winmine.exe";
+                            //source[1] = Environment.SystemDirectory + @"\freecell.exe";
+                            //source[2] = Environment.SystemDirectory + @"\mshearts.exe";
+                            dest[0] = s;
+                                //Environment.SystemDirectory.Substring(0, 2) + @"\winmine.exe";
+                            //dest[1] = Environment.SystemDirectory.Substring(0, 2) + @"\freecell.exe";
+                            //dest[2] = Environment.SystemDirectory.Substring(0, 2) + @"\mshearts.exe";
+
+                            fo.Operation = ShellLib.ShellFileOperation.FileOperations.FO_COPY;
+                            fo.OwnerWindow = this.Handle;
+                            fo.SourceFiles = source;
+                            fo.DestFiles = dest;
+
+                            bool RetVal = fo.DoOperation();
+                            if (RetVal)
+                                MessageBox.Show("Copy Complete without errors!");
+                            else
+                                MessageBox.Show("Copy Complete with errors!");
+
+                            */
+
                             success_upload = true;
                             //copyStatesb.AppendFormat("Файл {0} скопирован.\n", s);
                             //loadState = "Успешно";
                         }
                         catch (Exception err)
                         {
+                            richTextBox1.AppendText(err.ToString());
                             richTextBox1.AppendText(string.Format("Ошибка: Файл {0} не скопирован. \n", s));
                             copyStatesb.AppendFormat("Файл {0} не скопирован.\n", s);
                             success_upload = false;
@@ -1071,5 +1105,9 @@ namespace TSDServer
         {
             LoadDocs();
         }
+
+
     }
+
+
 }
