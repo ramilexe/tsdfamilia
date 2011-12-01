@@ -414,7 +414,7 @@ namespace OpenNETCF.Desktop.Communication
 			byte[] buffer = new byte[0x1000]; // 4k transfer buffer
 
 			// open the remote (device) file
-            remoteFile = CeCreateFile(RemoteFileName, GENERIC_READ, 1, 0, OPEN_EXISTING, /*FILE_ATTRIBUTE_NORMAL | */(uint)FILE_ATTRIBUTE_ARCHIVE, 0);
+            remoteFile = CeCreateFile(RemoteFileName, GENERIC_READ, 0, 0, OPEN_EXISTING, /*FILE_ATTRIBUTE_NORMAL | */(uint)FILE_ATTRIBUTE_ARCHIVE, 0);
             /*int result = CeGetLastError();
             result = CeRapiGetError();
             result = System.Runtime.InteropServices.Marshal.GetLastWin32Error();*/

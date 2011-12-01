@@ -646,16 +646,29 @@ namespace TSDServer
             {
                 List<String> slist =
                     new List<String>();
+                try
+                {
+                    if (Properties.Settings.Default.CopyRegistertxt)
+                    {
+                        slist.Add(
+                            Path.Combine(
+                            Properties.Settings.Default.LocalFilePath,
+                            "register.txt")
+                            );
 
-                slist.Add(
-                    Path.Combine(
-                    Properties.Settings.Default.LocalFilePath,
-                    "register.txt")
-                    );
-
-                slist.Add(Path.Combine(
-                    Properties.Settings.Default.LocalFilePath,
-                    "scannedbarcodes.txt"));
+                        slist.Add(Path.Combine(
+                            Properties.Settings.Default.LocalFilePath,
+                            "scannedbarcodes.txt"));
+                    }
+                    else
+                        throw new ApplicationException("Default not copy");
+                }
+                catch 
+                { //default
+                    slist.Add(Path.Combine(
+                            Properties.Settings.Default.LocalFilePath,
+                            "scannedbarcodes.txt"));
+                }
 
                 return slist.ToArray();
 
