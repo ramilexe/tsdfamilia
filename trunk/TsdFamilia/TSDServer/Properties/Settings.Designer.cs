@@ -274,5 +274,17 @@ namespace TSDServer.Properties {
                 this["ProgramFileName"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool CopyRegistertxt {
+            get {
+                return ((bool)(this["CopyRegistertxt"]));
+            }
+            set {
+                this["CopyRegistertxt"] = value;
+            }
+        }
     }
 }
