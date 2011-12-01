@@ -981,7 +981,7 @@ namespace TSDServer
                     }
                 }
 
-                loader.UploadResults();
+                //loader.UploadResults();
 
                 richTextBox1.AppendText("Загрузка завершена...\n");
                 richTextBox1.AppendText(copyStatesb.ToString());
