@@ -701,7 +701,7 @@ namespace TSDServer
 
         public void UploadResults()
         {
-
+            /*
             try
             {
                 scannedTA.Fill(scannedDs);
@@ -766,7 +766,7 @@ namespace TSDServer
                     wr.Close();
                 }
             }
-            catch { }
+            catch { }*/
 
             string dateString = DateTime.Now.ToString("yyyyMMddhhmmss");
             try
