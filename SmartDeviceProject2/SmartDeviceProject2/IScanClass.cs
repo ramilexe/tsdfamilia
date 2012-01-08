@@ -12,5 +12,6 @@ namespace TSDServer
         void PauseScan();
         void ResumeScan();
         void StopScan();
+        
     }
 }
