@@ -35,13 +35,13 @@ namespace TSDServer
                     {
                         if (_scaner == null)
                         {
-                            _scaner = CasioScanClass.Scaner;
-
-                            /*OperatingSystem os = System.Environment.OSVersion;
+                            //_scaner = CasioScanClass.Scaner;
+                            
+                            //OperatingSystem os = System.Environment.OSVersion;
                             string oemInfo = NativeClass.GetOemInfo();
                             BTPrintClass.PrintClass.SetStatusEvent(oemInfo);
                             if (oemInfo.ToUpper().IndexOf("PY055") >= 0 ||
-                             * oemInfo.ToUpper().IndexOf("HP101") >= 0 ||
+                              oemInfo.ToUpper().IndexOf("HP101") >= 0 ||
                                 oemInfo.ToUpper().IndexOf("EMULATOR")>=0 
                               )
                             {
@@ -53,9 +53,9 @@ namespace TSDServer
                                 if (oemInfo.ToUpper().IndexOf("M3MOBILE") >= 0)
                                 {
                                     BTPrintClass.PrintClass.SetStatusEvent("Это ТСД M3Green");
-                                    _scaner = M3GreenScanClass.Scaner;
+                                    _scaner = (IScanClass) M3GreenScanClass.Scaner;
                                 }
-                            }*/
+                            }
                         }
                     }
                     //string devId = os.Version.ToString();
@@ -374,6 +374,14 @@ namespace TSDServer
 
         }
 
+        /*public void ScanBtnPressed()
+        {
+            SystemLibNet.Api.SysWaitForEvent(IntPtr.Zero, OBReadLibNet.Def.OBR_NAME_EVENT, 2000);  //Wait event
+            string str = GetText();
+            if (!paused && OnScanned != null && !String.IsNullOrEmpty(str))
+                OnScanned(str);
+        }
+    */
         private void SetScanError(string errorText)
         {
             if (OnScanError != null)
