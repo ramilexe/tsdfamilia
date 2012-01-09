@@ -14,7 +14,18 @@ namespace TSDServer
 
         private M3GreenScanClass()
         {
-
+            if (!_scaner.Opened)
+                _scaner.Open();
+            _scaner.NsdUPCE = true;
+            _scaner.UseRFID = false;
+            _scaner.ExtendUPCA = true;
+            _scaner.BarcodeRead += new MC6500s.BarcodeReadEventHandler(_scaner_BarcodeRead);
+            _scaner.Init(
+                new MC6500s.BarcodeType[]
+                {MC6500s.BarcodeType.btEAN13,
+                    MC6500s.BarcodeType.btEAN8,
+                    MC6500s.BarcodeType.btUPCA,
+                    MC6500s.BarcodeType.btUPCE});
         }
         public static M3GreenScanClass Scaner
         {
@@ -81,18 +92,7 @@ namespace TSDServer
         public int InitScan()
         {
 
-            if (!_scaner.Opened)
-                _scaner.Open();
-            _scaner.NsdUPCE = true;
-            _scaner.UseRFID = false;
-            _scaner.ExtendUPCA = true;
-            _scaner.BarcodeRead += new MC6500s.BarcodeReadEventHandler(_scaner_BarcodeRead);
-            _scaner.Init(
-                new MC6500s.BarcodeType[]
-                {MC6500s.BarcodeType.btEAN13,
-                    MC6500s.BarcodeType.btEAN8,
-                    MC6500s.BarcodeType.btUPCA,
-                    MC6500s.BarcodeType.btUPCE});
+           
             paused = false;
             return 0;
         }
@@ -138,9 +138,16 @@ namespace TSDServer
             OnScanned = null;
             paused = false;
             aborted = true;
+           
+
+        }
+
+        public void CloseScan()
+        {
             _scaner.Stop();
-            _scaner.Close();
-            
+            if (_scaner.Opened)
+                _scaner.Close();
+
             //HWND = IntPtr.Zero;
             //textBox1.Text = "";
             //textBox2.Text = "";
@@ -152,7 +159,6 @@ namespace TSDServer
                     thread.Abort();								//Abort start thread
             }
             catch { };
-
         }
 
 

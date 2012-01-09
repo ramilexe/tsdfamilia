@@ -374,6 +374,10 @@ namespace TSDServer
 
         }
 
+        public void CloseScan()
+        {
+
+        }
         /*public void ScanBtnPressed()
         {
             SystemLibNet.Api.SysWaitForEvent(IntPtr.Zero, OBReadLibNet.Def.OBR_NAME_EVENT, 2000);  //Wait event

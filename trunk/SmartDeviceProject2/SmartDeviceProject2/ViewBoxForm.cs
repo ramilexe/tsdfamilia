@@ -309,13 +309,14 @@ namespace TSDServer
         private void listBox1_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Escape ||
-             e.KeyValue == 115)//YellowBtn
+             e.KeyValue == FunctionButtons.YellowBtn)//115)//YellowBtn
             {
                 e.Handled = true;
                 this.Close();
                 return;
             }
-            if (e.KeyValue == 18 && Program.Default.EnableChgQty == 1)//RedBtn
+            if (e.KeyValue == FunctionButtons.RedBtn//18 
+                && Program.Default.EnableChgQty == 1)//RedBtn
             {
                 if (rows != null && 
                     listBox1.SelectedIndex > 0 &&

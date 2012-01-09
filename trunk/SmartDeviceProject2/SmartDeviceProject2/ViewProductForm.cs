@@ -455,12 +455,12 @@ namespace TSDServer
                         }
                     }
                     //ActionsClass.Action.BeginScan();
-                    
 
+                    
                 }
                 //ActionsClass.Action.BeginScan();
                 ScanClass.Scaner.InitScan();
-
+                ScanClass.Scaner.OnScanned += new Scanned(Scanned);
                 /*
                 foreach (Control c in this.Controls)
                 {
@@ -479,7 +479,7 @@ namespace TSDServer
                 this.navCodeTB.Focus();
 
 
-                ScanClass.Scaner.OnScanned += new Scanned(Scanned);
+               
 
                 label5.Text = "";
                 label6.Text = "";
@@ -676,7 +676,7 @@ namespace TSDServer
                     return;
                 }
             }
-            if (e.KeyCode == Keys.Tab)
+            if (e.KeyValue == (int)FunctionButtons.GreenBtn)//Keys.Tab)
             {
                 #region GreenBtn
                 if (_mode == WorkMode.InventarScan)
@@ -747,7 +747,7 @@ namespace TSDServer
                 
                 #endregion
             }
-            if (e.KeyValue == 18)//RedBtn
+            if (e.KeyValue == (int)FunctionButtons.RedBtn)//RedBtn
             {
                 #region redbutton
                 if (currentProductRow != null && WorkMode.ProductsScan == _mode)
@@ -832,7 +832,7 @@ namespace TSDServer
                 return;
                 #endregion
             }
-            if (e.KeyValue == 16)//BluBtn
+            if (e.KeyValue == (int)FunctionButtons.BlueBtn)//BluBtn
             {
                 #region ProductsScan
                 if (currentProductRow != null && WorkMode.ProductsScan == _mode)
@@ -864,7 +864,7 @@ namespace TSDServer
                 e.Handled = true;
                 return;
             }
-            if (e.KeyValue == 115)//YellowBtn
+            if (e.KeyValue == (int)FunctionButtons.YellowBtn)//YellowBtn
             {
                 #region YellowBtn
                 try

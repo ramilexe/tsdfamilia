@@ -33,6 +33,33 @@ namespace TSDServer
             {
                 bt_di[iCnt] = new Calib.BluetoothLibNet.BTST_DEVICEINFO();
             }
+            
+            string oemInfo = NativeClass.GetOemInfo();
+            
+            if (oemInfo.ToUpper().IndexOf("PY055") >= 0 ||
+              oemInfo.ToUpper().IndexOf("HP101") >= 0 ||
+                oemInfo.ToUpper().IndexOf("EMULATOR") >= 0
+              )
+            {
+                sp = new System.IO.Ports.SerialPort(string.Format("COM6:"),
+                    19200,
+                    System.IO.Ports.Parity.None,
+                    8,
+                    System.IO.Ports.StopBits.One);    
+            }
+            else
+            {
+                if (oemInfo.ToUpper().IndexOf("M3MOBILE") >= 0)
+                {
+                    sp = new System.IO.Ports.SerialPort(string.Format("COM{0}:", Program.Default.BTComPort),
+                    19200,
+                    System.IO.Ports.Parity.None,
+                    8,
+                    System.IO.Ports.StopBits.One);
+                }
+            }
+
+            
             //BTPrinterInit();
             
         }
@@ -340,12 +367,12 @@ namespace TSDServer
 
         IntPtr[] bt_hdev = new IntPtr[BTDEF_MAX_INQUIRY_NUM + 1];
 
-        System.IO.Ports.SerialPort sp =
+        System.IO.Ports.SerialPort sp;/* =
                 new System.IO.Ports.SerialPort(string.Format("COM6:"),
                     19200,
                     System.IO.Ports.Parity.None,
                     8,
-                    System.IO.Ports.StopBits.One);
+                    System.IO.Ports.StopBits.One);*/
 
         #region Old native func
 

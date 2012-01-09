@@ -52,7 +52,7 @@ namespace TSDServer
         [MTAThread]
         public static void Main()
         {
-           
+
             //mEvt.Reset();
 
             //bool result = mEvt.WaitOne((int)(WaitPrintTimeDefault + WaitPrintTimeDefault / 2), false);
@@ -154,7 +154,8 @@ namespace TSDServer
                 }
                 finally
                 {
-                    ScanClass.Scaner.StopScan();
+                    ScanClass.Scaner.CloseScan();
+                    //ScanClass.Scaner.StopScan();
                     //try
                     //{
 
@@ -168,9 +169,19 @@ namespace TSDServer
             {
                 System.Windows.Forms.MessageBox.Show(err.ToString());
             }
+
+            
         }
     }
-    public enum SpecialButton:int
+    //public class FunctionButtons
+    public static class FunctionButtons
+    {
+        public   static int RedBtn = 193;
+        public   static int BlueBtn = 131;
+        public   static int GreenBtn = 133;
+        public   static int YellowBtn = 134;
+    }
+   /* public enum FunctionButtons:int
     {
 
         EscBtn = 9,
@@ -181,4 +192,12 @@ namespace TSDServer
         GreenBtn=9,
         YellowBtn = 115
     }
+
+    public enum M3FunctionButtons : int
+    {
+        RedBtn = 193,
+        BlueBtn = 131,
+        GreenBtn = 133,
+        YellowBtn = 134
+    }*/
 }
