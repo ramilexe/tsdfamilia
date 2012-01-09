@@ -13,7 +13,7 @@
     <PlatformFamilyName>WindowsCE</PlatformFamilyName>
     <PlatformID>E2BECB1F-8C8C-41ba-B736-9BE7D946A398</PlatformID>
     <OSVersion>5.0</OSVersion>
-    <DeployDirSuffix>\Storage Card\tsdfamilia</DeployDirSuffix>
+    <DeployDirSuffix>\Flash Disk\tsdfamilia.setup</DeployDirSuffix>
     <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
     <NativePlatformName>Windows CE</NativePlatformName>
     <FormFactorID>
@@ -54,6 +54,10 @@
     <Reference Include="ImagerLibNet, Version=2.0.4.6336, Culture=neutral, PublicKeyToken=4079e79a5891f674">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\..\..\..\Program Files (x86)\CASIO\MBSys\WindowsCE\ImagerLibNet.dll</HintPath>
+    </Reference>
+    <Reference Include="MC6500s, Version=1.0.4308.40140, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>bin\MC6500s.dll</HintPath>
     </Reference>
     <Reference Include="MoFlinkLibNet, Version=3.0.7.6336, Culture=neutral, PublicKeyToken=4079e79a5891f674">
       <SpecificVersion>False</SpecificVersion>
@@ -111,13 +115,16 @@
     <Compile Include="ChangeQtyForm.Designer.cs">
       <DependentUpon>ChangeQtyForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="CustomPrinter.cs" />
     <Compile Include="IScanClass.cs" />
+    <Compile Include="M3GreenScanClass.cs" />
     <Compile Include="MultiplyForm.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="MultiplyForm.Designer.cs">
       <DependentUpon>MultiplyForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="ToshibaTECBT.cs" />
     <Compile Include="ViewBoxForm.cs">
       <SubType>Form</SubType>
     </Compile>

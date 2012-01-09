@@ -116,7 +116,7 @@ namespace TSDServer
         private void listBox1_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Escape ||
-             e.KeyValue == 115)//YellowBtn
+             e.KeyValue == FunctionButtons.YellowBtn)//115)//YellowBtn
             {
                 this.Close();
                 return;

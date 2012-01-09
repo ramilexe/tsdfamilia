@@ -263,17 +263,17 @@ namespace TSDServer
                 this.Close();
                 return;
             }
-            if (e.KeyValue == (int)SpecialButton.RedBtn)
+            if (e.KeyValue == (int)FunctionButtons.RedBtn)
             {
                 e.Handled = true;
                 return;
             }
-            if (e.KeyValue == (int)SpecialButton.BlueBtn)
+            if (e.KeyValue == (int)FunctionButtons.BlueBtn)
             {
                 e.Handled = true;
                 return;
             }
-            if (e.KeyValue == (int)SpecialButton.YellowBtn)
+            if (e.KeyValue == (int)FunctionButtons.YellowBtn)
             {
                 if (!String.IsNullOrEmpty(lastBk))
                 {

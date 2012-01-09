@@ -155,7 +155,7 @@ namespace TSDServer
 
         void ViewDocsForm_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.Escape || e.KeyValue == 115)
+            if (e.KeyCode == Keys.Escape || e.KeyValue == FunctionButtons.YellowBtn)//115)
             {
                 this.Close();
                 return;

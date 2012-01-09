@@ -77,7 +77,7 @@ namespace TSDServer
                 {
                     this.Close();
                 }
-                if (e.KeyValue == 13)
+                if (e.KeyCode == Keys.Enter)//e.KeyValue == 13)
                 {
                     System.Windows.Forms.Button b
                          = (System.Windows.Forms.Button)sender;

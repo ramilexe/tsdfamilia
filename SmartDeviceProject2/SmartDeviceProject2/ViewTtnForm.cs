@@ -180,7 +180,7 @@ namespace TSDServer
         private void treeView1_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Escape ||
-                e.KeyValue == (int)SpecialButton.YellowBtn)
+                e.KeyValue == FunctionButtons.YellowBtn)
             {
                 this.Close();
                 return;

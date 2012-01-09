@@ -343,7 +343,7 @@ namespace TSDServer
                     this.Close();
                     return;
                 }
-                if (e.KeyValue == (int)SpecialButton.RedBtn)
+                if (e.KeyValue == (int)FunctionButtons.RedBtn)
                 {
                     if (!closedCar && currentTtnBarcode != string.Empty)
                     {
@@ -368,12 +368,12 @@ namespace TSDServer
                     }
                     return;
                 }
-                if (e.KeyValue == (int)SpecialButton.BlueBtn)
+                if (e.KeyValue == (int)FunctionButtons.BlueBtn)
                 {
 
                     return;
                 }
-                if (e.KeyValue == (int)SpecialButton.YellowBtn)
+                if (e.KeyValue == (int)FunctionButtons.YellowBtn)
                 {
                     enableScan = false;
                     try
@@ -425,7 +425,7 @@ namespace TSDServer
 
                     return;
                 }
-                if (e.KeyValue == (int)SpecialButton.GreenBtn) //GreenBtn
+                if (e.KeyValue == (int)FunctionButtons.GreenBtn) //GreenBtn
                 {
 
                     return;
