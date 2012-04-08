@@ -83,6 +83,16 @@ namespace TSDServer
 
                         if (dr == DialogResult.Yes)
                         {
+                            label5.BackColor = System.Drawing.Color.Turquoise;
+                            label6.BackColor = System.Drawing.Color.Turquoise;
+                            label7.BackColor = System.Drawing.Color.Turquoise;
+                            label8.BackColor = System.Drawing.Color.Turquoise;
+                            label9.BackColor = System.Drawing.Color.Turquoise;
+                            label20.BackColor = System.Drawing.Color.Turquoise;
+                            label21.BackColor = System.Drawing.Color.Turquoise;
+                            actionLabel.BackColor = System.Drawing.Color.Turquoise;
+                            navCodeTB.BackColor = System.Drawing.Color.Turquoise;
+
                             _invMode = InventarMode.UseReturns;
                         }
                         else
@@ -300,14 +310,20 @@ namespace TSDServer
                             }
                             else
                             {
-                                if (
-                                    ActionsClass.Action.FindByBarcodeDocType(row.Barcode,
-                                    (byte)TSDUtils.ActionCode.Returns).Length > 0)
+                                ProductsDataSet.DocsTblRow[]  arrofdocs = ActionsClass.Action.GetDataByNavCodeAndType(
+                                    row.NavCode,
+                                    (byte)TSDUtils.ActionCode.Returns);
+
+                                if (arrofdocs != null &&
+                                    arrofdocs.Length > 0)
                                 {
+                                    ActionsClass.Action.PlaySoundAsync((byte)TSDUtils.ActionCode.Returns);
+                                    ActionsClass.Action.PlayVibroAsync((byte)TSDUtils.ActionCode.Returns);
+
                                     DialogResult dr = DialogFrm.ShowMessage(
                                     "С учетом возвратов"
                                     , "Этот товар участвует в возврате"
-                                    , row.Article
+                                    , row.ProductName
                                     , "Режим инвентаризации");
                                 }
                                 else
