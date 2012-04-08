@@ -698,7 +698,13 @@ namespace TSDServer
                 return this.docsAdapter.FileList;
             }
         }
-
+        public string[] ProgramFileList
+        {
+            get
+            {
+                return System.IO.Directory.GetFiles(TSDServer.Properties.Settings.Default.LocalProgramPath);
+            }
+        }
         public void UploadResults()
         {
             /*
