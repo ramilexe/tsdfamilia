@@ -513,7 +513,7 @@ namespace OpenNETCF.Desktop.Communication
                 remoteFile = CeCreateFile(RemoteFileName, GENERIC_WRITE, 0, 0, create, (uint)FILE_ATTRIBUTE_NORMAL | FILE_FLAG_WRITE_THROUGH, 0);
 
                 // check for success
-                if ((int)remoteFile == INVALID_HANDLE_VALUE)
+                if ((long)remoteFile == (long)INVALID_HANDLE_VALUE)
                 {
                     throw new RAPIException("Could not create remote file");
                 }
@@ -935,7 +935,7 @@ namespace OpenNETCF.Desktop.Communication
 			IntPtr hFile = IntPtr.Zero;
 
 			hFile = CeCreateFile(FileName, GENERIC_WRITE, FILE_SHARE_READ, 0, OPEN_EXISTING, 0, 0);
-			if((int)hFile == INVALID_HANDLE_VALUE)
+			if((long)hFile == (long)INVALID_HANDLE_VALUE)
 			{
 				throw new RAPIException("Could not open remote file");
 			}
