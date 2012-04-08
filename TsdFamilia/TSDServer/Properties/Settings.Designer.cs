@@ -109,7 +109,7 @@ namespace TSDServer.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("c:\\")]
+        [global::System.Configuration.DefaultSettingValueAttribute("c:\\out")]
         public string LocalFilePath {
             get {
                 return ((string)(this["LocalFilePath"]));
@@ -157,7 +157,7 @@ namespace TSDServer.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("\\Storage Card\\tsdfamilia\\")]
+        [global::System.Configuration.DefaultSettingValueAttribute("\\Program Files\\tsdfamilia\\")]
         public string TSDDBPAth {
             get {
                 return ((string)(this["TSDDBPAth"]));
@@ -253,7 +253,7 @@ namespace TSDServer.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("\\Storage Card\\tsdfamilia\\")]
+        [global::System.Configuration.DefaultSettingValueAttribute("\\Program Files\\tsdfamilia\\")]
         public string TSDProgramPath {
             get {
                 return ((string)(this["TSDProgramPath"]));
@@ -284,6 +284,18 @@ namespace TSDServer.Properties {
             }
             set {
                 this["CopyRegistertxt"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("c:\\out")]
+        public string LocalProgramPath {
+            get {
+                return ((string)(this["LocalProgramPath"]));
+            }
+            set {
+                this["LocalProgramPath"] = value;
             }
         }
     }

@@ -24,7 +24,7 @@
       <Value Profile="(Default)">2000-01-01</Value>
     </Setting>
     <Setting Name="LocalFilePath" Type="System.String" Scope="User">
-      <Value Profile="(Default)">c:\</Value>
+      <Value Profile="(Default)">c:\out</Value>
     </Setting>
     <Setting Name="ImportProductsEnabled" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
@@ -36,7 +36,7 @@
       <Value Profile="(Default)">False</Value>
     </Setting>
     <Setting Name="TSDDBPAth" Type="System.String" Scope="User">
-      <Value Profile="(Default)">\Storage Card\tsdfamilia\</Value>
+      <Value Profile="(Default)">\Program Files\tsdfamilia\</Value>
     </Setting>
     <Setting Name="RemoteFilePath" Type="System.String" Scope="User">
       <Value Profile="(Default)">\\127.0.0.1\share\</Value>
@@ -60,13 +60,16 @@
       <Value Profile="(Default)">False</Value>
     </Setting>
     <Setting Name="TSDProgramPath" Type="System.String" Scope="User">
-      <Value Profile="(Default)">\Storage Card\tsdfamilia\</Value>
+      <Value Profile="(Default)">\Program Files\tsdfamilia\</Value>
     </Setting>
     <Setting Name="ProgramFileName" Type="System.String" Scope="User">
       <Value Profile="(Default)">TSDClient.ex_</Value>
     </Setting>
     <Setting Name="CopyRegistertxt" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="LocalProgramPath" Type="System.String" Scope="User">
+      <Value Profile="(Default)">c:\out</Value>
     </Setting>
   </Settings>
 </SettingsFile>
