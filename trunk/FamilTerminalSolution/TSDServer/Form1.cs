@@ -416,14 +416,22 @@ namespace TSDServer
                 return;
             }
 
-            foreach (string fileName in loader.ProductsFileList)
-            {
-                copiedFileList.Add(fileName);
-            }
-            foreach (string fileName in loader.DocsFileList)
-            {
-                copiedFileList.Add(fileName);
-            }
+            //foreach (string fileName in loader.ProductsFileList)
+            //{
+            //    copiedFileList.Add(fileName);
+            //}
+            copiedFileList.AddRange(loader.ProductsFileList);
+            //foreach (string fileName in loader.DocsFileList)
+            //{
+            //    copiedFileList.Add(fileName);
+            //}
+            copiedFileList.AddRange(loader.DocsFileList);
+
+            copiedFileList.AddRange(loader.ProgramFileList);
+            //foreach (string fileName in loader.ProgramFileList)
+            //{
+            //    copiedFileList.Add(fileName);
+            //}
 
             LoadToDevice(copiedFileList.ToArray());
 
