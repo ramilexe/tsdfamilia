@@ -118,31 +118,31 @@ namespace TSDServer
             //ActionsClass.Action.LoadScannedData();
             ActionsClass.Action.BeginScan();
 
-            string oemInfo = NativeClass.GetOemInfo();
+            //string oemInfo = NativeClass.GetOemInfo();
 
-            if (oemInfo.ToUpper().IndexOf("PY055") >= 0 ||
-              oemInfo.ToUpper().IndexOf("HP101") >= 0 ||
-                oemInfo.ToUpper().IndexOf("EMULATOR") >= 0
-              )
-            {
+            //if (oemInfo.ToUpper().IndexOf("PY055") >= 0 ||
+            //  oemInfo.ToUpper().IndexOf("HP101") >= 0 ||
+            //    oemInfo.ToUpper().IndexOf("EMULATOR") >= 0
+            //  )
+            //{
                  
-                FunctionButtons.RedBtn = 18;
-                FunctionButtons.BlueBtn = 16;
-                FunctionButtons.GreenBtn = 9;
-                FunctionButtons.YellowBtn = 115;
+            //    FunctionButtons.RedBtn = 18;
+            //    FunctionButtons.BlueBtn = 16;
+            //    FunctionButtons.GreenBtn = 9;
+            //    FunctionButtons.YellowBtn = 115;
 
-            }
-            else
-            {
-                if (oemInfo.ToUpper().IndexOf("M3MOBILE") >= 0)
-                {
-                    FunctionButtons.RedBtn = 193;
-                    FunctionButtons.BlueBtn = 194;
-                    FunctionButtons.GreenBtn = 195;
-                    FunctionButtons.YellowBtn = 196;
+            //}
+            //else
+            //{
+            //    if (oemInfo.ToUpper().IndexOf("M3MOBILE") >= 0)
+            //    {
+            //        FunctionButtons.RedBtn = 193;
+            //        FunctionButtons.BlueBtn = 194;
+            //        FunctionButtons.GreenBtn = 195;
+            //        FunctionButtons.YellowBtn = 196;
 
-                }
-            }
+            //    }
+            //}
             //onEndLoad += new EndLoadDelegate(MainForm_onEndLoad);
         }
 
