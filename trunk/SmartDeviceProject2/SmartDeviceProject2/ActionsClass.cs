@@ -7,7 +7,8 @@ namespace TSDServer
 {
     public class ActionsClass
     {
-        
+
+        //byte[] buff = new byte[] { 0xD, 0xA };
 
         private int _timeShift = 0;
         ScannedProductsDataSet _scannedProducts = new ScannedProductsDataSet();
@@ -170,6 +171,8 @@ namespace TSDServer
                      string allFile = System.Text.Encoding.UTF8.GetString(arrayOfBytes, 0, arrayOfBytes.Length);
 
                      string[] allLinesOfFile = allFile.Split('\n');
+                     //string[] allLinesOfFile = allFile.Split(
+                     //    System.Text.Encoding.UTF8.GetChars(buff));
 
                      
 
@@ -412,7 +415,9 @@ namespace TSDServer
                                 row.Priority,
                                 row.PlanQuanity
                                 );
-                    byte[] buff = System.Text.Encoding.UTF8.GetBytes(string.Concat(s, '\n'));
+                    byte[] buff = System.Text.Encoding.UTF8.GetBytes(string.Concat(s, "\r\n"));
+                    //byte[] buff = new byte[] { 0xD, 0xA };
+
                     writer.Write(buff, 0, buff.Length);
                     writer.Flush();
                     //byte[] buff = System.Text.Encoding.UTF8.GetBytes(s);
@@ -1331,7 +1336,9 @@ namespace TSDServer
                             Program.Default.TerminalID,
                             0
                             );
-                byte[] buff = System.Text.Encoding.UTF8.GetBytes(string.Concat(s,'\n'));
+                byte[] buff = System.Text.Encoding.UTF8.GetBytes(string.Concat(s, "\r\n"));
+                //byte[] buff = System.Text.Encoding.UTF8.GetBytes(string.Concat(s,'\n'));
+                //byte[] buff = new byte[] { 0xD, 0xA };
                 writer.Write(buff, 0, buff.Length);
                 writer.Flush();
                 //writer.WriteLine(s);
@@ -1380,7 +1387,9 @@ namespace TSDServer
                             byte.MaxValue,
                             0
                             );
-                byte[] buff = System.Text.Encoding.UTF8.GetBytes(string.Concat(s, '\n'));
+                byte[] buff = System.Text.Encoding.UTF8.GetBytes(string.Concat(s, "\r\n"));
+                //byte[] buff = new byte[] { 0xD, 0xA };
+                //byte[] buff = System.Text.Encoding.UTF8.GetBytes(string.Concat(s, '\n'));
                 writer.Write(buff, 0, buff.Length);
                 writer.Flush();
                 //writer.WriteLine(s);
@@ -2045,7 +2054,9 @@ namespace TSDServer
                                 255,
                                 0
                                 );
-                    byte[] buff = System.Text.Encoding.UTF8.GetBytes(string.Concat(s, '\n'));
+                    byte[] buff = System.Text.Encoding.UTF8.GetBytes(string.Concat(s, "\r\n"));
+                    //byte[] buff = System.Text.Encoding.UTF8.GetBytes(string.Concat(s, '\n'));
+                    //byte[] buff = new byte[] { 0xD, 0xA };
                     writer.Write(buff, 0, buff.Length);
                     writer.Flush();
                 }
@@ -2108,7 +2119,9 @@ namespace TSDServer
                             255,
                             0
                             );
-                byte[] buff = System.Text.Encoding.UTF8.GetBytes(string.Concat(s, '\n'));
+                byte[] buff = System.Text.Encoding.UTF8.GetBytes(string.Concat(s, "\r\n"));
+                //byte[] buff = System.Text.Encoding.UTF8.GetBytes(string.Concat(s, '\n'));
+                //byte[] buff = new byte[] { 0xD, 0xA };
                 writer.Write(buff, 0, buff.Length);
                 writer.Flush();
                 //writer.WriteLine(s);
@@ -2167,7 +2180,9 @@ namespace TSDServer
                             255,
                             0
                             );
-                byte[] buff = System.Text.Encoding.UTF8.GetBytes(string.Concat(s, '\n'));
+                byte[] buff = System.Text.Encoding.UTF8.GetBytes(string.Concat(s, "\r\n"));
+                //byte[] buff = System.Text.Encoding.UTF8.GetBytes(string.Concat(s, '\n'));
+                //byte[] buff = new byte[] { 0xD, 0xA };
                 writer.Write(buff, 0, buff.Length);
                 writer.Flush();
                 //writer.WriteLine(s);
@@ -2310,8 +2325,9 @@ namespace TSDServer
                                 0
                                 );
 
-
-                    byte[] buff = System.Text.Encoding.UTF8.GetBytes(string.Concat(s, '\n'));
+                    byte[] buff = System.Text.Encoding.UTF8.GetBytes(string.Concat(s, "\r\n"));
+                    //byte[] buff = System.Text.Encoding.UTF8.GetBytes(string.Concat(s, '\n'));
+                    //byte[] buff = new byte[] { 0xD, 0xA };
                     writer.Write(buff, 0, buff.Length);
                     writer.Flush();
                 }
@@ -2386,7 +2402,9 @@ namespace TSDServer
                                     scannedRow.PlanQuanity
                                     );
                         //writer.WriteLine(s);
-                        byte[] buff = System.Text.Encoding.UTF8.GetBytes(string.Concat(s, '\n'));
+                        byte[] buff = System.Text.Encoding.UTF8.GetBytes(string.Concat(s, "\r\n"));
+                        //byte[] buff = System.Text.Encoding.UTF8.GetBytes(string.Concat(s, '\n'));
+                        //byte[] buff = new byte[] { 0xD, 0xA };
                         writer.Write(buff, 0, buff.Length);
                         writer.Flush();
                     }
@@ -2464,7 +2482,9 @@ namespace TSDServer
                                     scannedRow.PlanQuanity
                                     );
                         //writer.WriteLine(s);
-                        byte[] buff = System.Text.Encoding.UTF8.GetBytes(string.Concat(s, '\n'));
+                        //byte[] buff = System.Text.Encoding.UTF8.GetBytes(string.Concat(s, '\n'));
+                        byte[] buff = System.Text.Encoding.UTF8.GetBytes(string.Concat(s, "\r\n"));
+
                         writer.Write(buff, 0, buff.Length);
                         writer.Flush();
                     }
@@ -2501,7 +2521,8 @@ namespace TSDServer
                                         scannedRow.PlanQuanity
                                         );
                             //writer.WriteLine(s);
-                            byte[] buff = System.Text.Encoding.UTF8.GetBytes(string.Concat(s, '\n'));
+                            byte[] buff = System.Text.Encoding.UTF8.GetBytes(string.Concat(s, "\r\n"));
+                            //byte[] buff = System.Text.Encoding.UTF8.GetBytes(string.Concat(s, '\n'));
                             writer.Write(buff, 0, buff.Length);
                             writer.Flush();
                         }
