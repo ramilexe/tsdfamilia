@@ -337,8 +337,12 @@ namespace TSDServer
                         {
                             System.Threading.Thread.Sleep(500);
 
+                            if (progressForms.ContainsKey(fileName))
+                                progressForms.Remove(fileName);
+
                             progressForms.Add(fileName,
                                 new FileCopyProgressForm());
+
                             IAsyncResult ar =
                                 terminalRapi.BeginCopyFileToDevice(fileName,
                                     Path.Combine(Properties.Settings.Default.TSDDBPAth, System.IO.Path.GetFileName(fileName)), true,
