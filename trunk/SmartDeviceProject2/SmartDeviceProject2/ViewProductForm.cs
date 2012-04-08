@@ -83,6 +83,7 @@ namespace TSDServer
 
                         if (dr == DialogResult.Yes)
                         {
+                            label17.BackColor = System.Drawing.Color.Turquoise;
                             label5.BackColor = System.Drawing.Color.Turquoise;
                             label6.BackColor = System.Drawing.Color.Turquoise;
                             label7.BackColor = System.Drawing.Color.Turquoise;
