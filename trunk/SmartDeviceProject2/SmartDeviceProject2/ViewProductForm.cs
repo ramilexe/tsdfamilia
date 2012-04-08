@@ -11,6 +11,7 @@ namespace TSDServer
 {
     public partial class ViewProductForm : Form
     {
+        InventarMode _invMode;
         WorkMode _mode;
         string _documentId;
         string[] waitStr = new string[] { "\\", "|", "/", "-" };
@@ -30,13 +31,13 @@ namespace TSDServer
         ProductsDataSet.ProductsTblRow currentProductRow = null;
         ProductsDataSet.DocsTblRow currentDocRow = null;
         ProductsDataSet.DocsTblRow[] currentdocRows = null;
-        
+
 
         delegate void PrepareConnectionDelegate();
         //ScannedProductsDataSetTableAdapters.ScannedBarcodesTableAdapter scanned_ta = null;
-                //= new TSDServer.ScannedProductsDataSetTableAdapters.ScannedBarcodesTableAdapter();
+        //= new TSDServer.ScannedProductsDataSetTableAdapters.ScannedBarcodesTableAdapter();
         //ScannedProductsDataSetTableAdapters.MoveResultsTblTableAdapter move_ta = null;
-                //= new TSDServer.ScannedProductsDataSetTableAdapters.MoveResultsTblTableAdapter();
+        //= new TSDServer.ScannedProductsDataSetTableAdapters.MoveResultsTblTableAdapter();
 
         //TSDServer.ProductsDataSetTableAdapters.ProductsTblTableAdapter productsTa;
         //TSDServer.ProductsDataSetTableAdapters.DocsTblTableAdapter docsTa;
@@ -48,8 +49,8 @@ namespace TSDServer
 
         public ViewProductForm()
         {
-            quantityKoeff =1;
-            
+            quantityKoeff = 1;
+
             _mode = WorkMode.ProductsScan;
             BTPrintClass.PrintClass.SetStatusEvent("Open Products form");
             InitializeComponent();
@@ -65,7 +66,8 @@ namespace TSDServer
             // System.Threading.Timeout.Infinite);
         }
 
-        public ViewProductForm(WorkMode mode, string docId):this()
+        public ViewProductForm(WorkMode mode, string docId)
+            : this()
         {
             _mode = mode;
             _documentId = docId;
@@ -73,6 +75,21 @@ namespace TSDServer
             {
                 case WorkMode.InventarScan:
                     {
+                        DialogResult dr = DialogFrm.ShowMessage(
+                            "Вы хотите учитывать возврат?"
+                            , ""
+                            , ""
+                            , "Режим инвентаризации");
+
+                        if (dr == DialogResult.Yes)
+                        {
+                            _invMode = InventarMode.UseReturns;
+                        }
+                        else
+                        {
+                            _invMode = InventarMode.DontUseReturns;
+                        }
+
                         this.label15.Text = "F3-Инв.Закрыть";
                         Program.СurrentInvId = docId;
 
@@ -126,7 +143,7 @@ namespace TSDServer
 
             currentdocRows = new ProductsDataSet.DocsTblRow[1];
             currentdocRows[0] = inventRow;
-            
+
             //label13.Text = "";
             this.label13.Text = "Уменьш.КОЛВО";
 
@@ -136,7 +153,7 @@ namespace TSDServer
         //{
         //    _products = products;
         //    _scannedProducts = scannedProducts;
-           
+
         //   // BeginConnection(new AsyncCallback(OnFinishConnect));
         //}
 
@@ -173,7 +190,7 @@ namespace TSDServer
         }
         private void DoAction(ProductsDataSet.ProductsTblRow row)
         {
-            if (_mEvt.WaitOne(5000,false) == false)
+            if (_mEvt.WaitOne(5000, false) == false)
             {
                 this.Close();
             }
@@ -273,12 +290,36 @@ namespace TSDServer
                     else
                         if (_mode == WorkMode.InventarScan)
                         {
+                            if (_invMode == InventarMode.DontUseReturns)
+                            {
+                                inventRow.NavCode = row.NavCode;
+                                ActionsClass.Action.InvokeAction(TSDUtils.ActionCode.InventoryGlobal,
+                                    row,
+                                    inventRow
+                                    );
+                            }
+                            else
+                            {
+                                if (
+                                    ActionsClass.Action.FindByBarcodeDocType(row.Barcode,
+                                    (byte)TSDUtils.ActionCode.Returns).Length > 0)
+                                {
+                                    DialogResult dr = DialogFrm.ShowMessage(
+                                    "С учетом возвратов"
+                                    , "Этот товар участвует в возврате"
+                                    , row.Article
+                                    , "Режим инвентаризации");
+                                }
+                                else
+                                {
+                                    inventRow.NavCode = row.NavCode;
+                                    ActionsClass.Action.InvokeAction(TSDUtils.ActionCode.InventoryGlobal,
+                                        row,
+                                        inventRow
+                                        );
+                                }
 
-                            inventRow.NavCode = row.NavCode;
-                            ActionsClass.Action.InvokeAction(TSDUtils.ActionCode.InventoryGlobal,
-                                row,
-                                inventRow
-                                );
+                            }
 
                             //this.Refresh();
                             //ActionsClass.Action.InventoryGlobalActionProc(
@@ -324,9 +365,9 @@ namespace TSDServer
                                             ActionsClass.Action.PlaySoundAsync((byte)TSDUtils.ActionCode.AlreadyAccepted);
                                             ActionsClass.Action.PlayVibroAsync((byte)TSDUtils.ActionCode.AlreadyAccepted);
 
-                                            
+
                                             //using (DialogForm dlgfrm =
-                                    //new DialogForm(
+                                            //new DialogForm(
                                             DialogResult dr = DialogFrm.ShowMessage(
                                         string.Format("Товар уже принят {0} из {1}",
                                         fQty,
@@ -334,19 +375,19 @@ namespace TSDServer
                                         , string.Format("Принять еще {0} шт", quantityKoeff)//string.Format("Посчитано: {0} кодов", totalBk)
                                         , row.ProductName
                                         , "Прием товара");//)
-                                           // {
-                                                if (dr == DialogResult.Yes)
-                                                {
-                                                    //inventRow.NavCode = row.NavCode;
-                                                    ActionsClass.Action.BoxWProductsActionProc(
-                                                        row,
-                                                        docRow,
-                                                        quantityKoeff
-                                                        );
-                                                    return;//приняли
-                                                }
-                                                else //не хотим принимать
-                                                    return;
+                                            // {
+                                            if (dr == DialogResult.Yes)
+                                            {
+                                                //inventRow.NavCode = row.NavCode;
+                                                ActionsClass.Action.BoxWProductsActionProc(
+                                                    row,
+                                                    docRow,
+                                                    quantityKoeff
+                                                    );
+                                                return;//приняли
+                                            }
+                                            else //не хотим принимать
+                                                return;
                                             //}
                                         }
                                     }
@@ -377,16 +418,16 @@ namespace TSDServer
                                         , row.ProductName
                                         , "Прием товара");//)
                                     //{
-                                        if (dr == DialogResult.Yes)
-                                        {
-                                            inventRow.NavCode = row.NavCode;
-                                            ActionsClass.Action.BoxWProductsActionProc(
-                                                        row,
-                                                        inventRow,
-                                                        quantityKoeff
-                                                        );
-                                            return;
-                                        }
+                                    if (dr == DialogResult.Yes)
+                                    {
+                                        inventRow.NavCode = row.NavCode;
+                                        ActionsClass.Action.BoxWProductsActionProc(
+                                                    row,
+                                                    inventRow,
+                                                    quantityKoeff
+                                                    );
+                                        return;
+                                    }
                                     //}
 
                                 }
@@ -456,11 +497,11 @@ namespace TSDServer
                     }
                     //ActionsClass.Action.BeginScan();
 
-                    
+
                 }
                 //ActionsClass.Action.BeginScan();
                 ScanClass.Scaner.InitScan();
-                ScanClass.Scaner.OnScanned += new Scanned(Scanned);
+
                 /*
                 foreach (Control c in this.Controls)
                 {
@@ -479,7 +520,7 @@ namespace TSDServer
                 this.navCodeTB.Focus();
 
 
-               
+                ScanClass.Scaner.OnScanned += new Scanned(Scanned);
 
                 label5.Text = "";
                 label6.Text = "";
@@ -541,7 +582,7 @@ namespace TSDServer
 
                         }
                     }
-                     
+
                 }
             }
             catch (ObjectDisposedException)
@@ -604,10 +645,10 @@ namespace TSDServer
         private void ViewProductForm_Closing(object sender, CancelEventArgs e)
         {
             //tmr.Change(System.Threading.Timeout.Infinite, System.Threading.Timeout.Infinite);
-           
+
             if (_mode != WorkMode.InventarScan)
             {
-                 
+
                 try
                 {
 
@@ -617,12 +658,12 @@ namespace TSDServer
                 }
                 catch { };
                 ScanClass.Scaner.OnScanned = null;
-                
+
             }
             //ActionsClass.Action.EndScan();
             ScanClass.Scaner.StopScan();
-            
-            ActionsClass.Action.OnActionCompleted -=Action_OnActionCompleted;
+
+            ActionsClass.Action.OnActionCompleted -= Action_OnActionCompleted;
             BTPrintClass.PrintClass.SetStatusEvent("Close Products form");
             //ActionsClass.Action.ClearCache();
         }
@@ -661,7 +702,7 @@ namespace TSDServer
                 e.Handled = true;
                 return;
             }
-            
+
             if (e.KeyCode == Keys.Escape)
             {
                 if (_mode != WorkMode.BoxScan)
@@ -676,7 +717,7 @@ namespace TSDServer
                     return;
                 }
             }
-            if (e.KeyValue == (int)FunctionButtons.GreenBtn)//Keys.Tab)
+            if (e.KeyCode == Keys.Tab)
             {
                 #region GreenBtn
                 if (_mode == WorkMode.InventarScan)
@@ -699,17 +740,17 @@ namespace TSDServer
                         DialogResult dr = DialogFrm.ShowMessage(
                                 "Вы хотите закрыть просчет?"
                                 , ""//string.Format("Посчитано: {0} кодов", totalBk)
-                                , string.Format("Итого: {0} штук",total)
+                                , string.Format("Итого: {0} штук", total)
                                 , "Закрытие просчета");//)
                         //{
-                            if (dr == DialogResult.Yes)
-                            {
-                                ActionsClass.Action.CloseInv(
-                                    _documentId,
-                                    TSDUtils.ActionCode.InventoryGlobal);
+                        if (dr == DialogResult.Yes)
+                        {
+                            ActionsClass.Action.CloseInv(
+                                _documentId,
+                                TSDUtils.ActionCode.InventoryGlobal);
 
-                                this.Close();
-                            }
+                            this.Close();
+                        }
                         //}
 
                     }
@@ -738,23 +779,23 @@ namespace TSDServer
                 }
                 if (_mode == WorkMode.BoxScan)
                 {
-                #region boxScan & green Btn = Exit
+                    #region boxScan & green Btn = Exit
                     this.Close();
                     e.Handled = true;
                     return;
-                #endregion
+                    #endregion
                 }
-                
+
                 #endregion
             }
-            if (e.KeyValue == (int)FunctionButtons.RedBtn)//RedBtn
+            if (e.KeyValue == 18)//RedBtn
             {
                 #region redbutton
                 if (currentProductRow != null && WorkMode.ProductsScan == _mode)
                 {
                     ActionsClass.Action.PrintLabel(currentProductRow, currentDocRow, Program.Default.DefaultRepriceShablon);
                 }
-                if (currentProductRow != null && 
+                if (currentProductRow != null &&
                     (WorkMode.InventarScan == _mode ||
                     WorkMode.BoxScan == _mode
                     ))
@@ -780,14 +821,14 @@ namespace TSDServer
                         scannedRow.Priority == 0 //not closed
                         && scannedRow["FactQuantity"] != System.DBNull.Value
                         && total > 0 //scanned already
-                        && 
+                        &&
                         (
                            (Program.СurrentInvId != string.Empty && _mode == WorkMode.InventarScan) ||
                            true
                         )
                     )
                     {
-                        
+
 
 
                         //using (DialogForm dlgfrm =
@@ -800,16 +841,16 @@ namespace TSDServer
                                       total - 1),
                                      "Отмена последнего сканирования");//)
                         //{
-                            if (dr == DialogResult.Yes)
-                            {
-                                inventRow.NavCode = currentProductRow.NavCode;
-                                ActionsClass.Action.UndoLastScannedPosition(
-                                    currentProductRow,
-                                    inventRow,
-                                    scannedRow
-                                    );
+                        if (dr == DialogResult.Yes)
+                        {
+                            inventRow.NavCode = currentProductRow.NavCode;
+                            ActionsClass.Action.UndoLastScannedPosition(
+                                currentProductRow,
+                                inventRow,
+                                scannedRow
+                                );
 
-                            }
+                        }
                         //}
                     }
                     else
@@ -825,14 +866,14 @@ namespace TSDServer
                         //    dlgfrm.ShowDialog();
                         //}
                     }
-                    
+
 
                 }
                 e.Handled = true;
                 return;
                 #endregion
             }
-            if (e.KeyValue == (int)FunctionButtons.BlueBtn)//BluBtn
+            if (e.KeyValue == 16)//BluBtn
             {
                 #region ProductsScan
                 if (currentProductRow != null && WorkMode.ProductsScan == _mode)
@@ -841,30 +882,30 @@ namespace TSDServer
                 }
                 #endregion
                 #region BoxScan
-                
+
                 //multyply
                 //if (currentProductRow != null && 
-                 if (_mode == WorkMode.BoxScan && Program.Default.EnableChgMlt ==1)
+                if (_mode == WorkMode.BoxScan && Program.Default.EnableChgMlt == 1)
                 {
 
-                        DialogResult dr = FMultiplyForm.MForm.ShowDialog();
+                    DialogResult dr = FMultiplyForm.MForm.ShowDialog();
 
-                        if (dr == DialogResult.OK)
-                        {
-                            quantityKoeff = FMultiplyForm.MForm.Quantity;
-                            quantityLabel.Text = string.Format("Добавляется {0} шт", quantityKoeff);
-                            quantityLabel.Visible = true;
-                            this.navCodeTB.SelectAll();
-                            this.navCodeTB.Focus();
-                            this.Refresh();
-                            
-                        }
+                    if (dr == DialogResult.OK)
+                    {
+                        quantityKoeff = FMultiplyForm.MForm.Quantity;
+                        quantityLabel.Text = string.Format("Добавляется {0} шт", quantityKoeff);
+                        quantityLabel.Visible = true;
+                        this.navCodeTB.SelectAll();
+                        this.navCodeTB.Focus();
+                        this.Refresh();
+
+                    }
                 }
                 #endregion
                 e.Handled = true;
                 return;
             }
-            if (e.KeyValue == (int)FunctionButtons.YellowBtn)//YellowBtn
+            if (e.KeyValue == 115)//YellowBtn
             {
                 #region YellowBtn
                 try
@@ -942,9 +983,9 @@ namespace TSDServer
                     e.Handled = true;
                 }
 
-                        //this.BringToFront();
-                        //this.Focus();
-                    
+                //this.BringToFront();
+                //this.Focus();
+
                 return;
                 #endregion
 
@@ -960,12 +1001,12 @@ namespace TSDServer
             //    { BTPrintClass.PrintClass.SetErrorEvent(err.ToString()); }
             //    return;
             //}
-            
+
         }
 
         private void Init()
         {
-           // _mutex.WaitOne();
+            // _mutex.WaitOne();
             /*
             scanned_ta = 
                 new TSDServer.ScannedProductsDataSetTableAdapters.ScannedBarcodesTableAdapter();
@@ -977,24 +1018,24 @@ namespace TSDServer
 
                 //scanned_ta.ClearBeforeFill = true;
                 //scanned_ta.Fill(this._scannedProducts.ScannedBarcodes);
-                
 
-                
+
+
                 //move_ta.ClearBeforeFill = true;
                 //move_ta.Fill(this._scannedProducts.MoveResultsTbl);
                 //productsTa = new ProductsDataSetTableAdapters.ProductsTblTableAdapter(this._products);
                 //docsTa = new ProductsDataSetTableAdapters.DocsTblTableAdapter(this._products);
                 //scannedTA.Update
-                
+
 
                 //scanned_ta.Connection.Close();
                 //move_ta.Connection.Close();
                 //BTPrintClass.PrintClass.BTPrinterInit();
                 //BTPrintClass.PrintClass.SearchDevices();
 
-                
+
                 //ActionsClass.Action.BeginScan();
-                
+
             }
             catch (Exception err)
             { BTPrintClass.PrintClass.SetErrorEvent(err.ToString()); }
@@ -1006,11 +1047,11 @@ namespace TSDServer
             }
         }
 
-        void  Action_OnActionCompleted(ProductsDataSet.DocsTblRow docsRow, ScannedProductsDataSet.ScannedBarcodesRow scannedRow)
+        void Action_OnActionCompleted(ProductsDataSet.DocsTblRow docsRow, ScannedProductsDataSet.ScannedBarcodesRow scannedRow)
         {
             if (this.InvokeRequired)
             {
-                ActionsClass.ActionCompleted del = 
+                ActionsClass.ActionCompleted del =
                     new ActionsClass.ActionCompleted(Action_OnActionCompleted);
                 this.Invoke(del,
                     docsRow,
@@ -1028,7 +1069,7 @@ namespace TSDServer
                 label21.Text = (scannedRow["FactQuantity"] == System.DBNull.Value ||
                                 scannedRow["FactQuantity"] == null) ? string.Empty : scannedRow.FactQuantity.ToString();
 
-                
+
 
                 if (docsRow.DocType == (byte)TSDUtils.ActionCode.BoxWProducts)
                 {
@@ -1049,7 +1090,7 @@ namespace TSDServer
 
                     if (fQty == scannedRow.PlanQuanity)
                     {
-                       
+
 
                         ProductsDataSet.DocsTblRow[] docsRows =
                             ActionsClass.Action.GetDataByDocIdAndType(scannedRow.DocId,
@@ -1079,15 +1120,15 @@ namespace TSDServer
                                     , "Прием товара/nПо нажатию ЭНТЕР ВЫЙТИ в меню");//)
                             ActionsClass.Action.PlaySound(250);
                             //{
-                                if (dr == DialogResult.Yes)
-                                {
-                                    //inventRow.NavCode = row.NavCode;
-                                    //ActionsClass.Action.InvokeAction(TSDUtils.ActionCode.BoxWProducts,
-                                    //    row,
-                                    //    inventRow
-                                    //    );
-                                }
-                                this.navCodeTB.Text = "";
+                            if (dr == DialogResult.Yes)
+                            {
+                                //inventRow.NavCode = row.NavCode;
+                                //ActionsClass.Action.InvokeAction(TSDUtils.ActionCode.BoxWProducts,
+                                //    row,
+                                //    inventRow
+                                //    );
+                            }
+                            this.navCodeTB.Text = "";
                             //}
                         }
                     }
@@ -1097,7 +1138,13 @@ namespace TSDServer
             }
         }
 
-        
+
+    }
+
+    public enum InventarMode
+    {
+        UseReturns,
+        DontUseReturns
     }
 
     public enum WorkMode
