@@ -2848,6 +2848,32 @@ namespace TSDServer
             return null;
             #endregion
         }
+
+        public ScannedProductsDataSet.ScannedBarcodesRow[]
+            FindByBarcodeDocType(long Barcode, byte DocType)
+        {
+            System.Collections.Generic.List<ScannedProductsDataSet.ScannedBarcodesRow> foundedRow =
+                new List<ScannedProductsDataSet.ScannedBarcodesRow>();
+
+            if (ScannedProducts.ScannedBarcodes.Rows.Count > 0)
+            {
+                foreach (ScannedProductsDataSet.ScannedBarcodesRow row in ScannedProducts.ScannedBarcodes)
+                {
+                    if (row.DocType == DocType &&
+                        row.Barcode == Barcode)
+                        foundedRow.Add(row);
+                }
+            }
+            else
+            {
+                OpenScanned();
+                if (ScannedProducts.ScannedBarcodes.Rows.Count > 0)
+                    return FindByBarcodeDocType(Barcode, DocType);
+                
+            }
+            return foundedRow.ToArray();
+        }
+
         public void ClearCache()
         {
             this.Products.ProductsTbl.Clear();
