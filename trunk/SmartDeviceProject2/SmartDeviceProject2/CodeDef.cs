@@ -91,6 +91,11 @@ namespace TSDUtils
         CarsBoxes = 12,
 
         /// <summary>
+        /// ReturnInInventory
+        /// </summary>
+        ReturnInInventory = 249,
+
+        /// <summary>
         /// Документ уже принят
         /// </summary>
         AlreadyAccepted = 250,
