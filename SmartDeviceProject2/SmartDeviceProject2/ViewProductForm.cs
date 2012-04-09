@@ -76,7 +76,7 @@ namespace TSDServer
                 case WorkMode.InventarScan:
                     {
                         DialogResult dr = DialogFrm.ShowMessage(
-                            "Вы хотите учитывать возврат?"
+                            "Возвратные товары выделять и не считать?"
                             , ""
                             , ""
                             , "Режим инвентаризации");
@@ -318,13 +318,20 @@ namespace TSDServer
                                 if (arrofdocs != null &&
                                     arrofdocs.Length > 0)
                                 {
-                                    ActionsClass.Action.PlaySoundAsync((byte)TSDUtils.ActionCode.Returns);
-                                    ActionsClass.Action.PlayVibroAsync((byte)TSDUtils.ActionCode.Returns);
+                                    ActionsClass.Action.PlaySoundAsync((byte)TSDUtils.ActionCode.ReturnInInventory);
+                                    ActionsClass.Action.PlayVibroAsync((byte)TSDUtils.ActionCode.ReturnInInventory);
+
+                                    string str = string.Format("{0}-{1}-{2}",
+                                        arrofdocs[0].DocId,
+                                        arrofdocs[0].Text2,
+                                        arrofdocs[0].Text1);
+                                        
+
 
                                     DialogResult dr = DialogFrm.ShowMessage(
-                                    "С учетом возвратов"
+                                      row.NavCode + " " + row.ProductName
                                     , "Этот товар участвует в возврате"
-                                    , row.ProductName
+                                    , str 
                                     , "Режим инвентаризации");
                                 }
                                 else
