@@ -152,6 +152,11 @@ namespace TSDServer
         static int Main(string[] args)
         {
 
+            System.IO.FileInfo fi = new System.IO.FileInfo(
+                            System.IO.Path.Combine(Application.StartupPath,
+                            "log4netconfig.xml"));
+            XmlConfigurator.Configure(fi);
+            
             using (RegistryKey reg =
                 Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows CE Services"))
             {
@@ -185,10 +190,7 @@ namespace TSDServer
                         InDocName = args[2];
                         Properties.Settings.Default.LocalFilePath = args[3];
                         
-                        System.IO.FileInfo fi = new System.IO.FileInfo(
-                            System.IO.Path.Combine(Application.StartupPath, 
-                            "log4netconfig.xml"));
-                        XmlConfigurator.Configure(fi);
+                        
 
                         DataLoaderClass loader = new DataLoaderClass();
                         loader.OnFinishImport += new DataLoaderClass.FinishImport(loader_OnFinishImport);

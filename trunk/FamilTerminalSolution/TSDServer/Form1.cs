@@ -335,7 +335,7 @@ namespace TSDServer
                     {
                         if (System.IO.File.Exists(fileName))
                         {
-                            Program.log.Debug("Начало копирования " + fileName);
+                            Program.log.Info("Начало копирования " + fileName);
                             System.Threading.Thread.Sleep(500);
 
                             if (progressForms.ContainsKey(fileName))
@@ -353,7 +353,7 @@ namespace TSDServer
                         }
                         else
                         {
-                            Program.log.Debug("Файл не найден " + fileName);
+                            Program.log.Info("Файл не найден " + fileName);
                             copiedFileList.Remove(fileName);
                         }
                     }
@@ -436,7 +436,7 @@ namespace TSDServer
             copiedFileList.AddRange(loader.DocsFileList);
 
             copiedFileList.AddRange(loader.ProgramFileList);
-            Program.log.Debug("Файлы добавлены для копирования");
+            Program.log.Info("Файлы добавлены для копирования");
             //foreach (string fileName in loader.ProgramFileList)
             //{
             //    copiedFileList.Add(fileName);
