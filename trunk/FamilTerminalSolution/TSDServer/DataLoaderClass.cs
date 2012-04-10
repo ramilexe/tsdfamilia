@@ -702,7 +702,10 @@ namespace TSDServer
         {
             get
             {
-                return System.IO.Directory.GetFiles(TSDServer.Properties.Settings.Default.LocalProgramPath);
+                Program.log.Debug("Поиск файлов в каталоге " + TSDServer.Properties.Settings.Default.LocalProgramPath);
+                string [] files = System.IO.Directory.GetFiles(TSDServer.Properties.Settings.Default.LocalProgramPath);
+                Program.log.Debug("Найдено файлов: " + files.Length.ToString());
+                return files;
             }
         }
         public void UploadResults()
