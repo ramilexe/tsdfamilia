@@ -702,9 +702,9 @@ namespace TSDServer
         {
             get
             {
-                Program.log.Debug("Поиск файлов в каталоге " + TSDServer.Properties.Settings.Default.LocalProgramPath);
+                Program.log.Info("Поиск файлов в каталоге " + TSDServer.Properties.Settings.Default.LocalProgramPath);
                 string [] files = System.IO.Directory.GetFiles(TSDServer.Properties.Settings.Default.LocalProgramPath);
-                Program.log.Debug("Найдено файлов: " + files.Length.ToString());
+                Program.log.Info("Найдено файлов: " + files.Length.ToString());
                 return files;
             }
         }
