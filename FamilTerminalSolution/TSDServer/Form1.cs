@@ -305,7 +305,13 @@ namespace TSDServer
 
         private void LoadToDevice(string[] fileList)
         {
-            copiedFileList.Clear();
+            LoadToDevice(fileList,
+                Properties.Settings.Default.TSDDBPAth);
+        }
+
+        private void LoadToDevice(string[] fileList, string pathToCopy)
+        {
+            //copiedFileList.Clear();
             try
             {
                 copyStatesb.Length = 0;
@@ -346,7 +352,8 @@ namespace TSDServer
 
                             IAsyncResult ar =
                                 terminalRapi.BeginCopyFileToDevice(fileName,
-                                    Path.Combine(Properties.Settings.Default.TSDDBPAth, System.IO.Path.GetFileName(fileName)), true,
+                                    Path.Combine(pathToCopy, 
+                                        System.IO.Path.GetFileName(fileName)), true,
                                     new AsyncCallback(OnEndCopyFile), fileName);
 
                             progressForms[fileName].ShowDialog();
@@ -435,14 +442,19 @@ namespace TSDServer
             //}
             copiedFileList.AddRange(loader.DocsFileList);
 
-            copiedFileList.AddRange(loader.ProgramFileList);
-            Program.log.Info("Файлы добавлены для копирования");
+           
             //foreach (string fileName in loader.ProgramFileList)
             //{
             //    copiedFileList.Add(fileName);
             //}
 
             LoadToDevice(copiedFileList.ToArray());
+            copiedFileList.Clear();
+
+            copiedFileList.AddRange(loader.ProgramFileList);
+            Program.log.Info("Файлы добавлены для копирования");
+            LoadToDevice(copiedFileList.ToArray(),
+                Properties.Settings.Default.TSDProgramPath);
 
         }
         private void LoadDocs()
