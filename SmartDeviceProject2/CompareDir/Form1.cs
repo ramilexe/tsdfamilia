@@ -27,21 +27,30 @@ namespace CompareDir
             textBox1.Focus();
             this.Text = "Сравнение каталогов";
 
-
-            sourcefiles =
-                System.IO.Directory.GetFiles(Program.Default.Catalog1);
+            if (System.IO.Directory.Exists(Program.Default.Catalog1))
+                sourcefiles =
+                    System.IO.Directory.GetFiles(Program.Default.Catalog1);
+            else
+            {
+                this.textBox1.Text = "Каталог не найден: "+Program.Default.Catalog1;
+                return;
+            }
 
             foreach (string file1 in sourcefiles)
             {
-                DateTime dt1 = System.IO.File.GetCreationTime(file1);
+                //DateTime dt1 = System.IO.File.GetCreationTime(file1);
+                System.IO.FileInfo fi1 = new System.IO.FileInfo(file1);
+                long fSize1 = fi1.Length;
 
                 string fileName = System.IO.Path.GetFileName(file1);
                 string file2 = System.IO.Path.Combine(Program.Default.Catalog2, fileName);
 
                 if (System.IO.File.Exists(file2))
                 {
-                    DateTime dt2 = System.IO.File.GetCreationTime(file2);
-                    if (dt1 != dt2)
+                    System.IO.FileInfo fi2 = new System.IO.FileInfo(file2);
+                    long fSize2 = fi2.Length;
+                    //DateTime dt2 = System.IO.File.GetCreationTime(file2);
+                    if (fSize1 != fSize2)
                     {
                         fileDiffList.Add(fileName);
                     }
@@ -71,30 +80,39 @@ namespace CompareDir
 
                 if (e.KeyCode == Keys.Enter)
                 {
-                    if (sourcefiles != null &&
-                        sourcefiles.Length > 0 &&
-                        fileDiffList.Count > 0)
+                    if (System.IO.Directory.Exists(Program.Default.Catalog2))
                     {
-                        foreach (string file1 in sourcefiles)
+                        if (sourcefiles != null &&
+                            sourcefiles.Length > 0 &&
+                            fileDiffList.Count > 0)
                         {
-                            string fileName = System.IO.Path.GetFileName(file1);
-                            string file2 = System.IO.Path.Combine(Program.Default.Catalog2, fileName);
+                            textBox1.Text = "Копирование...";
+                            this.Refresh();
+                            foreach (string file1 in sourcefiles)
+                            {
+                                string fileName = System.IO.Path.GetFileName(file1);
+                                string file2 = System.IO.Path.Combine(Program.Default.Catalog2, fileName);
 
-                            try
-                            {
-                                System.IO.File.Copy(file1, file2, true);
+                                try
+                                {
+                                    System.IO.File.Copy(file1, file2, true);
+                                }
+                                catch (Exception err)
+                                {
+                                    textBox2.Visible = true;
+                                    textBox2.Enabled = true;
+                                    textBox2.Text = textBox2.Text + "\r\n" + err.ToString();
+                                }
                             }
-                            catch (Exception err)
-                            {
-                                textBox2.Visible = true;
-                                textBox2.Enabled = true;
-                                textBox2.Text = textBox2.Text + "\r\n" + err.ToString();
-                            }
+                            textBox1.Focus();
+                            //this.Close();
+                            //e.Handled = true;
+                            return;
                         }
-                        textBox1.Focus();
-                        //this.Close();
-                        //e.Handled = true;
-                        return;
+                    }
+                    else
+                    {
+                        textBox1.Text = "Каталог не найден: " + Program.Default.Catalog2;
                     }
                 }
             }
