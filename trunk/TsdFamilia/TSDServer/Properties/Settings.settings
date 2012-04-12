@@ -23,9 +23,6 @@
     <Setting Name="BaseDate" Type="System.DateTime" Scope="User">
       <Value Profile="(Default)">2000-01-01</Value>
     </Setting>
-    <Setting Name="LocalFilePath" Type="System.String" Scope="User">
-      <Value Profile="(Default)">c:\out</Value>
-    </Setting>
     <Setting Name="ImportProductsEnabled" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
@@ -70,6 +67,9 @@
     </Setting>
     <Setting Name="LocalProgramPath" Type="System.String" Scope="User">
       <Value Profile="(Default)">c:\out</Value>
+    </Setting>
+    <Setting Name="LocalFilePath" Type="System.String" Scope="User">
+      <Value Profile="(Default)">\\calex\Out</Value>
     </Setting>
   </Settings>
 </SettingsFile>
