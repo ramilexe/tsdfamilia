@@ -860,8 +860,7 @@ namespace FamilTsdDB
             {
                 fsPk =
                        new System.IO.FileStream(
-                           indexFileName,
-                           System.IO.FileMode.Open);
+                           indexFileName,System.IO.FileMode.Open,System.IO.FileAccess.Read);
                 rdr = new System.IO.BinaryReader(fsPk);
                 _opened = true;
                 TotalIndexLength = (int)(fsPk.Length);
@@ -1681,7 +1680,9 @@ namespace FamilTsdDB
                 if (offset >= 0)
                 {
                     using (System.IO.FileStream fs =
-                        new System.IO.FileStream(string.Format("{0}\\{1}.db", DataTable.StartupPath, this.TableName), System.IO.FileMode.Open))
+                        new System.IO.FileStream(string.Format("{0}\\{1}.db", DataTable.StartupPath, this.TableName)
+                            , System.IO.FileMode.Open
+                            ,System.IO.FileAccess.Read))
                     {
                         fs.Seek(offset, System.IO.SeekOrigin.Begin);
 

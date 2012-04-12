@@ -328,9 +328,9 @@ namespace TSDServer
                     foreach (string fileName in fileList)
                     {
                         //copiedFileList.Add(fileName);
-                        if (terminalRapi.DeviceFileExists(Path.Combine(Properties.Settings.Default.TSDDBPAth, System.IO.Path.GetFileName(fileName))))
+                        if (terminalRapi.DeviceFileExists(Path.Combine(pathToCopy, System.IO.Path.GetFileName(fileName))))
                         {
-                            terminalRapi.DeleteDeviceFile(Path.Combine(Properties.Settings.Default.TSDDBPAth, System.IO.Path.GetFileName(fileName)));
+                            terminalRapi.DeleteDeviceFile(Path.Combine(pathToCopy, System.IO.Path.GetFileName(fileName)));
                         }
                     }
 
