@@ -109,18 +109,6 @@ namespace TSDServer.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("c:\\out")]
-        public string LocalFilePath {
-            get {
-                return ((string)(this["LocalFilePath"]));
-            }
-            set {
-                this["LocalFilePath"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("False")]
         public bool ImportProductsEnabled {
             get {
@@ -296,6 +284,18 @@ namespace TSDServer.Properties {
             }
             set {
                 this["LocalProgramPath"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("\\\\calex\\Out")]
+        public string LocalFilePath {
+            get {
+                return ((string)(this["LocalFilePath"]));
+            }
+            set {
+                this["LocalFilePath"] = value;
             }
         }
     }
