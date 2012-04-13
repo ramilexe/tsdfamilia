@@ -66,10 +66,10 @@
       <Value Profile="(Default)">False</Value>
     </Setting>
     <Setting Name="LocalProgramPath" Type="System.String" Scope="User">
-      <Value Profile="(Default)">c:\out</Value>
+      <Value Profile="(Default)">\\calex\Out\program</Value>
     </Setting>
     <Setting Name="LocalFilePath" Type="System.String" Scope="User">
-      <Value Profile="(Default)">\\calex\Out</Value>
+      <Value Profile="(Default)">\\calex\Out\</Value>
     </Setting>
   </Settings>
 </SettingsFile>

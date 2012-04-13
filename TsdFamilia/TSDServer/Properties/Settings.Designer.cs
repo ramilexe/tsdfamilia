@@ -277,7 +277,7 @@ namespace TSDServer.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("c:\\out")]
+        [global::System.Configuration.DefaultSettingValueAttribute("\\\\calex\\Out\\program")]
         public string LocalProgramPath {
             get {
                 return ((string)(this["LocalProgramPath"]));
@@ -289,7 +289,7 @@ namespace TSDServer.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("\\\\calex\\Out")]
+        [global::System.Configuration.DefaultSettingValueAttribute("\\\\calex\\Out\\")]
         public string LocalFilePath {
             get {
                 return ((string)(this["LocalFilePath"]));
