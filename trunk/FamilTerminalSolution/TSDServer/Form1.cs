@@ -303,13 +303,13 @@ namespace TSDServer
         //}
         #endregion
 
-        private void LoadToDevice(string[] fileList)
+        private string LoadToDevice(string[] fileList)
         {
-            LoadToDevice(fileList,
+           return LoadToDevice(fileList,
                 Properties.Settings.Default.TSDDBPAth);
         }
 
-        private void LoadToDevice(string[] fileList, string pathToCopy)
+        private string LoadToDevice(string[] fileList, string pathToCopy)
         {
             //copiedFileList.Clear();
             try
@@ -352,7 +352,7 @@ namespace TSDServer
 
                             IAsyncResult ar =
                                 terminalRapi.BeginCopyFileToDevice(fileName,
-                                    Path.Combine(pathToCopy, 
+                                    Path.Combine(pathToCopy,
                                         System.IO.Path.GetFileName(fileName)), true,
                                     new AsyncCallback(OnEndCopyFile), fileName);
 
@@ -371,7 +371,8 @@ namespace TSDServer
                     }
 
                     System.Threading.Thread.Sleep(1000);
-                    if (copyStatesb.Length == 0)
+                    /*
+                     if (copyStatesb.Length == 0)
                         MessageBox.Show("Копирование завершено успешно",
                             "Статус загрузки на терминал",
                             MessageBoxButtons.OK,
@@ -381,7 +382,7 @@ namespace TSDServer
                             , "Статус загрузки на терминал",
                             MessageBoxButtons.OK,
                             MessageBoxIcon.Exclamation);
-
+                    */
                     this.importGoodBtn.Enabled = true & Properties.Settings.Default.ImportProductsEnabled;
                     this.uploadBtn.Enabled = true;
                     this.settingsBtn.Enabled = true & Properties.Settings.Default.SettingsEnabled;
@@ -389,17 +390,24 @@ namespace TSDServer
                     terminalRapi.RAPIFileCoping -= onCopyDelegate;
 
                     progressForms.Clear();
+                    return copyStatesb.ToString();    
                 }
                 else
                 {
                     MessageBox.Show("Терминал не подключен. Проверьте подключение.", "Статус загрузки на терминал", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return string.Empty;
                 }
+                
             }
             catch (Exception err)
             {
                 MessageBox.Show("Ошибка загрузки на терминал: " + err.Message, "Статус загрузки на терминал", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return string.Empty;
             }
-            copyStatesb.Length = 0;
+            finally
+            {
+                copyStatesb.Length = 0;
+            }
         }
 
         private void LoadAll()
@@ -430,6 +438,8 @@ namespace TSDServer
                 richTextBox1.AppendText(err.Message + "\n");
                 return;
             }
+            StringBuilder sb = new StringBuilder();
+
 
             //foreach (string fileName in loader.ProductsFileList)
             //{
@@ -447,14 +457,25 @@ namespace TSDServer
             //{
             //    copiedFileList.Add(fileName);
             //}
-
-            LoadToDevice(copiedFileList.ToArray());
+            sb.Append(LoadToDevice(copiedFileList.ToArray()));
             copiedFileList.Clear();
 
             copiedFileList.AddRange(loader.ProgramFileList);
+
             Program.log.Info("Файлы добавлены для копирования");
-            LoadToDevice(copiedFileList.ToArray(),
-                Properties.Settings.Default.TSDProgramPath);
+            sb.Append(LoadToDevice(copiedFileList.ToArray(),
+                Properties.Settings.Default.TSDProgramPath));
+
+            if (sb.Length == 0)
+                MessageBox.Show("Копирование завершено",
+                    "Статус загрузки на терминал",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information);
+            else
+                MessageBox.Show(string.Format("Копирование завершено с ошибкой: {0}", sb.ToString())
+                    , "Статус загрузки на терминал",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Exclamation);
 
         }
         private void LoadDocs()
@@ -465,8 +486,22 @@ namespace TSDServer
             {
                 copiedFileList.Add(fileName);
             }
+            StringBuilder sb = new StringBuilder();
+            sb.Append(
+                LoadToDevice(copiedFileList.ToArray()));
 
-            LoadToDevice(copiedFileList.ToArray());
+            if (sb.Length == 0)
+                MessageBox.Show("Копирование завершено",
+                    "Статус загрузки на терминал",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information);
+            else
+                MessageBox.Show(string.Format("Копирование завершено с ошибкой: {0}", sb.ToString())
+                    , "Статус загрузки на терминал",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Exclamation);
+
+
         }
 
 
