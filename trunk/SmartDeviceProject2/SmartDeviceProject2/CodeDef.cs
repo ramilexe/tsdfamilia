@@ -90,6 +90,14 @@ namespace TSDUtils
         /// </summary>
         CarsBoxes = 12,
 
+        ///<summary>
+        ///</summary>
+        CloseIncome = 13,
+        /// <summary>
+        /// Прием накладных =7
+        /// </summary>
+        SimpleIncome = 14,
+
         /// <summary>
         /// ReturnInInventory
         /// </summary>
@@ -162,6 +170,8 @@ namespace TSDUtils
             dict.Add(ActionCode.BoxWProducts, "Прием товаров");
             dict.Add(ActionCode.BoxIncomes, "Накладные и короба");
             dict.Add(ActionCode.CarsBoxes, "Машины и короба");
+            dict.Add(ActionCode.CloseIncome, "Закрытие накладной");
+            dict.Add(ActionCode.SimpleIncome, "Накладные");
             dict.Add(ActionCode.NotFound, "Товар не найден");
             dict.Add(ActionCode.DocNotFound, "Документ не найден");
             
