@@ -73,6 +73,38 @@ namespace TSDServer
             _documentId = docId;
             switch (_mode)
             {
+                case WorkMode.SimpleIncome:
+                    {
+                        label17.BackColor = System.Drawing.Color.Turquoise;
+                        label5.BackColor = System.Drawing.Color.Turquoise;
+                        label6.BackColor = System.Drawing.Color.Turquoise;
+                        label7.BackColor = System.Drawing.Color.Turquoise;
+                        label8.BackColor = System.Drawing.Color.Turquoise;
+                        label9.BackColor = System.Drawing.Color.Turquoise;
+                        label20.BackColor = System.Drawing.Color.Turquoise;
+                        label21.BackColor = System.Drawing.Color.Turquoise;
+                        actionLabel.BackColor = System.Drawing.Color.Turquoise;
+                        navCodeTB.BackColor = System.Drawing.Color.Turquoise;
+
+                        this.label15.Text = "F3-Накл.Закрыть";
+                        Program.СurrentIncomeId = docId;
+
+                        inventRow = ActionsClass.Action.Products.DocsTbl.NewDocsTblRow();
+                        inventRow.DocId = _documentId;
+                        inventRow.DocType = (byte)(TSDUtils.ActionCode.SimpleIncome);
+                        inventRow.DocumentDate = DateTime.Today;
+                        inventRow.LabelCode = (byte)TSDUtils.ShablonCode.NoShablon;
+                        inventRow.MusicCode = 5;
+                        //            docRows.NavCode = row.NavCode;
+                        inventRow.Priority = 0;
+                        inventRow.Quantity = 0;
+                        inventRow.VibroCode = 5;
+                        inventRow.Text1 = "";
+                        inventRow.Text2 = "";
+                        inventRow.Text3 = "";
+                        label14.Text = "";
+                        break;
+                    }
                 case WorkMode.InventarScan:
                     {
                         DialogResult dr = DialogFrm.ShowMessage(
@@ -299,6 +331,7 @@ namespace TSDServer
                         }
                     }
                     else
+                    {
                         if (_mode == WorkMode.InventarScan)
                         {
                             if (_invMode == InventarMode.DontUseReturns)
@@ -311,7 +344,7 @@ namespace TSDServer
                             }
                             else
                             {
-                                ProductsDataSet.DocsTblRow[]  arrofdocs = ActionsClass.Action.GetDataByNavCodeAndType(
+                                ProductsDataSet.DocsTblRow[] arrofdocs = ActionsClass.Action.GetDataByNavCodeAndType(
                                     row.NavCode,
                                     (byte)TSDUtils.ActionCode.Returns);
 
@@ -325,13 +358,13 @@ namespace TSDServer
                                         arrofdocs[0].DocId,
                                         arrofdocs[0].Text2,
                                         arrofdocs[0].Text1);
-                                        
+
 
 
                                     DialogResult dr = DialogFrm.ShowMessage(
                                       row.NavCode + " " + row.ProductName
                                     , "Этот товар участвует в возврате"
-                                    , str 
+                                    , str
                                     , "Режим инвентаризации");
                                 }
                                 else
@@ -464,6 +497,15 @@ namespace TSDServer
                             //this.Refresh();
 
                         }
+                        if (_mode == WorkMode.SimpleIncome)
+                        {
+                            inventRow.NavCode = row.NavCode;
+                            ActionsClass.Action.InvokeAction(TSDUtils.ActionCode.SimpleIncome,
+                                row,
+                                inventRow
+                                );
+                        }
+                    }
 
 
 
@@ -809,7 +851,64 @@ namespace TSDServer
                     return;
                     #endregion
                 }
+                if (_mode == WorkMode.SimpleIncome)
+                {
+                    #region Inventar
+                    ScanClass.Scaner.PauseScan();
+                    try
+                    {
+                        int total = 0;
+                        int totalBk = 0;
 
+                        ActionsClass.Action.CalculateTotals(
+                            _documentId,
+                            TSDUtils.ActionCode.SimpleIncome,
+                            out totalBk,
+                            out total);
+
+                        //using (DialogForm dlgfrm =
+                        //    new DialogForm(
+                        DialogResult dr = DialogFrm.ShowMessage(
+                                "Вы хотите закрыть просчет?"
+                                , ""//string.Format("Посчитано: {0} кодов", totalBk)
+                                , string.Format("Итого: {0} штук", total)
+                                , "Закрытие просчета");//)
+                        //{
+                        if (dr == DialogResult.Yes)
+                        {
+                            ActionsClass.Action.CloseInv(
+                                _documentId,
+                                TSDUtils.ActionCode.SimpleIncome,
+                                InventarFormMode.DefaultInventar);
+
+                            this.Close();
+                        }
+                        //}
+
+                    }
+                    catch (Exception err)
+                    {
+                        BTPrintClass.PrintClass.SetErrorEvent(err.ToString());
+                        //using (DialogForm dlgfrm =
+                        //    new DialogForm(
+                        DialogResult dr = DialogFrm.ShowMessage(
+                                err.Message
+                                , err.StackTrace
+                                , ""
+                                , "Ошибка");//)
+                        /*{
+                            dlgfrm.ShowDialog();
+                        }*/
+                    }
+                    finally
+                    {
+                        ScanClass.Scaner.ResumeScan();
+                        this.Refresh();
+                        e.Handled = true;
+                    }
+                    #endregion
+                    return;
+                }
                 #endregion
             }
             if (e.KeyValue == 18)//RedBtn
@@ -958,6 +1057,19 @@ namespace TSDServer
                                         using (ViewInventarForm prod =
                                             new ViewInventarForm(_documentId,
                                                 (byte)TSDUtils.ActionCode.InventoryGlobal))
+                                        {
+                                            prod.ShowDialog();
+
+                                        }
+                                    }
+                                }
+                                if (WorkMode.SimpleIncome == _mode)
+                                {
+                                    if (!String.IsNullOrEmpty(_documentId))
+                                    {
+                                        using (ViewInventarForm prod =
+                                            new ViewInventarForm(_documentId,
+                                                (byte)TSDUtils.ActionCode.SimpleIncome))
                                         {
                                             prod.ShowDialog();
 
@@ -1169,12 +1281,14 @@ namespace TSDServer
     {
         UseReturns,
         DontUseReturns
+        
     }
 
     public enum WorkMode
     {
         ProductsScan,
         InventarScan,
-        BoxScan
+        BoxScan,
+        SimpleIncome
     }
 }
