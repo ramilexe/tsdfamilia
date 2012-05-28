@@ -53,7 +53,9 @@ namespace TSDServer
             InventarMenu = 50,
             IncomeMenu = 51,
             TTNForm = 52,
-            ViewSettingMenu = 53
+            ViewSettingMenu = 53,
+            SimpleIncome = 54
+
             
         }
 
@@ -111,9 +113,9 @@ namespace TSDServer
                 }
             }
             if (Program.Default.EnableExit != 1)
-                button0.Enabled = false;
+                button6.Enabled = false;
             else
-                button0.Enabled = true;
+                button6.Enabled = true;
 
             //ActionsClass.Action.LoadScannedData();
             ActionsClass.Action.BeginScan();
@@ -288,6 +290,24 @@ namespace TSDServer
                             ActionsClass.Action.OpenProducts();
                             ActionsClass.Action.OpenScanned();
                             using (InventarForm frm = new InventarForm())
+                            {
+                                //this.Visible = false;
+                                frm.ShowDialog();
+                            }
+                            ActionsClass.Action.CloseProducts();
+                            ActionsClass.Action.ClosedScanned();
+                            ActionsClass.Action.ClearCache();
+                            //this.Visible = true;
+                            //this.Activate();
+                            break;
+                        }
+                    case (int)MenuItems.SimpleIncome:
+                        {
+
+                            BTPrintClass.PrintClass.CheckForClear();
+                            ActionsClass.Action.OpenProducts();
+                            ActionsClass.Action.OpenScanned();
+                            using (InventarForm frm = new InventarForm(InventarFormMode.SimpleIncome))
                             {
                                 //this.Visible = false;
                                 frm.ShowDialog();
