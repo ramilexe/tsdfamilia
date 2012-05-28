@@ -89,6 +89,7 @@ namespace TSDServer
             actionsDict.Add(TSDUtils.ActionCode.Remove, new ActOnProduct(RemoveActionProc));
             actionsDict.Add(TSDUtils.ActionCode.QuickHelp, new ActOnProduct(RemoveActionProc));
             actionsDict.Add(TSDUtils.ActionCode.InventoryGlobal, new ActOnProduct(InventoryGlobalActionProc));
+            actionsDict.Add(TSDUtils.ActionCode.SimpleIncome, new ActOnProduct(SimpleIncomeActionProc));
             actionsDict.Add(TSDUtils.ActionCode.InventoryLocal, new ActOnProduct(InventoryLocalActionProc));
             actionsDict.Add(TSDUtils.ActionCode.NotFound, new ActOnProduct(NotFoundActionProc));
             actionsDict.Add(TSDUtils.ActionCode.DocNotFound, new ActOnProduct(DocNotFoundActionProc));
@@ -1092,6 +1093,42 @@ namespace TSDServer
             //}
         }
 
+        public void SimpleIncomeActionProc(ProductsDataSet.ProductsTblRow datarow, ProductsDataSet.DocsTblRow docsRow)
+        {
+            //ScannedProductsDataSet.ScannedBarcodesRow[] r =
+            //    _scannedProducts.ScannedBarcodes.FindByBarcodeAndDocType(datarow.Barcode, docsRow.DocType);
+            ScannedProductsDataSet.ScannedBarcodesRow scannedRow =
+                               ActionsClass.Action.AddScannedRow(
+                               datarow.Barcode,
+                               docsRow.DocType,
+                               docsRow.DocId,
+                               docsRow.Quantity,
+                               docsRow.Priority);
+
+            //if (scannedRow == null)
+            //{
+            //    return 
+            //    //r = new ScannedProductsDataSet.ScannedBarcodesRow[1];
+            //    //r[0] = scannedRow;
+            //}
+
+            //for (int i = 0; i < r.Length; i++)
+            //{
+
+
+            PlayVibroAsyncAction(docsRow);
+            PlaySoundAsyncAction(docsRow);
+            scannedRow.FactQuantity += 1;
+            //PrintLabelAsync(datarow, docsRow);
+            if (OnActionCompleted != null)
+                OnActionCompleted(docsRow, scannedRow);
+            //break;
+
+
+            //}
+        }
+
+
         public void BoxWProductsActionProc(ProductsDataSet.ProductsTblRow datarow, ProductsDataSet.DocsTblRow docsRow, int quantityFoef)
         {
             //ScannedProductsDataSet.ScannedBarcodesRow[] r =
@@ -1998,10 +2035,17 @@ namespace TSDServer
         /// </summary>
         /// <param name="docId">Номер док-та = адрес просчета</param>
         /// <param name="docType">Тип документа</param>
-        
+
         public void CloseInv(string docId, TSDUtils.ActionCode docType)
         {
+            CloseInv(docId, docType, InventarFormMode.DefaultInventar);
+        }
+        public void CloseInv(string docId, TSDUtils.ActionCode docType, InventarFormMode mode)
+        {
 
+            byte docCloseType = (mode == InventarFormMode.DefaultInventar) ?
+                (byte)TSDUtils.ActionCode.CloseInventar :
+                (byte)TSDUtils.ActionCode.CloseIncome;
 
             ScannedProductsDataSet.ScannedBarcodesRow[] scannedrow =
             _scannedProducts.ScannedBarcodes.FindByDocIdAndDocType(docId,
@@ -2036,7 +2080,8 @@ namespace TSDServer
                 {
                     ScannedProductsDataSet.ScannedBarcodesRow r1 =
                         _scannedProducts.ScannedBarcodes.FindByBarcodeDocTypeDocId(
-                        long.Parse(docId), ((byte)TSDUtils.ActionCode.CloseInventar), docId);
+                        long.Parse(docId), docCloseType//((byte)TSDUtils.ActionCode.CloseInventar)
+                        , docId);
                     if (r1 != null)
                         r1.Priority = 255;
                     else
@@ -2047,7 +2092,7 @@ namespace TSDServer
                             string.Format("{0}|{1}|{2}|{3}|{4}|{5}|{6}|{7}",
                                 docId,
                                 docId,
-                                ((byte)TSDUtils.ActionCode.CloseInventar),
+                                docCloseType,//((byte)TSDUtils.ActionCode.CloseInventar),
                                 0,
                                 DateTime.Today.ToString("dd.MM.yyyy"),
                                 Program.Default.TerminalID,
@@ -2069,9 +2114,15 @@ namespace TSDServer
 
             }
             //текущий открытый просчет теперь пуст
-            Program.СurrentInvId = string.Empty;
-                
+
             
+
+            if (mode == InventarFormMode.DefaultInventar)
+                Program.СurrentInvId = string.Empty;
+            else
+                Program.СurrentIncomeId = string.Empty;
+            
+
 
 
 
@@ -2197,10 +2248,16 @@ namespace TSDServer
 
 
         }
-        
-
         public bool CheckInv(string docId)
         {
+            return CheckInv(docId, InventarFormMode.DefaultInventar);
+        }
+
+        public bool CheckInv(string docId, InventarFormMode mode)
+        {
+            byte docType = (mode == InventarFormMode.DefaultInventar)?
+                (byte)TSDUtils.ActionCode.CloseInventar:
+                (byte)TSDUtils.ActionCode.CloseIncome;
 
             if (_scannedProducts.ScannedBarcodes.Rows.Count == 0)
             {
@@ -2212,7 +2269,7 @@ namespace TSDServer
                 _scannedProducts.ScannedBarcodes)
             {
                 if (r.DocId == docId &&
-                    r.DocType == ((byte)TSDUtils.ActionCode.CloseInventar) //&&r.Priority == 255
+                    r.DocType == docType//((byte)TSDUtils.ActionCode.CloseInventar) //&&r.Priority == 255
                     //r.Barcode == long.Parse(barcode)
                     //r.ScannedDate == date
                     )
@@ -2292,12 +2349,24 @@ namespace TSDServer
         }
         public void OpenInv(string docId, TSDUtils.ActionCode docType)
         {
-            ScannedProductsDataSet.ScannedBarcodesRow[] r = FindByDocIdAndDocType(docId,
-                (byte)TSDUtils.ActionCode.CloseInventar);
+            OpenInv(docId, docType, InventarFormMode.DefaultInventar);
+        }
+
+        public void OpenInv(string docId, TSDUtils.ActionCode docType, InventarFormMode mode )
+        {
+            byte docCloseType = (mode == InventarFormMode.DefaultInventar) ?
+             (byte)TSDUtils.ActionCode.CloseInventar :
+             (byte)TSDUtils.ActionCode.CloseIncome;
+            string textToThrow = (mode == InventarFormMode.DefaultInventar) ?
+                "Инв-ция" :
+                "Накл-я";
+
+            ScannedProductsDataSet.ScannedBarcodesRow[] r = FindByDocIdAndDocType(docId, docCloseType);
+                //(byte)TSDUtils.ActionCode.CloseInventar);
 
             if (r != null &&
                 r.Length > 0)
-                throw new ApplicationException(string.Format("Инв-ция {0} уже просчитана",docId));
+                throw new ApplicationException(string.Format("{0} {1} уже просчитана", textToThrow, docId));
 
             //using (System.IO.StreamWriter wr =
             //    new System.IO.StreamWriter(
@@ -2310,14 +2379,16 @@ namespace TSDServer
                 try
                 {
                     ScannedProductsDataSet.ScannedBarcodesRow r1 =
-                        AddScannedRow(long.Parse(docId), ((byte)TSDUtils.ActionCode.CloseInventar), docId,
+                        AddScannedRow(long.Parse(docId),
+                        docCloseType//((byte)TSDUtils.ActionCode.CloseInventar)
+                        , docId,
                         0, 0);
 
                     string s =
                             string.Format("{0}|{1}|{2}|{3}|{4}|{5}|{6}|{7}",
                                 docId,
                                 docId,
-                                ((byte)TSDUtils.ActionCode.CloseInventar),
+                                docCloseType,//((byte)TSDUtils.ActionCode.CloseInventar),
                                 0,
                                 DateTime.Today.ToString("dd.MM.yyyy"),
                                 Program.Default.TerminalID,
@@ -2339,7 +2410,12 @@ namespace TSDServer
                 //}
 
             }
-            Program.СurrentInvId = docId;
+            //Program.СurrentInvId = docId;
+
+            if (mode == InventarFormMode.DefaultInventar)
+                Program.СurrentInvId = docId;
+            else
+                Program.СurrentIncomeId = docId;
 
 
 
@@ -2908,6 +2984,11 @@ namespace TSDServer
 
         public string FindOpenInventar()
         {
+            return FindOpenInventar(InventarFormMode.DefaultInventar);
+        }
+
+        public string FindOpenInventar(InventarFormMode mode)
+        {
             /*ScannedProductsDataSet.ScannedBarcodesRow[] scannedrow =
            _scannedProducts.ScannedBarcodes.FindByDocTypeAndPriority(
            (byte)TSDUtils.ActionCode.InventoryGlobal,
@@ -2926,6 +3007,10 @@ namespace TSDServer
               //  if (!System.IO.File.Exists(DatabaseFile))
                     //System.IO.Path.Combine(Program.Default.DatabaseStoragePath,"scannedbarcodes.txt")))
               //      return string.Empty;
+            byte docCloseType = (mode == InventarFormMode.DefaultInventar) ?
+              (byte)TSDUtils.ActionCode.CloseInventar :
+              (byte)TSDUtils.ActionCode.CloseIncome;
+
             if (_scannedProducts.ScannedBarcodes.Rows.Count == 0)
                 OpenScanned();
 
@@ -2936,7 +3021,7 @@ namespace TSDServer
                 _scannedProducts.ScannedBarcodes)
             {
                 if (//r.DocId == docId &&
-                    r.DocType == ((byte)TSDUtils.ActionCode.CloseInventar) //&&r.Priority == 255
+                    r.DocType == docCloseType//((byte)TSDUtils.ActionCode.CloseInventar) //&&r.Priority == 255
                     //r.Barcode == long.Parse(barcode)
                     //r.ScannedDate == date
                     )
