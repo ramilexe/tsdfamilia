@@ -8,11 +8,12 @@ namespace TSDServer
     public delegate void DatabaseChanged();
     public static class Program
     {
-        
+
         /// <summary>
         /// Номер Текущего открытого просчета
         /// </summary>
         public static string СurrentInvId = string.Empty;
+        public static string СurrentIncomeId = string.Empty;
         public static SystemMemoryChangeStatusEnum SystemMemoryChangeStatus;
         public static SettingsDataSet Settings = null;
         static string _startupPath = string.Empty;
@@ -154,8 +155,7 @@ namespace TSDServer
                 }
                 finally
                 {
-                    ScanClass.Scaner.CloseScan();
-                    //ScanClass.Scaner.StopScan();
+                    ScanClass.Scaner.StopScan();
                     //try
                     //{
 
@@ -169,35 +169,17 @@ namespace TSDServer
             {
                 System.Windows.Forms.MessageBox.Show(err.ToString());
             }
-
-            
         }
     }
-    //public class FunctionButtons
-    public static class FunctionButtons
-    {
-        public   static int RedBtn = 193;
-        public   static int BlueBtn = 131;
-        public   static int GreenBtn = 133;
-        public   static int YellowBtn = 134;
-    }
-   /* public enum FunctionButtons:int
+    public enum SpecialButton : int
     {
 
         EscBtn = 9,
-        EnterBtn=13,
+        EnterBtn = 13,
 
-        BlueBtn=16,
-        RedBtn=18,
-        GreenBtn=9,
+        BlueBtn = 16,
+        RedBtn = 18,
+        GreenBtn = 9,
         YellowBtn = 115
     }
-
-    public enum M3FunctionButtons : int
-    {
-        RedBtn = 193,
-        BlueBtn = 131,
-        GreenBtn = 133,
-        YellowBtn = 134
-    }*/
 }
