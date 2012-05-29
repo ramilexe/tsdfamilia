@@ -75,16 +75,31 @@ namespace TSDServer
             {
                 case WorkMode.SimpleIncome:
                     {
-                        label17.BackColor = System.Drawing.Color.Turquoise;
-                        label5.BackColor = System.Drawing.Color.Turquoise;
-                        label6.BackColor = System.Drawing.Color.Turquoise;
-                        label7.BackColor = System.Drawing.Color.Turquoise;
-                        label8.BackColor = System.Drawing.Color.Turquoise;
-                        label9.BackColor = System.Drawing.Color.Turquoise;
-                        label20.BackColor = System.Drawing.Color.Turquoise;
-                        label21.BackColor = System.Drawing.Color.Turquoise;
-                        actionLabel.BackColor = System.Drawing.Color.Turquoise;
-                        navCodeTB.BackColor = System.Drawing.Color.Turquoise;
+                        DialogResult dr = DialogFrm.ShowMessage(
+                           "Возвратные товары выделять и не считать?"
+                           , ""
+                           , ""
+                           , "Режим накладных");
+
+                        if (dr == DialogResult.Yes)
+                        {
+                            label17.BackColor = System.Drawing.Color.Turquoise;
+                            label5.BackColor = System.Drawing.Color.Turquoise;
+                            label6.BackColor = System.Drawing.Color.Turquoise;
+                            label7.BackColor = System.Drawing.Color.Turquoise;
+                            label8.BackColor = System.Drawing.Color.Turquoise;
+                            label9.BackColor = System.Drawing.Color.Turquoise;
+                            label20.BackColor = System.Drawing.Color.Turquoise;
+                            label21.BackColor = System.Drawing.Color.Turquoise;
+                            actionLabel.BackColor = System.Drawing.Color.Turquoise;
+                            navCodeTB.BackColor = System.Drawing.Color.Turquoise;
+
+                            _invMode = InventarMode.UseReturns;
+                        }
+                        else
+                        {
+                            _invMode = InventarMode.DontUseReturns;
+                        }
 
                         this.label15.Text = "F3-Накл.Закрыть";
                         Program.СurrentIncomeId = docId;
@@ -503,10 +518,48 @@ namespace TSDServer
                             {
                                 #region income
                                 inventRow.NavCode = row.NavCode;
-                                ActionsClass.Action.InvokeAction(TSDUtils.ActionCode.SimpleIncome,
-                                    row,
-                                    inventRow
-                                    );
+                                if (_invMode == InventarMode.DontUseReturns)
+                                {
+                                    //inventRow.NavCode = row.NavCode;
+                                    ActionsClass.Action.InvokeAction(TSDUtils.ActionCode.SimpleIncome,
+                                        row,
+                                        inventRow
+                                        );
+                                }
+                                else
+                                {
+                                    ProductsDataSet.DocsTblRow[] arrofdocs = ActionsClass.Action.GetDataByNavCodeAndType(
+                                        row.NavCode,
+                                        (byte)TSDUtils.ActionCode.Returns);
+
+                                    if (arrofdocs != null &&
+                                        arrofdocs.Length > 0)
+                                    {
+                                        ActionsClass.Action.PlaySoundAsync((byte)TSDUtils.ActionCode.ReturnInInventory);
+                                        ActionsClass.Action.PlayVibroAsync((byte)TSDUtils.ActionCode.ReturnInInventory);
+
+                                        string str = string.Format("{0}-{1}-{2}",
+                                            arrofdocs[0].DocId,
+                                            arrofdocs[0].Text2,
+                                            arrofdocs[0].Text1);
+
+
+
+                                        DialogResult dr = DialogFrm.ShowMessage(
+                                          row.NavCode + " " + row.ProductName
+                                        , "Этот товар участвует в возврате"
+                                        , str
+                                        , "Режим накладных");
+                                    }
+                                    else
+                                    {
+                                        //inventRow.NavCode = row.NavCode;
+                                        ActionsClass.Action.InvokeAction(TSDUtils.ActionCode.SimpleIncome,
+                                            row,
+                                            inventRow
+                                            );
+                                    }
+                                }
                                 #endregion
                                 break;
                             }
