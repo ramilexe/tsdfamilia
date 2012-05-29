@@ -278,8 +278,252 @@ namespace TSDServer
 
                     label9.Text = (row["Article"] == System.DBNull.Value ||
                         row["Article"] == null) ? string.Empty : row.Article;
+                    switch (_mode)
+                    {
+                        case WorkMode.ProductsScan:
+                            {
+                                #region prod
+                                ProductsDataSet.DocsTblRow[] docRows =
+                           ActionsClass.Action.GetDataByNavCode(row.NavCode);
+                                actionDict.Clear();
+                                currentdocRows = docRows;
 
-                    if (_mode == WorkMode.ProductsScan)
+                                if (docRows != null)
+                                {
+
+                                    foreach (ProductsDataSet.DocsTblRow docRow in docRows)
+                                    {
+                                        ScannedProductsDataSet.ScannedBarcodesRow scannedRow =
+                                            ActionsClass.Action.AddScannedRow(
+                                            row.Barcode,
+                                            docRow.DocType,
+                                            docRow.DocId,
+                                            docRow.Quantity,
+                                            docRow.Priority);
+                                        /*_scannedProducts.ScannedBarcodes.FindByBarcodeDocTypeDocId(
+                                        row.Barcode,
+                                        docRow.DocType,
+                                        docRow.DocId);
+                                    if (scannedRow == null)
+                                    {
+                                        scannedRow =
+                                            _scannedProducts.ScannedBarcodes.NewScannedBarcodesRow();
+                                        scannedRow.Barcode = row.Barcode;
+                                        scannedRow.DocId = docRow.DocId;
+                                        scannedRow.DocType = docRow.DocType;
+                                        scannedRow.PlanQuanity = docRow.Quantity;
+                                        scannedRow.Priority = docRow.Priority;
+                                        scannedRow.ScannedDate = DateTime.Today;
+                                        scannedRow.TerminalId = Program.TerminalId;
+                                        _scannedProducts.ScannedBarcodes.AddScannedBarcodesRow(scannedRow);
+                                    }*/
+                                        byte actionCodes = docRow.DocType;
+                                        if (!actionDict.ContainsKey(actionCodes))
+                                            actionDict.Add(actionCodes, docRow);
+                                    }
+                                    foreach (byte acode in actionDict.Keys)
+                                    {
+                                        ActionsClass.Action.InvokeAction((TSDUtils.ActionCode)acode, row, actionDict[acode]);
+                                        //this.Refresh();
+                                    }
+                                }
+                                else
+                                {
+                                    ActionsClass.Action.InvokeAction(TSDUtils.ActionCode.DocNotFound, row, null);
+                                }
+                                break;
+#endregion
+                            }
+                        case WorkMode.InventarScan:
+                            {
+                                #region inv
+                                if (_invMode == InventarMode.DontUseReturns)
+                                {
+                                    inventRow.NavCode = row.NavCode;
+                                    ActionsClass.Action.InvokeAction(TSDUtils.ActionCode.InventoryGlobal,
+                                        row,
+                                        inventRow
+                                        );
+                                }
+                                else
+                                {
+                                    ProductsDataSet.DocsTblRow[] arrofdocs = ActionsClass.Action.GetDataByNavCodeAndType(
+                                        row.NavCode,
+                                        (byte)TSDUtils.ActionCode.Returns);
+
+                                    if (arrofdocs != null &&
+                                        arrofdocs.Length > 0)
+                                    {
+                                        ActionsClass.Action.PlaySoundAsync((byte)TSDUtils.ActionCode.ReturnInInventory);
+                                        ActionsClass.Action.PlayVibroAsync((byte)TSDUtils.ActionCode.ReturnInInventory);
+
+                                        string str = string.Format("{0}-{1}-{2}",
+                                            arrofdocs[0].DocId,
+                                            arrofdocs[0].Text2,
+                                            arrofdocs[0].Text1);
+
+
+
+                                        DialogResult dr = DialogFrm.ShowMessage(
+                                          row.NavCode + " " + row.ProductName
+                                        , "Этот товар участвует в возврате"
+                                        , str
+                                        , "Режим инвентаризации");
+                                    }
+                                    else
+                                    {
+                                        inventRow.NavCode = row.NavCode;
+                                        ActionsClass.Action.InvokeAction(TSDUtils.ActionCode.InventoryGlobal,
+                                            row,
+                                            inventRow
+                                            );
+                                    }
+
+                                }
+                                break;
+                                //this.Refresh();
+                                //ActionsClass.Action.InventoryGlobalActionProc(
+                                //    row,
+                                //    inventRow);
+#endregion
+                            }
+                        case WorkMode.BoxScan:
+                            {
+                                #region box
+                                try
+                                {
+                                    ProductsDataSet.DocsTblRow docRow =
+                                        ActionsClass.Action.GetDataByNavcodeDocIdAndType(row.NavCode,
+                                            inventRow.DocId,
+                                            (byte)TSDUtils.ActionCode.BoxWProducts
+                                        );
+                                    if (docRow != null)
+                                    {
+                                        /*
+                                         * ScannedProductsDataSet.ScannedBarcodesRow srows
+                                            = ActionsClass.Action.FindByBarcodeDocTypeDocId(row.Barcode.ToString(),
+                                            (byte)TSDUtils.ActionCode.BoxWProducts,
+                                            inventRow.DocId
+                                            );*/
+
+                                        ScannedProductsDataSet.ScannedBarcodesRow[] rowsS
+                                            = ActionsClass.Action.FindByDocIdAndDocType(inventRow.DocId,
+                                            (byte)TSDUtils.ActionCode.BoxWProducts);
+
+                                        int fQty = 0;
+                                        for (int i = 0; i < rowsS.Length; i++)
+                                        {
+                                            if (rowsS[i].Barcode == currentProductRow.Barcode)
+                                                fQty += rowsS[i].FactQuantity;
+                                        }
+
+                                        if (rowsS.Length > 0)
+                                        {
+                                            if (docRow.Quantity < (fQty + quantityKoeff))
+                                            {
+                                                ActionsClass.Action.PlaySoundAsync((byte)TSDUtils.ActionCode.AlreadyAccepted);
+                                                ActionsClass.Action.PlayVibroAsync((byte)TSDUtils.ActionCode.AlreadyAccepted);
+
+
+                                                //using (DialogForm dlgfrm =
+                                                //new DialogForm(
+                                                DialogResult dr = DialogFrm.ShowMessage(
+                                            string.Format("Товар уже принят {0} из {1}",
+                                            fQty,
+                                            docRow.Quantity)
+                                            , string.Format("Принять еще {0} шт", quantityKoeff)//string.Format("Посчитано: {0} кодов", totalBk)
+                                            , row.ProductName
+                                            , "Прием товара");//)
+                                                // {
+                                                if (dr == DialogResult.Yes)
+                                                {
+                                                    //inventRow.NavCode = row.NavCode;
+                                                    ActionsClass.Action.BoxWProductsActionProc(
+                                                        row,
+                                                        docRow,
+                                                        quantityKoeff
+                                                        );
+                                                    return;//приняли
+                                                }
+                                                else //не хотим принимать
+                                                    return;
+                                                //}
+                                            }
+                                        }
+                                        //если не сработали условия - то принимаем
+                                        //inventRow.NavCode = row.NavCode;
+                                        ActionsClass.Action.BoxWProductsActionProc(
+                                                             row,
+                                                             docRow,
+                                                             quantityKoeff
+                                                             );
+                                        /*ActionsClass.Action.InvokeAction(TSDUtils.ActionCode.BoxWProducts,
+                                            row,
+                                            docRow
+                                            );*/
+
+
+                                    }
+                                    else
+                                    {
+                                        ActionsClass.Action.PlaySoundAsync((byte)TSDUtils.ActionCode.StrangeBox);
+                                        ActionsClass.Action.PlayVibroAsync((byte)TSDUtils.ActionCode.StrangeBox);
+
+                                        //using (DialogForm dlgfrm =
+                                        //new DialogForm(
+                                        DialogResult dr = DialogFrm.ShowMessage(
+                                            "Товар не входит в короб!"
+                                            , string.Format("Принять этот товар {0}", row.Barcode)//string.Format("Посчитано: {0} кодов", totalBk)
+                                            , row.ProductName
+                                            , "Прием товара");//)
+                                        //{
+                                        if (dr == DialogResult.Yes)
+                                        {
+                                            inventRow.NavCode = row.NavCode;
+                                            ActionsClass.Action.BoxWProductsActionProc(
+                                                        row,
+                                                        inventRow,
+                                                        quantityKoeff
+                                                        );
+                                            return;
+                                        }
+                                        //}
+
+                                    }
+                                }
+                                finally
+                                {
+                                    quantityLabel.Visible = false;
+                                    quantityKoeff = 1;
+                                }
+                                break;
+#endregion
+                            }
+                        case WorkMode.SimpleIncome:
+                            {
+                                #region income
+                                inventRow.NavCode = row.NavCode;
+                                ActionsClass.Action.InvokeAction(TSDUtils.ActionCode.SimpleIncome,
+                                    row,
+                                    inventRow
+                                    );
+                                #endregion
+                                break;
+                            }
+                            
+                        default:
+                            {
+                                currentdocRows = null;
+                                currentProductRow = null;
+                                ActionsClass.Action.InvokeAction(TSDUtils.ActionCode.NotFound, null, null);
+                                label5.Text = "...Действие ";
+                                label6.Text = "  не определено ...";
+                                label17.Text = "";
+                                break;
+                            }
+                    }
+#region old code
+                    /*if (_mode == WorkMode.ProductsScan)
                     {
                         ProductsDataSet.DocsTblRow[] docRows =
                             ActionsClass.Action.GetDataByNavCode(row.NavCode);
@@ -298,23 +542,24 @@ namespace TSDServer
                                     docRow.DocId,
                                     docRow.Quantity,
                                     docRow.Priority);
-                                /*_scannedProducts.ScannedBarcodes.FindByBarcodeDocTypeDocId(
-                                row.Barcode,
-                                docRow.DocType,
-                                docRow.DocId);
-                            if (scannedRow == null)
-                            {
-                                scannedRow =
-                                    _scannedProducts.ScannedBarcodes.NewScannedBarcodesRow();
-                                scannedRow.Barcode = row.Barcode;
-                                scannedRow.DocId = docRow.DocId;
-                                scannedRow.DocType = docRow.DocType;
-                                scannedRow.PlanQuanity = docRow.Quantity;
-                                scannedRow.Priority = docRow.Priority;
-                                scannedRow.ScannedDate = DateTime.Today;
-                                scannedRow.TerminalId = Program.TerminalId;
-                                _scannedProducts.ScannedBarcodes.AddScannedBarcodesRow(scannedRow);
-                            }*/
+                            //    _scannedProducts.ScannedBarcodes.FindByBarcodeDocTypeDocId(
+                            //    row.Barcode,
+                            //    docRow.DocType,
+                            //    docRow.DocId);
+                            //if (scannedRow == null)
+                            //{
+                            //    scannedRow =
+                            //        _scannedProducts.ScannedBarcodes.NewScannedBarcodesRow();
+                            //    scannedRow.Barcode = row.Barcode;
+                            //    scannedRow.DocId = docRow.DocId;
+                            //    scannedRow.DocType = docRow.DocType;
+                            //    scannedRow.PlanQuanity = docRow.Quantity;
+                            //    scannedRow.Priority = docRow.Priority;
+                            //    scannedRow.ScannedDate = DateTime.Today;
+                            //    scannedRow.TerminalId = Program.TerminalId;
+                            //    _scannedProducts.ScannedBarcodes.AddScannedBarcodesRow(scannedRow);
+                            //}
+                     
                                 byte actionCodes = docRow.DocType;
                                 if (!actionDict.ContainsKey(actionCodes))
                                     actionDict.Add(actionCodes, docRow);
@@ -332,6 +577,14 @@ namespace TSDServer
                     }
                     else
                     {
+                        if (_mode == WorkMode.SimpleIncome)
+                        {
+                            inventRow.NavCode = row.NavCode;
+                            ActionsClass.Action.InvokeAction(TSDUtils.ActionCode.SimpleIncome,
+                                row,
+                                inventRow
+                                );
+                        }
                         if (_mode == WorkMode.InventarScan)
                         {
                             if (_invMode == InventarMode.DontUseReturns)
@@ -397,12 +650,12 @@ namespace TSDServer
                                     );
                                 if (docRow != null)
                                 {
-                                    /*
-                                     * ScannedProductsDataSet.ScannedBarcodesRow srows
-                                        = ActionsClass.Action.FindByBarcodeDocTypeDocId(row.Barcode.ToString(),
-                                        (byte)TSDUtils.ActionCode.BoxWProducts,
-                                        inventRow.DocId
-                                        );*/
+                                    //
+                                    //  ScannedProductsDataSet.ScannedBarcodesRow srows
+                                    //    = ActionsClass.Action.FindByBarcodeDocTypeDocId(row.Barcode.ToString(),
+                                    //    (byte)TSDUtils.ActionCode.BoxWProducts,
+                                    //    inventRow.DocId
+                                    //    );
 
                                     ScannedProductsDataSet.ScannedBarcodesRow[] rowsS
                                         = ActionsClass.Action.FindByDocIdAndDocType(inventRow.DocId,
@@ -455,10 +708,10 @@ namespace TSDServer
                                                          docRow,
                                                          quantityKoeff
                                                          );
-                                    /*ActionsClass.Action.InvokeAction(TSDUtils.ActionCode.BoxWProducts,
-                                        row,
-                                        docRow
-                                        );*/
+                                    //ActionsClass.Action.InvokeAction(TSDUtils.ActionCode.BoxWProducts,
+                                    //    row,
+                                    //    docRow
+                                    //    );
 
 
                                 }
@@ -497,17 +750,10 @@ namespace TSDServer
                             //this.Refresh();
 
                         }
-                        if (_mode == WorkMode.SimpleIncome)
-                        {
-                            inventRow.NavCode = row.NavCode;
-                            ActionsClass.Action.InvokeAction(TSDUtils.ActionCode.SimpleIncome,
-                                row,
-                                inventRow
-                                );
-                        }
-                    }
+                        
+                    }*/
 
-
+#endregion 
 
                 }
                 else
@@ -853,7 +1099,7 @@ namespace TSDServer
                 }
                 if (_mode == WorkMode.SimpleIncome)
                 {
-                    #region Inventar
+                    #region Income
                     ScanClass.Scaner.PauseScan();
                     try
                     {
@@ -879,7 +1125,7 @@ namespace TSDServer
                             ActionsClass.Action.CloseInv(
                                 _documentId,
                                 TSDUtils.ActionCode.SimpleIncome,
-                                InventarFormMode.DefaultInventar);
+                                InventarFormMode.SimpleIncome);
 
                             this.Close();
                         }
@@ -920,7 +1166,8 @@ namespace TSDServer
                 }
                 if (currentProductRow != null &&
                     (WorkMode.InventarScan == _mode ||
-                    WorkMode.BoxScan == _mode
+                    WorkMode.BoxScan == _mode ||
+                    WorkMode.SimpleIncome == _mode
                     ))
                 {
                     ScannedProductsDataSet.ScannedBarcodesRow scannedRow =
@@ -946,8 +1193,8 @@ namespace TSDServer
                         && total > 0 //scanned already
                         &&
                         (
-                           (Program.СurrentInvId != string.Empty && _mode == WorkMode.InventarScan) ||
-                           true
+                           ((Program.СurrentInvId != string.Empty && _mode == WorkMode.InventarScan) || true) ||
+                           ((Program.СurrentIncomeId != string.Empty && _mode == WorkMode.SimpleIncome) || true)
                         )
                     )
                     {
