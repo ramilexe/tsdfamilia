@@ -17,10 +17,10 @@ namespace TSDServer
         Scanned scannedDelegate = null;
         private System.Threading.ManualResetEvent _mevt =
             new System.Threading.ManualResetEvent(false);
-        InventarFormMode _currentMode;
+        InventarFormMode _currentMode = InventarFormMode.DefaultInventar;
 
         public InventarForm()
-            : this(InventarFormMode.DefaultInventar)
+          
         {
 
             InitializeComponent();
@@ -28,7 +28,7 @@ namespace TSDServer
             scannedDelegate = new Scanned(OnScanned);
         }
 
-        public InventarForm(InventarFormMode mode)
+        public InventarForm(InventarFormMode mode):this()
         {
             _currentMode = mode;
         }
