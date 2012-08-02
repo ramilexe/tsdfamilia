@@ -310,10 +310,10 @@ namespace TSDServer
                     //lastBk = barcode;
                     //using (DialogForm frm =
                     //      new DialogForm(
-                    DialogResult dr = DialogFrm.ShowMessage("Вы хотите начать просчет?",
+                    DialogResult dr = DialogFrm.ShowMessage("Вы хотите начать накладную?",
                               string.Format(" № {0}", barcode),
                                "ДА – продолжить. Нет – выйти",
-                               "Новый просчет");//)
+                               "Новая накладная");//)
                     {
                         if (dr == DialogResult.Yes)
                         {
@@ -384,10 +384,10 @@ namespace TSDServer
                         //using (DialogForm frm =
                         //new DialogForm(
                         DialogResult dr = DialogFrm.ShowMessage(
-                                string.Format("Идет просчет № {0}", barcode),
-                                "Продолжить просчет?",
+                                string.Format("Накладная № {0}", barcode),
+                                "Продолжить накладную?",
                                  "ДА – продолжить. Нет – выйти",
-                                 "Просчет уже существует!");//)
+                                 "Накладная уже существует!");//)
                         {
 
                             if (dr == DialogResult.Yes)
@@ -426,7 +426,7 @@ namespace TSDServer
                     }
                     else
                     {
-                        label2.Text = string.Format("Просчет {0} завершен!", barcode);
+                        label2.Text = string.Format("Накладная {0} завершена!", barcode);
                         label2.Visible = true;
                         enableInvent = false;
                         //this.Refresh();
