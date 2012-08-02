@@ -113,9 +113,9 @@ namespace TSDServer
                 }
             }
             if (Program.Default.EnableExit != 1)
-                button6.Enabled = false;
+                button0.Enabled = false;
             else
-                button6.Enabled = true;
+                button0.Enabled = true;
 
             //ActionsClass.Action.LoadScannedData();
             ActionsClass.Action.BeginScan();
