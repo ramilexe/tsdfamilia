@@ -1168,7 +1168,7 @@ namespace TSDServer
                         //using (DialogForm dlgfrm =
                         //    new DialogForm(
                         DialogResult dr = DialogFrm.ShowMessage(
-                                "Вы хотите закрыть просчет?"
+                                "Вы хотите закрыть накладную?"
                                 , ""//string.Format("Посчитано: {0} кодов", totalBk)
                                 , string.Format("Итого: {0} штук", total)
                                 , "Закрытие просчета");//)
@@ -1336,6 +1336,19 @@ namespace TSDServer
                     ScanClass.Scaner.PauseScan();
                     if (WorkMode.BoxScan != _mode)
                     {
+                        if (WorkMode.SimpleIncome == _mode)
+                        {
+                            if (!String.IsNullOrEmpty(_documentId))
+                            {
+                                using (ViewInventarForm prod =
+                                    new ViewInventarForm(_documentId,
+                                        (byte)TSDUtils.ActionCode.SimpleIncome))
+                                {
+                                    prod.ShowDialog();
+
+                                }
+                            }
+                        }
                         if (currentProductRow != null)
                         {
                             if (WorkMode.ProductsScan == _mode)
@@ -1363,19 +1376,7 @@ namespace TSDServer
                                         }
                                     }
                                 }
-                                if (WorkMode.SimpleIncome == _mode)
-                                {
-                                    if (!String.IsNullOrEmpty(_documentId))
-                                    {
-                                        using (ViewInventarForm prod =
-                                            new ViewInventarForm(_documentId,
-                                                (byte)TSDUtils.ActionCode.SimpleIncome))
-                                        {
-                                            prod.ShowDialog();
 
-                                        }
-                                    }
-                                }
                                 /*else
                                     if (WorkMode.BoxScan == _mode)
                                     {
