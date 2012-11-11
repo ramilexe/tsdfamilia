@@ -635,17 +635,45 @@ namespace TSDServer
 
                 fileContent = TSDUtils.CustomEncodingClass.Encoding.GetString(bArray);
                 //btPrint.SetStatusEvent(fileContent);
+                int i = fileContent.IndexOf("MAGICSTRING");
+                if (i >= 0)
+                {
+                    string s1 = fileContent.Substring(0, i);
+                    byte[] bArray2 = ReplaceAttr(TSDUtils.CustomEncodingClass.Encoding.GetBytes(s1), datarow, docRow);
+                    //fileContent = TSDUtils.CustomEncodingClass.Encoding.GetString(bArray2);
+                    //btPrint.SetStatusEvent(s1);
+                    //return;
 
-                byte[] bArray2 = ReplaceAttr(bArray, datarow, docRow);
-                //fileContent = TSDUtils.CustomEncodingClass.Encoding.GetString(bArray2);
-                //btPrint.SetStatusEvent(fileContent);
-                //return;
+                    Print(bArray2);
 
+                    string s2 = fileContent.Substring(i + "MAGICSTRING".Length+2);
+                    byte[] bArray3 = ReplaceAttr(TSDUtils.CustomEncodingClass.Encoding.GetBytes(s2), datarow, docRow);
+                    //fileContent = TSDUtils.CustomEncodingClass.Encoding.GetString(bArray2);
+                    //btPrint.SetStatusEvent(s2);
+                    //return;
+
+                    Print(bArray3);
+                    bArray2 = null;
+                    bArray3 = null;
+
+                }
+                else
+                {
+
+
+                    byte[] bArray2 = ReplaceAttr(bArray, datarow, docRow);
+                    //fileContent = TSDUtils.CustomEncodingClass.Encoding.GetString(bArray2);
+                    //btPrint.SetStatusEvent(fileContent);
+                    //return;
+
+                    Print(bArray2);
+                }
+                /*
                 try
                 {
                     if (btPrint.Connected)
                     {
-                        btPrint.Print(/*fileContent*/bArray2);
+                        btPrint.Print(bArray2);
                         return true; //success print
                     }
                     else
@@ -654,7 +682,7 @@ namespace TSDServer
                         btPrint.ConnToPrinter(Program.Settings.TypedSettings[0].BTPrinterAddress);
                         if (btPrint.Connected)
                         {
-                            btPrint.Print(/*fileContent*/bArray2);
+                            btPrint.Print(bArray2);
                             return true; //success print
                         }
 
@@ -666,9 +694,9 @@ namespace TSDServer
                     //BTPrintClass.PrintClass.Reconnect();
                     System.Threading.Thread.Sleep(5000);
                     //btPrint.ConnToPrinter(Program.Settings.TypedSettings[0].BTPrinterAddress);
-                    btPrint.Print(/*fileContent*/bArray2);
+                    btPrint.Print(bArray2);
                     return true; //success print
-                }
+                }*/
             }
             catch (BTConnectionFailedException)
             {
@@ -701,6 +729,39 @@ namespace TSDServer
             }
             return false;
 
+        }
+        private bool Print(byte[] bArray2)
+        {
+            try
+            {
+                if (btPrint.Connected)
+                {
+                    btPrint.Print(/*fileContent*/bArray2);
+                    return true; //success print
+                }
+                else
+                {
+
+                    btPrint.ConnToPrinter(Program.Settings.TypedSettings[0].BTPrinterAddress);
+                    if (btPrint.Connected)
+                    {
+                        btPrint.Print(/*fileContent*/bArray2);
+                        return true; //success print
+                    }
+                    else
+                        return false;
+
+                }
+            }
+            catch
+            {
+                btPrint.SetErrorEvent("Ошибка связи BlueTooth. Ждите 5 сек...");
+                //BTPrintClass.PrintClass.Reconnect();
+                System.Threading.Thread.Sleep(5000);
+                //btPrint.ConnToPrinter(Program.Settings.TypedSettings[0].BTPrinterAddress);
+                btPrint.Print(/*fileContent*/bArray2);
+                return true; //success print
+            }
         }
 
         public void PrintLabel(object state)
@@ -832,6 +893,9 @@ namespace TSDServer
             }
             return outArray.ToArray();
         }
+
+
+        
         private byte[] GetAttrValue(object value, Type valueType)
         {
             byte[] bArrTmp;
