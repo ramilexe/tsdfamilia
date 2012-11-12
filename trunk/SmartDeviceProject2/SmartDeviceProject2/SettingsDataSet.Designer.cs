@@ -524,7 +524,9 @@ namespace TSDServer
             
             private global::System.Data.DataColumn columnEnableChgMlt;
             
-            private static System.DateTime columnBaseDate_defaultValue = global::System.DateTime.Parse("01/01/2010 00:00:00");
+            private global::System.Data.DataColumn columnComBufferSize;
+            
+            private static System.DateTime columnBaseDate_defaultValue = global::System.DateTime.Parse("01/01/2010 01:00:00");
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             public TypedSettingsDataTable() {
@@ -677,6 +679,13 @@ namespace TSDServer
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public global::System.Data.DataColumn ComBufferSizeColumn {
+                get {
+                    return this.columnComBufferSize;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             public int Count {
                 get {
                     return this.Rows.Count;
@@ -722,7 +731,8 @@ namespace TSDServer
                         string CurrentDate, 
                         int WaitPrintTimeDefault, 
                         byte EnableChgQty, 
-                        byte EnableChgMlt) {
+                        byte EnableChgMlt, 
+                        int ComBufferSize) {
                 TypedSettingsRow rowTypedSettingsRow = ((TypedSettingsRow)(this.NewRow()));
                 object[] columnValuesArray = new object[] {
                         StorageMemorySize,
@@ -742,7 +752,8 @@ namespace TSDServer
                         CurrentDate,
                         WaitPrintTimeDefault,
                         EnableChgQty,
-                        EnableChgMlt};
+                        EnableChgMlt,
+                        ComBufferSize};
                 rowTypedSettingsRow.ItemArray = columnValuesArray;
                 this.Rows.Add(rowTypedSettingsRow);
                 return rowTypedSettingsRow;
@@ -785,6 +796,7 @@ namespace TSDServer
                 this.columnWaitPrintTimeDefault = base.Columns["WaitPrintTimeDefault"];
                 this.columnEnableChgQty = base.Columns["EnableChgQty"];
                 this.columnEnableChgMlt = base.Columns["EnableChgMlt"];
+                this.columnComBufferSize = base.Columns["ComBufferSize"];
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -825,6 +837,8 @@ namespace TSDServer
                 base.Columns.Add(this.columnEnableChgQty);
                 this.columnEnableChgMlt = new global::System.Data.DataColumn("EnableChgMlt", typeof(byte), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnEnableChgMlt);
+                this.columnComBufferSize = new global::System.Data.DataColumn("ComBufferSize", typeof(int), null, global::System.Data.MappingType.Element);
+                base.Columns.Add(this.columnComBufferSize);
                 this.columnStorageMemorySize.DefaultValue = ((int)(17000));
                 this.columnVibarationOn.DefaultValue = ((bool)(false));
                 this.columnScanSoundNotifyOn.DefaultValue = ((bool)(false));
@@ -842,6 +856,7 @@ namespace TSDServer
                 this.columnWaitPrintTimeDefault.DefaultValue = ((int)(1000));
                 this.columnEnableChgQty.DefaultValue = ((byte)(0));
                 this.columnEnableChgMlt.DefaultValue = ((byte)(0));
+                this.columnComBufferSize.DefaultValue = ((int)(1024));
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -1293,6 +1308,21 @@ namespace TSDServer
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public int ComBufferSize {
+                get {
+                    try {
+                        return ((int)(this[this.tableTypedSettings.ComBufferSizeColumn]));
+                    }
+                    catch (global::System.InvalidCastException e) {
+                        throw new global::System.Data.StrongTypingException("The value for column \'ComBufferSize\' in table \'TypedSettings\' is DBNull.", e);
+                    }
+                }
+                set {
+                    this[this.tableTypedSettings.ComBufferSizeColumn] = value;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             public bool IsStorageMemorySizeNull() {
                 return this.IsNull(this.tableTypedSettings.StorageMemorySizeColumn);
             }
@@ -1470,6 +1500,16 @@ namespace TSDServer
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             public void SetEnableChgMltNull() {
                 this[this.tableTypedSettings.EnableChgMltColumn] = global::System.Convert.DBNull;
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public bool IsComBufferSizeNull() {
+                return this.IsNull(this.tableTypedSettings.ComBufferSizeColumn);
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public void SetComBufferSizeNull() {
+                this[this.tableTypedSettings.ComBufferSizeColumn] = global::System.Convert.DBNull;
             }
         }
         
