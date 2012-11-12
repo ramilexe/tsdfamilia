@@ -1345,7 +1345,7 @@ namespace TSDServer
                                         (byte)TSDUtils.ActionCode.SimpleIncome))
                                 {
                                     prod.ShowDialog();
-
+                                    
                                 }
                             }
                         }
