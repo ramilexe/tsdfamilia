@@ -643,8 +643,7 @@ namespace TSDServer
                     //fileContent = TSDUtils.CustomEncodingClass.Encoding.GetString(bArray2);
                     //btPrint.SetStatusEvent(s1);
                     //return;
-
-                    Print(bArray2);
+                    bool result1 = Print(bArray2);
 
                     string s2 = fileContent.Substring(i + "MAGICSTRING".Length+2);
                     byte[] bArray3 = ReplaceAttr(TSDUtils.CustomEncodingClass.Encoding.GetBytes(s2), datarow, docRow);
@@ -652,9 +651,10 @@ namespace TSDServer
                     //btPrint.SetStatusEvent(s2);
                     //return;
 
-                    Print(bArray3);
+                    bool result2 = Print(bArray3);
                     bArray2 = null;
                     bArray3 = null;
+                    return result1 & result2;
 
                 }
                 else
@@ -665,8 +665,8 @@ namespace TSDServer
                     //fileContent = TSDUtils.CustomEncodingClass.Encoding.GetString(bArray2);
                     //btPrint.SetStatusEvent(fileContent);
                     //return;
-
-                    Print(bArray2);
+                    bool result2 = Print(bArray2);
+                    return result2;
                 }
                 /*
                 try
