@@ -976,6 +976,47 @@ namespace TSDServer
                     {
                         SetStatusEvent("Отправка на принтер...");
                         sp.DiscardOutBuffer();
+
+                        //using (System.IO.FileStream wr = new System.IO.BinaryWriter(
+                        //   System.IO.Path.Combine(Program.StartupPath, "BTLog.txt"), true))
+#if DEBUG
+                        
+                        using (System.IO.FileStream wr = System.IO.File.OpenWrite(
+                            System.IO.Path.Combine(Program.StartupPath, "text.txt")))
+                        {
+                            // wr.WriteLine(text);
+                            wr.Write(prnout, 0, prnout.Length);
+                            wr.Flush();
+                            wr.Close();
+                        }
+#endif
+                        /*
+                         * int bufferSize = Program.Default.ComBufferSize;
+
+                        if (prnout.Length > bufferSize)
+                        {
+                            int qty = prnout.Length / bufferSize;
+                            int bytesWritten = 0;
+                            for (int i = 0; i <= qty; i++)
+                            {
+                                if (prnout.Length - bytesWritten > bufferSize)
+                                {
+                                    byte[] buf = new byte[bufferSize];
+                                    Array.Copy(prnout, bytesWritten, buf, 0, bufferSize);
+                                    sp.Write(buf, 0, bufferSize);
+                                    bytesWritten += bufferSize;
+                                }
+                                else
+                                {
+                                    byte[] buf = new byte[prnout.Length - bytesWritten];
+                                    Array.Copy(prnout, bytesWritten, buf, 0, buf.Length);
+                                    sp.Write(buf, 0, buf.Length);
+                                    bytesWritten += buf.Length;
+                                }
+                            }
+                        }
+                        else
+                         */
                         sp.Write(prnout, 0, prnout.Length);
 
                         
@@ -1022,7 +1063,10 @@ namespace TSDServer
 
         public void Print(string label1)
         {
-
+                                    //   System.IO.Path.Combine(Program.StartupPath, "BTLog.txt"), true))
+#if DEBUG
+            SetStatusEvent(label1);
+#endif
             byte[] prnout = TSDUtils.CustomEncodingClass.Encoding.GetBytes(label1);
             Print(prnout);
         }
