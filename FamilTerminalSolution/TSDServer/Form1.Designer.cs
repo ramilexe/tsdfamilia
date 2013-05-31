@@ -48,10 +48,11 @@
             this.importDocBtn = new System.Windows.Forms.Button();
             this.stopDocsBtn = new System.Windows.Forms.Button();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.button1 = new System.Windows.Forms.Button();
             this.uploadBtn = new System.Windows.Forms.Button();
             this.downloadBtn = new System.Windows.Forms.Button();
             this.splitter1 = new System.Windows.Forms.Splitter();
-            this.button1 = new System.Windows.Forms.Button();
+            this.cbEraseTerminalDB = new System.Windows.Forms.CheckBox();
             this.statusStrip1.SuspendLayout();
             this.contextMenuStrip1.SuspendLayout();
             this.panel1.SuspendLayout();
@@ -82,9 +83,9 @@
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripStatusLabel1,
             this.toolStripStatusLabel2});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 371);
+            this.statusStrip1.Location = new System.Drawing.Point(0, 372);
             this.statusStrip1.Name = "statusStrip1";
-            this.statusStrip1.Size = new System.Drawing.Size(232, 22);
+            this.statusStrip1.Size = new System.Drawing.Size(253, 22);
             this.statusStrip1.TabIndex = 3;
             this.statusStrip1.Text = "statusStrip1";
             // 
@@ -92,7 +93,7 @@
             // 
             this.toolStripStatusLabel1.Image = global::TSDServer.Properties.Resources.CriticalError;
             this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
-            this.toolStripStatusLabel1.Size = new System.Drawing.Size(104, 17);
+            this.toolStripStatusLabel1.Size = new System.Drawing.Size(97, 17);
             this.toolStripStatusLabel1.Text = "Не подключен";
             // 
             // toolStripStatusLabel2
@@ -116,24 +117,24 @@
             this.toolStripMenuItem1,
             this.выходToolStripMenuItem});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(122, 54);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(121, 54);
             // 
             // открытьToolStripMenuItem
             // 
             this.открытьToolStripMenuItem.Name = "открытьToolStripMenuItem";
-            this.открытьToolStripMenuItem.Size = new System.Drawing.Size(121, 22);
+            this.открытьToolStripMenuItem.Size = new System.Drawing.Size(120, 22);
             this.открытьToolStripMenuItem.Text = "Открыть";
             this.открытьToolStripMenuItem.Click += new System.EventHandler(this.открытьToolStripMenuItem_Click);
             // 
             // toolStripMenuItem1
             // 
             this.toolStripMenuItem1.Name = "toolStripMenuItem1";
-            this.toolStripMenuItem1.Size = new System.Drawing.Size(118, 6);
+            this.toolStripMenuItem1.Size = new System.Drawing.Size(117, 6);
             // 
             // выходToolStripMenuItem
             // 
             this.выходToolStripMenuItem.Name = "выходToolStripMenuItem";
-            this.выходToolStripMenuItem.Size = new System.Drawing.Size(121, 22);
+            this.выходToolStripMenuItem.Size = new System.Drawing.Size(120, 22);
             this.выходToolStripMenuItem.Text = "Выход";
             this.выходToolStripMenuItem.Click += new System.EventHandler(this.выходToolStripMenuItem_Click);
             // 
@@ -149,9 +150,9 @@
             // richTextBox1
             // 
             this.richTextBox1.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.richTextBox1.Location = new System.Drawing.Point(0, 193);
+            this.richTextBox1.Location = new System.Drawing.Point(0, 233);
             this.richTextBox1.Name = "richTextBox1";
-            this.richTextBox1.Size = new System.Drawing.Size(232, 178);
+            this.richTextBox1.Size = new System.Drawing.Size(253, 139);
             this.richTextBox1.TabIndex = 4;
             this.richTextBox1.Text = "";
             this.richTextBox1.TextChanged += new System.EventHandler(this.richTextBox1_TextChanged);
@@ -188,6 +189,7 @@
             // 
             // panel1
             // 
+            this.panel1.Controls.Add(this.cbEraseTerminalDB);
             this.panel1.Controls.Add(this.button1);
             this.panel1.Controls.Add(this.importGoodBtn);
             this.panel1.Controls.Add(this.stopGoodBtn);
@@ -199,8 +201,18 @@
             this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel1.Location = new System.Drawing.Point(0, 0);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(232, 193);
+            this.panel1.Size = new System.Drawing.Size(253, 233);
             this.panel1.TabIndex = 9;
+            // 
+            // button1
+            // 
+            this.button1.Location = new System.Drawing.Point(12, 99);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(174, 23);
+            this.button1.TabIndex = 10;
+            this.button1.Text = "Выгрузить только документы";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click_1);
             // 
             // uploadBtn
             // 
@@ -226,27 +238,27 @@
             // 
             this.splitter1.BackColor = System.Drawing.SystemColors.ControlDark;
             this.splitter1.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.splitter1.Location = new System.Drawing.Point(0, 183);
+            this.splitter1.Location = new System.Drawing.Point(0, 223);
             this.splitter1.Name = "splitter1";
-            this.splitter1.Size = new System.Drawing.Size(232, 10);
+            this.splitter1.Size = new System.Drawing.Size(253, 10);
             this.splitter1.TabIndex = 10;
             this.splitter1.TabStop = false;
             // 
-            // button1
+            // cbEraseTerminalDB
             // 
-            this.button1.Location = new System.Drawing.Point(12, 99);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(174, 23);
-            this.button1.TabIndex = 10;
-            this.button1.Text = "Выгрузить только документы";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click_1);
+            this.cbEraseTerminalDB.AutoSize = true;
+            this.cbEraseTerminalDB.Location = new System.Drawing.Point(13, 187);
+            this.cbEraseTerminalDB.Name = "cbEraseTerminalDB";
+            this.cbEraseTerminalDB.Size = new System.Drawing.Size(228, 17);
+            this.cbEraseTerminalDB.TabIndex = 11;
+            this.cbEraseTerminalDB.Text = "Автоматически очистить данные с ТСД";
+            this.cbEraseTerminalDB.UseVisualStyleBackColor = true;
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(232, 393);
+            this.ClientSize = new System.Drawing.Size(253, 394);
             this.Controls.Add(this.splitter1);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.richTextBox1);
@@ -260,6 +272,7 @@
             this.statusStrip1.PerformLayout();
             this.contextMenuStrip1.ResumeLayout(false);
             this.panel1.ResumeLayout(false);
+            this.panel1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -291,6 +304,7 @@
         private System.Windows.Forms.Button downloadBtn;
         private System.Windows.Forms.Splitter splitter1;
         private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.CheckBox cbEraseTerminalDB;
     }
 }
 
