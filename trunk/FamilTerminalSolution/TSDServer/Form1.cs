@@ -1121,6 +1121,14 @@ namespace TSDServer
             {
                 //bool EraseTerminalDB = Properties.Settings.Default.EraseTerminalDB;
                 //if (EraseTerminalDB)
+                /*
+                 *Нужна галка «автоматически очистить данные с ТСД». 
+                 *Начальное значение галки при открытии формы брать из настроек программы (config  file). 
+                 *Пользователь может пометь значение галки (on/off).
+                 *Если галка стоит, то стираешь данные после копирования на удаленный ресурс как сейчас при опции 
+                 *Измененное значение галки в CONFIG не записывать
+                 * 
+                 */
                 if (cbEraseTerminalDB.Checked)
                 {
                     foreach (string s in loader.NewScannedFileList)
