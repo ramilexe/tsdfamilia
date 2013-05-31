@@ -39,7 +39,7 @@ namespace TSDServer
         Dictionary<string, FileCopyProgressForm> progressForms =
             new Dictionary<string, FileCopyProgressForm>();
 
-
+        //bool EraseTerminalDB = false;
         
 
         public Form1()
@@ -719,6 +719,8 @@ namespace TSDServer
             this.importDocBtn.Enabled = Properties.Settings.Default.ImportDocsEnabled;
             this.importGoodBtn.Enabled = Properties.Settings.Default.ImportProductsEnabled;
             this.settingsBtn.Enabled = Properties.Settings.Default.SettingsEnabled;
+
+            cbEraseTerminalDB.Checked = Properties.Settings.Default.EraseTerminalDB;
         }
 
         void terminalRapi_RAPIConnected()
@@ -915,6 +917,7 @@ namespace TSDServer
         {
             SettingsForm settingsForm = new SettingsForm();
             settingsForm.ShowDialog();
+            cbEraseTerminalDB.Checked = Properties.Settings.Default.EraseTerminalDB; 
         }
 
         private void importDocBtn_Click(object sender, EventArgs e)
@@ -1116,8 +1119,9 @@ namespace TSDServer
         {
             try
             {
-                bool EraseTerminalDB = Properties.Settings.Default.EraseTerminalDB;
-                if (EraseTerminalDB)
+                //bool EraseTerminalDB = Properties.Settings.Default.EraseTerminalDB;
+                //if (EraseTerminalDB)
+                if (cbEraseTerminalDB.Checked)
                 {
                     foreach (string s in loader.NewScannedFileList)
                     {
