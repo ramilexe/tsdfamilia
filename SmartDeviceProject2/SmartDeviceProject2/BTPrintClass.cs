@@ -15,7 +15,7 @@ namespace TSDServer
     public class BTPrintClass
     {
         static int WaitPrintTimeDefault = 0;
-        
+
 
         static BTPrintClass _PrintClass = new BTPrintClass();
         public static BTPrintClass PrintClass
@@ -33,41 +33,14 @@ namespace TSDServer
             {
                 bt_di[iCnt] = new Calib.BluetoothLibNet.BTST_DEVICEINFO();
             }
-            
-            string oemInfo = NativeClass.GetOemInfo();
-            
-            if (oemInfo.ToUpper().IndexOf("PY055") >= 0 ||
-              oemInfo.ToUpper().IndexOf("HP101") >= 0 ||
-                oemInfo.ToUpper().IndexOf("EMULATOR") >= 0
-              )
-            {
-                sp = new System.IO.Ports.SerialPort(string.Format("COM6:"),
-                    19200,
-                    System.IO.Ports.Parity.None,
-                    8,
-                    System.IO.Ports.StopBits.One);    
-            }
-            else
-            {
-                if (oemInfo.ToUpper().IndexOf("M3MOBILE") >= 0)
-                {
-                    sp = new System.IO.Ports.SerialPort(string.Format("COM{0}:", Program.Default.BTComPort),
-                    19200,
-                    System.IO.Ports.Parity.None,
-                    8,
-                    System.IO.Ports.StopBits.One);
-                }
-            }
-
-            
             //BTPrinterInit();
-            
+
         }
 
         public void Reconnect()
         {
             SetErrorEvent("Выполняется отключение BlueTooth. Ждите...");
-            
+
             try
             {
                 doEvents = false;
@@ -139,7 +112,7 @@ namespace TSDServer
         {
             if (OnSetStatus != null)
                 OnSetStatus(text);
-            
+
             try
             {
                 /*
@@ -158,12 +131,12 @@ namespace TSDServer
                 catch
                 { //не удалось удалить или получить информацию - ну фиг с ним
                 }*/
-                
+
                 //        System.IO.File.g
                 using (System.IO.StreamWriter wr = new System.IO.StreamWriter(
                            System.IO.Path.Combine(Program.StartupPath, "BTLog.txt"), true))
                 {
-                   // wr.WriteLine(text);
+                    // wr.WriteLine(text);
                     wr.WriteLine(string.Format("{0} {1}", DateTime.Now, text));
                 }
             }
@@ -174,7 +147,7 @@ namespace TSDServer
         {
             string text = string.Format(format, obj);
             SetStatusEvent(text);
-            
+
         }
         public event SetError OnSetError;
         public void SetErrorEvent(string text)
@@ -204,7 +177,7 @@ namespace TSDServer
                 using (System.IO.StreamWriter wr = new System.IO.StreamWriter(
                            System.IO.Path.Combine(Program.StartupPath, "BTLog.txt"), true))
                 {
-                    wr.WriteLine(string.Format("{0} {1}",DateTime.Now,text));
+                    wr.WriteLine(string.Format("{0} {1}", DateTime.Now, text));
                 }
             }
             catch { }
@@ -259,7 +232,7 @@ namespace TSDServer
             public Int32 WriteTotalTimeoutMultiplier;	// Multiplier of characters.
             public Int32 WriteTotalTimeoutConstant;		// Constant in milliseconds.
         }
-        
+
         #region extern Dlls
         //---------------------------------------------
         // Windows API functions
@@ -367,12 +340,12 @@ namespace TSDServer
 
         IntPtr[] bt_hdev = new IntPtr[BTDEF_MAX_INQUIRY_NUM + 1];
 
-        System.IO.Ports.SerialPort sp;/* =
+        System.IO.Ports.SerialPort sp =
                 new System.IO.Ports.SerialPort(string.Format("COM6:"),
                     19200,
                     System.IO.Ports.Parity.None,
                     8,
-                    System.IO.Ports.StopBits.One);*/
+                    System.IO.Ports.StopBits.One);
 
         #region Old native func
 
@@ -512,8 +485,8 @@ namespace TSDServer
                     BluetoothLibNet.Api.BTDeInitialize();
                     return BtRet;
                 }
-                
-                
+
+
             }
             mEvt.Set();
             return BtRet;
@@ -534,7 +507,7 @@ namespace TSDServer
             bt_dmax = BTDEF_MAX_INQUIRY_NUM;
             SetStatusEvent("Поиск Bluetooth устройств...");
             BtRet = BluetoothLibNet.Api.BTInquiry(IntPtr.Zero, ref bt_dmax, 5000);
-            
+
             if (BtRet != BluetoothLibNet.Def.BTERR_SUCCESS)
             {
                 SetErrorEvent("BT Ошибка поиска устройст");
@@ -546,7 +519,7 @@ namespace TSDServer
             PrinterFound = false;
 
             string swork = new string(' ', 82);
-            int iii,j,i;
+            int iii, j, i;
 
             for (iii = 0; iii < 82; iii++)
                 swork = swork + " ";
@@ -561,7 +534,7 @@ namespace TSDServer
                 bt_di[j].LocalClass2 = 0;
                 bt_di[j].LocalClass3 = 0;
                 bt_di[j].ProfileNumber = 0;
-                
+
                 for (i = 0; i < BTDEF_MAX_INQUIRY_NUM; i++)
                 {
                     bt_di[j].ProfileUUID[i] = 0;
@@ -659,7 +632,7 @@ namespace TSDServer
                 {
                     btDefaultdevice = bt_di[i];
                     BtRet = BluetoothLibNet.Api.BTGetServiceInfo(btDefaultdevice);
-                    
+
                     // register this device in registry
                     // (can be skiped if already done before)
                     BtRet = BluetoothLibNet.Api.BTRegisterDeviceInfo(btDefaultdevice);
@@ -689,7 +662,7 @@ namespace TSDServer
             }
             return BluetoothLibNet.Def.BTERR_NOT_FOUND;
         }
-        
+
         #region old func
         [System.Obsolete("Use ConnToPrinter3")]
         public int ConnToPrinter2(BluetoothLibNet.BTST_DEVICEINFO btdevice)
@@ -739,7 +712,7 @@ namespace TSDServer
         [System.Obsolete("Use ConnToPrinter3")]
         public int ConnToPrinter(BluetoothLibNet.BTST_DEVICEINFO btdevice)
         {
-            
+
             BtRet = BluetoothLibNet.Api.BTGetServiceInfo(btdevice);
             // register this device in registry
             // (can be skiped if already done before)
@@ -841,7 +814,7 @@ namespace TSDServer
                     }
                 }
                 sp.Open();
-                
+
                 if (sp.IsOpen)
                 {
                     SetStatusEvent("BT Принтер подключен");
@@ -852,7 +825,7 @@ namespace TSDServer
                 {
                     BtRet = BluetoothLibNet.Def.BTERR_FAILED;
                     SetErrorEvent("BT сбой подключения принтера");
-                    
+
                     _connected = false;
                     throw new BTConnectionFailedException();
                 }
@@ -910,7 +883,7 @@ namespace TSDServer
                     else
                     {
                         SetErrorEvent("Стандартный принтер не установлен");
-//                        return BtRet;
+                        //                        return BtRet;
                         throw new BTConnectionFailedException();
                     }
 
@@ -932,7 +905,7 @@ namespace TSDServer
                     OnConnectionError();
                 return BtRet;
             }
-            
+
             /*
             sp.Open();
             if (sp.IsOpen)
@@ -956,7 +929,7 @@ namespace TSDServer
             int counter = 0;
             try
             {
-                tryagain:
+            tryagain:
                 if (mEvt.WaitOne((int)(WaitPrintTimeDefault + WaitPrintTimeDefault / 2), false) == false)
                 {
                     SetStatusEvent("Ожидание очереди печати...");
@@ -1019,7 +992,7 @@ namespace TSDServer
                          */
                         sp.Write(prnout, 0, prnout.Length);
 
-                        
+
                         SetStatusEvent("Идет печать...");
                         Thread.Sleep(WaitPrintTimeDefault);
                         SetStatusEvent("BT принтер успешно напечатал");
@@ -1063,7 +1036,7 @@ namespace TSDServer
 
         public void Print(string label1)
         {
-                                    //   System.IO.Path.Combine(Program.StartupPath, "BTLog.txt"), true))
+            //   System.IO.Path.Combine(Program.StartupPath, "BTLog.txt"), true))
 #if DEBUG
             SetStatusEvent(label1);
 #endif
@@ -1074,7 +1047,7 @@ namespace TSDServer
         public void Disconnect()
         {
 
-            
+
             try
             {
                 SetStatusEvent("Отключение принтера...");
@@ -1143,7 +1116,7 @@ PRINT
         {
             const int BTDEF_MAX_INQUIRY_NUM = 16;
 
-            
+
             for (int iCnt = 0; iCnt < 16; iCnt++)
             {
                 bt_di[iCnt] = new Calib.BluetoothLibNet.BTST_DEVICEINFO();
@@ -1305,7 +1278,7 @@ PRINT
                     bt_di[j].ProfileUUID[i] = 0;
                 }
             }
-            
+
             BtRet = BluetoothLibNet.Api.BTGetDeviceInfo(bt_di, bt_dmax, 0);
 
             /****************END SEARCH***************************************/
@@ -1322,7 +1295,7 @@ PRINT
                     if (xxx == PrinterAdr)
                     {	// we found the printer and try to get service informations
                         // (can be skiped because we know printer capabilities)
-                        
+
                         /************CONNECT TO PRINTER********************/
                         BtRet = BluetoothLibNet.Api.BTGetServiceInfo(bt_di[i]);
                         // register this device in registry
@@ -1377,7 +1350,7 @@ PRINT
             //Status.Text = 
             SetStatusEvent("try to connect to printer...");
             hSerial = PortOpen(string.Format("COM{0}:",
-                Program.Settings.TypedSettings[0].BTComPort),CBR_19200, 8, NOPARITY, ONESTOPBIT, 3000, 3000);
+                Program.Settings.TypedSettings[0].BTComPort), CBR_19200, 8, NOPARITY, ONESTOPBIT, 3000, 3000);
 
             if (hSerial.ToInt32() == INVALID_HANDLE_VALUE)
             {
@@ -1558,22 +1531,22 @@ PRINT
                 return;
             }
 
-            string [] coms = System.IO.Ports.SerialPort.GetPortNames();
+            string[] coms = System.IO.Ports.SerialPort.GetPortNames();
             foreach (string c in coms)
-                SetStatusEvent(string.Format("Com port {0} present",c));
+                SetStatusEvent(string.Format("Com port {0} present", c));
 
             SetStatusEvent("try to connect to printer...");
-           /* hSerial = PortOpen(string.Format("COM{0}:",
-                Program.Settings.TypedSettings[0].BTComPort),
-                CBR_19200, 8, NOPARITY, ONESTOPBIT, 3000, 3000);
+            /* hSerial = PortOpen(string.Format("COM{0}:",
+                 Program.Settings.TypedSettings[0].BTComPort),
+                 CBR_19200, 8, NOPARITY, ONESTOPBIT, 3000, 3000);
             
-            if (hSerial.ToInt32() == INVALID_HANDLE_VALUE)
-            {
-                SetErrorEvent("BT Port Open Error" + Program.Settings.TypedSettings[0].BTComPort.ToString());
-                BluetoothLibNet.Api.BTDeInitialize();
-                BtRet = BluetoothLibNet.Def.BTERR_CONNECTION_FAILED;
-                _connected = false;
-            }*/
+             if (hSerial.ToInt32() == INVALID_HANDLE_VALUE)
+             {
+                 SetErrorEvent("BT Port Open Error" + Program.Settings.TypedSettings[0].BTComPort.ToString());
+                 BluetoothLibNet.Api.BTDeInitialize();
+                 BtRet = BluetoothLibNet.Def.BTERR_CONNECTION_FAILED;
+                 _connected = false;
+             }*/
 
             //BtRet = BluetoothLibNet.Api.BTConnectSerial(BluetoothLibNet.Def.BTCONNECT_SERIAL_CLIENT, 3000, 3000);
             //SetStatusEvent("BTConnectSerial: "+BtRet.ToString());
@@ -1669,9 +1642,9 @@ PRINT
         }
         int comNum = 0;
 
-        
-        
-        
+
+
+
         private bool signalled = false;
 
         [System.Obsolete("Use TestPrint3")]
@@ -1754,7 +1727,7 @@ PRINT
                         sp.Write(prnout, 0, prnout.Length);
                         Thread.Sleep(5000);
                         sp.Close();
-                        SetStatusEvent("Port written" );
+                        SetStatusEvent("Port written");
                         //return;
                     }
                     else
@@ -1781,7 +1754,7 @@ PRINT
                         SetStatusEvent("Port written");
                         Thread.Sleep(5000);
                         sp.Close();
-                        
+
                     }
                     else
                         SetStatusEvent("Port closed");
@@ -1825,6 +1798,6 @@ PRINT
             else
                 return "FUNCTION_UNSUPPORT";
         }*/
-        
+
     }
 }
