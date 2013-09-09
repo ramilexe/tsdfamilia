@@ -43,7 +43,7 @@ namespace TSDServer
 
             scannedDelegate = new Scanned(OnScanned);
         }
-        
+
 
         private void InventarForm_Load(object sender, EventArgs e)
         {
@@ -51,7 +51,7 @@ namespace TSDServer
             this.Height = 295;
             textBox1.Focus();
 
-           // string invId = ActionsClass.Action.FindOpenInventar();
+            // string invId = ActionsClass.Action.FindOpenInventar();
 
             //ActionsClass.Action.BeginScan();
             //ActionsClass.Action.OnActionCompleted += new ActionsClass.ActionCompleted(Action_OnActionCompleted);
@@ -69,8 +69,8 @@ namespace TSDServer
                 onEndLoad();
 
 
-            
-            
+
+
         }
         void InventarForm_Closed(object sender, System.EventArgs e)
         {
@@ -94,7 +94,7 @@ namespace TSDServer
                 if (!enableScan)
                     return;
 
-                
+
                 this.bkLabel.Visible = false;
                 this.docLabel.Visible = false;
                 this.errLabel.Visible = false;
@@ -105,8 +105,9 @@ namespace TSDServer
 
                 Boxrows.Clear();
                 IncomerowsList.Clear();
-
-                if (barcode.StartsWith("400") && barcode.Length == 13)
+                //изменено на просто 4, было 400 - 09092013
+                //новый ШК машины теперь будет начинаться с 4
+                if (barcode.StartsWith("4") && barcode.Length == 13)
                 {
                     //currentTtnBarcode = barcode;
                     //загрузить список машин - должна быть 1 запись т.к. машины уникальны.
@@ -115,9 +116,9 @@ namespace TSDServer
                             ActionsClass.Action.GetDataByDocIdAndType(barcode,
                             (byte)TSDUtils.ActionCode.CarsBoxes);
 
-                   
 
-                    
+
+
 
                     if (rows != null && rows.Length > 0)
                     {
@@ -183,16 +184,16 @@ namespace TSDServer
                     currentTtnBarcode = string.Empty;
                     ActionsClass.Action.PlaySoundAsync((byte)TSDUtils.ActionCode.DocNotFound);
                     ActionsClass.Action.PlayVibroAsync((byte)TSDUtils.ActionCode.DocNotFound);
-                     this.errLabel.Text = string.Format("Это не ШК ТТН!",
-                            barcode);
+                    this.errLabel.Text = string.Format("Это не ШК ТТН!",
+                           barcode);
 
-                     this.errLabel.Visible = true;
-                    
+                    this.errLabel.Visible = true;
+
                 }
-               // this.textBox1.SelectAll();
+                // this.textBox1.SelectAll();
             }
-            
-            
+
+
         }
 
         private void CheckStatus(string barcode)
@@ -309,7 +310,7 @@ namespace TSDServer
                         {
                             TtnStruct[boxRow.DocId][incRow.DocId].Add(
                                 incRow.NavCode,
-                                new Boxes(d[0].DocId, incRow.NavCode,d[0].Text3,d[0].Text2));
+                                new Boxes(d[0].DocId, incRow.NavCode, d[0].Text3, d[0].Text2));
                         }
 
 
@@ -343,7 +344,7 @@ namespace TSDServer
                     this.Close();
                     return;
                 }
-                if (e.KeyValue == (int)FunctionButtons.RedBtn)
+                if (e.KeyValue == (int)SpecialButton.RedBtn)
                 {
                     if (!closedCar && currentTtnBarcode != string.Empty)
                     {
@@ -368,12 +369,12 @@ namespace TSDServer
                     }
                     return;
                 }
-                if (e.KeyValue == (int)FunctionButtons.BlueBtn)
+                if (e.KeyValue == (int)SpecialButton.BlueBtn)
                 {
 
                     return;
                 }
-                if (e.KeyValue == (int)FunctionButtons.YellowBtn)
+                if (e.KeyValue == (int)SpecialButton.YellowBtn)
                 {
                     enableScan = false;
                     try
@@ -425,7 +426,7 @@ namespace TSDServer
 
                     return;
                 }
-                if (e.KeyValue == (int)FunctionButtons.GreenBtn) //GreenBtn
+                if (e.KeyValue == (int)SpecialButton.GreenBtn) //GreenBtn
                 {
 
                     return;
@@ -437,14 +438,14 @@ namespace TSDServer
                 this.Refresh();
             }
         }
-        
 
-            
+
+
 
     }
 
 
-    
-   
-   
+
+
+
 }
