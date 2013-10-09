@@ -141,6 +141,7 @@ namespace TSDServer
             }
             //ActionsClass.Action.EndScan();
             ScanClass.Scaner.StopScan();
+            //enableScan = false;
             //BTPrintClass.PrintClass.SetStatusEvent("End closing");
         }
 
