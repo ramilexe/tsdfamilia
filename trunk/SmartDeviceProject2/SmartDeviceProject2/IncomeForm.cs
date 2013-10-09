@@ -187,7 +187,7 @@ namespace TSDServer
                 this.textBox1.Text = barcode;
                 this.textBox1.SelectAll();
 
-                if (barcode.StartsWith("300") && barcode.Length == 13)
+                if (barcode.StartsWith("3") && barcode.Length == 13)
                 {
                     lblQtySku.Visible = true;
 
@@ -433,7 +433,7 @@ namespace TSDServer
                 this.textBox1.Text = barcode;
                 this.textBox1.SelectAll();
 
-                if (barcode.StartsWith("300") && barcode.Length == 13)
+                if (barcode.StartsWith("3") && barcode.Length == 13)
                 {
                     ProductsDataSet.DocsTblRow[] rows =
                             ActionsClass.Action.GetDataByDocIdAndType(barcode,
