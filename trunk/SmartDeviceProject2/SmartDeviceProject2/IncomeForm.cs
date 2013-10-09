@@ -680,7 +680,7 @@ namespace TSDServer
                     this.Close();
                     return;
                 }
-                if (e.KeyValue == (int)FunctionButtons.RedBtn)
+                if (e.KeyValue == (int)SpecialButton.RedBtn)
                 {
 
                     if (_mode == CarScanMode.BoxScan && fullAcceptEnabled && !fullAccepted)
@@ -706,12 +706,12 @@ namespace TSDServer
 
                     return;
                 }
-                if (e.KeyValue == (int)FunctionButtons.BlueBtn)
+                if (e.KeyValue == (int)SpecialButton.BlueBtn)
                 {
 
                     return;
                 }
-                if (e.KeyValue == (int)FunctionButtons.YellowBtn)
+                if (e.KeyValue == (int)SpecialButton.YellowBtn)
                 {
                     if (_mode == CarScanMode.BoxScan)
                     {
@@ -761,7 +761,7 @@ namespace TSDServer
 
                     return;
                 }
-                if (e.KeyValue == (int)FunctionButtons.GreenBtn) //GreenBtn
+                if (e.KeyValue == (int)SpecialButton.GreenBtn) //GreenBtn
                 {
                     if (_mode == CarScanMode.CarsScan)
                     {
