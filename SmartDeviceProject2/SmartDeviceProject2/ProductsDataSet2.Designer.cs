@@ -472,7 +472,7 @@ namespace TSDServer
                 this.columnProductName.MaxLength = 30;
                 this.columnArticle.MaxLength = 20;
                 this.columnCountry.MaxLength = 25;
-                this.columnNavCode.MaxLength = 6;
+                this.columnNavCode.MaxLength = 8;
                 this.columnStructure.MaxLength = 30;
                 this.columnMessage.MaxLength = 20;
                 this.columnMessage2.MaxLength = 10;
@@ -851,7 +851,7 @@ namespace TSDServer
                                 this.columnDocId,
                                 this.columnDocType}, true));
                 this.columnNavCode.AllowDBNull = false;
-                this.columnNavCode.MaxLength = 6;
+                this.columnNavCode.MaxLength = 8;
                 this.columnDocId.AllowDBNull = false;
                 this.columnDocId.MaxLength = 20;
                 this.columnDocType.AllowDBNull = false;
