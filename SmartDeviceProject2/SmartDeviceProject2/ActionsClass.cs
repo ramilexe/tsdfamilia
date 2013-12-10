@@ -79,6 +79,7 @@ namespace TSDServer
 
             btPrint = BTPrintClass.PrintClass;
             dateFormat.ShortDatePattern = "dd.MM.yyyy";
+            dateFormat.FullDateTimePattern = "dd.MM.yyyy HH:mm:ss";
             dateFormat.DateSeparator = ".";
             nfi.NumberDecimalSeparator = ".";
             nfi.NumberGroupSeparator = "";
@@ -911,7 +912,7 @@ namespace TSDServer
                 if (valueType == typeof(DateTime))
                 {
                     bArrTmp = TSDUtils.CustomEncodingClass.Encoding.GetBytes(
-                        ((DateTime)value).ToString("dd.MM.yyyy",dateFormat));
+                        ((DateTime)value).ToString(dateFormat));
                 }
                 else
                     if (valueType == typeof(Single))
