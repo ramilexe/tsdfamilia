@@ -969,7 +969,7 @@ namespace TSDServer
             //string loadState = string.Empty;
             //StringBuilder sb = new StringBuilder();
             copyStatesb.Length = 0;
-            bool success_upload = false;
+            bool success_upload = true;
 
             try
             {
@@ -1013,7 +1013,9 @@ namespace TSDServer
                             {
                                 copyStatesb.AppendFormat("Терминал не подключен.\n");
                                 copyStatesb.AppendFormat("Файл {0} не скопирован.\n", s);
-                                continue;
+                                //continue;
+
+                                throw new ApplicationException(copyStatesb.ToString());
                             }
 
                             if (!terminalRapi.DeviceFileExists(
@@ -1021,7 +1023,8 @@ namespace TSDServer
                                 Path.GetFileName(s)))
                             {
                                 copyStatesb.AppendFormat("Файл {0} не скопирован - нет данных на терминале.\n", s);
-                                continue;
+                                throw new ApplicationException(copyStatesb.ToString());
+                                //continue;
                             }
 
                             if (System.IO.File.Exists(s))
@@ -1067,7 +1070,7 @@ namespace TSDServer
 
                             */
 
-                            success_upload = true;
+                            success_upload = success_upload & true;
                             //copyStatesb.AppendFormat("Файл {0} скопирован.\n", s);
                             //loadState = "Успешно";
                         }
@@ -1081,12 +1084,14 @@ namespace TSDServer
                         }
                     }
                 }
+                if (success_upload)
+                {
+                    loader.UploadResults();
 
-                loader.UploadResults();
-
-                richTextBox1.AppendText("Загрузка завершена...\n");
-                richTextBox1.AppendText(copyStatesb.ToString());
-                success_upload = true;
+                    richTextBox1.AppendText("Загрузка завершена...\n");
+                    richTextBox1.AppendText(copyStatesb.ToString());
+                    success_upload = true;
+                }
                 //terminalRapi.CopyFileToDevice("register.txt", System.IO.Path.Combine(
                 //        Properties.Settings.Default.TSDDBPAth, "register.txt"));
             }
