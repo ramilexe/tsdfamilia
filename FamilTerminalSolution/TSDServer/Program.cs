@@ -157,22 +157,7 @@ namespace TSDServer
                             "log4netconfig.xml"));
             XmlConfigurator.Configure(fi);
             
-            using (RegistryKey reg =
-                Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows CE Services"))
-            {
-                if (reg == null)
-                {
-                    MessageBox.Show("Не установлен Active Sync или Windows Mobile Device Center (для Vista/Windows 7)",
-                        "Ошибка!", MessageBoxButtons.OK, MessageBoxIcon.Error);
 
-                    return (int)ERRORLEVELS.NotInstalledActiveSync;
-                }
-                //int majorVersion = (int)reg.GetValue("MajorVersion", 0);
-                //int minorVersion = (int)reg.GetValue("MinorVersion", 0);
-                //int buildNumber = (int)reg.GetValue("BuildNumber", 0);
-                //syncVersion = new Version(majorVersion, minorVersion, buildNumber);
-            }
-            
 
             sendmail = new SendMailAttach.SendMailClass(Properties.Settings.Default.AddressFrom,
                 Properties.Settings.Default.UserNameFrom,
@@ -390,6 +375,22 @@ WHERE     (ProductsBinTbl.Barcode = @b)", conn))
             }
             */
             #endregion
+
+            using (RegistryKey reg = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows CE Services"))
+            {
+                if (reg == null)
+                {
+                    MessageBox.Show("Не установлен Active Sync или Windows Mobile Device Center (для Vista/Windows 7)",
+                        "Ошибка!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+                    return (int)ERRORLEVELS.NotInstalledActiveSync;
+                }
+                //int majorVersion = (int)reg.GetValue("MajorVersion", 0);
+                //int minorVersion = (int)reg.GetValue("MinorVersion", 0);
+                //int buildNumber = (int)reg.GetValue("BuildNumber", 0);
+                //syncVersion = new Version(majorVersion, minorVersion, buildNumber);
+            }
+            
 
             try
             {
