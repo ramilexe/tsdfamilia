@@ -26,7 +26,7 @@
               <xs:element name="Article" msprop:Generator_UserColumnName="Article" msprop:nullValue="_empty" msprop:Generator_ColumnVarNameInTable="columnArticle" msprop:Generator_ColumnPropNameInTable="ArticleColumn" msprop:Generator_ColumnPropNameInRow="Article" minOccurs="0">
                 <xs:simpleType>
                   <xs:restriction base="xs:string">
-                    <xs:maxLength value="20" />
+                    <xs:maxLength value="30" />
                   </xs:restriction>
                 </xs:simpleType>
               </xs:element>

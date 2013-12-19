@@ -470,7 +470,7 @@ namespace TSDServer
                 this.columnBarcode.AllowDBNull = false;
                 this.columnBarcode.Unique = true;
                 this.columnProductName.MaxLength = 30;
-                this.columnArticle.MaxLength = 20;
+                this.columnArticle.MaxLength = 30;
                 this.columnCountry.MaxLength = 25;
                 this.columnNavCode.MaxLength = 13;
                 this.columnStructure.MaxLength = 30;
