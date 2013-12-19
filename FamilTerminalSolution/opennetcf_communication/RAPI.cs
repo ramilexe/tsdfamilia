@@ -519,7 +519,7 @@ namespace OpenNETCF.Desktop.Communication
                 }
 
                 // open the local file
-                localFile = new FileStream(LocalFileName, FileMode.Open);
+                localFile = new FileStream(LocalFileName, FileMode.Open,FileAccess.Read);
 
                 totalFileSize = localFile.Length;
                 // read 4k of data
