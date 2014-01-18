@@ -407,6 +407,36 @@ namespace TSDServer
                                 #region box
                                 try
                                 {
+                                    if (row.AcceptDefect == 0)
+                                    {
+                                        /*
+2. Нужно изменить функционирование кнопки "5 - накладные".
+Сначала там вопрос насчет "поданных на возврат" - оставляем как есть.
+Изменения в самом просчете товара.
+* Если поле 11 у товара = 1, то оставляем "как есть"
+* Если поле 11 у товара = 0, то где-то ярко пишем "БРАК"
+при этом посчет товара не меняется, формируетс один файл на накладную, как и сейчас.
+                                         */
+
+                                        label6.Text = row.ProductName.Substring(0,30);
+                                        label5.Text = "      БРАК     ";
+                                        label5.BackColor = Color.Red;
+
+
+                                    }
+                                    else
+                                    {
+                                        
+                                        label5.BackColor = System.Drawing.Color.PaleGreen;
+                                        if (row.ProductName.Length > 15)
+                                        {
+                                            label5.Text = row.ProductName.Substring(0, 15);
+                                            label6.Text = row.ProductName.Substring(15);
+                                        }
+                                        else
+                                            label5.Text = row.ProductName;
+                                    }
+
                                     ProductsDataSet.DocsTblRow docRow =
                                         ActionsClass.Action.GetDataByNavcodeDocIdAndType(row.NavCode,
                                             inventRow.DocId,
