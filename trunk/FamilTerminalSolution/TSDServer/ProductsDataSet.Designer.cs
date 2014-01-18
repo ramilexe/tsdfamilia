@@ -408,6 +408,8 @@ namespace TSDServer {
             
             private global::System.Data.DataColumn columnMessage;
             
+            private global::System.Data.DataColumn columnMessage2;
+            
             private global::System.Data.DataColumn columnAcceptDefect;
             
             private global::System.Data.DataColumn columnMarketPrice;
@@ -506,6 +508,13 @@ namespace TSDServer {
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public global::System.Data.DataColumn Message2Column {
+                get {
+                    return this.columnMessage2;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             public global::System.Data.DataColumn AcceptDefectColumn {
                 get {
                     return this.columnAcceptDefect;
@@ -548,7 +557,7 @@ namespace TSDServer {
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            public ProductsBinTblRow AddProductsBinTblRow(long Barcode, byte[] ProdName, byte[] Article, byte[] Country, byte[] NavCode, byte[] Structure, float OldPrice, float NewPrice, byte[] Message, short AcceptDefect, byte[] MarketPrice) {
+            public ProductsBinTblRow AddProductsBinTblRow(long Barcode, byte[] ProdName, byte[] Article, byte[] Country, byte[] NavCode, byte[] Structure, float OldPrice, float NewPrice, byte[] Message, byte[] Message2, byte AcceptDefect, byte[] MarketPrice) {
                 ProductsBinTblRow rowProductsBinTblRow = ((ProductsBinTblRow)(this.NewRow()));
                 object[] columnValuesArray = new object[] {
                         Barcode,
@@ -560,6 +569,7 @@ namespace TSDServer {
                         OldPrice,
                         NewPrice,
                         Message,
+                        Message2,
                         AcceptDefect,
                         MarketPrice};
                 rowProductsBinTblRow.ItemArray = columnValuesArray;
@@ -601,6 +611,7 @@ namespace TSDServer {
                 this.columnOldPrice = base.Columns["OldPrice"];
                 this.columnNewPrice = base.Columns["NewPrice"];
                 this.columnMessage = base.Columns["Message"];
+                this.columnMessage2 = base.Columns["Message2"];
                 this.columnAcceptDefect = base.Columns["AcceptDefect"];
                 this.columnMarketPrice = base.Columns["MarketPrice"];
             }
@@ -625,7 +636,9 @@ namespace TSDServer {
                 base.Columns.Add(this.columnNewPrice);
                 this.columnMessage = new global::System.Data.DataColumn("Message", typeof(byte[]), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnMessage);
-                this.columnAcceptDefect = new global::System.Data.DataColumn("AcceptDefect", typeof(short), null, global::System.Data.MappingType.Element);
+                this.columnMessage2 = new global::System.Data.DataColumn("Message2", typeof(byte[]), null, global::System.Data.MappingType.Element);
+                base.Columns.Add(this.columnMessage2);
+                this.columnAcceptDefect = new global::System.Data.DataColumn("AcceptDefect", typeof(byte), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnAcceptDefect);
                 this.columnMarketPrice = new global::System.Data.DataColumn("MarketPrice", typeof(byte[]), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnMarketPrice);
@@ -1687,7 +1700,7 @@ namespace TSDServer {
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            public DocsBinTblRow AddDocsBinTblRow(long Barcode, byte[] DocId, short Priority, int Quantity, short RePriceDate, short ReturnDate, int Shablon, byte[] Text1, byte[] Text2, byte[] Text3) {
+            public DocsBinTblRow AddDocsBinTblRow(long Barcode, byte[] DocId, byte Priority, int Quantity, short RePriceDate, short ReturnDate, int Shablon, byte[] Text1, byte[] Text2, byte[] Text3) {
                 DocsBinTblRow rowDocsBinTblRow = ((DocsBinTblRow)(this.NewRow()));
                 object[] columnValuesArray = new object[] {
                         Barcode,
@@ -1749,7 +1762,7 @@ namespace TSDServer {
                 base.Columns.Add(this.columnBarcode);
                 this.columnDocId = new global::System.Data.DataColumn("DocId", typeof(byte[]), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnDocId);
-                this.columnPriority = new global::System.Data.DataColumn("Priority", typeof(short), null, global::System.Data.MappingType.Element);
+                this.columnPriority = new global::System.Data.DataColumn("Priority", typeof(byte), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnPriority);
                 this.columnQuantity = new global::System.Data.DataColumn("Quantity", typeof(int), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnQuantity);
@@ -2389,10 +2402,25 @@ namespace TSDServer {
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            public short AcceptDefect {
+            public byte[] Message2 {
                 get {
                     try {
-                        return ((short)(this[this.tableProductsBinTbl.AcceptDefectColumn]));
+                        return ((byte[])(this[this.tableProductsBinTbl.Message2Column]));
+                    }
+                    catch (global::System.InvalidCastException e) {
+                        throw new global::System.Data.StrongTypingException("The value for column \'Message2\' in table \'ProductsBinTbl\' is DBNull.", e);
+                    }
+                }
+                set {
+                    this[this.tableProductsBinTbl.Message2Column] = value;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public byte AcceptDefect {
+                get {
+                    try {
+                        return ((byte)(this[this.tableProductsBinTbl.AcceptDefectColumn]));
                     }
                     catch (global::System.InvalidCastException e) {
                         throw new global::System.Data.StrongTypingException("The value for column \'AcceptDefect\' in table \'ProductsBinTbl\' is DBNull.", e);
@@ -2496,6 +2524,16 @@ namespace TSDServer {
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             public void SetMessageNull() {
                 this[this.tableProductsBinTbl.MessageColumn] = global::System.Convert.DBNull;
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public bool IsMessage2Null() {
+                return this.IsNull(this.tableProductsBinTbl.Message2Column);
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public void SetMessage2Null() {
+                this[this.tableProductsBinTbl.Message2Column] = global::System.Convert.DBNull;
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -3124,10 +3162,10 @@ namespace TSDServer {
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            public short Priority {
+            public byte Priority {
                 get {
                     try {
-                        return ((short)(this[this.tableDocsBinTbl.PriorityColumn]));
+                        return ((byte)(this[this.tableDocsBinTbl.PriorityColumn]));
                     }
                     catch (global::System.InvalidCastException e) {
                         throw new global::System.Data.StrongTypingException("The value for column \'Priority\' in table \'DocsBinTbl\' is DBNull.", e);
