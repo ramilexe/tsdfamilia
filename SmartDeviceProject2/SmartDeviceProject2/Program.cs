@@ -103,7 +103,8 @@ namespace TSDServer
                         r.BTComPort = 9;
                         r.BTPrinterAddress = "00:03:7a:32:4c:55";
                         r.DatabaseFileName = "products.sdf";
-                        r.DatabaseStoragePath = _startupPath;
+                        r.DatabaseStoragePath = @"\Storage Card\tsdfamilia";
+                            //_startupPath;
                         r.StorageMemorySize = 15000;
                         r.BaseDate = new DateTime(2000, 1, 1);
                         r.ProductsConnectionString = @"Data Source=|DataDirectory|\Products.sdf";
