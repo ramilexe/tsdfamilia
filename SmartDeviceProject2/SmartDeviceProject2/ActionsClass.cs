@@ -912,7 +912,7 @@ namespace TSDServer
                 if (valueType == typeof(DateTime))
                 {
                     bArrTmp = TSDUtils.CustomEncodingClass.Encoding.GetBytes(
-                        ((DateTime)value).ToString(dateFormat));
+                        ((DateTime)value).ToString("dd.MM.yyyy", dateFormat));
                 }
                 else
                     if (valueType == typeof(Single))
