@@ -260,7 +260,7 @@
               <xs:element name="Article" msprop:Generator_UserColumnName="Article" msprop:Generator_ColumnPropNameInRow="Article" msprop:Generator_ColumnVarNameInTable="columnArticle" msprop:Generator_ColumnPropNameInTable="ArticleColumn" minOccurs="0">
                 <xs:simpleType>
                   <xs:restriction base="xs:string">
-                    <xs:maxLength value="20" />
+                    <xs:maxLength value="30" />
                   </xs:restriction>
                 </xs:simpleType>
               </xs:element>
@@ -274,7 +274,7 @@
               <xs:element name="NavCode" msprop:Generator_UserColumnName="NavCode" msprop:Generator_ColumnPropNameInRow="NavCode" msprop:Generator_ColumnVarNameInTable="columnNavCode" msprop:Generator_ColumnPropNameInTable="NavCodeColumn" minOccurs="0">
                 <xs:simpleType>
                   <xs:restriction base="xs:string">
-                    <xs:maxLength value="6" />
+                    <xs:maxLength value="13" />
                   </xs:restriction>
                 </xs:simpleType>
               </xs:element>
